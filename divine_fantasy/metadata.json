@@ -1,0 +1,5 @@
+{
+  "name": "Divine Fantasy v1 - UIs",
+  "description": "A full-screen, responsive game UI component for a dark-themed RPG, built with React, TypeScript, and Tailwind CSS. It features a top HUD, central content area with action buttons, and a bottom navigation bar.",
+  "requestFramePermissions": []
+}

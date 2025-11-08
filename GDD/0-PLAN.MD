@@ -22,21 +22,22 @@ This phase is critical for creating a scalable and maintainable codebase. We wil
     - [x] Move all existing components from `divine_fantasy/components` into `src/components`.
     - [x] Move the `map.jpeg` and any other visual assets into `src/assets/images`.
 
-- [ ] **1.3: Establish Data-Driven Foundation**
-    - [ ] Create all the static JSON files as defined in `7-DATA.MD` within the `src/data/` directory.
+- [x] **1.3: Establish Data-Driven Foundation**
+    - [x] Create all the static JSON files as defined in `7-DATA.MD` within the `src/data/` directory.
         - [x] `character_templates.json`
-        - [ ] `items.json`
-        - [ ] `locations.json`
-        - [ ] `npcs.json`
-        - [ ] `dialogue.json`
-        - [ ] `quests.json`
-        - [ ] `enemies.json`
-        - [ ] `companions.json`
-        - [ ] `recipes.json`
-        - [ ] `jobs.json`
-        - [ ] `xp_table.json`
-        - [ ] `books.json`
-    - [ ] Populate these files with the initial v1.0 content from `6-CONTENT.MD`.
+        - [x] `items.json`
+        - [x] `locations.json`
+        - [x] `npcs.json`
+        - [x] `dialogue.json`
+        - [x] `quests.json`
+        - [x] `enemies.json`
+        - [x] `companions.json`
+        - [x] `recipes.json`
+        - [x] `jobs.json`
+        - [x] `xp_table.json`
+        - [x] `books.json`
+        - [x] `shops.json`
+    - [x] Populate these files with the initial v1.0 content from `6-CONTENT.MD`.
 
 - [ ] **1.4: Initialize State Management & Services**
     - [ ] Create placeholder files for all Zustand stores in `src/stores/` as per `5-ARCHITECTURE.MD`.

@@ -1,0 +1,35 @@
+{
+  "roberta_planks_for_the_past": {
+    "title": "Planks for the Past",
+    "giver_id": "npc_roberta",
+    "description": "Roberta's fishmonger shop is falling apart. She needs help repairing a large hole in the wall.",
+    "stages": [
+      { "id": 0, "text": "I should speak to Roberta at Tide & Trade to see what's troubling her.", "type": "talk", "target": "npc_roberta" },
+      { "id": 1, "text": "I need to find a way to get 10 Wooden Planks to help Roberta.", "type": "gather", "target": "wooden_plank", "quantity": 10 },
+      { "id": 2, "text": "I have the planks. I should use them to repair the wall at Tide & Trade.", "type": "use", "target": "tide_trade" }
+    ],
+    "rewards": {
+      "xp": [{ "skill": "carpentry", "amount": 500 }],
+      "items": [],
+      "currency": 200,
+      "relationship": [{ "npc_id": "npc_roberta", "change": 20 }]
+    }
+  },
+  "rodrick_wolf_pack": {
+    "title": "The Wolf Pack",
+    "giver_id": "npc_rodrick",
+    "description": "Sergeant Rodrick is concerned about a growing wolf pack that has been attacking travelers on the roads near the woods. He needs someone to deal with the pack's leader, a large, scarred alpha wolf.",
+    "stages": [
+      { "id": 0, "text": "I should speak to Corporal Matthias at Mosswatch Keep to get directions.", "type": "talk", "target": "npc_matthias" },
+      { "id": 1, "text": "Sergeant Rodrick wants me to talk to the hunter in the woods.", "type": "talk", "target": "npc_ronald" },
+      { "id": 2, "text": "Ronald offered to help hunt the wolves for half the reward. I need to decide.", "type": "choice", "target": "ronald_offer" },
+      { "id": 3, "text": "I need to hunt the wolf pack in the woods.", "type": "combat", "target": "quest_wolf_pack" }
+    ],
+    "rewards": {
+      "xp": [{ "skill": "attack", "amount": 100 }, { "skill": "defence", "amount": 100 }],
+      "items": [],
+      "currency": 500,
+      "relationship": [{ "npc_id": "npc_rodrick", "change": 15 }]
+    }
+  }
+}

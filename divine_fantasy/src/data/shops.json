@@ -1,0 +1,37 @@
+{
+  "shop_beryls_general": {
+    "name": "Beryl's General Goods",
+    "merchant_id": "npc_beryl",
+    "buy_price_modifier": 1.15,
+    "sell_price_modifier": 0.85,
+    "inventory": [
+      { "item_id": "axe_basic", "stock": 5 },
+      { "item_id": "fishing_rod", "stock": 5 },
+      { "item_id": "nails", "stock": -1 },
+      { "item_id": "cloth", "stock": -1 },
+      { "item_id": "bread", "stock": -1 },
+      { "item_id": "cheese", "stock": -1 }
+    ]
+  },
+  "shop_tide_trade": {
+    "name": "Tide & Trade",
+    "merchant_id": "npc_roberta",
+    "buy_price_modifier": 1.1,
+    "sell_price_modifier": 0.9,
+    "inventory": [
+      { "item_id": "fish_sardine", "stock": -1 },
+      { "item_id": "fish_trout", "stock": -1 }
+    ]
+  },
+  "shop_salty_mug": {
+    "name": "Salty Mug",
+    "merchant_id": "npc_finn",
+    "buy_price_modifier": 1.2,
+    "sell_price_modifier": 0.8,
+    "inventory": [
+      { "item_id": "food_sardine_grilled", "stock": -1 },
+      { "item_id": "food_trout_grilled", "stock": -1 },
+      { "item_id": "ale", "stock": -1 }
+    ]
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "log": {
+    "name": "Log",
+    "description": "A rough log, needs to be processed.",
+    "type": "resource",
+    "stackable": true,
+    "weight": 5.0,
+    "base_value": 2
+  },
+  "wooden_plank": {
+    "name": "Wooden Plank",
+    "description": "A sturdy plank, ready for construction.",
+    "type": "resource",
+    "stackable": true,
+    "weight": 2.5,
+    "base_value": 5
+  },
+  "fish_sardine": {
+    "name": "Raw Sardine",
+    "description": "A small, oily saltwater fish. Best when cooked.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.3,
+    "base_value": 4,
+    "effects": {
+      "hunger": -5
+    }
+  },
+  "fish_trout": {
+    "name": "Raw Trout",
+    "description": "A common freshwater fish. Best when cooked.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.6,
+    "base_value": 7,
+    "effects": {
+      "hunger": -10
+    }
+  },
+  "fish_pike": {
+    "name": "Raw Pike",
+    "description": "A large, predatory freshwater fish. Best when cooked.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 1.2,
+    "base_value": 15,
+    "effects": {
+      "hunger": -20
+    }
+  },
+  "food_sardine_grilled": {
+    "name": "Grilled Sardine",
+    "description": "A sardine, grilled over an open flame. Restores a small amount of hunger.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.3,
+    "base_value": 10,
+    "effects": {
+      "hunger": -15
+    }
+  },
+  "food_trout_grilled": {
+    "name": "Grilled Trout",
+    "description": "A trout, grilled over an open flame. Restores a moderate amount of hunger.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.6,
+    "base_value": 18,
+    "effects": {
+      "hunger": -30
+    }
+  },
+  "food_pike_grilled": {
+    "name": "Grilled Pike",
+    "description": "A pike, grilled over an open flame. Restores a large amount of hunger.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 1.2,
+    "base_value": 35,
+    "effects": {
+      "hunger": -60
+    }
+  },
+  "wolf_pelt": {
+    "name": "Wolf Pelt",
+    "description": "A pelt from a forest wolf.",
+    "type": "resource",
+    "stackable": true,
+    "weight": 1.0,
+    "base_value": 15
+  },
+  "axe_basic": {
+    "name": "Basic Axe",
+    "description": "A simple axe for chopping wood.",
+    "type": "tool",
+    "stackable": false,
+    "weight": 3.0,
+    "base_value": 50,
+    "equip_slot": "main_hand"
+  },
+  "fishing_rod": {
+    "name": "Fishing Rod",
+    "description": "A basic rod for catching fish.",
+    "type": "tool",
+    "stackable": false,
+    "weight": 1.5,
+    "base_value": 40,
+    "equip_slot": "main_hand"
+  },
+  "hammer": {
+    "name": "Hammer",
+    "description": "Used for construction and repairs.",
+    "type": "tool",
+    "stackable": false,
+    "weight": 2.0,
+    "base_value": 30,
+    "equip_slot": "main_hand"
+  },
+  "nails": {
+    "name": "Nails",
+    "description": "Essential for carpentry.",
+    "type": "resource",
+    "stackable": true,
+    "weight": 0.1,
+    "base_value": 1
+  },
+  "bread": {
+    "name": "Bread",
+    "description": "A loaf of fresh bread.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.5,
+    "base_value": 5,
+    "effects": {
+      "hunger": -20
+    }
+  },
+  "cheese": {
+    "name": "Cheese",
+    "description": "A wedge of cheese.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.3,
+    "base_value": 8,
+    "effects": {
+      "hunger": -15
+    }
+  },
+  "cloth": {
+    "name": "Cloth",
+    "description": "A piece of cloth.",
+    "type": "resource",
+    "stackable": true,
+    "weight": 0.2,
+    "base_value": 10
+  },
+  "ale": {
+    "name": "Ale",
+    "description": "A mug of ale.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.5,
+    "base_value": 4,
+    "effects": {
+      "energy": 10
+    }
+  }
+}

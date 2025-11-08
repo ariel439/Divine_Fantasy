@@ -6,10 +6,9 @@ This document defines the technical structure for all static JSON data files tha
 
 ## 7.A. `locations.json`
 
-Defines all playable areas in the game, including their descriptive text, imagery, and available actions. New entries for `driftwatch_noble_quarter`, `mosswatch_keep`, `grand_library`, and `tidehunter_barracks` will be added.
+Defines all playable areas in the game, including their descriptive text, imagery, and available actions.
 
 ### Schema
-
 ```json
 {
   "location_id": {
@@ -22,18 +21,16 @@ Defines all playable areas in the game, including their descriptive text, imager
     "actions": [
       {
         "text": "string",
-        "type": "string (navigate|dialogue|shop|fish|woodcut|...)",
-        "target": "string (location_id|npc_id|shop_id|...)",
-        //... other action-specific data
+        "type": "string (navigate|dialogue|shop|fish|woodcut|job|...)",
+        "target": "string (location_id|npc_id|shop_id|job_id|...)",
+        "condition": "string (optional - e.g., 'world_flags.roberta_shop_repaired==false')"
       }
-    ],
-    //... skilling data, etc.
+    ]
   }
 }
 ```
 
 ### Example: `tide_trade` (Roberta's Shop)
-
 ```json
 {
   "tide_trade": {
@@ -44,21 +41,9 @@ Defines all playable areas in the game, including their descriptive text, imager
     "night_background": "GDD/assets/images/locations/tide_trade_night_damaged.png",
     "music_track": "GDD/assets/audio/music/shops.mp3",
     "actions": [
-      {
-        "text": "Talk to Roberta",
-        "type": "dialogue",
-        "target": "npc_roberta"
-      },
-      {
-        "text": "Trade",
-        "type": "shop",
-        "target": "shop_tide_trade"
-      },
-      {
-        "text": "Navigate to Docks",
-        "type": "navigate",
-        "target": "driftwatch_docks"
-      }
+      { "text": "Talk to Roberta", "type": "dialogue", "target": "npc_roberta" },
+      { "text": "Trade", "type": "shop", "target": "shop_tide_trade" },
+      { "text": "Navigate to Docks", "type": "navigate", "target": "driftwatch_docks" }
     ]
   }
 }
@@ -68,28 +53,26 @@ Defines all playable areas in the game, including their descriptive text, imager
 
 ## 7.B. `npcs.json`
 
-Defines all non-player characters, their home locations, and default dialogue greetings. New entries for `npc_matthias` and `npc_rodrick` will be added.
+Defines all non-player characters, their home locations, and default dialogue greetings.
 
 ### Schema
-
 ```json
 {
   "npc_id": {
     "name": "string",
     "home_location": "string (location_id)",
-    "default_greeting": "string"
+    "default_dialogue_id": "string (ID from dialogue.json)"
   }
 }
 ```
 
 ### Example: `npc_roberta`
-
 ```json
 {
   "npc_roberta": {
     "name": "Roberta",
     "home_location": "tide_trade",
-    "default_greeting": "(Sighs) Another splinter. Just what I needed."
+    "default_dialogue_id": "roberta_default"
   }
 }
 ```
@@ -98,33 +81,41 @@ Defines all non-player characters, their home locations, and default dialogue gr
 
 ## 7.C. `items.json`
 
-Defines all items in the game, including their properties and what they can be used for.
+Defines all items in the game. This schema is now corrected to include `base_value` and a structured `effects` object.
 
 ### Schema
-
 ```json
 {
   "item_id": {
     "name": "string",
     "description": "string",
-    "type": "string (resource|consumable|tool|quest)",
+    "type": "string (resource|consumable|tool|quest|weapon|armor)",
     "stackable": "boolean",
     "weight": "number (in kg)",
-    //... other item-specific data (e.g., hunger_restored)
+    "base_value": "number (in copper)",
+    "effects": {
+      "hunger": "number (optional)",
+      "hp": "number (optional)",
+      "energy": "number (optional)"
+    },
+    "equip_slot": "string (optional - e.g., 'main_hand', 'chest')"
   }
 }
 ```
 
-### Example: `wooden_plank`
-
+### Example: `food_sardine_grilled`
 ```json
 {
-  "wooden_plank": {
-    "name": "Wooden Plank",
-    "description": "A sturdy plank of wood, useful for construction.",
-    "type": "resource",
+  "food_sardine_grilled": {
+    "name": "Grilled Sardine",
+    "description": "A sardine, grilled over an open flame. Restores a small amount of hunger.",
+    "type": "consumable",
     "stackable": true,
-    "weight": 0.5
+    "weight": 0.3,
+    "base_value": 10,
+    "effects": {
+      "hunger": -15
+    }
   }
 }
 ```
@@ -133,60 +124,54 @@ Defines all items in the game, including their properties and what they can be u
 
 ## 7.D. `quests.json`
 
-Defines all quests, their objectives, and the dialogue trees associated with them. A new entry for `quest_wolf_pack` will be added.
+Defines all quests, their objectives, and rewards.
 
 ### Schema
-
 ```json
 {
   "quest_id": {
     "title": "string",
     "giver_id": "string (npc_id)",
     "description": "string",
-    "objectives": [
+    "stages": [
       {
-        "id": "string",
-        "text": "string",
-        "type": "string (talk|gather|use|...)",
-        //... other objective-specific data
+        "id": "number",
+        "text": "string (journal entry for this stage)",
+        "type": "string (talk|gather|use|choice|...)",
+        "target": "string (e.g., npc_id, item_id)",
+        "quantity": "number (optional)"
       }
     ],
-    "dialogue_tree": {
-      // ... see dialogue example in 6-CONTENT.MD
+    "rewards": {
+      "xp": [ { "skill": "string", "amount": "number" } ],
+      "items": [ { "item_id": "string", "quantity": "number" } ],
+      "currency": "number (in copper)",
+      "relationship": [ { "npc_id": "string", "change": "number" } ]
     }
   }
 }
 ```
 
 ### Example: `roberta_planks_for_the_past`
-
 ```json
 {
   "roberta_planks_for_the_past": {
     "title": "Planks for the Past",
     "giver_id": "npc_roberta",
-    "description": "Roberta's fishmonger shop is falling apart. She needs wooden planks and other materials to repair a large hole in the wall.",
-    "objectives": [
-      {
-        "id": "start",
-        "text": "Speak to Roberta about her troubles.",
-        "type": "talk"
-      },
-      {
-        "id": "gather_wood",
-        "text": "Gather 10 Wooden Planks.",
-        "type": "gather",
-        "item_id": "wooden_plank",
-        "quantity": 10
-      },
-      {
-        "id": "repair_wall",
-        "text": "Repair the wall at Tide & Trade.",
-        "type": "use",
-        "required_items": ["hammer", "nails"]
-      },
-  ]}
+    "description": "Roberta's fishmonger shop is falling apart. She needs help repairing a large hole in the wall.",
+    "stages": [
+      { "id": 0, "text": "I should speak to Roberta at Tide & Trade to see what's troubling her.", "type": "talk", "target": "npc_roberta" },
+      { "id": 1, "text": "I need to find a way to get 10 Wooden Planks to help Roberta.", "type": "gather", "target": "wooden_plank", "quantity": 10 },
+      { "id": 2, "text": "I have the planks. I should use them to repair the wall at Tide & Trade.", "type": "use", "target": "tide_trade" }
+    ],
+    "rewards": {
+      "xp": [{ "skill": "carpentry", "amount": 500 }],
+      "currency": 200,
+      "relationship": [{ "npc_id": "npc_roberta", "change": 20 }]
+    }
+  }
 }
+```
 ---
 
 ## 7.E. `books.json`
@@ -194,7 +179,6 @@ Defines all quests, their objectives, and the dialogue trees associated with the
 Defines all readable books in the game.
 
 ### Schema
-
 ```json
 {
   "book_id": {
@@ -206,67 +190,44 @@ Defines all readable books in the game.
 ```
 
 ### Example: `book_odran_fall`
-
 ```json
 {
   "book_odran_fall": {
     "title": "The Fall of House Odran",
-    "author": "Anonymous",
-    "content": "..."
+    "author": "Maester Aristeles",
+    "content": "Odran's Rebellion was a pivotal moment in the history of The Whispers..."
   }
 }
 ```
 
 ---
 
-## 7.F. `enemies.json` (New)
+## 7.F. `enemies.json`
 
 Defines all enemy types, their stats, and loot tables.
 
 ### Schema
-
 ```json
 {
   "enemy_id": {
     "name": "string",
-    "stats": {
-      "hp": "number",
-      "attack": "number",
-      "defence": "number"
-    },
+    "stats": { "hp": "number", "attack": "number", "defence": "number", "agility": "number" },
     "loot_table": [
-      {
-        "item_id": "string",
-        "quantity": "number",
-        "chance": "number (0-1)"
-      }
+      { "item_id": "string", "quantity": "number", "chance": "number (0-1)" }
     ]
   }
 }
 ```
 
 ### Example: `wolf_alpha`
-
 ```json
 {
   "wolf_alpha": {
     "name": "Alpha Wolf",
-    "stats": {
-      "hp": 80,
-      "attack": 15,
-      "defence": 8
-    },
+    "stats": { "hp": 80, "attack": 15, "defence": 8, "agility": 12 },
     "loot_table": [
-      {
-        "item_id": "wolf_pelt_alpha",
-        "quantity": 1,
-        "chance": 1
-      },
-      {
-        "item_id": "wolf_fang",
-        "quantity": 2,
-        "chance": 0.5
-      }
+      { "item_id": "wolf_pelt_alpha", "quantity": 1, "chance": 1 },
+      { "item_id": "wolf_fang", "quantity": 2, "chance": 0.5 }
     ]
   }
 }
@@ -274,43 +235,197 @@ Defines all enemy types, their stats, and loot tables.
 
 ---
 
-## 7.G. `companions.json` (New)
+## 7.G. `companions.json`
 
-Defines the base data for all potential companions in the game.
+Defines the base data for all potential companions.
 
 ### Schema
-
 ```json
 {
   "companion_id": {
     "name": "string",
     "role": "string (e.g., Hunter, Warrior)",
-    "stats": {
-      "hp": "number",
-      "attack": "number",
-      "defence": "number"
+    "stats": { "hp": "number", "attack": "number", "defence": "number", "agility": "number" },
+    "abilities": [ "string (ability_id)" ]
+  }
+}
+```
+
+### Example: `companion_ronald`
+```json
+{
+  "companion_ronald": {
+    "name": "Ronald",
+    "role": "Hunter",
+    "stats": { "hp": 100, "attack": 12, "defence": 5, "agility": 15 },
+    "abilities": [ "ability_aimed_shot" ]
+  }
+}
+```
+
+---
+
+## 7.H. `character_templates.json` (New)
+
+Defines starting templates for new characters.
+
+### Schema
+```json
+{
+  "template_id": {
+    "name": "string",
+    "archetype": "string",
+    "description": "string",
+    "starting_attributes": { "Strength": "number", "Agility": "number", "Intelligence": "number", "Wisdom": "number", "Charisma": "number" },
+    "starting_bonuses": {
+      "currency": { "copper": "number", "silver": "number", "gold": "number" },
+      "skills": [ { "skill_id": "string", "xp": "number" } ],
+      "items": [ { "item_id": "string", "quantity": "number" } ]
     },
-    "abilities": [
-      "string (ability_id)"
+    "starting_relationships": { "npc_id": { "friendship": "number" } }
+  }
+}
+```
+
+---
+
+## 7.I. `dialogue.json` (New)
+
+Defines all branching dialogue trees.
+
+### Schema
+```json
+{
+  "dialogue_id": {
+    "nodes": {
+      "node_id": {
+        "npc_text": "string",
+        "player_choices": [
+          {
+            "text": "string",
+            "next_node": "string (node_id)",
+            "condition": "string (optional - e.g., 'quest.roberta_planks.stage==1')",
+            "action": "string (optional - e.g., 'start_quest:roberta_planks')",
+            "closes_dialogue": "boolean (optional)"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+---
+
+## 7.J. `recipes.json` (New)
+
+Defines all crafting recipes.
+
+### Schema
+```json
+{
+  "recipe_id": {
+    "name": "string",
+    "skill": "string (e.g., cooking, carpentry)",
+    "level_required": "number",
+    "xp_granted": "number",
+    "output": { "item_id": "string", "quantity": "number" },
+    "ingredients": [ { "item_id": "string", "quantity": "number" } ],
+    "time_cost_minutes": "number"
+  }
+}
+```
+
+### Example: `recipe_sardine_grilled`
+```json
+{
+  "recipe_sardine_grilled": {
+    "name": "Grilled Sardine",
+    "skill": "cooking",
+    "level_required": 1,
+    "xp_granted": 10,
+    "output": { "item_id": "food_sardine_grilled", "quantity": 1 },
+    "ingredients": [ { "item_id": "fish_sardine", "quantity": 1 } ],
+    "time_cost_minutes": 5
+  }
+}
+```
+
+---
+
+## 7.K. `jobs.json` (New)
+
+Defines all available jobs.
+
+### Schema
+```json
+{
+  "job_id": {
+    "title": "string",
+    "description": "string",
+    "location_id": "string",
+    "supervisor_id": "string (npc_id)",
+    "pay_per_shift": "number (in copper)",
+    "energy_cost": "number",
+    "schedule": {
+      "start_hour": "number",
+      "end_hour": "number",
+      "late_grace_period_hours": "number"
+    }
+  }
+}
+```
+
+---
+
+## 7.L. `xp_table.json` (New)
+
+Defines the total XP required for each skill level.
+
+### Schema
+```json
+{
+  "levels": [
+    { "level": 1, "total_xp": 0 },
+    { "level": 2, "total_xp": 83 },
+    // ... up to level 99
+  ]
+}
+```
+
+---
+
+## 7.M. `shops.json` (New)
+
+Defines the inventories and price modifiers for all shops.
+
+### Schema
+```json
+{
+  "shop_id": {
+    "name": "string",
+    "merchant_id": "string (npc_id)",
+    "buy_price_modifier": "number (e.g., 1.1 for 10% markup)",
+    "sell_price_modifier": "number (e.g., 0.9 for 10% markdown)",
+    "inventory": [
+      { "item_id": "string", "stock": "number (-1 for infinite)" }
     ]
   }
 }
 ```
 
-### Example: `ronald`
-
+### Example: `shop_beryls_general`
 ```json
 {
-  "ronald": {
-    "name": "Ronald",
-    "role": "Hunter",
-    "stats": {
-      "hp": 100,
-      "attack": 12,
-      "defence": 5
-    },
-    "abilities": [
-      "ability_aimed_shot"
+  "shop_beryls_general": {
+    "name": "Beryl's General Goods",
+    "merchant_id": "npc_beryl",
+    "buy_price_modifier": 1.15,
+    "sell_price_modifier": 0.85,
+    "inventory": [
+      { "item_id": "axe_basic", "stock": 5 },
+      { "item_id": "fishing_rod", "stock": 5 },
+      { "item_id": "bread", "stock": -1 }
     ]
   }
 }

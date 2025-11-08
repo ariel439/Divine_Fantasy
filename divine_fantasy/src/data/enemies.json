@@ -1,0 +1,16 @@
+{
+  "wolf_forest": {
+    "name": "Forest Wolf",
+    "stats": { "hp": 50, "attack": 8, "defence": 4, "agility": 10 },
+    "loot_table": [
+      { "item_id": "wolf_pelt", "quantity": 1, "chance": 1 }
+    ]
+  },
+  "wolf_alpha": {
+    "name": "Alpha Wolf",
+    "stats": { "hp": 100, "attack": 15, "defence": 8, "agility": 12 },
+    "loot_table": [
+      { "item_id": "wolf_pelt", "quantity": 2, "chance": 1 }
+    ]
+  }
+}

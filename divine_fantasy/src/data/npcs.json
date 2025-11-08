@@ -1,0 +1,107 @@
+{
+  "npc_beryl": {
+    "name": "Beryl",
+    "home_location": "beryls_general_goods",
+    "default_dialogue_id": "beryl_default"
+  },
+  "npc_kaelen": {
+    "name": "Kaelen",
+    "home_location": "kaelens_forge",
+    "default_dialogue_id": "kaelen_default"
+  },
+  "npc_cyrus": {
+    "name": "Cyrus",
+    "home_location": "kaelens_forge",
+    "default_dialogue_id": "cyrus_default"
+  },
+  "npc_adalia": {
+    "name": "Adalia",
+    "home_location": "grand_library",
+    "default_dialogue_id": "adalia_default"
+  },
+  "npc_matthias": {
+    "name": "Corporal Matthias",
+    "home_location": "mosswatch_keep",
+    "default_dialogue_id": "matthias_default"
+  },
+  "npc_rodrick": {
+    "name": "Sergeant Rodrick",
+    "home_location": "tidehunter_quarter",
+    "default_dialogue_id": "rodrick_default"
+  },
+  "npc_boric": {
+    "name": "Boric",
+    "home_location": "driftwatch_docks",
+    "default_dialogue_id": "boric_default"
+  },
+  "npc_elias_captain": {
+    "name": "Captain Elias",
+    "home_location": "driftwatch_docks",
+    "default_dialogue_id": "elias_default"
+  },
+  "npc_roberta": {
+    "name": "Roberta",
+    "home_location": "tide_trade",
+    "default_dialogue_id": "roberta_default"
+  },
+  "npc_finn": {
+    "name": "Finn",
+    "home_location": "salty_mug",
+    "default_dialogue_id": "finn_default"
+  },
+  "npc_old_crank": {
+    "name": "Old Crank",
+    "home_location": "salty_mug",
+    "default_dialogue_id": "old_crank_default"
+  },
+  "npc_elara": {
+    "name": "Elara",
+    "home_location": "herbalists_hovel",
+    "default_dialogue_id": "elara_default"
+  },
+  "npc_crawler": {
+    "name": "Crawler",
+    "home_location": "sawmill",
+    "default_dialogue_id": "crawler_default"
+  },
+  "npc_ronald": {
+    "name": "Ronald",
+    "home_location": "driftwatch_woods",
+    "default_dialogue_id": "ronald_default"
+  },
+  "npc_ben": {
+    "name": "Ben",
+    "home_location": "homestead_farm",
+    "default_dialogue_id": "ben_default"
+  },
+  "npc_elisa": {
+    "name": "Elisa",
+    "home_location": "homestead_farm",
+    "default_dialogue_id": "elisa_default"
+  },
+  "npc_rowan": {
+    "name": "Rowan",
+    "home_location": "homestead_farm",
+    "default_dialogue_id": "rowan_default"
+  },
+  "npc_old_leo": {
+    "name": "Old Leo",
+    "home_location": "leo_lighthouse",
+    "default_dialogue_id": "old_leo_default"
+  },
+  "npc_sarah": {
+    "name": "Sarah",
+    "home_location": "leo_lighthouse",
+    "default_dialogue_id": "sarah_default"
+  },
+  "npc_robert": {
+    "name": "Robert",
+    "home_location": "leo_lighthouse",
+    "default_dialogue_id": "robert_default"
+  },
+  "npc_kyle": {
+    "name": "Kyle",
+    "home_location": "leo_lighthouse",
+    "default_dialogue_id": "kyle_default"
+  }
+}

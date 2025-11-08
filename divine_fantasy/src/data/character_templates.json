@@ -1,0 +1,27 @@
+{
+  "luke_orphan": {
+    "template_id": "luke_orphan",
+    "name": "Luke",
+    "archetype": "The Driftwatch Orphan",
+    "description": "Grew up in Leo's Lighthouse orphanage in Driftwatch. His mother Elara died in childbirth and his fisherman father Gareth was lost to a squall. Cared for by Old Leo, he found a new family in his fellow orphans. A difficult start, but his sharp mind and hidden potential may be key to his future.",
+    "starting_attributes": {
+      "Strength": 4,
+      "Agility": 6,
+      "Intelligence": 8,
+      "Wisdom": 5,
+      "Charisma": 3
+    },
+    "starting_bonuses": {
+      "currency": { "copper": 20, "silver": 0, "gold": 0 },
+      "skills": [],
+      "items": []
+    },
+    "starting_relationships": {
+      "npc_old_leo": { "friendship": 80 },
+      "npc_sarah": { "friendship": 90 },
+      "npc_robert": { "friendship": 70 },
+      "npc_kyle": { "friendship": 70 }
+    },
+    "gameplay_notes": "The 'standard' but most difficult start. High INT provides good long-term XP bonuses for building/crafting skills. Low CHA will make all early social encounters challenging."
+  }
+}

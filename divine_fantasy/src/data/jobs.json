@@ -1,0 +1,15 @@
+{
+  "job_dockhand": {
+    "title": "Dockhand",
+    "description": "Perform manual labor at the bustling Driftwatch Docks. Tasks include loading and unloading cargo, cleaning, and other physically demanding duties.",
+    "location_id": "driftwatch_docks",
+    "supervisor_id": "npc_boric",
+    "pay_per_shift": 20,
+    "energy_cost": 60,
+    "schedule": {
+      "start_hour": 8,
+      "end_hour": 16,
+      "late_grace_period_hours": 2
+    }
+  }
+}

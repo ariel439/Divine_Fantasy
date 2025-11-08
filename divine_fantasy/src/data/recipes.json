@@ -1,0 +1,38 @@
+{
+  "recipe_grilled_sardine": {
+    "name": "Grilled Sardine",
+    "skill": "cooking",
+    "level_required": 1,
+    "xp_granted": 10,
+    "output": { "item_id": "food_sardine_grilled", "quantity": 1 },
+    "ingredients": [{ "item_id": "fish_sardine", "quantity": 1 }],
+    "time_cost_minutes": 5
+  },
+  "recipe_grilled_trout": {
+    "name": "Grilled Trout",
+    "skill": "cooking",
+    "level_required": 1,
+    "xp_granted": 25,
+    "output": { "item_id": "food_trout_grilled", "quantity": 1 },
+    "ingredients": [{ "item_id": "fish_trout", "quantity": 1 }],
+    "time_cost_minutes": 8
+  },
+  "recipe_grilled_pike": {
+    "name": "Grilled Pike",
+    "skill": "cooking",
+    "level_required": 5,
+    "xp_granted": 50,
+    "output": { "item_id": "food_pike_grilled", "quantity": 1 },
+    "ingredients": [{ "item_id": "fish_pike", "quantity": 1 }],
+    "time_cost_minutes": 12
+  },
+  "recipe_wooden_plank": {
+    "name": "Wooden Plank",
+    "skill": "carpentry",
+    "level_required": 1,
+    "xp_granted": 25,
+    "output": { "item_id": "wooden_plank", "quantity": 1 },
+    "ingredients": [{ "item_id": "log", "quantity": 1 }],
+    "time_cost_minutes": 15
+  }
+}

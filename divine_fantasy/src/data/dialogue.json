@@ -1,0 +1,421 @@
+{
+  "beryl_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Welcome to Beryl's General Goods! What can I get for you today?",
+        "player_choices": [
+          {
+            "text": "Just browsing.",
+            "next_node": "1",
+            "closes_dialogue": true
+          },
+          {
+            "text": "Tell me about the town.",
+            "next_node": "2",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Take your time, dear.",
+        "player_choices": []
+      },
+      "2": {
+        "npc_text": "Driftwatch is a fine place, full of hardworking folk. If you need supplies, I'm your gal.",
+        "player_choices": []
+      }
+    }
+  },
+  "kaelen_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "The forge is hot today. What brings you here?",
+        "player_choices": [
+          {
+            "text": "Just looking around.",
+            "next_node": "1",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Mind the heat.",
+        "player_choices": []
+      }
+    }
+  },
+  "cyrus_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "I'm Cyrus, apprentice to Kaelen. Need something forged?",
+        "player_choices": [
+          {
+            "text": "Not right now.",
+            "next_node": "1",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Alright then.",
+        "player_choices": []
+      }
+    }
+  },
+  "adalia_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Ah, a visitor to the library. Knowledge is power, young one.",
+        "player_choices": [
+          {
+            "text": "I'd like to read some books.",
+            "next_node": "1",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Feel free to browse.",
+        "player_choices": []
+      }
+    }
+  },
+  "matthias_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Halt! What business do you have at Mosswatch Keep?",
+        "player_choices": [
+          {
+            "text": "I'm looking for work.",
+            "next_node": "1",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Try Sergeant Rodrick in the Tidehunter Quarter.",
+        "player_choices": []
+      }
+    }
+  },
+  "rodrick_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "What do you want, kid?",
+        "player_choices": [
+          {
+            "text": "I heard about a wolf problem.",
+            "next_node": "1",
+            "action": "start_quest:rodrick_wolf_pack",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Talk to the hunter in the woods.",
+        "player_choices": []
+      }
+    }
+  },
+  "boric_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Dockhand work pays 20 copper a shift. Interested?",
+        "player_choices": [
+          {
+            "text": "Yes, hire me.",
+            "next_node": "1",
+            "action": "hire_job:job_dockhand",
+            "closes_dialogue": true
+          },
+          {
+            "text": "Not now.",
+            "next_node": "2",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Report to the docks during shift hours.",
+        "player_choices": []
+      },
+      "2": {
+        "npc_text": "Suit yourself.",
+        "player_choices": []
+      }
+    }
+  },
+  "elias_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Ahoy! Captain Elias at your service. What tales do you bring?",
+        "player_choices": [
+          {
+            "text": "Just passing through.",
+            "next_node": "1",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Safe travels.",
+        "player_choices": []
+      }
+    }
+  },
+  "roberta_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "My shop's falling apart. Can you help?",
+        "player_choices": [
+          {
+            "text": "What's the problem?",
+            "next_node": "1",
+            "action": "start_quest:roberta_planks_for_the_past",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "A hole in the wall. Need planks to fix it.",
+        "player_choices": []
+      }
+    }
+  },
+  "finn_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Welcome to the Salty Mug. Drink or room?",
+        "player_choices": [
+          {
+            "text": "Just a drink.",
+            "next_node": "1",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Enjoy.",
+        "player_choices": []
+      }
+    }
+  },
+  "old_crank_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Bah! Another whelp in the tavern.",
+        "player_choices": [
+          {
+            "text": "Ignore him.",
+            "next_node": "1",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Hmph.",
+        "player_choices": []
+      }
+    }
+  },
+  "elara_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Herbs and potions, stranger. What do you seek?",
+        "player_choices": [
+          {
+            "text": "Nothing right now.",
+            "next_node": "1",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Come back when you need.",
+        "player_choices": []
+      }
+    }
+  },
+  "crawler_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Logs to planks? 5 copper per log.",
+        "player_choices": [
+          {
+            "text": "Convert some logs.",
+            "next_node": "1",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Bring 'em here.",
+        "player_choices": []
+      }
+    }
+  },
+  "ronald_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "The woods are dangerous. What brings you?",
+        "player_choices": [
+          {
+            "text": "About the wolves...",
+            "next_node": "1",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "I can help hunt them, but I want half the reward.",
+        "player_choices": [
+          {
+            "text": "Deal.",
+            "next_node": "2",
+            "action": "recruit_companion:companion_ronald",
+            "closes_dialogue": true
+          },
+          {
+            "text": "No thanks.",
+            "next_node": "3",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "2": {
+        "npc_text": "Let's go.",
+        "player_choices": []
+      },
+      "3": {
+        "npc_text": "Your loss.",
+        "player_choices": []
+      }
+    }
+  },
+  "ben_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Hard work on the farm. What can I do for you?",
+        "player_choices": [
+          {
+            "text": "Just visiting.",
+            "next_node": "1",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Alright.",
+        "player_choices": []
+      }
+    }
+  },
+  "elisa_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Welcome to the farm.",
+        "player_choices": [
+          {
+            "text": "Hello.",
+            "next_node": "1",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Take care.",
+        "player_choices": []
+      }
+    }
+  },
+  "rowan_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "I'm Rowan. What?",
+        "player_choices": [
+          {
+            "text": "Nothing.",
+            "next_node": "1",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Okay.",
+        "player_choices": []
+      }
+    }
+  },
+  "old_leo_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Welcome home, child.",
+        "player_choices": [
+          {
+            "text": "Thanks, Old Leo.",
+            "next_node": "1",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Stay safe.",
+        "player_choices": []
+      }
+    }
+  },
+  "sarah_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Hi Luke!",
+        "player_choices": [
+          {
+            "text": "Hi Sarah.",
+            "next_node": "1",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "See you later.",
+        "player_choices": []
+      }
+    }
+  },
+  "robert_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Hey Luke.",
+        "player_choices": [
+          {
+            "text": "Hey Robert.",
+            "next_node": "1",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Later.",
+        "player_choices": []
+      }
+    }
+  },
+  "kyle_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Luke!",
+        "player_choices": [
+          {
+            "text": "Kyle.",
+            "next_node": "1",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Bye.",
+        "player_choices": []
+      }
+    }
+  }
+}

@@ -39,11 +39,27 @@ This phase is critical for creating a scalable and maintainable codebase. We wil
         - [x] `shops.json`
     - [x] Populate these files with the initial v1.0 content from `6-CONTENT.MD`.
 
-- [ ] **1.4: Initialize State Management & Services**
-    - [ ] Create placeholder files for all Zustand stores in `src/stores/` as per `5-ARCHITECTURE.MD`.
-        - e.g., `useCharacterStore.ts`, `useWorldTimeStore.ts`, etc.
-    - [ ] Create placeholder files for all core services in `src/services/`.
-        - e.g., `SaveLoadService.ts`, `GameManagerService.ts`, etc.
+- [x] **1.4: Initialize State Management & Services**
+    - [x] Create placeholder files for all Zustand stores in `src/stores/` as per `5-ARCHITECTURE.MD`.
+        - [x] `useCharacterStore.ts`
+        - [x] `useDiaryStore.ts`
+        - [x] `useInventoryStore.ts`
+        - [x] `useJournalStore.ts`
+        - [x] `useSkillStore.ts`
+        - [x] `useAudioStore.ts`
+        - [x] `useShopStore.ts`
+        - [x] `useRoomStore.ts`
+        - [x] `useUIStore.ts`
+        - [x] `useJobStore.ts`
+        - [x] `useWorldTimeStore.ts`
+        - [x] `useEnvironmentStore.ts`
+        - [x] `useWorldStateStore.ts`
+        - [x] `useCompanionStore.ts`
+    - [x] Create placeholder files for all core services in `src/services/`.
+        - [x] `SaveLoadService.ts`
+        - [x] `GameManagerService.ts`
+        - [x] `DialogueService.ts`
+        - [x] `FormattingService.ts`
 
 ---
 

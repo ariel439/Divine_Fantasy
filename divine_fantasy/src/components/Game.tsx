@@ -4,7 +4,7 @@ import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import MainMenu from './screens/MainMenu';
 import CharacterSelection from './screens/CharacterSelection';
 import EventScreen from './screens/EventScreen';
-import InGameUI from './screens/InGameUI';
+import LocationScreen from './screens/LocationScreen';
 import DialogueScreen from './screens/DialogueScreen';
 import CharacterScreen from './screens/CharacterScreen';
 import InventoryScreen from './screens/InventoryScreen';
@@ -19,6 +19,8 @@ import ChoiceEventScreen from './screens/ChoiceEventScreen';
 import CombatScreen from './screens/CombatScreen';
 import VictoryScreen from './screens/VictoryScreen';
 import CompanionScreen from './screens/CompanionScreen';
+import InGameNav from './InGameNav';
+import { lukePrologueSlides } from '../data';
 
 const Game: React.FC = () => {
   const { currentScreen, setScreen } = useUIStore();
@@ -40,9 +42,9 @@ const Game: React.FC = () => {
       case 'characterSelection':
         return <CharacterSelection />;
       case 'prologue':
-        return <EventScreen />;
+        return <EventScreen slides={lukePrologueSlides} onComplete={() => setScreen('inGame')} />;
       case 'inGame':
-        return <InGameUI />;
+        return <LocationScreen />;
       case 'dialogue':
         return <DialogueScreen />;
       case 'dialogueRoberta':
@@ -78,14 +80,56 @@ const Game: React.FC = () => {
     }
   };
 
+  const isSolidBg = ['characterScreen', 'inventory', 'journal', 'diary', 'trade', 'crafting', 'jobScreen', 'library', 'companion'].includes(currentScreen);
+  const isInGame = ['inGame', 'characterScreen', 'inventory', 'journal', 'diary', 'jobScreen', 'companion'].includes(currentScreen);
+
+  const handleNavigate = (screen: any) => {
+    setScreen(screen);
+  };
+
+  const handleOpenSleepWaitModal = (mode: 'sleep' | 'wait') => {
+    // TODO: Implement sleep/wait modal
+    console.log('Open sleep/wait modal:', mode);
+  };
+
+  const handleOpenOptionsModal = () => {
+    // TODO: Implement options modal
+    console.log('Open options modal');
+  };
+
+  const handleOpenSaveLoadModal = () => {
+    // TODO: Implement save/load modal
+    console.log('Open save/load modal');
+  };
+
   return (
     <div className="fixed inset-0 overflow-hidden text-white bg-black font-sans">
-      {/* Background and overlays would go here */}
+      {/* Background and overlays */}
+      <div
+        className={`absolute inset-0 transition-all duration-700 ${
+          isSolidBg
+            ? 'bg-zinc-900'
+            : `bg-cover bg-center ${currentScreen === 'mainMenu' || currentScreen === 'choiceEvent' ? 'animate-kenburns' : ''}`
+        }`}
+        style={isSolidBg ? {} : { backgroundImage: "url(https://i.imgur.com/WsODuhO.png)" }}
+      ></div>
+      <div className={`absolute inset-0 ${isSolidBg ? 'bg-black/60' : 'bg-black/40'} transition-all duration-700`}></div>
       <div className="relative z-10 w-full h-full">
         <div key={currentScreen} className="w-full h-full animate-fade-in">
           {renderScreen()}
         </div>
-        {/* Modals and global nav would go here */}
+        {/* Global navigation for in-game screens */}
+        {isInGame && (
+          <InGameNav
+            onNavigate={handleNavigate}
+            variant={isSolidBg ? 'solid' : 'floating'}
+            activeScreen={currentScreen}
+            onOpenSleepWaitModal={handleOpenSleepWaitModal}
+            showTimeControls={currentScreen === 'inGame'}
+            onOpenOptionsModal={handleOpenOptionsModal}
+            onOpenSaveLoadModal={handleOpenSaveLoadModal}
+          />
+        )}
       </div>
     </div>
   );

@@ -5,11 +5,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 // FIX: Changed to a named import to resolve module issue.
 import { ConfirmationModal } from '../modals/ConfirmationModal';
 import { characters, getDescriptiveAttributeLabel } from '../../data';
-
-interface CharacterSelectionProps {
-    onBack: () => void;
-    onBeginJourney: () => void;
-}
+import { useUIStore } from '../../stores/useUIStore';
 
 const AttributeBar: FC<{ label: keyof typeof characters[0]['attributes']; value: number }> = ({ label, value }) => {
     const maxValue = 10;
@@ -33,7 +29,8 @@ const AttributeBar: FC<{ label: keyof typeof characters[0]['attributes']; value:
 };
 
 
-const CharacterSelection: FC<CharacterSelectionProps> = ({ onBack, onBeginJourney }) => {
+const CharacterSelection: FC = () => {
+    const { setScreen } = useUIStore();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const character = characters[currentIndex];
@@ -44,7 +41,7 @@ const CharacterSelection: FC<CharacterSelectionProps> = ({ onBack, onBeginJourne
 
     const handleConfirmJourney = () => {
         setIsConfirmModalOpen(false);
-        onBeginJourney();
+        setScreen('prologue');
     };
     
     const NavArrow: FC<{direction: 'left' | 'right', disabled: boolean}> = ({ direction, disabled }) => {
@@ -68,68 +65,71 @@ const CharacterSelection: FC<CharacterSelectionProps> = ({ onBack, onBeginJourne
 
     return (
         <>
-            <div className="w-full h-full flex flex-col items-center justify-center p-4 sm:p-6">
-                <button onClick={onBack} className="absolute top-6 left-6 text-zinc-300 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10 z-10">
-                    <ArrowLeft size={24} />
-                </button>
-                 <h1 className="text-3xl sm:text-4xl font-bold text-center mb-6" style={{ fontFamily: 'Cinzel, serif' }}>Choose Your Path</h1>
-                <div className="w-full max-w-7xl flex items-center justify-center gap-8">
-                    <NavArrow direction="left" disabled={currentIndex <= 0} />
-
-                    <div className="w-full max-w-6xl bg-zinc-950/85 backdrop-blur-xl rounded-xl border border-zinc-700/80 p-6 sm:p-8 grid md:grid-cols-2 gap-8">
-                        {/* Left Column: Image */}
-                        <div>
-                            <div className="w-full aspect-[3/4] rounded-lg overflow-hidden border-2 border-zinc-700 shadow-lg">
-                                <img src={character.image} alt={character.name} className="w-full h-full object-cover animate-subtle-zoom"/>
-                            </div>
-                        </div>
-
-                        {/* Right Column: Details */}
-                        <div className="flex flex-col justify-between overflow-y-auto custom-scrollbar pr-4">
-                             {/* Character Header */}
-                            <div className="mb-4">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <h2 className="text-4xl font-bold text-white" style={{fontFamily: 'Cinzel, serif'}}>{character.name}</h2>
-                                        <p className="text-lg text-zinc-300/80 italic">{character.title}</p>
-                                    </div>
-                                    <div className="text-right flex-shrink-0">
-                                         <p className="text-lg text-zinc-400 font-semibold">{character.age} years old</p>
-                                         <span className="mt-1 inline-block text-sm font-semibold uppercase tracking-wider px-3 py-1 rounded-full bg-red-900/50 text-red-300 border border-red-700">
-                                            {character.difficulty}
-                                         </span>
-                                    </div>
-                                </div>
-                                <div className="w-full h-px bg-zinc-700 mt-4"></div>
-                            </div>
-
-                            <div className="my-4">
-                                 <h3 className="text-xl font-bold text-zinc-300 mb-2 tracking-wider" style={{fontFamily: 'Cinzel, serif'}}>Backstory</h3>
-                                 <p className="text-zinc-300 text-sm leading-relaxed">{character.description}</p>
-                            </div>
-                            <div className="mt-4">
-                                 <h3 className="text-xl font-bold text-zinc-300 mb-3 tracking-wider" style={{fontFamily: 'Cinzel, serif'}}>Attributes</h3>
-                                 <div className="space-y-4">
-                                    {Object.entries(character.attributes).map(([key, value]) => (
-                                        <AttributeBar key={key} label={key as keyof typeof character.attributes} value={value} />
-                                    ))}
-                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <NavArrow direction="right" disabled={currentIndex >= characters.length - 1} />
-                </div>
-                <div className="mt-8 flex justify-center">
-                    <button 
-                        onClick={handleBeginJourneyClick}
-                        className="w-full max-w-xs px-8 py-3 text-lg font-semibold tracking-widest uppercase text-white/90 bg-zinc-800 border border-zinc-700 rounded-md transition-all duration-300 hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-500 animate-pulse-journey"
-                    >
-                        Begin Journey
+            <div className="w-full h-full" style={{ backgroundImage: `url(https://i.imgur.com/WsODuhO.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                <div className="absolute inset-0 bg-black/40"></div>
+                <div className="relative z-10 w-full h-full flex flex-col items-center justify-center p-4 sm:p-6">
+                    <button onClick={() => setScreen('mainMenu')} className="absolute top-6 left-6 text-zinc-300 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10 z-10">
+                        <ArrowLeft size={24} />
                     </button>
+                     <h1 className="text-3xl sm:text-4xl font-bold text-center mb-6" style={{ fontFamily: 'Cinzel, serif' }}>Choose Your Path</h1>
+                    <div className="w-full max-w-7xl flex items-center justify-center gap-8">
+                        <NavArrow direction="left" disabled={currentIndex <= 0} />
+
+                        <div className="w-full max-w-6xl bg-zinc-950/85 backdrop-blur-xl rounded-xl border border-zinc-700/80 p-6 sm:p-8 grid md:grid-cols-2 gap-8">
+                            {/* Left Column: Image */}
+                            <div>
+                                <div className="w-full aspect-[3/4] rounded-lg overflow-hidden border-2 border-zinc-700 shadow-lg">
+                                    <img src={character.image} alt={character.name} className="w-full h-full object-cover animate-subtle-zoom"/>
+                                </div>
+                            </div>
+
+                            {/* Right Column: Details */}
+                            <div className="flex flex-col justify-between overflow-y-auto custom-scrollbar pr-4">
+                                 {/* Character Header */}
+                                <div className="mb-4">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h2 className="text-4xl font-bold text-white" style={{fontFamily: 'Cinzel, serif'}}>{character.name}</h2>
+                                            <p className="text-lg text-zinc-300/80 italic">{character.title}</p>
+                                        </div>
+                                        <div className="text-right flex-shrink-0">
+                                             <p className="text-lg text-zinc-400 font-semibold">{character.age} years old</p>
+                                             <span className="mt-1 inline-block text-sm font-semibold uppercase tracking-wider px-3 py-1 rounded-full bg-red-900/50 text-red-300 border border-red-700">
+                                                {character.difficulty}
+                                             </span>
+                                        </div>
+                                    </div>
+                                    <div className="w-full h-px bg-zinc-700 mt-4"></div>
+                                </div>
+
+                                <div className="my-4">
+                                     <h3 className="text-xl font-bold text-zinc-300 mb-2 tracking-wider" style={{fontFamily: 'Cinzel, serif'}}>Backstory</h3>
+                                     <p className="text-zinc-300 text-sm leading-relaxed">{character.description}</p>
+                                </div>
+                                <div className="mt-4">
+                                     <h3 className="text-xl font-bold text-zinc-300 mb-3 tracking-wider" style={{fontFamily: 'Cinzel, serif'}}>Attributes</h3>
+                                     <div className="space-y-4">
+                                        {Object.entries(character.attributes).map(([key, value]) => (
+                                            <AttributeBar key={key} label={key as keyof typeof character.attributes} value={value} />
+                                        ))}
+                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <NavArrow direction="right" disabled={currentIndex >= characters.length - 1} />
+                    </div>
+                    <div className="mt-8 flex justify-center">
+                        <button
+                            onClick={handleBeginJourneyClick}
+                            className="w-full max-w-xs px-8 py-3 text-lg font-semibold tracking-widest uppercase text-white/90 bg-zinc-800 border border-zinc-700 rounded-md transition-all duration-300 hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-500 animate-pulse-journey"
+                        >
+                            Begin Journey
+                        </button>
+                    </div>
                 </div>
             </div>
-            <ConfirmationModal 
+            <ConfirmationModal
                 isOpen={isConfirmModalOpen}
                 title="Begin Your Journey?"
                 message={`Do you want to start your adventure as ${character.name}?`}

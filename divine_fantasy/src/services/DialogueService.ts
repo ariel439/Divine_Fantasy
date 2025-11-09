@@ -1,31 +1,145 @@
 // DialogueService.ts
-// Manages dialogue logic and parsing
+// Handles NPC dialogue interactions and conversation flow
+
+import dialogueData from '../data/dialogue.json';
+import npcsData from '../data/npcs.json';
+import { useDiaryStore } from '../stores/useDiaryStore';
+import { useWorldStateStore } from '../stores/useWorldStateStore';
+import { useCharacterStore } from '../stores/useCharacterStore';
+
+interface DialogueNode {
+  npc_text: string;
+  player_choices: {
+    text: string;
+    next_node: string;
+    closes_dialogue?: boolean;
+    action?: string;
+  }[];
+}
+
+interface DialogueState {
+  currentDialogueId: string | null;
+  currentNodeId: string;
+  dialogueHistory: string[];
+}
 
 export class DialogueService {
-  static initiateDialogue(npcId: string): void {
-    // TODO: Load dialogue from dialogue.json based on npcId
-    // TODO: Handle dialogue flow and choices
-    console.log('Initiating dialogue with NPC:', npcId);
+  private static currentDialogueId: string | null = null;
+  private static currentNodeId: string = '0';
+  private static dialogueHistory: string[] = [];
+
+  static startDialogue(npcId: string): DialogueNode | null {
+    // Find the default dialogue for this NPC
+    const npcData = npcsData[npcId as keyof typeof npcsData];
+    if (!npcData) {
+      console.error('NPC not found in NPC data:', npcId);
+      return null;
+    }
+
+    const dialogueId = npcData.default_dialogue_id;
+    const dialogue = dialogueData[dialogueId as keyof typeof dialogueData];
+
+    if (!dialogue) {
+      console.error('Dialogue not found:', dialogueId);
+      return null;
+    }
+
+    this.currentDialogueId = dialogueId;
+    this.currentNodeId = '0';
+    this.dialogueHistory = [dialogue.nodes['0'].npc_text];
+
+    return dialogue.nodes['0'];
   }
 
-  static processChoice(choiceId: string): void {
-    // TODO: Process dialogue choice and update relationships/state
-    console.log('Processing dialogue choice:', choiceId);
+  static selectResponse(responseIndex: number): DialogueNode | null {
+    if (!this.currentDialogueId) return null;
+
+    const currentDialogue = dialogueData[this.currentDialogueId as keyof typeof dialogueData];
+    if (!currentDialogue) return null;
+
+    const currentNode = currentDialogue.nodes[this.currentNodeId as keyof typeof currentDialogue.nodes];
+    if (!currentNode || !currentNode.player_choices[responseIndex]) {
+      return null;
+    }
+
+    const response = currentNode.player_choices[responseIndex];
+
+    // Execute action if present
+    if (response.action) {
+      this.executeAction(response.action);
+    }
+
+    // Add to history
+    this.dialogueHistory.push(response.text);
+
+    // Handle next dialogue
+    if (response.next_node) {
+      const nextNode = currentDialogue.nodes[response.next_node as keyof typeof currentDialogue.nodes];
+      if (nextNode) {
+        this.currentNodeId = response.next_node;
+        this.dialogueHistory.push(nextNode.npc_text);
+        return nextNode;
+      }
+    }
+
+    // End dialogue if closes_dialogue is true or no next_node
+    if (response.closes_dialogue || !response.next_node) {
+      this.endDialogue();
+      return null;
+    }
+
+    return null;
+  }
+
+  static getCurrentDialogue(): DialogueNode | null {
+    if (!this.currentDialogueId) return null;
+
+    const currentDialogue = dialogueData[this.currentDialogueId as keyof typeof dialogueData];
+    if (!currentDialogue) return null;
+
+    return currentDialogue.nodes[this.currentNodeId as keyof typeof currentDialogue.nodes] || null;
+  }
+
+  static getDialogueHistory(): string[] {
+    return [...this.dialogueHistory];
   }
 
   static endDialogue(): void {
-    // TODO: Clean up dialogue state
-    console.log('Ending dialogue');
+    this.currentDialogueId = null;
+    this.currentNodeId = '0';
+    this.dialogueHistory = [];
   }
 
-  static getAvailableSocials(npcId: string): any[] {
-    // TODO: Return available social actions based on relationship
-    console.log('Getting socials for NPC:', npcId);
-    return [];
-  }
+  private static executeAction(action: string): void {
+    // Simple action executor - can be expanded
+    const diaryStore = useDiaryStore.getState();
+    const worldState = useWorldStateStore.getState();
 
-  static performSocial(npcId: string, socialId: string): void {
-    // TODO: Execute social action and update relationships
-    console.log('Performing social action:', socialId, 'on NPC:', npcId);
+    // Example actions:
+    // "start_quest:rodrick_wolf_pack"
+    // "hire_job:job_dockhand"
+    // "recruit_companion:companion_ronald"
+
+    const [actionType, ...params] = action.split(':');
+
+    switch (actionType) {
+      case 'start_quest':
+        // TODO: Implement quest starting
+        console.log('Starting quest:', params[0]);
+        break;
+
+      case 'hire_job':
+        // TODO: Implement job hiring
+        console.log('Hiring for job:', params[0]);
+        break;
+
+      case 'recruit_companion':
+        // TODO: Implement companion recruitment
+        console.log('Recruiting companion:', params[0]);
+        break;
+
+      default:
+        console.warn('Unknown action type:', actionType);
+    }
   }
 }

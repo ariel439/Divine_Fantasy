@@ -6,7 +6,7 @@ import { useUIStore } from '../../stores/useUIStore';
 import { Sun, Moon, MessageSquare, Hammer, Fish, MapPin, ShoppingCart, CookingPot, Bed, Search, Swords, Leaf, Snowflake, Sprout, Cloud, CloudRain, BookOpen, User, Package, Briefcase, Heart, Library } from 'lucide-react';
 import ProgressBar from '../ui/ProgressBar';
 import ActionButton from '../ui/ActionButton';
-import InGameNav from '../InGameNav';
+import LocationNav from '../LocationNav';
 import WeatherParticles from '../effects/WeatherParticles';
 import type { Weather } from '../../types';
 
@@ -216,7 +216,7 @@ const LocationScreen: React.FC = () => {
       </main>
 
       {/* Navigation */}
-      <InGameNav
+      <LocationNav
         onNavigate={handleNavigate}
         variant="floating"
         activeScreen={currentScreen}

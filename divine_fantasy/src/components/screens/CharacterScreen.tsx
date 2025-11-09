@@ -9,7 +9,7 @@ import ProgressBar from '../ui/ProgressBar';
 import { useCharacterStore } from '../../stores/useCharacterStore';
 import { useSkillStore } from '../../stores/useSkillStore';
 import { useUIStore } from '../../stores/useUIStore';
-import InGameNav from '../InGameNav';
+import LocationNav from '../LocationNav';
 
 const CharacterPortrait: FC<{ characterData: any }> = ({ characterData }) => (
     <>

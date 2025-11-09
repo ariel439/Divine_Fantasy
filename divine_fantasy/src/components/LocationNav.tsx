@@ -4,7 +4,7 @@ import { User, Backpack, ScrollText, Settings, MapPin, Watch, PawPrint, Save, Mo
 import type { GameState, NavVariant } from '../types';
 import NavButton from './ui/NavButton';
 
-interface InGameNavProps {
+interface LocationNavProps {
     onNavigate: (screen: GameState) => void;
     variant: NavVariant;
     activeScreen: GameState;
@@ -14,7 +14,7 @@ interface InGameNavProps {
     onOpenSaveLoadModal: () => void;
 }
 
-const InGameNav: FC<InGameNavProps> = ({ onNavigate, variant, activeScreen, onOpenSleepWaitModal, showTimeControls, onOpenOptionsModal, onOpenSaveLoadModal }) => {
+const LocationNav: FC<LocationNavProps> = ({ onNavigate, variant, activeScreen, onOpenSleepWaitModal, showTimeControls, onOpenOptionsModal, onOpenSaveLoadModal }) => {
     const isSolid = variant === 'solid';
 
     const footerClasses = `
@@ -64,4 +64,4 @@ const InGameNav: FC<InGameNavProps> = ({ onNavigate, variant, activeScreen, onOp
     );
 };
 
-export default InGameNav;
+export default LocationNav;

@@ -10,7 +10,7 @@ import ProgressBar from '../ui/ProgressBar';
 import ItemSelectionPanel from '../ui/ItemSelectionPanel';
 import EquippedGearPanel from '../ui/EquippedGearPanel';
 import ItemDetailsPanel from '../ui/ItemDetailsPanel';
-import InGameNav from '../InGameNav';
+import LocationNav from '../LocationNav';
 
 const InventoryScreen: FC = () => {
     const { items: inventoryItems, getCurrentWeight, getItemQuantity } = useInventoryStore();

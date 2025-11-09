@@ -19,7 +19,7 @@ import ChoiceEventScreen from './screens/ChoiceEventScreen';
 import CombatScreen from './screens/CombatScreen';
 import VictoryScreen from './screens/VictoryScreen';
 import CompanionScreen from './screens/CompanionScreen';
-import InGameNav from './InGameNav';
+import LocationNav from './LocationNav';
 import { lukePrologueSlides } from '../data';
 
 const Game: React.FC = () => {
@@ -120,7 +120,7 @@ const Game: React.FC = () => {
         </div>
         {/* Global navigation for in-game screens */}
         {isInGame && (
-          <InGameNav
+          <LocationNav
             onNavigate={handleNavigate}
             variant={isSolidBg ? 'solid' : 'floating'}
             activeScreen={currentScreen}

@@ -14,7 +14,7 @@ The game's UI is built around a central `App.tsx` component that manages the ove
 
 ### 1.2. Main Game Interface
 -   **Location Screen (`LocationScreen.tsx`):** This is the primary game view, displaying the current location, character vitals, time of day, and available actions.
--   **In-Game Navigation (`InGameNav.tsx`):** A persistent navigation bar provides access to the main game screens. It has two variants: `floating` for the `LocationScreen` and `solid` for other menu screens.
+-   **In-Game Navigation (`LocationNav.tsx`):** A persistent navigation bar provides access to the main game screens. It has two variants: `floating` for the `LocationScreen` and `solid` for other menu screens.
 
 ## 2. UI Screens
 

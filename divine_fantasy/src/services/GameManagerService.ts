@@ -9,32 +9,37 @@ import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useCompanionStore } from '../stores/useCompanionStore';
+import characterTemplates from '../data/character_templates.json';
 
 export class GameManagerService {
   static startNewGame(templateId: string): void {
-    // TODO: Load character template from character_templates.json
-    // TODO: Reset all stores to initial state
-    // TODO: Apply template data to stores
     console.log('Starting new game with template:', templateId);
 
-    // Reset stores
+    // Load template data
+    const template = characterTemplates[templateId as keyof typeof characterTemplates];
+    if (!template) {
+      console.error('Template not found:', templateId);
+      return;
+    }
+
+    // Reset and initialize all stores
     useCharacterStore.setState({
-      attributes: { Strength: 1, Agility: 1, Intelligence: 1, Wisdom: 1, Charisma: 1 },
+      attributes: { ...template.starting_attributes },
       hp: 100,
       energy: 100,
       hunger: 0,
-      currency: { copper: 0, silver: 0, gold: 0 },
+      currency: { ...template.starting_bonuses.currency },
       maxWeight: 50,
     });
 
     useDiaryStore.setState({
-      relationships: {},
+      relationships: { ...template.starting_relationships },
       interactionHistory: [],
     });
 
     useInventoryStore.setState({
-      items: [],
-      currentWeight: 0,
+      items: template.starting_bonuses.items.map((itemId: string) => ({ id: itemId, quantity: 1 })),
+      currentWeight: 0, // Will be calculated when items are added
     });
 
     useJournalStore.setState({
@@ -60,7 +65,12 @@ export class GameManagerService {
       activeCompanion: null,
     });
 
-    // TODO: Apply template-specific data
+    // Add starting items to inventory (after stores are initialized)
+    template.starting_bonuses.items.forEach((itemId: string) => {
+      useInventoryStore.getState().addItem(itemId, 1);
+    });
+
+    console.log('New game started successfully with template:', templateId);
   }
 
   static endGame(): void {

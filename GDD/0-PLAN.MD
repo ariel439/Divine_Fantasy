@@ -67,9 +67,9 @@ This phase is critical for creating a scalable and maintainable codebase. We wil
 
 With the architecture in place, we'll breathe life into the core systems.
 
-- [ ] **2.1: Implement Zustand Stores**
-    - [ ] Flesh out each Zustand store with the state and actions defined in `5-ARCHITECTURE.MD`.
-    - [ ] Start with `useWorldTimeStore` and `useCharacterStore` as they are fundamental.
+- [x] **2.1: Implement Zustand Stores**
+    - [x] Flesh out each Zustand store with the state and actions defined in `5-ARCHITECTURE.MD`.
+    - [x] Start with `useWorldTimeStore` and `useCharacterStore` as they are fundamental.
 
 - [ ] **2.2: Implement Core Services**
     - [ ] Implement the `GameManagerService` to handle starting a new game (reading from `character_templates.json` and setting initial store states).

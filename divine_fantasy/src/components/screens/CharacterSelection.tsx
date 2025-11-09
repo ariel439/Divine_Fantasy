@@ -6,6 +6,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ConfirmationModal } from '../modals/ConfirmationModal';
 import { characters, getDescriptiveAttributeLabel } from '../../data';
 import { useUIStore } from '../../stores/useUIStore';
+import { GameManagerService } from '../../services/GameManagerService';
 
 const AttributeBar: FC<{ label: keyof typeof characters[0]['attributes']; value: number }> = ({ label, value }) => {
     const maxValue = 10;
@@ -41,6 +42,8 @@ const CharacterSelection: FC = () => {
 
     const handleConfirmJourney = () => {
         setIsConfirmModalOpen(false);
+        // Start new game with the selected template
+        GameManagerService.startNewGame('luke_orphan');
         setScreen('prologue');
     };
     

@@ -25,18 +25,17 @@ const CharacterPortrait: FC<{ characterData: any }> = ({ characterData }) => (
 );
 
 const CharacterScreen: FC = () => {
-    const { attributes, hp, energy, hunger } = useCharacterStore();
+    const { attributes, hp, energy, hunger, bio } = useCharacterStore();
     const { skills, getSkillLevel } = useSkillStore();
 
-    // Mock data for now - will be replaced with real character data later
     const characterData = {
-        name: 'Luke',
-        image: 'https://i.imgur.com/gUNzyBA.jpeg',
+        name: bio?.name || 'Unknown',
+        image: bio?.image || 'https://i.imgur.com/gUNzyBA.jpeg',
         bio: {
-            gender: 'Male',
-            race: 'Human',
-            birthplace: 'Driftwatch',
-            born: '10th of July, 760',
+            gender: bio?.gender || 'Unknown',
+            race: bio?.race || 'Unknown',
+            birthplace: bio?.birthplace || 'Unknown',
+            born: bio?.born || 'Unknown',
         },
         hp,
         energy,

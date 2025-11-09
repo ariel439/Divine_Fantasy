@@ -11,22 +11,44 @@ import ItemSelectionPanel from '../ui/ItemSelectionPanel';
 import EquippedGearPanel from '../ui/EquippedGearPanel';
 import ItemDetailsPanel from '../ui/ItemDetailsPanel';
 import LocationNav from '../LocationNav';
+import itemsData from '../../data/items.json';
 
 const InventoryScreen: FC = () => {
-    const { items: inventoryItems, getCurrentWeight, getItemQuantity } = useInventoryStore();
+    const { items: inventoryItems, getCurrentWeight, getItemQuantity, useItem, removeItem } = useInventoryStore();
     const { currency, maxWeight } = useCharacterStore();
 
-    const [inventory, setInventory] = useState<Item[]>(mockInventory);
-    const [equippedItems, setEquippedItems] = useState<Partial<Record<EquipmentSlot, Item>>>(mockEquippedItems);
     const [selectedItem, setSelectedItem] = useState<Item | null>(null);
     const [rightPanelView, setRightPanelView] = useState<'equipment' | 'details'>('equipment');
 
+    // Map inventoryItems to Item[] with data from items.json
+    const inventory = useMemo(() => {
+        return inventoryItems.map(invItem => {
+            const itemData = itemsData[invItem.id as keyof typeof itemsData];
+            if (!itemData) return null;
+            return {
+                id: invItem.id,
+                name: itemData.name,
+                description: itemData.description,
+                icon: <div>Icon</div>, // TODO: Add proper icons
+                category: itemData.type as any, // TODO: Map to proper categories
+                weight: itemData.weight,
+                value: itemData.base_value,
+                quantity: invItem.quantity,
+                stackable: itemData.stackable,
+                effects: (itemData as any).effects,
+                actions: ['Use', 'Drop'], // TODO: Add equip if applicable
+                equipmentSlot: (itemData as any).equip_slot as any,
+                stats: {} // TODO: Add stats if applicable
+            } as Item;
+        }).filter(Boolean) as Item[];
+    }, [inventoryItems]);
+
+    // TODO: Implement equipped items store
+    const equippedItems = useMemo(() => ({} as Partial<Record<EquipmentSlot, Item>>), []);
+
     const totalWeight = useMemo(() => {
-        const inventoryWeight = inventory.reduce((sum, item) => sum + (item.weight * (item.quantity || 1)), 0);
-        // FIX: Filter out undefined items to ensure type safety before accessing properties.
-        const equippedWeight = Object.values(equippedItems).filter((item): item is Item => !!item).reduce((sum, item) => sum + item.weight, 0);
-        return inventoryWeight + equippedWeight;
-    }, [inventory, equippedItems]);
+        return getCurrentWeight();
+    }, [getCurrentWeight]);
     
     const equippedItemForComparison = useMemo(() => {
         if (!selectedItem || !selectedItem.equipmentSlot || rightPanelView !== 'details') {
@@ -51,32 +73,18 @@ const InventoryScreen: FC = () => {
         setSelectedItem(null);
     };
 
-    const handleAction = (action: 'Equip' | 'Unequip') => {
-        if (!selectedItem || !selectedItem.equipmentSlot) return;
+    const handleAction = (action: 'Equip' | 'Unequip' | 'Use' | 'Drop') => {
+        if (!selectedItem) return;
 
-        if (action === 'Equip') {
-            const slot = selectedItem.equipmentSlot;
-            const currentlyEquipped = equippedItems[slot];
-            
-            const newInventory = inventory.filter(i => i.id !== selectedItem.id);
-            if (currentlyEquipped) {
-              newInventory.push(currentlyEquipped);
-            }
-            setInventory(newInventory);
-            setEquippedItems(prev => ({ ...prev, [slot]: selectedItem }));
-
-        } else if (action === 'Unequip') {
-            const slot = selectedItem.equipmentSlot;
-            const newInventory = [...inventory, selectedItem];
-            
-            setInventory(newInventory);
-            setEquippedItems(prev => {
-                const newEquipped = { ...prev };
-                delete newEquipped[slot];
-                return newEquipped;
-            });
+        if (action === 'Use') {
+            useItem(selectedItem.id);
+        } else if (action === 'Drop') {
+            removeItem(selectedItem.id, 1);
+        } else if (action === 'Equip' || action === 'Unequip') {
+            // TODO: Implement equip/unequip with store
+            console.log(`${action} ${selectedItem.name}`);
         }
-        
+
         handleShowEquipment();
     };
     

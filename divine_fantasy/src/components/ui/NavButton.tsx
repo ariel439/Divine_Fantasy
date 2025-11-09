@@ -7,9 +7,11 @@ interface NavButtonProps {
   tooltip: string;
   onClick?: () => void;
   isActive?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
-const NavButton: FC<NavButtonProps> = ({ icon, tooltip, onClick, isActive = false }) => {
+const NavButton: FC<NavButtonProps> = ({ icon, tooltip, onClick, isActive = false, className = '', style = {} }) => {
   const buttonClasses = `p-3 rounded-full text-zinc-300 transition-all duration-300 ${
     isActive 
       ? 'bg-zinc-700/80 text-white scale-110 cursor-default' 
@@ -20,7 +22,7 @@ const NavButton: FC<NavButtonProps> = ({ icon, tooltip, onClick, isActive = fals
   const tooltipClasses = `absolute bottom-full mb-2 px-3 py-1.5 text-sm font-semibold text-white bg-zinc-900/90 rounded-md shadow-lg transition-opacity duration-300 pointer-events-none whitespace-nowrap backdrop-blur-sm opacity-0 group-hover:opacity-100`;
 
   return (
-    <div className="relative group flex justify-center">
+    <div className={`relative group flex justify-center ${className}`} style={style}>
       <button onClick={onClick} className={buttonClasses} disabled={isActive}>
         {icon}
       </button>

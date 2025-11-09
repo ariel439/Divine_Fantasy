@@ -30,6 +30,15 @@ export class GameManagerService {
       hunger: 0,
       currency: { ...template.starting_bonuses.currency },
       maxWeight: 50,
+      bio: {
+        name: template.name,
+        image: 'https://i.imgur.com/gUNzyBA.jpeg', // TODO: Add image to template
+        description: template.description,
+        gender: 'Male', // TODO: Add to template
+        race: 'Human', // TODO: Add to template
+        birthplace: 'Driftwatch', // TODO: Add to template
+        born: '10th of July, 760', // TODO: Add to template
+      },
     });
 
     useDiaryStore.setState({

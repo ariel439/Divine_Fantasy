@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { useWorldTimeStore } from './useWorldTimeStore';
+import { useInventoryStore } from './useInventoryStore';
+import type { EquipmentSlot, Item } from '../types';
 
 interface CharacterState {
   // Core Attributes
@@ -22,12 +24,26 @@ interface CharacterState {
   };
   // Carry Weight
   maxWeight: number;
+  // Bio
+  bio?: {
+    name: string;
+    image: string;
+    description: string;
+    gender: string;
+    race: string;
+    birthplace: string;
+    born: string;
+  };
+  // Equipment
+  equippedItems: Partial<Record<EquipmentSlot, Item>>;
   // Actions
   eat: (itemId: string) => void;
   sleep: (bedType: string) => void;
   wait: (hours: number) => void;
   addCurrency: (copper: number, silver?: number, gold?: number) => void;
   removeCurrency: (copper: number, silver?: number, gold?: number) => boolean;
+  equipItem: (item: Item) => void;
+  unequipItem: (item: Item) => void;
 }
 
 export const useCharacterStore = create<CharacterState>((set, get) => ({
@@ -48,6 +64,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     gold: 0,
   },
   maxWeight: 50,
+  equippedItems: {},
   eat: (itemId) => {
     // Load item data (simplified - in real implementation, load from items.json)
     const itemEffects: Record<string, any> = {
@@ -116,5 +133,44 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
       return true;
     }
     return false;
+  },
+  equipItem: (item) => {
+    const { equipmentSlot } = item;
+    if (!equipmentSlot) return;
+
+    const { equippedItems } = get();
+    const currentlyEquipped = equippedItems[equipmentSlot];
+
+    // Remove from inventory first
+    const removed = useInventoryStore.getState().removeItem(item.id, 1);
+    if (!removed) return; // Item not in inventory or failed to remove
+
+    // If there was an item equipped, add it back to inventory
+    if (currentlyEquipped) {
+      useInventoryStore.getState().addItem(currentlyEquipped.id, 1);
+    }
+
+    // Equip the new item
+    set((state) => ({
+      equippedItems: {
+        ...state.equippedItems,
+        [equipmentSlot]: item,
+      },
+    }));
+  },
+  unequipItem: (item) => {
+    const { equipmentSlot } = item;
+    if (!equipmentSlot) return;
+
+    // Add to inventory first
+    const added = useInventoryStore.getState().addItem(item.id, 1);
+    if (!added) return; // Inventory full or failed to add
+
+    // Unequip the item
+    set((state) => {
+      const newEquippedItems = { ...state.equippedItems };
+      delete newEquippedItems[equipmentSlot];
+      return { equippedItems: newEquippedItems };
+    });
   },
 }));

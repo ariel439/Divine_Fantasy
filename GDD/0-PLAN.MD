@@ -71,9 +71,11 @@ With the architecture in place, we'll breathe life into the core systems.
     - [x] Flesh out each Zustand store with the state and actions defined in `5-ARCHITECTURE.MD`.
     - [x] Start with `useWorldTimeStore` and `useCharacterStore` as they are fundamental.
 
-- [ ] **2.2: Implement Core Services**
-    - [ ] Implement the `GameManagerService` to handle starting a new game (reading from `character_templates.json` and setting initial store states).
-    - [ ] Implement the `SaveLoadService` for web (manual JSON download/upload).
+- [x] **2.2: Implement Core Services**
+    - [x] Implement the `GameManagerService` to handle starting a new game (reading from `character_templates.json` and setting initial store states).
+    - [x] Implement the `SaveLoadService` for web (manual JSON download/upload).
+    - [x] Implement the `DialogueService` for NPC conversations.
+    - [x] Implement the `SkillService` for skill-based actions.
 
 - [ ] **2.3: Main Game Loop & Screen Management**
     - [ ] Create a `Game.tsx` component that will be the main container for all in-game screens.

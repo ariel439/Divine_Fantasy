@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-type Screen = 'mainMenu' | 'characterSelection' | 'event' | 'location' | 'character' | 'inventory' | 'diary' | 'journal' | 'dialogue' | 'trade' | 'crafting' | 'combat' | 'victory' | 'companion' | 'choiceEvent' | 'tradeConfirmation' | 'job' | 'library';
+type Screen = 'mainMenu' | 'characterSelection' | 'prologue' | 'inGame' | 'dialogue' | 'dialogueRoberta' | 'characterScreen' | 'inventory' | 'jobScreen' | 'journal' | 'diary' | 'library' | 'trade' | 'tradeConfirmation' | 'crafting' | 'choiceEvent' | 'combat' | 'combatVictory' | 'companion';
 
 type Modal = 'confirmation' | 'options' | 'saveLoad' | 'sleepWait' | 'timedAction' | 'actionSummary' | 'quantity' | null;
 

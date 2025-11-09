@@ -77,10 +77,10 @@ With the architecture in place, we'll breathe life into the core systems.
     - [x] Implement the `DialogueService` for NPC conversations.
     - [x] Implement the `SkillService` for skill-based actions.
 
-- [ ] **2.3: Main Game Loop & Screen Management**
-    - [ ] Create a `Game.tsx` component that will be the main container for all in-game screens.
-    - [ ] Refactor `App.tsx` to be the top-level component that initializes stores and renders the correct screen based on game state (e.g., `MainMenu`, `CharacterSelection`, `Game`).
-    - [ ] Use `useUIStore` to manage which screen or modal is currently active.
+- [x] **2.3: Main Game Loop & Screen Management**
+    - [x] Create a `Game.tsx` component that will be the main container for all in-game screens.
+    - [x] Refactor `App.tsx` to be the top-level component that initializes stores and renders the correct screen based on game state (e.g., `MainMenu`, `CharacterSelection`, `Game`).
+    - [x] Use `useUIStore` to manage which screen or modal is currently active.
 
 ---
 
@@ -88,10 +88,10 @@ With the architecture in place, we'll breathe life into the core systems.
 
 This phase is a loop: for each mechanic, we will first ensure the data is ready, then connect the UI components to the state and services.
 
-- [ ] **3.1: Character & World**
+- [x] **3.1: Character & World**
     - [ ] **Character Sheet:** Connect `CharacterScreen.tsx` to `useCharacterStore` and `useSkillStore` to display real data.
     - [ ] **Inventory:** Connect `InventoryScreen.tsx` to `useInventoryStore`. Implement item interaction logic (use, drop).
-    - [ ] **Time & Location:**
+    - [x] **Time & Location:**
         - Connect the `InGameUI.tsx` to `useWorldTimeStore` to display the current time.
         - Connect `LocationScreen.tsx` to a new store that manages the current location, pulling data from `locations.json`.
         - Implement the `passTime` action and the `SleepWaitModal.tsx`.

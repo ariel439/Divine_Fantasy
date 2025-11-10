@@ -95,13 +95,13 @@ This phase is a loop: for each mechanic, we will first ensure the data is ready,
     - [x] Map InventoryItem[] to Item[] via items.json in InventoryScreen.tsx
     - [x] Implement use/drop handlers in InventoryScreen.tsx calling store methods
     - [x] Integrate equip/unequip with store in InventoryScreen.tsx
-    - [ ] Enhance LocationScreen with full weather/season mechanics (already partially done)
-    - [ ] Add travel confirmation modals (if needed)
-    - [ ] Ensure skill progression with attribute bonuses (already in stores)
-    - [ ] Implement travel action on LocationScreen.tsx
-    - [ ] Use ConfirmationModal.tsx and TimedActionModal.tsx for travel time
-    - [ ] Update player's current location in state management
-    - [ ] Test the integrations
+    - [x] Enhance LocationScreen with full weather/season mechanics (already partially done)
+    - [x] Add travel confirmation modals (if needed)
+    - [x] Ensure skill progression with attribute bonuses (already in stores)
+    - [x] Implement travel action on LocationScreen.tsx
+    - [x] Use ConfirmationModal.tsx and TimedActionModal.tsx for travel time
+    - [x] Update player's current location in state management
+    - [x] Test the integrations
     - [x] **Time & Location:**
         - Connect the `InGameUI.tsx` to `useWorldTimeStore` to display the current time.
         - Connect `LocationScreen.tsx` to a new store that manages the current location, pulling data from `locations.json`.

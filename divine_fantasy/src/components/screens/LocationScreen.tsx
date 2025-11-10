@@ -10,11 +10,10 @@ import LocationNav from '../LocationNav';
 import WeatherParticles from '../effects/WeatherParticles';
 import { ConfirmationModal } from '../modals/ConfirmationModal';
 import TimedActionModal from '../modals/TimedActionModal';
-import type { Weather } from '../../types';
 
   const LocationScreen: React.FC = () => {
   const { attributes, hp, energy, hunger, maxWeight } = useCharacterStore();
-  const { day, hour, minute, getFormattedTime, getFormattedDate } = useWorldTimeStore();
+  const { day, hour, minute, getFormattedTime, getFormattedDate, getSeason, getWeather } = useWorldTimeStore();
   const { getCurrentLocation } = useLocationStore();
   const { setScreen, currentScreen } = useUIStore();
 
@@ -24,28 +23,14 @@ import type { Weather } from '../../types';
   const timeString = getFormattedTime();
   const dateString = getFormattedDate();
 
-  // Simple season calculation based on day
-  const getSeason = () => {
-    const seasonIndex = Math.floor((day - 1) / 30) % 4;
-    return ['Spring', 'Summer', 'Autumn', 'Winter'][seasonIndex] as 'Spring' | 'Summer' | 'Autumn' | 'Winter';
-  };
-
   const season = getSeason();
-
-  // Weather state that changes every 10 minutes
-  const [weather, setWeather] = useState<Weather>('Sunny');
+  const weather = getWeather();
   
   // Travel state
   const [travelModalOpen, setTravelModalOpen] = useState(false);
   const [travelProgressModalOpen, setTravelProgressModalOpen] = useState(false);
   const [pendingTravelAction, setPendingTravelAction] = useState<any>(null);
   const [travelProgress, setTravelProgress] = useState<any>(null);
-
-  useEffect(() => {
-    const weatherCycle = ['Sunny', 'Cloudy', 'Rainy', 'Snowy'] as Weather[];
-    const weatherIndex = Math.floor((minute / 10) % weatherCycle.length);
-    setWeather(weatherCycle[weatherIndex]);
-  }, [minute]);
 
   const seasonIcons = {
     Spring: Sprout,
@@ -57,7 +42,7 @@ import type { Weather } from '../../types';
 
   const getWeatherDisplay = () => {
     let temp = 15;
-    let weatherText = weather;
+    let weatherText: string = weather;
     let WeatherIcon: React.FC<{ size: number; className?: string }> = Sun;
 
     switch (season) {
@@ -146,7 +131,7 @@ import type { Weather } from '../../types';
     switch (type) {
       case 'dialogue': return 'dialogue';
       case 'shop': return 'commerce';
-      case 'fish': case 'job': return 'action';
+      case 'fish': case 'job': case 'woodcut': return 'action';
       case 'navigate': return 'travel';
       default: return 'explore';
     }
@@ -174,19 +159,30 @@ import type { Weather } from '../../types';
   const handleConfirmTravel = () => {
     if (!pendingTravelAction) return;
 
+    let modifiedTimeCost = pendingTravelAction.time_cost || 0;
+    let weatherModifier = 1;
+
+    switch (weather) {
+      case 'Rainy':
+        weatherModifier = 1.5;
+        break;
+      case 'Snowy':
+        weatherModifier = 2;
+        break;
+    }
+
+    modifiedTimeCost *= weatherModifier;
+
     setTravelModalOpen(false);
 
-    // Only show progress modal and pass time if there's a time cost
-    if (pendingTravelAction.time_cost > 0) {
-      // Pause the global clock while timed travel animation runs
+    if (modifiedTimeCost > 0) {
       useWorldTimeStore.getState().setClockPaused(true);
       setTravelProgressModalOpen(true);
       const world = useWorldTimeStore.getState();
       const startSeconds = world.hour * 3600 + world.minute * 60;
-      const totalSeconds = (pendingTravelAction.time_cost || 0) * 60;
+      const totalSeconds = modifiedTimeCost * 60;
       setTravelProgress({ currentTime: 0, totalTime: totalSeconds, startTime: startSeconds });
     } else {
-      // Instant travel for locations with no time cost
       useLocationStore.getState().setLocation(pendingTravelAction.target);
       setPendingTravelAction(null);
     }
@@ -303,7 +299,12 @@ import type { Weather } from '../../types';
                 </p>
                 {pendingTravelAction.time_cost > 0 && (
                   <p className="text-sm text-zinc-300">
-                    <strong>Time Cost:</strong> {pendingTravelAction.time_cost} minutes
+                    <strong>Time Cost:</strong> {pendingTravelAction.time_cost * (weather === 'Rainy' ? 1.5 : weather === 'Snowy' ? 2 : 1)} minutes
+                  </p>
+                )}
+                {(weather === 'Rainy' || weather === 'Snowy') && (
+                  <p className="text-sm text-amber-400 mt-2">
+                    Travel will be slower due to {weather.toLowerCase()} conditions.
                   </p>
                 )}
                 {pendingTravelAction.time_cost === 0 && (

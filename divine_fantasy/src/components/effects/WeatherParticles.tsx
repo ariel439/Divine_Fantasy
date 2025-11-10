@@ -1,7 +1,9 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import type { FC } from 'react';
-import type { Weather } from '../../types';
+import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
+
+type Weather = ReturnType<typeof useWorldTimeStore.getState>['weather'];
 
 interface WeatherParticlesProps {
     weather: Weather;

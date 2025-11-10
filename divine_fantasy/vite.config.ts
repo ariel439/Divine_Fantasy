@@ -6,6 +6,7 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
       root: 'src',
+      publicDir: path.resolve(__dirname, 'public'),
       server: {
         port: 3000,
         host: '0.0.0.0',

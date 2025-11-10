@@ -1,121 +1,86 @@
+import type { ReactElement } from 'react';
 
-import type { ReactNode } from 'react';
+// Core navigation/game state types
+export type GameState =
+  | 'mainMenu'
+  | 'characterSelection'
+  | 'prologue'
+  | 'inGame'
+  | 'dialogue'
+  | 'dialogueRoberta'
+  | 'characterScreen'
+  | 'inventory'
+  | 'jobScreen'
+  | 'journal'
+  | 'diary'
+  | 'library'
+  | 'trade'
+  | 'tradeConfirmation'
+  | 'crafting'
+  | 'choiceEvent'
+  | 'combat'
+  | 'combatVictory'
+  | 'companion';
 
-export type GameState = 'mainMenu' | 'characterSelection' | 'prologue' | 'inGame' | 'characterScreen' | 'inventory' | 'journal' | 'diary' | 'jobScreen' | 'dialogue' | 'trade' | 'crafting' | 'tradeConfirmation' | 'choiceEvent' | 'combat' | 'combatVictory' | 'companion' | 'dialogueRoberta' | 'library';
+export type NavVariant = 'default' | 'compact' | 'floating';
 
-export type NavVariant = 'floating' | 'solid';
+// Inventory and equipment types
+export type EquipmentSlot =
+  | 'head'
+  | 'cape'
+  | 'amulet'
+  | 'weapon'
+  | 'chest'
+  | 'shield'
+  | 'legs'
+  | 'gloves'
+  | 'boots'
+  | 'ring';
 
-export type Season = 'Spring' | 'Summer' | 'Autumn' | 'Winter';
-export type Weather = 'Sunny' | 'Clear' | 'Cloudy' | 'Rainy' | 'Snowy';
-
-export type EquipmentSlot = 'head' | 'cape' | 'amulet' | 'weapon' | 'chest' | 'shield' | 'legs' | 'gloves' | 'boots' | 'ring';
-
-export interface Vitals {
-    hp: { current: number; max: number };
-    energy: { current: number; max: number };
-    hunger: { current: number; max: number };
-}
-
-export interface Slide {
-  image: string;
-  text: string;
-}
-
-export interface DialogueOption {
-  text: string;
-  skillCheck?: {
-    skill: string;
-    level: number;
-  };
-  onSelect?: () => void;
-  nextPortraitUrl?: string;
-  responseText?: string;
-  nextOptions?: DialogueOption[];
-}
-
-export interface Choice {
-  text: string;
-  onSelect: () => void;
-  disabled?: boolean;
-  skillCheck?: {
-    skill: string;
-    level: number;
-  };
-}
-
-export type ConversationEntry = {
-    speaker: 'npc' | 'player';
-    text: string;
-};
-
-export type ItemCategory = 'Resource' | 'Consumable' | 'Tool' | 'Quest' | 'Equipment';
-export type FilterCategory = 'All' | ItemCategory;
+export type FilterCategory =
+  | 'All'
+  | 'Equipment'
+  | 'Resource'
+  | 'Consumable'
+  | 'Tool'
+  | 'Quest';
 
 export interface Item {
-    id: string;
-    name: string;
-    description: string;
-    icon: ReactNode;
-    category: ItemCategory;
-    weight: number;
-    value: number;
-    quantity?: number;
-    stackable: boolean;
-    effects?: { [key: string]: string };
-    actions: ('Use' | 'Equip' | 'Drop')[];
-    equipmentSlot?: EquipmentSlot;
-    stats?: { [key: string]: number }; // e.g., { 'Attack': 5, 'Defence': 2 }
-}
-
-export interface OfferItem {
-    item: Item;
-    quantity: number;
-}
-
-export interface Npc {
   id: string;
   name: string;
-  title: string;
-  portrait: string;
-  relationships: {
-    friendship: { value: number; max: number };
-    love: { value: number; max: number };
-    obedience: { value: number; max: number };
-    fear: { value: number; max: number };
-  };
-  history: string[];
+  description: string;
+  icon: ReactElement;
+  category: Exclude<FilterCategory, 'All'>; // concrete category for items
+  weight: number;
+  value: number;
+  quantity?: number;
+  stackable?: boolean;
+  effects?: Record<string, number | string>;
+  actions: string[];
+  equipmentSlot?: EquipmentSlot;
+  stats?: Record<string, number>;
 }
 
-export interface Objective {
-    text: string;
-    completed: boolean;
+// Trading
+export interface OfferItem {
+  item: Item;
+  quantity: number;
 }
 
-export interface Quest {
-    id:string;
-    title: string;
-    giver: string;
-    description: string;
-    objectives: Objective[];
-    rewards: string[];
-    status: 'active' | 'completed';
-}
-
+// Crafting
 export type CraftingSkill = 'Carpentry' | 'Cooking';
 
 export interface Recipe {
-    id: string;
-    result: Item;
-    skill: CraftingSkill;
-    levelRequired: number;
-    ingredients: {
-        itemId: string; // Corresponds to an ID in mockInventory
-        quantity: number;
-    }[];
-    timeCost: number; // minutes
-    energyCost: number;
+  id: string;
+  skill: CraftingSkill;
+  levelRequired: number;
+  result: Item;
+  ingredients: { itemId: string; quantity: number }[];
+  timeCost: number; // minutes
+  energyCost: number; // abstract points
 }
 
+// Combat
 export interface Combatant {
   id: string;
   name: string;
@@ -124,35 +89,112 @@ export interface Combatant {
   portraitUrl: string;
 }
 
-export interface ActionSummary {
-  title: string;
-  durationInMinutes: number; // in minutes
-  vitalsChanges: {
-    vital: 'Energy' | 'Health' | 'Hunger';
-    change: number; // can be negative
-    icon?: ReactNode;
-  }[];
-  rewards: {
-    name: string;
-    quantity: number;
-    icon?: ReactNode;
-  }[];
-  expended?: {
-    name: string;
-    quantity: number;
-    icon?: ReactNode;
-  }[];
+// Dialogue
+export interface DialogueOption {
+  text: string;
+  onSelect?: () => void;
+  responseText?: string;
+  nextOptions?: DialogueOption[];
+  nextPortraitUrl?: string;
+  disabled?: boolean;
+  skillCheck?: { skill: string; level?: number };
 }
 
-export type BookContent = {
-  type: 'h1' | 'h2' | 'p' | 'img';
-  content: string; // for text or image URL
+export interface ConversationEntry {
+  speaker: 'npc' | 'player';
+  text: string;
+}
+
+// Choice events
+export interface Choice {
+  text: string;
+  onSelect: () => void;
+  disabled?: boolean;
+  skillCheck?: { skill: string; level?: number };
+}
+
+// Books & Library
+export type BookContentType = 'h1' | 'h2' | 'p' | 'img';
+
+export interface BookContent {
+  type: BookContentType;
+  content: string; // text or image URL depending on type
   caption?: string; // for images
-};
+}
 
 export interface Book {
   id: string;
   title: string;
   author: string;
   content: BookContent[];
+}
+
+// NPCs & Quests
+export interface NpcRelationship {
+  value: number;
+  max: number;
+}
+
+export interface Npc {
+  id: string;
+  name: string;
+  title: string;
+  portrait: string;
+  relationships: {
+    friendship: NpcRelationship;
+    love: NpcRelationship;
+    obedience: NpcRelationship;
+    fear: NpcRelationship;
+  };
+  history: string[];
+}
+
+export type QuestStatus = 'active' | 'completed';
+
+export interface QuestObjective {
+  text: string;
+  completed: boolean;
+}
+
+export interface Quest {
+  id: string;
+  title: string;
+  giver: string;
+  description: string;
+  objectives: QuestObjective[];
+  rewards: string[];
+  status: QuestStatus;
+}
+
+// Prologue slides / story content
+export interface Slide {
+  image: string;
+  text: string;
+}
+
+// Action Summary (used in modals to summarize outcomes)
+export interface ActionSummaryVitalChange {
+  vital: string;
+  change: number;
+  icon?: ReactElement;
+}
+
+export interface ActionSummaryResourceChange {
+  name: string;
+  quantity: number;
+  icon?: ReactElement;
+}
+
+export interface ActionSummaryReward {
+  name: string;
+  quantity: number;
+  icon?: ReactElement;
+}
+
+export interface ActionSummary {
+  title: string;
+  durationInMinutes: number;
+  vitalsChanges: ActionSummaryVitalChange[];
+  expended?: ActionSummaryResourceChange[];
+  rewards: ActionSummaryReward[];
 }

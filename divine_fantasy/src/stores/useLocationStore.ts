@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import locations from '../data/locations.json';
+import { useWorldTimeStore } from './useWorldTimeStore';
 
 interface Location {
   id: string;
@@ -36,7 +37,9 @@ export const useLocationStore = create<LocationState>((set, get) => ({
     const locationData = locations[locationId as keyof typeof locations];
     if (!locationData) return null;
 
-    const isNight = new Date().getHours() >= 18 || new Date().getHours() < 6; // Simple night check
+    // Use in-game clock instead of system time
+    const { hour } = useWorldTimeStore.getState();
+    const isNight = hour >= 18 || hour < 6;
     const description = isNight ? locationData.night_description : locationData.day_description;
     const background = isNight ? locationData.night_background : locationData.day_background;
 

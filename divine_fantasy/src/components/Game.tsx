@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useUIStore } from '../stores/useUIStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
+import { useLocationStore } from '../stores/useLocationStore';
 import MainMenu from './screens/MainMenu';
 import CharacterSelection from './screens/CharacterSelection';
 import EventScreen from './screens/EventScreen';
@@ -24,18 +25,17 @@ import { lukePrologueSlides } from '../data';
 
 const Game: React.FC = () => {
   const { currentScreen, setScreen } = useUIStore();
-  const { day, hour, minute, passTime, clockPaused } = useWorldTimeStore();
+  const { day, hour, minute, passTime } = useWorldTimeStore();
+  const { getCurrentLocation } = useLocationStore();
 
   // Game clock logic
   useEffect(() => {
     const timerId = setInterval(() => {
-      if (!clockPaused) {
-        passTime(1); // Pass 1 minute every 2 seconds
-      }
+      passTime(1); // Pass 1 minute every 2 seconds
     }, 2000);
 
     return () => clearInterval(timerId);
-  }, [passTime, clockPaused]);
+  }, [passTime]);
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -85,6 +85,21 @@ const Game: React.FC = () => {
   const isSolidBg = ['characterScreen', 'inventory', 'journal', 'diary', 'trade', 'crafting', 'jobScreen', 'library', 'companion'].includes(currentScreen);
   const isInGame = ['inGame', 'characterScreen', 'inventory', 'journal', 'diary', 'jobScreen', 'companion'].includes(currentScreen);
 
+  // Responsive background sizing for in-game screens
+  const [useContainBg, setUseContainBg] = useState(true);
+  useEffect(() => {
+    const updateBgMode = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const aspect = w / h;
+      // Wide screens: prefer contain to avoid aggressive cropping; otherwise cover
+      setUseContainBg(aspect >= 1.6);
+    };
+    updateBgMode();
+    window.addEventListener('resize', updateBgMode);
+    return () => window.removeEventListener('resize', updateBgMode);
+  }, []);
+
   const handleNavigate = (screen: any) => {
     setScreen(screen);
   };
@@ -111,9 +126,22 @@ const Game: React.FC = () => {
         className={`absolute inset-0 transition-all duration-700 ${
           isSolidBg
             ? 'bg-zinc-900'
-            : `bg-cover bg-center ${currentScreen === 'mainMenu' || currentScreen === 'choiceEvent' ? 'animate-kenburns' : ''}`
+            : `bg-center bg-no-repeat ${currentScreen === 'mainMenu' || currentScreen === 'choiceEvent' ? 'animate-kenburns' : ''}`
         }`}
-        style={isSolidBg ? {} : { backgroundImage: "url(https://i.imgur.com/WsODuhO.png)" }}
+        style={
+          isSolidBg
+            ? {}
+            : {
+                backgroundImage: `url(${currentScreen === 'inGame' ? getCurrentLocation().background : 'https://i.imgur.com/WsODuhO.png'})`,
+                // Zoom slightly on wide screens, fill on others
+                backgroundSize: currentScreen === 'inGame' ? (useContainBg ? '110%' : 'cover') : 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                // Fade edges to black by masking background (transparent reveals black root background)
+                WebkitMaskImage: currentScreen === 'inGame' ? 'radial-gradient(130% 130% at 50% 50%, black 70%, transparent 100%)' : undefined,
+                maskImage: currentScreen === 'inGame' ? 'radial-gradient(130% 130% at 50% 50%, black 70%, transparent 100%)' : undefined,
+              }
+        }
       ></div>
       <div className={`absolute inset-0 ${isSolidBg ? 'bg-black/60' : 'bg-black/40'} transition-all duration-700`}></div>
       <div className="relative z-10 w-full h-full">

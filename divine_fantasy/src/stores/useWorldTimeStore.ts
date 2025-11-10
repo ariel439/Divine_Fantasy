@@ -1,15 +1,23 @@
 import { create } from 'zustand';
 
+type Weather = 'Sunny' | 'Cloudy' | 'Rainy' | 'Snowy';
+type Season = 'Spring' | 'Summer' | 'Autumn' | 'Winter';
+
 interface WorldTimeState {
   day: number;
   hour: number;
   minute: number;
   clockPaused: boolean;
+  weather: Weather;
+  season: Season;
   // Actions
   passTime: (minutes: number) => void;
   getFormattedTime: () => string;
   getFormattedDate: () => string;
   setClockPaused: (paused: boolean) => void;
+  updateEnvironment: () => void;
+  getSeason: () => Season;
+  getWeather: () => Weather;
 }
 
 export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
@@ -17,6 +25,8 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
   hour: 8,
   minute: 0,
   clockPaused: false,
+  weather: 'Sunny',
+  season: 'Spring',
   passTime: (minutes) => {
     set((state) => {
       let newMinute = state.minute + minutes;
@@ -39,6 +49,7 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
         minute: newMinute,
       };
     });
+    get().updateEnvironment();
   },
   setClockPaused: (paused: boolean) => set({ clockPaused: paused }),
   getFormattedTime: () => {
@@ -50,5 +61,29 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
   getFormattedDate: () => {
     const { day } = get();
     return `Day ${day}`;
+  },
+  updateEnvironment: () => {
+    set((state) => {
+      const { day, minute } = state;
+      const seasonIndex = Math.floor((day - 1) / 30) % 4;
+      const newSeason = ['Spring', 'Summer', 'Autumn', 'Winter'][seasonIndex] as Season;
+
+      const weatherCycle: Weather[] = ['Sunny', 'Cloudy', 'Rainy', 'Snowy'];
+      const weatherIndex = Math.floor((minute / 15) % weatherCycle.length);
+      const newWeather = weatherCycle[weatherIndex];
+
+      return { season: newSeason, weather: newWeather };
+    });
+  },
+  getSeason: () => {
+    const { day } = get();
+    const seasonIndex = Math.floor((day - 1) / 30) % 4;
+    return ['Spring', 'Summer', 'Autumn', 'Winter'][seasonIndex] as Season;
+  },
+  getWeather: () => {
+    const { minute } = get();
+    const weatherCycle: Weather[] = ['Sunny', 'Cloudy', 'Rainy', 'Snowy'];
+    const weatherIndex = Math.floor((minute / 15) % weatherCycle.length);
+    return weatherCycle[weatherIndex];
   },
 }));

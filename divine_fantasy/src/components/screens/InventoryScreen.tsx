@@ -15,7 +15,7 @@ import itemsData from '../../data/items.json';
 
 const InventoryScreen: FC = () => {
     const { items: inventoryItems, getCurrentWeight, getItemQuantity, useItem, removeItem } = useInventoryStore();
-    const { currency, maxWeight } = useCharacterStore();
+    const { currency, maxWeight, equippedItems, equipItem, unequipItem } = useCharacterStore();
 
     const [selectedItem, setSelectedItem] = useState<Item | null>(null);
     const [rightPanelView, setRightPanelView] = useState<'equipment' | 'details'>('equipment');
@@ -25,6 +25,7 @@ const InventoryScreen: FC = () => {
         return inventoryItems.map(invItem => {
             const itemData = itemsData[invItem.id as keyof typeof itemsData];
             if (!itemData) return null;
+            const equipSlot = (itemData as any).equip_slot as any;
             return {
                 id: invItem.id,
                 name: itemData.name,
@@ -36,15 +37,12 @@ const InventoryScreen: FC = () => {
                 quantity: invItem.quantity,
                 stackable: itemData.stackable,
                 effects: (itemData as any).effects,
-                actions: ['Use', 'Drop'], // TODO: Add equip if applicable
-                equipmentSlot: (itemData as any).equip_slot as any,
+                actions: (('equip_slot' in itemData) && (itemData as any).equip_slot) ? ['Equip', 'Use', 'Drop'] : ['Use', 'Drop'],
+                equipmentSlot: equipSlot === 'main_hand' ? ('weapon' as EquipmentSlot) : equipSlot,
                 stats: {} // TODO: Add stats if applicable
             } as Item;
         }).filter(Boolean) as Item[];
     }, [inventoryItems]);
-
-    // TODO: Implement equipped items store
-    const equippedItems = useMemo(() => ({} as Partial<Record<EquipmentSlot, Item>>), []);
 
     const totalWeight = useMemo(() => {
         return getCurrentWeight();
@@ -80,9 +78,10 @@ const InventoryScreen: FC = () => {
             useItem(selectedItem.id);
         } else if (action === 'Drop') {
             removeItem(selectedItem.id, 1);
-        } else if (action === 'Equip' || action === 'Unequip') {
-            // TODO: Implement equip/unequip with store
-            console.log(`${action} ${selectedItem.name}`);
+        } else if (action === 'Equip') {
+            equipItem(selectedItem);
+        } else if (action === 'Unequip') {
+            unequipItem(selectedItem);
         }
 
         handleShowEquipment();

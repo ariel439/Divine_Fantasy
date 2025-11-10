@@ -24,16 +24,18 @@ import { lukePrologueSlides } from '../data';
 
 const Game: React.FC = () => {
   const { currentScreen, setScreen } = useUIStore();
-  const { day, hour, minute, passTime } = useWorldTimeStore();
+  const { day, hour, minute, passTime, clockPaused } = useWorldTimeStore();
 
   // Game clock logic
   useEffect(() => {
     const timerId = setInterval(() => {
-      passTime(1); // Pass 1 minute every 2 seconds
+      if (!clockPaused) {
+        passTime(1); // Pass 1 minute every 2 seconds
+      }
     }, 2000);
 
     return () => clearInterval(timerId);
-  }, [passTime]);
+  }, [passTime, clockPaused]);
 
   const renderScreen = () => {
     switch (currentScreen) {

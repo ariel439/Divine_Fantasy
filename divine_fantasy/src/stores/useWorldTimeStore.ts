@@ -4,16 +4,19 @@ interface WorldTimeState {
   day: number;
   hour: number;
   minute: number;
+  clockPaused: boolean;
   // Actions
   passTime: (minutes: number) => void;
   getFormattedTime: () => string;
   getFormattedDate: () => string;
+  setClockPaused: (paused: boolean) => void;
 }
 
 export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
   day: 1,
   hour: 8,
   minute: 0,
+  clockPaused: false,
   passTime: (minutes) => {
     set((state) => {
       let newMinute = state.minute + minutes;
@@ -37,6 +40,7 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
       };
     });
   },
+  setClockPaused: (paused: boolean) => set({ clockPaused: paused }),
   getFormattedTime: () => {
     const { hour, minute } = get();
     const period = hour >= 12 ? 'PM' : 'AM';

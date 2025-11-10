@@ -42,7 +42,7 @@ The game features a persistent clock and calendar.
 - **Travel Cost (v1.0):** For the v1.0 release, travel **only costs time**. It does not consume resources like Energy or Hunger. This is to prevent players from getting stranded in a location with no way to rest or recover. Resource costs for travel may be introduced in a future update.
 - **Example Travel Times:**
     -   Crossroads to Shingleback Shore: 15 minutes
-    -   Crossroads to Driftwatch Woods: 30 minutes
+-   Crossroads to Driftwatch Woods: 60 minutes
     -   Crossroads to Southern Mountains: 1 hour 30 minutes
 
 #### 2.6.1. User Interface

@@ -8,21 +8,42 @@ This master document details all playable content for the v1.0 release, focused 
 
 Driftwatch is the primary and only hub for v1.0. It is a bustling port town with a mix of weathered sailors, aspiring nobles, and hardworking common folk.
 
+### 1.1. Hub Connections (Overview)
+
+For v1.0, travel inside Driftwatch is free and instant. Only the Crossroads ↔ Driftwatch Woods route consumes time (1 hour). The city hub connections are:
+
+- Hub connects to: Main Street, Noble Quarter, Docks, The Slums, Crossroads
+- Main Street connects to: Leo's Lighthouse, Beryl's General Goods, Kaelen's Forge, Hub
+- Leo's Lighthouse connects to: Main Street
+- Beryl's General Goods connects to: Main Street
+- Kaelen's Forge connects to: Main Street
+- Noble Quarter connects to: Hub, Mosswatch Keep, The Grand Library
+- Mosswatch Keep connects to: Noble Quarter, Tidehunter Quarter
+- The Grand Library connects to: Noble Quarter
+- Tidehunter Quarter connects to: Mosswatch Keep
+- Docks connect to: Hub, Tide & Trade
+- Tide & Trade connects to: Docks
+- Slums connect to: Hub, Salty Mug, Herbalist's Hovel
+- Salty Mug connects to: Slums
+- Salty Mug Rented Room connects to: Salty Mug
+- Herbalist's Hovel connects to: Slums
+- Crossroads connect to: Hub, Driftwatch Woods (timed, 1 hour), Homestead Farm
+- Driftwatch Woods connect to: Crossroads (timed, 1 hour), Hunter's Cabin, Sawmill
+- Sawmill connects to: Driftwatch Woods
+- Homestead Farm connects to: Crossroads
+
 ### 1.1. Main Street
 
 *   **Location ID:** `driftwatch_main_street`
 *   **Description:** The central thoroughfare of Driftwatch, lined with essential shops and the path to the orphanage.
-*   **NPCs Present:** Beryl, Kaelen, Cyrus.
+*   **NPCs Present:** None.
 *   **Actions:**
     *   None.
 *   **Travel Connections:**
     *   Leo's Lighthouse
     *   Beryl's General Goods
     *   Kaelen's Forge
-    *   Driftwatch Noble Quarter
-    *   Driftwatch Docks
-    *   The Slums
-    *   The Crossroads
+    *   Driftwatch Hub
 
 #### 1.1.1. Leo's Lighthouse (Orphanage)
 *   **Location ID:** `leo_lighthouse`
@@ -172,8 +193,8 @@ Driftwatch is the primary and only hub for v1.0. It is a bustling port town with
 *   **Actions:**
     *   None.
 *   **Travel Connections:**
-    *   Driftwatch Main Street
-    *   Driftwatch Woods
+    *   Driftwatch Hub
+    *   Driftwatch Woods (timed, 1 hour)
     *   Homestead Farm
     *   Shingleback Shore (Placeholder)
     *   Southern Mountains (Placeholder)
@@ -182,7 +203,7 @@ Driftwatch is the primary and only hub for v1.0. It is a bustling port town with
 #### 1.5.1. Driftwatch Woods (Forest)
 *   **Location ID:** `driftwatch_woods`
 *   **Description:** A dense, wild forest near Driftwatch. A place for gathering resources and facing danger.
-*   **NPCs Present:** Ronald (at his cabin).
+*   **NPCs Present:** None.
 *   **Actions:**
     *   Chop Wood
     *   Fish

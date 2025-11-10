@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useCharacterStore } from '../../stores/useCharacterStore';
 import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
 import { useLocationStore } from '../../stores/useLocationStore';
@@ -8,9 +8,11 @@ import ProgressBar from '../ui/ProgressBar';
 import ActionButton from '../ui/ActionButton';
 import LocationNav from '../LocationNav';
 import WeatherParticles from '../effects/WeatherParticles';
+import { ConfirmationModal } from '../modals/ConfirmationModal';
+import TimedActionModal from '../modals/TimedActionModal';
 import type { Weather } from '../../types';
 
-const LocationScreen: React.FC = () => {
+  const LocationScreen: React.FC = () => {
   const { attributes, hp, energy, hunger, maxWeight } = useCharacterStore();
   const { day, hour, minute, getFormattedTime, getFormattedDate } = useWorldTimeStore();
   const { getCurrentLocation } = useLocationStore();
@@ -32,6 +34,12 @@ const LocationScreen: React.FC = () => {
 
   // Weather state that changes every 10 minutes
   const [weather, setWeather] = useState<Weather>('Sunny');
+  
+  // Travel state
+  const [travelModalOpen, setTravelModalOpen] = useState(false);
+  const [travelProgressModalOpen, setTravelProgressModalOpen] = useState(false);
+  const [pendingTravelAction, setPendingTravelAction] = useState<any>(null);
+  const [travelProgress, setTravelProgress] = useState<any>(null);
 
   useEffect(() => {
     const weatherCycle = ['Sunny', 'Cloudy', 'Rainy', 'Snowy'] as Weather[];
@@ -108,7 +116,14 @@ const LocationScreen: React.FC = () => {
         setScreen('jobScreen');
         break;
       case 'navigate':
-        // TODO: Implement navigation
+        // Free travel: no modal. Timed travel: show confirmation modal
+        if (action.time_cost && action.time_cost > 0) {
+          setPendingTravelAction(action);
+          setTravelModalOpen(true);
+        } else {
+          useLocationStore.getState().setLocation(action.target);
+          setPendingTravelAction(null);
+        }
         break;
       default:
         console.log('Action not implemented:', action);
@@ -119,7 +134,8 @@ const LocationScreen: React.FC = () => {
     switch (type) {
       case 'dialogue': return <MessageSquare size={20} className="text-sky-300" />;
       case 'shop': return <ShoppingCart size={20} className="text-yellow-300" />;
-      case 'fish': return <Fish size={20} className="text-blue-300" />;
+    case 'fish': return <Fish size={20} className="text-orange-400" />;
+    case 'woodcut': return <Leaf size={20} className="text-orange-400" />; // match Fishing orange card
       case 'job': return <Briefcase size={20} className="text-orange-300" />;
       case 'navigate': return <MapPin size={20} className="text-green-300" />;
       default: return <Search size={20} className="text-zinc-300" />;
@@ -154,6 +170,44 @@ const LocationScreen: React.FC = () => {
     // TODO: Implement save/load modal
     console.log('Open save/load modal');
   };
+
+  const handleConfirmTravel = () => {
+    if (!pendingTravelAction) return;
+
+    setTravelModalOpen(false);
+
+    // Only show progress modal and pass time if there's a time cost
+    if (pendingTravelAction.time_cost > 0) {
+      // Pause the global clock while timed travel animation runs
+      useWorldTimeStore.getState().setClockPaused(true);
+      setTravelProgressModalOpen(true);
+      const world = useWorldTimeStore.getState();
+      const startSeconds = world.hour * 3600 + world.minute * 60;
+      const totalSeconds = (pendingTravelAction.time_cost || 0) * 60;
+      setTravelProgress({ currentTime: 0, totalTime: totalSeconds, startTime: startSeconds });
+    } else {
+      // Instant travel for locations with no time cost
+      useLocationStore.getState().setLocation(pendingTravelAction.target);
+      setPendingTravelAction(null);
+    }
+  };
+
+  const handleCancelTravel = () => {
+    setTravelModalOpen(false);
+    setPendingTravelAction(null);
+  };
+
+  const handleTimedActionClose = useCallback(() => {
+    if (pendingTravelAction) {
+      useLocationStore.getState().setLocation(pendingTravelAction.target);
+      useWorldTimeStore.getState().passTime(pendingTravelAction.time_cost || 0);
+    }
+    // Resume the global clock after timed travel completes
+    useWorldTimeStore.getState().setClockPaused(false);
+    setTravelProgressModalOpen(false);
+    setPendingTravelAction(null);
+    setTravelProgress(null);
+  }, [pendingTravelAction]);
 
   return (
     <>
@@ -193,7 +247,16 @@ const LocationScreen: React.FC = () => {
 
         {/* Scrollable Actions */}
         <div className="overflow-y-auto flex-grow pr-2 space-y-3 custom-scrollbar scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-zinc-800/50 hover:scrollbar-thumb-zinc-500">
-          {currentLocation.actions.map((action, index) => (
+          {currentLocation.actions
+            .slice()
+            .sort((a: any, b: any) => {
+              const isAHub = a.type === 'navigate' && (a.target === 'driftwatch' || /Hub/i.test(a.text));
+              const isBHub = b.type === 'navigate' && (b.target === 'driftwatch' || /Hub/i.test(b.text));
+              if (isAHub && !isBHub) return 1;
+              if (!isAHub && isBHub) return -1;
+              return 0;
+            })
+            .map((action: any, index: number) => (
             <ActionButton
               key={index}
               onClick={() => handleAction(action)}
@@ -224,6 +287,46 @@ const LocationScreen: React.FC = () => {
         showTimeControls={true}
         onOpenOptionsModal={handleOpenOptionsModal}
         onOpenSaveLoadModal={handleOpenSaveLoadModal}
+      />
+
+      {/* Travel Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={travelModalOpen}
+        title="Confirm Travel"
+        message={
+          <div>
+            <p className="mb-2">Are you sure you want to travel to this location?</p>
+            {pendingTravelAction && (
+              <div className="mt-4 p-3 bg-zinc-800 rounded-lg">
+                <p className="text-sm text-zinc-300 mb-1">
+                  <strong>Destination:</strong> {pendingTravelAction.text.replace('Travel to ', '')}
+                </p>
+                {pendingTravelAction.time_cost > 0 && (
+                  <p className="text-sm text-zinc-300">
+                    <strong>Time Cost:</strong> {pendingTravelAction.time_cost} minutes
+                  </p>
+                )}
+                {pendingTravelAction.time_cost === 0 && (
+                  <p className="text-sm text-green-300">
+                    <strong>Instant Travel</strong> - No time cost
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        }
+        onConfirm={handleConfirmTravel}
+        onCancel={handleCancelTravel}
+        confirmText="Travel"
+        cancelText="Cancel"
+      />
+
+      {/* Travel Progress Modal */}
+      <TimedActionModal
+        isOpen={travelProgressModalOpen}
+        actionName="Traveling..."
+        progress={travelProgress}
+        onClose={handleTimedActionClose}
       />
     </>
   );

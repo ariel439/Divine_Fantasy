@@ -14,7 +14,7 @@
     "starting_bonuses": {
       "currency": { "copper": 20, "silver": 0, "gold": 0 },
       "skills": [],
-      "items": []
+      "items": ["fishing_rod", "axe_basic"]
     },
     "starting_relationships": {
       "npc_old_leo": { "friendship": 80 },

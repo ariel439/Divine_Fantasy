@@ -88,13 +88,13 @@ With the architecture in place, we'll breathe life into the core systems.
 
 This phase is a loop: for each mechanic, we will first ensure the data is ready, then connect the UI components to the state and services.
 
-- [ ] **3.1 & 3.2: Character, World, Travel & Exploration**
+- [x] **3.1 & 3.2: Character, World, Travel & Exploration**
 - [x] Load character templates on new game (update Game.tsx or GameManagerService)
 - [x] Update CharacterScreen.tsx to use real bio/image from character template
     - [x] Connect InventoryScreen.tsx to useInventoryStore (replace local state with store data)
     - [x] Map InventoryItem[] to Item[] via items.json in InventoryScreen.tsx
     - [x] Implement use/drop handlers in InventoryScreen.tsx calling store methods
-    - [ ] Integrate equip/unequip with store in InventoryScreen.tsx
+    - [x] Integrate equip/unequip with store in InventoryScreen.tsx
     - [ ] Enhance LocationScreen with full weather/season mechanics (already partially done)
     - [ ] Add travel confirmation modals (if needed)
     - [ ] Ensure skill progression with attribute bonuses (already in stores)

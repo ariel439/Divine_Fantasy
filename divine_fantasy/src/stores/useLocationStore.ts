@@ -24,7 +24,7 @@ interface LocationState {
 }
 
 export const useLocationStore = create<LocationState>((set, get) => ({
-  currentLocationId: 'driftwatch_docks', // Starting location
+  currentLocationId: 'driftwatch', // Starting location at central hub
   setLocation: (locationId) => {
     set({ currentLocationId: locationId });
   },

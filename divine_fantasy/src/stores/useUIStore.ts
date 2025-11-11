@@ -7,15 +7,18 @@ type Modal = 'confirmation' | 'options' | 'saveLoad' | 'sleepWait' | 'timedActio
 interface UIState {
   currentScreen: Screen;
   activeModal: Modal;
+  dialogueNpcId: string | null;
   // Actions
   setScreen: (screen: Screen) => void;
   openModal: (modal: Modal) => void;
   closeModal: () => void;
+  setDialogueNpcId: (npcId: string | null) => void;
 }
 
 export const useUIStore = create<UIState>((set, get) => ({
   currentScreen: 'mainMenu',
   activeModal: null,
+  dialogueNpcId: null,
   setScreen: (screen) => {
     set({ currentScreen: screen });
   },
@@ -24,5 +27,8 @@ export const useUIStore = create<UIState>((set, get) => ({
   },
   closeModal: () => {
     set({ activeModal: null });
+  },
+  setDialogueNpcId: (npcId) => {
+    set({ dialogueNpcId: npcId });
   },
 }));

@@ -2,106 +2,127 @@
   "npc_beryl": {
     "name": "Beryl",
     "home_location": "beryls_general_goods",
-    "default_dialogue_id": "beryl_default"
+    "default_dialogue_id": "beryl_default",
+    "portrait": "/assets/portraits/Beryl.png"
   },
   "npc_kaelen": {
     "name": "Kaelen",
     "home_location": "kaelens_forge",
-    "default_dialogue_id": "kaelen_default"
+    "default_dialogue_id": "kaelen_default",
+    "portrait": "/assets/portraits/Kaelen.png"
   },
   "npc_cyrus": {
     "name": "Cyrus",
     "home_location": "kaelens_forge",
-    "default_dialogue_id": "cyrus_default"
+    "default_dialogue_id": "cyrus_default",
+    "portrait": "/assets/portraits/Cyrus.png"
   },
   "npc_adalia": {
     "name": "Adalia",
     "home_location": "grand_library",
-    "default_dialogue_id": "adalia_default"
+    "default_dialogue_id": "adalia_default",
+    "portrait": "/assets/portraits/Adalia.png"
   },
   "npc_matthias": {
     "name": "Corporal Matthias",
     "home_location": "mosswatch_keep",
-    "default_dialogue_id": "matthias_default"
+    "default_dialogue_id": "matthias_default",
+    "portrait": "/assets/portraits/Matthias.png"
   },
   "npc_rodrick": {
     "name": "Sergeant Rodrick",
     "home_location": "tidehunter_quarter",
-    "default_dialogue_id": "rodrick_default"
+    "default_dialogue_id": "rodrick_default",
+    "portrait": "/assets/portraits/Rodrick.png"
   },
   "npc_boric": {
     "name": "Boric",
     "home_location": "driftwatch_docks",
-    "default_dialogue_id": "boric_default"
+    "default_dialogue_id": "boric_default",
+    "portrait": "/assets/icons/DivineFantasy.png"
   },
   "npc_elias_captain": {
     "name": "Captain Elias",
     "home_location": "driftwatch_docks",
-    "default_dialogue_id": "elias_default"
+    "default_dialogue_id": "elias_default",
+    "portrait": "/assets/portraits/Elias.png"
   },
   "npc_roberta": {
     "name": "Roberta",
     "home_location": "tide_trade",
-    "default_dialogue_id": "roberta_default"
+    "default_dialogue_id": "roberta_default",
+    "portrait": "/assets/portraits/Roberta.png"
   },
   "npc_finn": {
     "name": "Finn",
     "home_location": "salty_mug",
-    "default_dialogue_id": "finn_default"
+    "default_dialogue_id": "finn_default",
+    "portrait": "/assets/portraits/OldManFinn.png"
   },
   "npc_old_crank": {
     "name": "Old Crank",
     "home_location": "salty_mug",
-    "default_dialogue_id": "old_crank_default"
+    "default_dialogue_id": "old_crank_default",
+    "portrait": "/assets/portraits/OldCrank.png"
   },
   "npc_elara": {
     "name": "Elara",
     "home_location": "herbalists_hovel",
-    "default_dialogue_id": "elara_default"
+    "default_dialogue_id": "elara_default",
+    "portrait": "/assets/portraits/Elara.png"
   },
   "npc_crawler": {
     "name": "Crawler",
     "home_location": "sawmill",
-    "default_dialogue_id": "crawler_default"
+    "default_dialogue_id": "crawler_default",
+    "portrait": "/assets/portraits/Crawler.png"
   },
   "npc_ronald": {
     "name": "Ronald",
     "home_location": "hunters_cabin",
-    "default_dialogue_id": "ronald_default"
+    "default_dialogue_id": "ronald_default",
+    "portrait": "/assets/portraits/Ronald.png"
   },
   "npc_ben": {
     "name": "Ben",
     "home_location": "homestead_farm",
-    "default_dialogue_id": "ben_default"
+    "default_dialogue_id": "ben_default",
+    "portrait": "/assets/portraits/Ben.png"
   },
   "npc_elisa": {
     "name": "Elisa",
     "home_location": "homestead_farm",
-    "default_dialogue_id": "elisa_default"
+    "default_dialogue_id": "elisa_default",
+    "portrait": "/assets/portraits/Elisa.png"
   },
   "npc_rowan": {
     "name": "Rowan",
     "home_location": "homestead_farm",
-    "default_dialogue_id": "rowan_default"
+    "default_dialogue_id": "rowan_default",
+    "portrait": "/assets/portraits/Rowan.png"
   },
   "npc_old_leo": {
     "name": "Old Leo",
     "home_location": "leo_lighthouse",
-    "default_dialogue_id": "old_leo_default"
+    "default_dialogue_id": "old_leo_default",
+    "portrait": "/assets/portraits/Leo.png"
   },
   "npc_sarah": {
     "name": "Sarah",
     "home_location": "leo_lighthouse",
-    "default_dialogue_id": "sarah_default"
+    "default_dialogue_id": "sarah_default",
+    "portrait": "/assets/portraits/Sarah.png"
   },
   "npc_robert": {
     "name": "Robert",
     "home_location": "leo_lighthouse",
-    "default_dialogue_id": "robert_default"
+    "default_dialogue_id": "robert_default",
+    "portrait": "/assets/icons/DivineFantasy.png"
   },
   "npc_kyle": {
     "name": "Kyle",
     "home_location": "leo_lighthouse",
-    "default_dialogue_id": "kyle_default"
+    "default_dialogue_id": "kyle_default",
+    "portrait": "/assets/portraits/Kyle.png"
   }
 }

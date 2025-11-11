@@ -3,13 +3,17 @@ import { useCharacterStore } from '../../stores/useCharacterStore';
 import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
 import { useLocationStore } from '../../stores/useLocationStore';
 import { useUIStore } from '../../stores/useUIStore';
-import { Sun, Moon, MessageSquare, Hammer, Fish, MapPin, ShoppingCart, CookingPot, Bed, Search, Swords, Leaf, Snowflake, Sprout, Cloud, CloudRain, BookOpen, User, Package, Briefcase, Heart, Library } from 'lucide-react';
+import { Sun, Moon, MessageSquare, Hammer, Fish, MapPin, ShoppingCart, CookingPot, Bed, Search, Swords, Leaf, Snowflake, Sprout, Cloud, CloudRain, BookOpen, User, Package, Briefcase, Heart, Library, Zap, Award } from 'lucide-react';
 import ProgressBar from '../ui/ProgressBar';
 import ActionButton from '../ui/ActionButton';
 import LocationNav from '../LocationNav';
 import WeatherParticles from '../effects/WeatherParticles';
 import { ConfirmationModal } from '../modals/ConfirmationModal';
 import TimedActionModal from '../modals/TimedActionModal';
+import ActionSummaryModal from '../modals/ActionSummaryModal';
+import { useInventoryStore } from '../../stores/useInventoryStore';
+import { useSkillStore } from '../../stores/useSkillStore';
+import type { ActionSummary } from '../../types';
 
   const LocationScreen: React.FC = () => {
   const { attributes, hp, energy, hunger, maxWeight } = useCharacterStore();
@@ -31,6 +35,14 @@ import TimedActionModal from '../modals/TimedActionModal';
   const [travelProgressModalOpen, setTravelProgressModalOpen] = useState(false);
   const [pendingTravelAction, setPendingTravelAction] = useState<any>(null);
   const [travelProgress, setTravelProgress] = useState<any>(null);
+
+  // Skilling (Woodcutting/Fishing)
+  const [skillModalOpen, setSkillModalOpen] = useState(false);
+  const [pendingSkillAction, setPendingSkillAction] = useState<any>(null);
+  const [skillProgress, setSkillProgress] = useState<any>(null);
+  const [selectedSkillHours, setSelectedSkillHours] = useState<number>(1);
+  const [summaryModalOpen, setSummaryModalOpen] = useState(false);
+  const [summaryData, setSummaryData] = useState<ActionSummary | null>(null);
 
   const seasonIcons = {
     Spring: Sprout,
@@ -89,13 +101,24 @@ import TimedActionModal from '../modals/TimedActionModal';
   const handleAction = (action: any) => {
     switch (action.type) {
       case 'dialogue':
+        // Set selected NPC for dialogue and open the dialogue screen
+        useUIStore.getState().setDialogueNpcId(action.target);
         setScreen('dialogue');
         break;
       case 'shop':
         setScreen('trade');
         break;
       case 'fish':
-        // TODO: Implement fishing
+        // Open skilling setup modal for Fishing
+        setPendingSkillAction(action);
+        setSkillProgress(null);
+        setSkillModalOpen(true);
+        break;
+      case 'woodcut':
+        // Open skilling setup modal for Woodcutting
+        setPendingSkillAction(action);
+        setSkillProgress(null);
+        setSkillModalOpen(true);
         break;
       case 'job':
         setScreen('jobScreen');
@@ -205,10 +228,179 @@ import TimedActionModal from '../modals/TimedActionModal';
     setTravelProgress(null);
   }, [pendingTravelAction]);
 
+  // Skilling preview for TimedActionModal setup view
+  const calculateSkillPreview = useCallback((hours: number) => {
+    if (!pendingSkillAction) return { energyCost: 0, rewardsSummary: '' };
+    const totalMinutes = hours * 60;
+    if (pendingSkillAction.type === 'woodcut') {
+      const iterations = Math.floor(totalMinutes / 30);
+      const energyCost = iterations * 10;
+      const rewardsSummary = `${iterations} logs, ${iterations * 30} Woodcutting XP`;
+      return { energyCost, rewardsSummary };
+    }
+    if (pendingSkillAction.type === 'fish') {
+      const iterations = Math.floor(totalMinutes / 20);
+      const energyCost = iterations * 5;
+      const loc = pendingSkillAction.target;
+      const rewardsSummary = loc === 'fish_docks'
+        ? `~${iterations} casts; mainly Sardines; XP per catch`
+        : `~${iterations} casts; Trout common, Pike rare (lvl 5+); XP per catch`;
+      return { energyCost, rewardsSummary };
+    }
+    return { energyCost: 0, rewardsSummary: '' };
+  }, [pendingSkillAction]);
+
+  // Start skilling: switch to progress animation and pause clock
+  const handleStartSkilling = useCallback((hours: number) => {
+    setSelectedSkillHours(hours);
+    const world = useWorldTimeStore.getState();
+    useWorldTimeStore.getState().setClockPaused(true);
+    setSkillProgress({ currentTime: 0, totalTime: hours * 3600, startTime: world.hour * 3600 + world.minute * 60 });
+  }, []);
+
+  // Apply skilling results, advance time, resume clock, and show summary
+  const handleSkillClose = useCallback(() => {
+    if (!pendingSkillAction) {
+      setSkillModalOpen(false);
+      setSkillProgress(null);
+      return;
+    }
+
+    const totalMinutes = selectedSkillHours * 60;
+    const vitalsChanges: ActionSummary['vitalsChanges'] = [];
+    const expended: ActionSummary['expended'] = [];
+    const rewards: ActionSummary['rewards'] = [];
+
+    const inventory = useInventoryStore.getState();
+    const character = useCharacterStore.getState();
+    const skills = useSkillStore.getState();
+
+    const applyEnergyCost = (cost: number) => {
+      useCharacterStore.setState((state) => ({ energy: Math.max(0, state.energy - cost) }));
+      vitalsChanges.push({ vital: 'Energy', change: -cost, icon: <Zap size={20} className="text-blue-300"/> });
+      expended!.push({ name: 'Energy', quantity: cost, icon: <Zap size={20} className="text-blue-300"/> });
+    };
+
+    const addReward = (name: string, quantity: number) => {
+      rewards.push({ name, quantity, icon: <Award size={20} className="text-yellow-300"/> });
+    };
+
+    // Tool requirements
+    const hasTool = (toolId: string) => inventory.getItemQuantity(toolId) > 0;
+
+    if (pendingSkillAction.type === 'woodcut') {
+      if (!hasTool('axe_basic')) {
+        setSummaryData({
+          title: 'Missing Tool',
+          durationInMinutes: 0,
+          vitalsChanges: [],
+          expended: [],
+          rewards: [],
+        });
+        setSummaryModalOpen(true);
+        useWorldTimeStore.getState().setClockPaused(false);
+        setSkillModalOpen(false);
+        setSkillProgress(null);
+        setPendingSkillAction(null);
+        return;
+      }
+      const iterations = Math.floor(totalMinutes / 30);
+      const energyCost = iterations * 10;
+      applyEnergyCost(energyCost);
+
+      // Award items and XP
+      let logsAdded = 0;
+      for (let i = 0; i < iterations; i++) {
+        const added = inventory.addItem('log', 1);
+        if (added) logsAdded += 1;
+        skills.addXp('woodcutting', 30);
+      }
+      if (logsAdded > 0) addReward('Logs', logsAdded);
+      addReward('Woodcutting XP', iterations * 30);
+    } else if (pendingSkillAction.type === 'fish') {
+      if (!hasTool('fishing_rod')) {
+        setSummaryData({
+          title: 'Missing Tool',
+          durationInMinutes: 0,
+          vitalsChanges: [],
+          expended: [],
+          rewards: [],
+        });
+        setSummaryModalOpen(true);
+        useWorldTimeStore.getState().setClockPaused(false);
+        setSkillModalOpen(false);
+        setSkillProgress(null);
+        setPendingSkillAction(null);
+        return;
+      }
+      const iterations = Math.floor(totalMinutes / 20);
+      const energyCost = iterations * 5;
+      applyEnergyCost(energyCost);
+
+      let sardines = 0;
+      let trout = 0;
+      let pike = 0;
+      const fishingLevel = skills.getSkillLevel('fishing');
+      for (let i = 0; i < iterations; i++) {
+        const roll = Math.random();
+        if (pendingSkillAction.target === 'fish_docks') {
+          // 90% sardine, 10% miss
+          if (roll < 0.9) {
+            if (inventory.addItem('fish_sardine', 1)) sardines += 1;
+            skills.addXp('fishing', 15);
+          } else {
+            // got away: no item, no XP
+          }
+        } else {
+          // river: 70% trout, 20% pike (lvl 5+ to catch), 10% miss
+          if (roll < 0.7) {
+            if (inventory.addItem('fish_trout', 1)) trout += 1;
+            skills.addXp('fishing', 15);
+          } else if (roll < 0.9) {
+            skills.addXp('fishing', 40);
+            if (fishingLevel >= 5) {
+              if (inventory.addItem('fish_pike', 1)) pike += 1;
+            } else {
+              // Not skilled enough to catch pike; only XP awarded
+            }
+          } else {
+            // got away: no item, no XP
+          }
+        }
+      }
+      if (sardines > 0) addReward('Sardines', sardines);
+      if (trout > 0) addReward('Trout', trout);
+      if (pike > 0) addReward('Pike', pike);
+      const totalFishingXp = (sardines * 15) + (trout * 15) + (pike * 40); // only counted catches above
+      if (totalFishingXp > 0) addReward('Fishing XP', totalFishingXp);
+    }
+
+    // Advance in-game time equal to selected duration
+    useWorldTimeStore.getState().passTime(totalMinutes);
+    useWorldTimeStore.getState().setClockPaused(false);
+
+    // Prepare summary data
+    const title = pendingSkillAction.type === 'woodcut' ? 'Woodcutting Complete' : 'Fishing Complete';
+    const summary: ActionSummary = {
+      title,
+      durationInMinutes: totalMinutes,
+      vitalsChanges,
+      expended,
+      rewards,
+    };
+    setSummaryData(summary);
+    setSummaryModalOpen(true);
+
+    // Reset skilling state
+    setSkillModalOpen(false);
+    setSkillProgress(null);
+    setPendingSkillAction(null);
+  }, [pendingSkillAction, selectedSkillHours]);
+
   return (
     <>
-      {/* Weather Particles */}
-      <WeatherParticles weather={weather} />
+      {/* Weather Particles (outdoor only) */}
+      {(!currentLocation.is_indoor) && <WeatherParticles weather={weather} />}
 
       {/* Gradient Overlay for Text Readability */}
       <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent pointer-events-none"></div>
@@ -329,6 +521,26 @@ import TimedActionModal from '../modals/TimedActionModal';
         progress={travelProgress}
         onClose={handleTimedActionClose}
       />
+
+      {/* Skilling Setup / Progress Modal */}
+      <TimedActionModal
+        isOpen={skillModalOpen}
+        actionName={pendingSkillAction?.type === 'woodcut' ? 'Woodcutting' : pendingSkillAction?.type === 'fish' ? 'Fishing' : 'Action'}
+        maxDuration={4}
+        calculatePreview={calculateSkillPreview}
+        onStart={handleStartSkilling}
+        progress={skillProgress}
+        onClose={handleSkillClose}
+      />
+
+      {/* Action Summary Modal */}
+      {summaryData && (
+        <ActionSummaryModal
+          isOpen={summaryModalOpen}
+          summary={summaryData}
+          onClose={() => setSummaryModalOpen(false)}
+        />
+      )}
     </>
   );
 };

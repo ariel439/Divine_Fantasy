@@ -8,6 +8,7 @@ interface Location {
   description: string;
   background: string;
   music_track: string;
+  is_indoor?: boolean;
   actions: Array<{
     text: string;
     type: string;
@@ -49,6 +50,7 @@ export const useLocationStore = create<LocationState>((set, get) => ({
       description,
       background,
       music_track: locationData.music_track,
+      is_indoor: Boolean((locationData as any).is_indoor),
       actions: locationData.actions,
     };
   },

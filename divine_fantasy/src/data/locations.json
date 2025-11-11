@@ -35,6 +35,7 @@
     "day_background": "/assets/locations/leo_lighthouse_day.jpg",
     "night_background": "/assets/locations/leo_lighthouse_night.jpg",
     "music_track": "GDD/assets/audio/music/lighthouse.mp3",
+    "is_indoor": true,
     "actions": [
       { "text": "Talk to Old Leo", "type": "dialogue", "target": "npc_old_leo" },
       { "text": "Talk to Sarah", "type": "dialogue", "target": "npc_sarah" },
@@ -50,6 +51,7 @@
     "day_background": "/assets/locations/beryls_general_goods_day.png",
     "night_background": "/assets/locations/beryls_general_goods_night.png",
     "music_track": "GDD/assets/audio/music/shops.mp3",
+    "is_indoor": true,
     "actions": [
       { "text": "Talk to Beryl", "type": "dialogue", "target": "npc_beryl" },
       { "text": "Trade", "type": "shop", "target": "shop_beryls_general" },
@@ -63,6 +65,7 @@
     "day_background": "/assets/locations/kaelens_forge_day.png",
     "night_background": "/assets/locations/kaelens_forge_night.png",
     "music_track": "GDD/assets/audio/music/forge.mp3",
+    "is_indoor": true,
     "actions": [
       { "text": "Talk to Kaelen", "type": "dialogue", "target": "npc_kaelen" },
       { "text": "Talk to Cyrus", "type": "dialogue", "target": "npc_cyrus" },
@@ -102,6 +105,7 @@
     "day_background": "/assets/locations/grand_library_day.png",
     "night_background": "/assets/locations/grand_library_night.png",
     "music_track": "GDD/assets/audio/music/library.mp3",
+    "is_indoor": true,
     "actions": [
       { "text": "Talk to Adalia", "type": "dialogue", "target": "npc_adalia" },
       { "text": "Read Books", "type": "library", "target": "library_driftwatch" },
@@ -124,8 +128,8 @@
     "name": "Driftwatch Docks",
     "day_description": "The bustling heart of Driftwatch's economy, filled with the scent of salt, fish, and tar.",
     "night_description": "The docks are quieter at night, waves lapping against the piers.",
-    "day_background": "/assets/locations/driftwatch_docks_day.jpg",
-    "night_background": "/assets/locations/driftwatch_docks_night.jpg",
+    "day_background": "/assets/locations/driftwatch_docks_day.png",
+    "night_background": "/assets/locations/driftwatch_docks_night.png",
     "music_track": "GDD/assets/audio/music/docks.mp3",
     "actions": [
       { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain" },
@@ -140,9 +144,10 @@
     "name": "Tide & Trade",
     "day_description": "Roberta's fishmonger shop.",
     "night_description": "The shop is closed, but the smell of fish lingers.",
-    "day_background": "/assets/locations/shop_tide_trade_day.png",
-    "night_background": "/assets/locations/shop_tide_trade_night.png",
+    "day_background": "/assets/locations/tide_and_trade.png",
+    "night_background": "/assets/locations/tide_and_trade.png",
     "music_track": "GDD/assets/audio/music/shops.mp3",
+    "is_indoor": true,
     "actions": [
       { "text": "Talk to Roberta", "type": "dialogue", "target": "npc_roberta" },
       { "text": "Trade", "type": "shop", "target": "shop_tide_trade" },
@@ -172,6 +177,7 @@
     "day_background": "/assets/locations/salty_mug_day.jpg",
     "night_background": "/assets/locations/salty_mug_night.jpg",
     "music_track": "GDD/assets/audio/music/tavern.mp3",
+    "is_indoor": true,
     "actions": [
       { "text": "Talk to Finn", "type": "dialogue", "target": "npc_finn" },
       { "text": "Talk to Old Crank", "type": "dialogue", "target": "npc_old_crank" },
@@ -187,6 +193,7 @@
     "day_background": "/assets/locations/salty_mug_rented_room_day.png",
     "night_background": "/assets/locations/salty_mug_rented_room_night.png",
     "music_track": "GDD/assets/audio/music/room.mp3",
+    "is_indoor": true,
     "actions": [
       { "text": "Sleep in Bed", "type": "sleep", "target": "sleep_bed" },
       { "text": "Travel to Salty Mug", "type": "navigate", "target": "salty_mug" }
@@ -198,6 +205,7 @@
     "night_description": "Lantern light spills softly through shuttered windows; the forest hums outside.",
     "day_background": "/assets/locations/hunters_cabin_day.png",
     "night_background": "/assets/locations/hunters_cabin_night.png",
+    "is_indoor": true,
     "music_track": "GDD/assets/audio/music/woods.mp3",
     "actions": [
       { "text": "Talk to Ronald", "type": "dialogue", "target": "npc_ronald" },

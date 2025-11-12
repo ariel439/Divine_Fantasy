@@ -8,17 +8,20 @@ interface UIState {
   currentScreen: Screen;
   activeModal: Modal;
   dialogueNpcId: string | null;
+  shopId: string | null;
   // Actions
   setScreen: (screen: Screen) => void;
   openModal: (modal: Modal) => void;
   closeModal: () => void;
   setDialogueNpcId: (npcId: string | null) => void;
+  setShopId: (shopId: string | null) => void;
 }
 
 export const useUIStore = create<UIState>((set, get) => ({
   currentScreen: 'mainMenu',
   activeModal: null,
   dialogueNpcId: null,
+  shopId: null,
   setScreen: (screen) => {
     set({ currentScreen: screen });
   },
@@ -30,5 +33,8 @@ export const useUIStore = create<UIState>((set, get) => ({
   },
   setDialogueNpcId: (npcId) => {
     set({ dialogueNpcId: npcId });
+  },
+  setShopId: (shopId) => {
+    set({ shopId: shopId });
   },
 }));

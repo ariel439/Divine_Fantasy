@@ -6,9 +6,10 @@ import itemsData from '../data/items.json';
 interface InventoryItem {
   id: string;
   quantity: number;
+  uuid?: string; // Add uuid to InventoryItem interface
 }
 
-interface InventoryState {
+export interface InventoryState {
   items: InventoryItem[];
   currentWeight: number;
   // Actions
@@ -33,16 +34,29 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     if (newWeight > maxWeight) return false;
 
     set((state) => {
-      const existingItem = state.items.find(item => item.id === itemId);
-      if (existingItem) {
-        existingItem.quantity += quantity;
-        return {
-          items: [...state.items],
-          currentWeight: newWeight
-        };
+      const itemData = itemsData[itemId as keyof typeof itemsData];
+      if (itemData.stackable) {
+        const existingItem = state.items.find(item => item.id === itemId);
+        if (existingItem) {
+          existingItem.quantity += quantity;
+          return {
+            items: [...state.items],
+            currentWeight: newWeight
+          };
+        } else {
+          return {
+            items: [...state.items, { id: itemId, quantity }],
+            currentWeight: newWeight
+          };
+        }
       } else {
+        // If not stackable, add as new individual items with unique UUIDs
+        const newItems = [];
+        for (let i = 0; i < quantity; i++) {
+          newItems.push({ id: itemId, quantity: 1, uuid: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) });
+        }
         return {
-          items: [...state.items, { id: itemId, quantity }],
+          items: [...state.items, ...newItems],
           currentWeight: newWeight
         };
       }
@@ -59,23 +73,59 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     const itemData = itemsData[itemId as keyof typeof itemsData];
     if (!itemData) return false;
 
+    let removedSuccessfully = false;
+
     set((state) => {
-      const existingItem = state.items.find(item => item.id === itemId);
-      if (!existingItem || existingItem.quantity < quantity) return state;
+      const itemData = itemsData[itemId as keyof typeof itemsData];
+      if (itemData.stackable) {
+        const existingItem = state.items.find(item => item.id === itemId);
+        if (!existingItem || existingItem.quantity < quantity) {
+          // If item doesn't exist or not enough quantity, return current state and indicate failure
+          removedSuccessfully = false;
+          return state;
+        }
 
-      const newWeight = state.currentWeight - (itemData.weight * quantity);
-      existingItem.quantity -= quantity;
+        const newWeight = state.currentWeight - (itemData.weight * quantity);
+        existingItem.quantity -= quantity;
 
-      if (existingItem.quantity <= 0) {
-        return {
-          items: state.items.filter(item => item.id !== itemId),
-          currentWeight: newWeight
-        };
+        if (existingItem.quantity <= 0) {
+          removedSuccessfully = true;
+          return {
+            items: state.items.filter(item => item.id !== itemId),
+            currentWeight: newWeight
+          };
+        } else {
+          removedSuccessfully = true;
+          return {
+            items: [...state.items],
+            currentWeight: newWeight
+          };
+        }
       } else {
-        return {
-          items: [...state.items],
-          currentWeight: newWeight
-        };
+        // If not stackable, remove individual items
+        let itemsToRemove = quantity;
+        const newItems = [];
+        let currentWeightRemoved = 0;
+
+        for (const item of state.items) {
+          if (item.id === itemId && itemsToRemove > 0) {
+            currentWeightRemoved += itemData.weight;
+            itemsToRemove--;
+          } else {
+            newItems.push(item);
+          }
+        }
+
+        if (itemsToRemove === 0) {
+          removedSuccessfully = true;
+          return {
+            items: newItems,
+            currentWeight: state.currentWeight - currentWeightRemoved
+          };
+        } else {
+          removedSuccessfully = false;
+          return state;
+        }
       }
     });
     // Sync quest progress after removal too (in case quantities drop below thresholds)
@@ -84,7 +134,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     } catch (e) {
       // Ignore if journal store not ready
     }
-    return true;
+    return removedSuccessfully;
   },
   useItem: (itemId) => {
     const itemData = itemsData[itemId as keyof typeof itemsData];

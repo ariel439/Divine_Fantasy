@@ -52,7 +52,7 @@
     "is_indoor": true,
     "actions": [
       { "text": "Talk to Beryl", "type": "dialogue", "target": "npc_beryl" },
-      { "text": "Trade", "type": "shop", "target": "shop_beryls_general" },
+      { "text": "Trade", "type": "shop", "target": "shop_beryls_general", "shopId": "shop_beryls_general"  },
       { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
     ]
   },
@@ -143,7 +143,7 @@
     "is_indoor": true,
     "actions": [
       { "text": "Talk to Roberta", "type": "dialogue", "target": "npc_roberta" },
-      { "text": "Trade", "type": "shop", "target": "shop_tide_trade" },
+      { "text": "Trade", "type": "shop", "target": "shop_tide_trade", "shopId": "tide_and_trade" },
       { "text": "Repair Wall", "type": "use", "target": "repair_wall", "condition": "quest.roberta_planks_for_the_past.stage==2" },
       { "text": "Travel to Driftwatch Docks", "type": "navigate", "target": "driftwatch_docks" }
     ]
@@ -173,7 +173,7 @@
     "actions": [
       { "text": "Talk to Finn", "type": "dialogue", "target": "npc_finn" },
       { "text": "Talk to Old Crank", "type": "dialogue", "target": "npc_old_crank" },
-      { "text": "Trade", "type": "shop", "target": "shop_salty_mug" },
+      { "text": "Trade", "type": "shop", "target": "shop_salty_mug", "shopId": "shop_salty_mug" },
       { "text": "Rent Room", "type": "rent", "target": "salty_mug_rented_room" },
       { "text": "Travel to Driftwatch Slums", "type": "navigate", "target": "driftwatch_slums" }
     ]

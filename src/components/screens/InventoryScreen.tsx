@@ -33,7 +33,7 @@ const InventoryScreen: FC = () => {
                 icon: <div>Icon</div>, // TODO: Add proper icons
                 category: itemData.type as any, // TODO: Map to proper categories
                 weight: itemData.weight,
-                value: itemData.base_value,
+                base_value: itemData.base_value,
                 quantity: invItem.quantity,
                 stackable: itemData.stackable,
                 effects: (itemData as any).effects,

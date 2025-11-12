@@ -130,9 +130,35 @@ This phase is a loop: for each mechanic, we will first ensure the data is ready,
         - [x] Implement the branching logic for "Planks for the Past" (DIY vs. Delegate), updating the `useWorldStateStore`.
 
 - [ ] **3.6: Economy & Trading**
-    - [ ] **Data:** Ensure `items.json` has base values and merchant inventories are defined in a new `shops.json` or similar.
-    - [ ] **UI:** Connect `TradeScreen.tsx` to `useShopStore` and `useInventoryStore`.
-    - [ ] **Logic:** Implement the logic for buying and selling items, updating player currency in `useCharacterStore`.
+    - [ ] **Phase 1: Dynamic Store Currency and Pricing**
+        - [ ] **3.6.1: Update `shops.json` to include `currency` field:** Add a `currency` field to each shop object in `shops.json` with an initial copper value.
+        - [ ] **3.6.2: Modify `useShopStore.ts` to handle shop currency:**
+            - [ ] Read and store shop currency in the `loadShops` function.
+            - [ ] Add an `updateShopCurrency` action to allow for currency changes during trade.
+        - [ ] **3.6.3: Update `TradeScreen.tsx` to display actual shop currency:** Replace hardcoded `merchantTotalCopper` with a calculation based on `shop.currency`.
+        - [ ] **3.6.4: Implement dynamic pricing in `TradeScreen.tsx`:**
+            - [ ] Adjust `handleBuy` and `handleSell` functions to calculate prices based on item base value and a `sell_multiplier` (e.g., 50% of `buy_multiplier`).
+            - [ ] Update shop currency during transactions.
+    - [ ] **Phase 2: "Barter" Button Functionality and Trade Persistence**
+        - [ ] **3.6.5: Debug "Barter" button functionality:**
+            - [ ] Verify that the "Barter" button is not disabled due to empty offers or affordability issues.
+            - [ ] Ensure `TradeConfirmationScreen` renders correctly upon clicking "Barter".
+        - [ ] **3.6.6: Ensure items appear in Trade UI:**
+            - [ ] Investigate why player inventory items are not appearing in the Trade UI.
+            - [ ] Investigate why shop inventory items are not appearing in the Trade UI.
+        - [ ] **3.6.7: Implement trade persistence:**
+            - [ ] After a successful trade, update both player and shop inventories in their respective stores.
+            - [ ] Ensure these changes are saved when the game is saved.
+    - [ ] **Phase 3: Weekly Store Resets**
+        - [ ] **3.6.8: Implement weekly store reset logic:**
+            - [ ] In `useShopStore.ts`, add logic to reset shop inventories and currency to their initial `shops.json` values on a weekly cycle (e.g., using `useWorldTimeStore`).
+            - [ ] Consider how to handle items bought by the player that were originally in the shop (they should not reappear).
+        - [ ] **3.6.9: Integrate with `GameManagerService.ts`:** Ensure the weekly reset is triggered correctly as part of the game loop.
+    - [ ] **3.6.10: Testing and Refinement:**
+        - [ ] Thoroughly test buying, selling, and store resets.
+        - [ ] Balance item prices and shop currency.
+        - [ ] Ensure a smooth user experience.
+
 
 - [ ] **3.7: Combat System**
     - [ ] **Data:** Ensure `enemies.json` and `companions.json` are ready.

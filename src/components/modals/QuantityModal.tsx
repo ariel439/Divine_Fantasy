@@ -51,7 +51,7 @@ export const QuantityModal: FC<QuantityModalProps> = ({ isOpen, item, onConfirm,
       >
         <div className="text-center border-b border-zinc-700 pb-4 mb-4">
           <div className="mx-auto w-20 h-20 bg-black/30 rounded-lg flex items-center justify-center p-2 border border-zinc-700">
-              {React.cloneElement(item.icon as ReactElement<{ size: number }>, { size: 48 })}
+              {item.icon && React.cloneElement(item.icon as ReactElement<{ size: number }>, { size: 48 })}
           </div>
           <h2 className="text-2xl font-bold mt-3 text-white" style={{ fontFamily: 'Cinzel, serif' }}>{item.name}</h2>
           <p className="text-sm text-zinc-400">Select quantity to offer</p>

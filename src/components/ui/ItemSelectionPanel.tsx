@@ -9,9 +9,10 @@ interface ItemSelectionPanelProps {
     onItemSelect: (item: Item) => void;
     selectedItemId?: string | null;
     highlightedItemIds?: Set<string>;
+    valueMultiplier?: number; // Added value multiplier prop
 }
 
-const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({ title, items, onItemSelect, selectedItemId, highlightedItemIds }) => {
+const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({ title, items, onItemSelect, selectedItemId, highlightedItemIds, valueMultiplier = 1.0 }) => {
     const [activeFilter, setActiveFilter] = useState<FilterCategory>('All');
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -31,10 +32,10 @@ const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({ title, items, onItemS
     const filterTabs: FilterCategory[] = ['All', 'Equipment', 'Resource', 'Consumable', 'Tool', 'Quest'];
 
     const getRowClass = (item: Item) => {
-        if (highlightedItemIds?.has(item.id)) {
+        if (highlightedItemIds?.has(item.uuid || item.id)) {
             return 'bg-zinc-700/60 font-semibold text-white border-l-4 border-zinc-400';
         }
-        if (selectedItemId === item.id) {
+        if (selectedItemId === (item.uuid || item.id)) {
             return 'bg-zinc-700/50 font-semibold text-white';
         }
         return 'hover:bg-white/5 text-zinc-300';
@@ -70,9 +71,10 @@ const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({ title, items, onItemS
             </div>
             {/* List */}
             <div className="overflow-y-auto flex-grow custom-scrollbar pr-2 space-y-1">
-                {filteredItems.map(item => (
+                {filteredItems.map(item => {
+                    return (
                     <button 
-                        key={item.id} 
+                        key={item.uuid || item.id} 
                         onClick={() => onItemSelect(item)}
                         className={`w-full flex justify-between items-center p-2 rounded-lg transition-colors text-sm ${getRowClass(item)}`}
                     >
@@ -83,10 +85,10 @@ const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({ title, items, onItemS
                             <span className="truncate">{item.name}</span>
                             {item.stackable && item.quantity && item.quantity > 1 && <span className="text-xs text-zinc-400">({item.quantity})</span>}
                         </div>
-                        <span className="text-right w-1/5">{item.weight.toFixed(1)}</span>
-                        <span className="text-right w-1/5 text-yellow-300/90">{item.value}c</span>
+                        <span className="text-right w-1/5">{(item.weight ?? 0).toFixed(1)}</span>
+                        <span className="text-right w-1/5 text-yellow-300/90">{(item.base_value * valueMultiplier).toFixed(0)}c</span>
                     </button>
-                ))}
+                )})}
             </div>
         </div>
     );

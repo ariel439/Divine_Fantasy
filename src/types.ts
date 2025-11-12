@@ -49,14 +49,15 @@ export interface Item {
   id: string;
   name: string;
   description: string;
-  icon: ReactElement;
-  category: Exclude<FilterCategory, 'All'>; // concrete category for items
+  icon?: ReactElement;
+  category?: Exclude<FilterCategory, 'All'>; // concrete category for items
   weight: number;
-  value: number;
+  base_value: number;
   quantity?: number;
   stackable?: boolean;
+  uuid?: string; // Add unique identifier for each item instance
   effects?: Record<string, number | string>;
-  actions: string[];
+  actions?: string[];
   equipmentSlot?: EquipmentSlot;
   stats?: Record<string, number>;
 }
@@ -112,6 +113,27 @@ export interface Choice {
   onSelect: () => void;
   disabled?: boolean;
   skillCheck?: { skill: string; level?: number };
+}
+
+// Location types
+export interface Action {
+  text: string;
+  type: 'navigate' | 'dialogue' | 'shop' | 'fish' | 'job' | 'use' | 'sleep' | 'cook' | 'woodcut' | 'explore' | 'craft' | 'rent';
+  target: string;
+  condition?: string;
+  time_cost?: number;
+  shopId?: string;
+}
+
+export interface Location {
+  name: string;
+  day_description: string;
+  night_description: string;
+  day_background: string;
+  night_background?: string;
+  music_track: string;
+  is_indoor?: boolean;
+  actions: Action[];
 }
 
 // Books & Library

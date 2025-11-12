@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useUIStore } from '../stores/useUIStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useLocationStore } from '../stores/useLocationStore';
+import { useShopStore } from '../stores/useShopStore';
+import { GameManagerService } from '../services/GameManagerService'; // Import GameManagerService
 import MainMenu from './screens/MainMenu';
 import CharacterSelection from './screens/CharacterSelection';
 import EventScreen from './screens/EventScreen';
@@ -29,9 +31,16 @@ import LocationNav from './LocationNav';
 import { lukePrologueSlides } from '../data';
 
 const Game: React.FC = () => {
-  const { currentScreen, setScreen } = useUIStore();
+  const { currentScreen, setScreen, shopId } = useUIStore();
   const { day, hour, minute, passTime } = useWorldTimeStore();
   const { getCurrentLocation } = useLocationStore();
+  const { loadShops } = useShopStore();
+
+  // Initialize GameManagerService on component mount
+  useEffect(() => {
+    GameManagerService.init();
+    loadShops();
+  }, [loadShops]);
 
   // Game clock logic
   useEffect(() => {
@@ -189,7 +198,7 @@ const Game: React.FC = () => {
       case 'library':
         return <LibraryScreen />;
       case 'trade':
-        return <TradeScreen />;
+        return shopId ? <TradeScreen shopId={shopId} onConfirmTrade={() => {}} onClose={() => setScreen('inGame')} /> : <div className="text-white">No shop selected.</div>;
       case 'tradeConfirmation':
         return <TradeConfirmationScreen />;
       case 'crafting':

@@ -110,6 +110,7 @@ import { DialogueService } from '../../services/DialogueService';
         setScreen('dialogue');
         break;
       case 'shop':
+        useUIStore.getState().setShopId(action.shopId);
         setScreen('trade');
         break;
       case 'fish':

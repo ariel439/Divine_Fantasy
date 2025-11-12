@@ -9,10 +9,30 @@ import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useCompanionStore } from '../stores/useCompanionStore';
+import { useShopStore } from '../stores/useShopStore'; // Import useShopStore
 import characterTemplates from '../data/character_templates.json';
 import npcsData from '../data/npcs.json';
 
 export class GameManagerService {
+  private static currentDay: number = 0;
+
+  static init(): void {
+    // Subscribe to world time changes for weekly resets
+    useWorldTimeStore.subscribe(
+      (state) => {
+        const day = state.day;
+        if (day !== GameManagerService.currentDay) {
+          GameManagerService.currentDay = day;
+          // Check for weekly reset (e.g., every 7 days)
+          if (day > 1 && (day - 1) % 7 === 0) { // Reset on day 8, 15, 22, etc.
+            console.log('Weekly store reset triggered!');
+            useShopStore.getState().resetAllShops();
+          }
+        }
+      }
+    );
+  }
+
   static startNewGame(templateId: string): void {
     console.log('Starting new game with template:', templateId);
 
@@ -48,7 +68,7 @@ export class GameManagerService {
     });
 
     useInventoryStore.setState({
-      items: template.starting_bonuses.items.map((itemId: string) => ({ id: itemId, quantity: 1 })),
+      items: [], // Initialize with an empty array
       currentWeight: 0, // Will be calculated when items are added
     });
 
@@ -85,6 +105,9 @@ export class GameManagerService {
     template.starting_bonuses.items.forEach((itemId: string) => {
       useInventoryStore.getState().addItem(itemId, 1);
     });
+
+    // After all items are added, recalculate currentWeight
+    useInventoryStore.getState().getCurrentWeight();
 
     // Developer convenience: seed 10 wooden planks to start
     // This helps quickly verify Roberta's quest progression and completion.

@@ -10,12 +10,23 @@ interface TradeConfirmationScreenProps {
   onCancel: () => void;
   playerOffer: OfferItem[];
   merchantOffer: OfferItem[];
+  tradeMode: 'selling' | 'buying' | 'bartering' | 'idle';
 }
 
-const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onClose, onCancel, playerOffer, merchantOffer }) => {
+const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onClose, onCancel, playerOffer, merchantOffer, tradeMode }) => {
     
-    const playerOfferValue = useMemo(() => playerOffer.reduce((sum, offer) => sum + offer.item.value * offer.quantity, 0), [playerOffer]);
-    const merchantOfferValue = useMemo(() => merchantOffer.reduce((sum, offer) => sum + offer.item.value * offer.quantity, 0), [merchantOffer]);
+    const playerOfferValue = useMemo(() => playerOffer.reduce((sum, offer) => {
+        const value = tradeMode === 'selling' || tradeMode === 'bartering'
+            ? Math.floor(offer.item.base_value / 2)
+            : offer.item.base_value;
+        return sum + value * offer.quantity;
+    }, 0), [playerOffer, tradeMode]);
+    const merchantOfferValue = useMemo(() => merchantOffer.reduce((sum, offer) => {
+        const value = tradeMode === 'buying' || tradeMode === 'bartering'
+            ? offer.item.base_value
+            : Math.floor(offer.item.base_value / 2);
+        return sum + value * offer.quantity;
+    }, 0), [merchantOffer, tradeMode]);
     const balance = playerOfferValue - merchantOfferValue;
 
     const BalanceDisplay: FC<{ amount: number }> = ({ amount }) => {
@@ -35,18 +46,23 @@ const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onClose, on
         <div className="bg-black/20 rounded-lg border border-zinc-800 p-4 flex flex-col h-full min-h-0">
             <h2 className="text-xl font-bold text-white mb-2 flex-shrink-0 border-b border-zinc-700 pb-2" style={{ fontFamily: 'Cinzel, serif' }}>{title}</h2>
              <div className="overflow-y-auto flex-grow min-h-0 custom-scrollbar pr-2 space-y-2 py-2">
-                {items.length > 0 ? items.map(offer => (
-                    <div key={offer.item.id} className="flex justify-between items-center p-2 rounded-md bg-zinc-800/50">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-black/40 rounded-md border border-zinc-700">
-                                {offer.item.icon}
+                {items.length > 0 ? items.map(offer => {
+                    const itemValue = tradeMode === 'selling' || tradeMode === 'bartering'
+                        ? Math.floor(offer.item.base_value / 2)
+                        : offer.item.base_value;
+                    return (
+                        <div key={offer.item.id} className="flex justify-between items-center p-2 rounded-md bg-zinc-800/50">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-black/40 rounded-md border border-zinc-700">
+                                    {offer.item.icon}
+                                </div>
+                                <span className="truncate">{offer.item.name}</span>
+                                {offer.item.stackable && offer.quantity > 1 && <span className="text-xs text-zinc-400">({offer.quantity})</span>}
                             </div>
-                            <span className="truncate">{offer.item.name}</span>
-                            {offer.item.stackable && offer.quantity > 1 && <span className="text-xs text-zinc-400">({offer.quantity})</span>}
+                            <span className="text-right text-yellow-300/90 font-mono">{`${convertCopperToGSC(itemValue * offer.quantity).gold}g ${convertCopperToGSC(itemValue * offer.quantity).silver}s ${convertCopperToGSC(itemValue * offer.quantity).copper}c`}</span>
                         </div>
-                        <span className="text-right text-yellow-300/90 font-mono">{offer.item.value * offer.quantity}c</span>
-                    </div>
-                )) : (
+                    );
+                }) : (
                     <div className="flex flex-col items-center justify-center h-full text-zinc-500">
                         <Package size={32} />
                         <p className="mt-2 text-sm">No items offered.</p>
@@ -61,7 +77,7 @@ const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onClose, on
     );
 
   return (
-    <div className="w-full h-full p-8 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-8">
         <div className="w-full max-w-5xl bg-zinc-950/80 backdrop-blur-lg rounded-xl border border-zinc-700 p-6 relative flex flex-col max-h-[90vh]">
             <h1 className="text-4xl font-bold text-center mb-6 flex-shrink-0" style={{ fontFamily: 'Cinzel, serif' }}>Confirm Trade</h1>
             

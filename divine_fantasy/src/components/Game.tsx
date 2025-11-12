@@ -206,20 +206,7 @@ const Game: React.FC = () => {
   const isSolidBg = ['characterScreen', 'inventory', 'journal', 'diary', 'trade', 'crafting', 'jobScreen', 'library', 'companion'].includes(currentScreen);
   const isInGame = ['inGame', 'characterScreen', 'inventory', 'journal', 'diary', 'jobScreen', 'companion'].includes(currentScreen);
 
-  // Responsive background sizing for in-game screens
-  const [useContainBg, setUseContainBg] = useState(true);
-  useEffect(() => {
-    const updateBgMode = () => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      const aspect = w / h;
-      // Wide screens: prefer contain to avoid aggressive cropping; otherwise cover
-      setUseContainBg(aspect >= 1.6);
-    };
-    updateBgMode();
-    window.addEventListener('resize', updateBgMode);
-    return () => window.removeEventListener('resize', updateBgMode);
-  }, []);
+
 
   const handleNavigate = (screen: any) => {
     setScreen(screen);
@@ -258,7 +245,7 @@ const Game: React.FC = () => {
                   : (currentScreen === 'mainMenu' ? '/assets/portraits/MainMenu.png' : 'https://i.imgur.com/WsODuhO.png')
                 })`,
                 // Zoom slightly on wide screens, fill on others
-                backgroundSize: currentScreen === 'inGame' ? (useContainBg ? '110%' : 'cover') : 'cover',
+                backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
                 // Fade edges to black by masking background (transparent reveals black root background)

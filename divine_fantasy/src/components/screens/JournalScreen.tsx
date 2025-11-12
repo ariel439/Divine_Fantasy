@@ -96,13 +96,36 @@ const JournalScreen: FC = () => {
                                     <div className="space-y-2">
                                         {selectedQuest.status === 'active' ? (
                                             (() => {
-                                                const nextObj = selectedQuest.objectives.find(o => !o.completed);
-                                                return nextObj ? (
-                                                    <div className="flex items-center gap-3 bg-black/20 p-3 rounded-md">
-                                                        <Square size={20} className="text-zinc-500 flex-shrink-0" />
-                                                        <p className="text-sm text-zinc-200">{nextObj.text}</p>
-                                                    </div>
-                                                ) : (
+                                                const objectivesToDisplay = [];
+                                                let activeFound = false;
+                                                for (const obj of selectedQuest.objectives) {
+                                                    if (obj.completed) {
+                                                        objectivesToDisplay.push(
+                                                            <div key={obj.text} className="flex items-center gap-3 bg-black/20 p-3 rounded-md">
+                                                                <CheckSquare size={20} className="text-green-400 flex-shrink-0" />
+                                                                <p className="text-sm text-zinc-400 line-through">{obj.text}</p>
+                                                            </div>
+                                                        );
+                                                    } else if (!activeFound) {
+                                                        objectivesToDisplay.push(
+                                                            <div key={obj.text} className="flex items-center gap-3 bg-black/20 p-3 rounded-md">
+                                                                <Square size={20} className="text-zinc-500 flex-shrink-0" />
+                                                                <p className="text-sm text-zinc-200">{obj.text}</p>
+                                                            </div>
+                                                        );
+                                                        activeFound = true;
+                                                    }
+                                                }
+                                                if (objectivesToDisplay.length === 0 && selectedQuest.objectives.length > 0) {
+                                                    // Fallback if no objectives are marked as active but quest is active
+                                                    objectivesToDisplay.push(
+                                                        <div key={selectedQuest.objectives[0].text} className="flex items-center gap-3 bg-black/20 p-3 rounded-md">
+                                                            <Square size={20} className="text-zinc-500 flex-shrink-0" />
+                                                            <p className="text-sm text-zinc-200">{selectedQuest.objectives[0].text}</p>
+                                                        </div>
+                                                    );
+                                                }
+                                                return objectivesToDisplay.length > 0 ? objectivesToDisplay : (
                                                     <div className="flex items-center gap-3 bg-black/20 p-3 rounded-md">
                                                         <CheckSquare size={20} className="text-green-400 flex-shrink-0" />
                                                         <p className="text-sm text-zinc-200">All objectives completed.</p>

@@ -32,8 +32,7 @@
     "name": "Leo's Lighthouse",
     "day_description": "A repurposed lighthouse that now serves as a home for the city's orphans, run by the kindly Old Leo.",
     "night_description": "The lighthouse stands tall, its light guiding ships through the night.",
-    "day_background": "/assets/locations/leo_lighthouse_day.jpg",
-    "night_background": "/assets/locations/leo_lighthouse_night.jpg",
+    "day_background": "/assets/locations/leo_lighthouse.jpg",
     "music_track": "GDD/assets/audio/music/lighthouse.mp3",
     "is_indoor": true,
     "actions": [
@@ -48,8 +47,7 @@
     "name": "Beryl's General Goods",
     "day_description": "A cluttered but well-stocked shop for all basic necessities.",
     "night_description": "The shop is closed, but the windows show glimpses of goods inside.",
-    "day_background": "/assets/locations/beryls_general_goods_day.png",
-    "night_background": "/assets/locations/beryls_general_goods_night.png",
+    "day_background": "/assets/locations/beryls_general_goods.png",
     "music_track": "GDD/assets/audio/music/shops.mp3",
     "is_indoor": true,
     "actions": [
@@ -60,10 +58,9 @@
   },
   "kaelens_forge": {
     "name": "Kaelen's Forge",
-    "day_description": "A hot, loud, and impressive forge where the town's metalwork is done.",
-    "night_description": "The forge is dark, but the embers still glow faintly.",
-    "day_background": "/assets/locations/kaelens_forge_day.png",
-    "night_background": "/assets/locations/kaelens_forge_night.png",
+    "day_description": "The clang of hammer on anvil echoes through the air, and the scent of hot metal hangs heavy.",
+    "night_description": "The forge glows faintly in the darkness, a beacon of industry.",
+    "day_background": "/assets/locations/kaelens_forge.png",
     "music_track": "GDD/assets/audio/music/forge.mp3",
     "is_indoor": true,
     "actions": [
@@ -102,8 +99,7 @@
     "name": "The Grand Library",
     "day_description": "A quiet repository of knowledge, moved to the Noble Quarter.",
     "night_description": "The library is dimly lit by candles.",
-    "day_background": "/assets/locations/grand_library_day.png",
-    "night_background": "/assets/locations/grand_library_night.png",
+    "day_background": "/assets/locations/grand_library.png",
     "music_track": "GDD/assets/audio/music/library.mp3",
     "is_indoor": true,
     "actions": [
@@ -116,8 +112,7 @@
     "name": "Tidehunter Quarter",
     "day_description": "The barracks for the elite Tidehunter guards.",
     "night_description": "The quarter is quiet, guards patrolling.",
-    "day_background": "/assets/locations/tidehunter_quarter_day.png",
-    "night_background": "/assets/locations/tidehunter_quarter_night.png",
+    "day_background": "/assets/locations/tidehunter_quarter.png",
     "music_track": "GDD/assets/audio/music/barracks.mp3",
     "actions": [
       { "text": "Talk to Sergeant Rodrick", "type": "dialogue", "target": "npc_rodrick" },
@@ -144,8 +139,6 @@
     "name": "Tide & Trade",
     "day_description": "Roberta's fishmonger shop.",
     "night_description": "The shop is closed, but the smell of fish lingers.",
-    "day_background": "/assets/locations/tide_and_trade.png",
-    "night_background": "/assets/locations/tide_and_trade.png",
     "music_track": "GDD/assets/audio/music/shops.mp3",
     "is_indoor": true,
     "actions": [
@@ -174,8 +167,7 @@
     "name": "Salty Mug",
     "day_description": "A dimly lit, rowdy tavern frequented by sailors and the city's underbelly.",
     "night_description": "The tavern is lively even at night.",
-    "day_background": "/assets/locations/salty_mug_day.jpg",
-    "night_background": "/assets/locations/salty_mug_night.jpg",
+    "day_background": "/assets/locations/salty_mug.jpg",
     "music_track": "GDD/assets/audio/music/tavern.mp3",
     "is_indoor": true,
     "actions": [
@@ -187,11 +179,10 @@
     ]
   },
   "salty_mug_rented_room": {
-    "name": "Salty Mug Rented Room",
-    "day_description": "A small, cheap room for rent.",
-    "night_description": "The room is simple and quiet.",
-    "day_background": "/assets/locations/salty_mug_rented_room_day.png",
-    "night_background": "/assets/locations/salty_mug_rented_room_night.png",
+    "name": "Rented Room",
+    "day_description": "A small, sparsely furnished room, but a welcome private space.",
+    "night_description": "The rented room is quiet, offering a peaceful night's rest.",
+    "day_background": "/assets/locations/salty_mug_rented_room.png",
     "music_track": "GDD/assets/audio/music/room.mp3",
     "is_indoor": true,
     "actions": [
@@ -216,8 +207,7 @@
     "name": "Herbalist's Hovel",
     "day_description": "A small, strange hut filled with drying herbs and mysterious potions.",
     "night_description": "The hovel is eerie in the moonlight.",
-    "day_background": "/assets/locations/herbalists_hovel_day.png",
-    "night_background": "/assets/locations/herbalists_hovel_night.png",
+    "day_background": "/assets/locations/herbalists_hovel.png",
     "music_track": "GDD/assets/audio/music/hovel.mp3",
     "actions": [
       { "text": "Talk to Elara", "type": "dialogue", "target": "npc_elara" },

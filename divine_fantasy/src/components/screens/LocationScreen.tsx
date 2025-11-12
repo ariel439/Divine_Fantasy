@@ -16,6 +16,7 @@ import ActionSummaryModal from '../modals/ActionSummaryModal';
 import { useInventoryStore } from '../../stores/useInventoryStore';
 import { useSkillStore } from '../../stores/useSkillStore';
 import type { ActionSummary } from '../../types';
+import { DialogueService } from '../../services/DialogueService';
 
   const LocationScreen: React.FC = () => {
   const { attributes, hp, energy, hunger, maxWeight } = useCharacterStore();
@@ -105,6 +106,7 @@ import type { ActionSummary } from '../../types';
       case 'dialogue':
         // Set selected NPC for dialogue and open the dialogue screen
         useUIStore.getState().setDialogueNpcId(action.target);
+        DialogueService.startDialogue(action.target);
         setScreen('dialogue');
         break;
       case 'shop':

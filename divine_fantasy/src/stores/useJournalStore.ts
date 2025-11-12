@@ -1,5 +1,10 @@
 import { create } from 'zustand';
+import { useWorldStateStore } from './useWorldStateStore';
 import { useInventoryStore } from './useInventoryStore';
+import { useCharacterStore } from './useCharacterStore';
+import { useDiaryStore } from './useDiaryStore';
+import questsData from '../data/quests.json';
+import dialogueData from '../data/dialogue.json';
 import type { Quest as UiQuest } from '../types';
 import npcsData from '../data/npcs.json';
 
@@ -80,6 +85,26 @@ export const useJournalStore = create<JournalState>((set, get) => ({
       };
 
       const updatedRewards = buildGenericRewards(quest?.rewards);
+
+      // Apply rewards to game state
+      if (quest?.rewards) {
+        if (quest.rewards?.currency) {
+          const currencyAmount = quest.rewards.currency.copper || 0;
+          if (currencyAmount > 0) {
+            useCharacterStore.getState().currency.copper += currencyAmount;
+            // TODO: Add other currency types if they exist
+          }
+        }
+
+        if (Array.isArray(quest.rewards.relationship)) {
+          quest.rewards.relationship.forEach((rel: any) => {
+            useDiaryStore.getState().updateRelationship(rel.npc_id, { friendship: rel.change });
+          });
+        }
+
+        // TODO: Add XP and items rewards
+      }
+
       return ({
         quests: {
           ...state.quests,

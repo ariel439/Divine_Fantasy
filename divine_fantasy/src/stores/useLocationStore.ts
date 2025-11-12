@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import locations from '../data/locations.json';
 import { useWorldTimeStore } from './useWorldTimeStore';
+import { useJournalStore } from './useJournalStore';
+import { useWorldStateStore } from './useWorldStateStore'; // Import useWorldStateStore
 
 interface Location {
   id: string;
@@ -9,6 +11,8 @@ interface Location {
   background: string;
   music_track: string;
   is_indoor?: boolean;
+  day_background?: string; // Make optional
+  night_background?: string; // Make optional
   actions: Array<{
     text: string;
     type: string;
@@ -35,14 +39,27 @@ export const useLocationStore = create<LocationState>((set, get) => ({
     return get().getLocation(currentLocationId)!;
   },
   getLocation: (locationId) => {
-    const locationData = locations[locationId as keyof typeof locations];
+    const locationData: Location = locations[locationId as keyof typeof locations] as Location;
     if (!locationData) return null;
 
     // Use in-game clock instead of system time
     const { hour } = useWorldTimeStore.getState();
     const isNight = hour >= 18 || hour < 6;
     const description = isNight ? locationData.night_description : locationData.day_description;
-    const background = isNight ? locationData.night_background : locationData.day_background;
+    let background = '';
+
+    if (locationId === 'tide_trade') {
+      const isWallRepaired = useWorldStateStore.getState().worldFlags['tide_trade_wall_repaired'];
+      if (isWallRepaired) {
+        background = '/assets/locations/tide_trade_repaired.png';
+      } else {
+        background = '/assets/locations/tide_trade.png';
+      }
+    } else if (locationData.is_indoor) {
+      background = locationData.day_background || ''; // Use day_background for indoor locations
+    } else {
+      background = (isNight ? locationData.night_background : locationData.day_background) || '';
+    }
 
     return {
       id: locationId,
@@ -50,7 +67,7 @@ export const useLocationStore = create<LocationState>((set, get) => ({
       description,
       background,
       music_track: locationData.music_track,
-      is_indoor: Boolean((locationData as any).is_indoor),
+      is_indoor: locationData.is_indoor || false,
       actions: locationData.actions,
     };
   },

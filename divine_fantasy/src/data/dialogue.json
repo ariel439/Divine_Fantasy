@@ -232,7 +232,20 @@
       "reward": {
         "npc_text": "Thank you. Here's your reward for fixing the wall.",
         "player_choices": [
-          { "text": "(Leave) I'll be on my way.", "closes_dialogue": true }
+          { "text": "(Leave) I'll be on my way.", "closes_dialogue": true, "action": "complete_quest:roberta_planks_for_the_past" }
+        ]
+      }
+    }
+  },
+  "roberta_planks_completed": {
+    "nodes": {
+      "0": {
+        "npc_text": "Thank you again for your help with the shop! It means a lot.",
+        "player_choices": [
+          {
+            "text": "You're welcome.",
+            "closes_dialogue": true
+          }
         ]
       }
     }

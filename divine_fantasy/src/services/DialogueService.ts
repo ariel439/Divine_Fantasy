@@ -8,16 +8,56 @@ import { useDiaryStore } from '../stores/useDiaryStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useCharacterStore } from '../stores/useCharacterStore';
 import { useJournalStore } from '../stores/useJournalStore';
-
 interface DialogueNode {
   npc_text: string;
-  player_choices: {
+  player_choices?: {
     text: string;
-    next_node: string;
+    next_node?: string;
     closes_dialogue?: boolean;
     action?: string;
+    condition?: string;
   }[];
 }
+
+interface DialogueEntry {
+  nodes: Record<string, DialogueNode>;
+}
+
+interface DialogueFile {
+  [key: string]: DialogueEntry;
+}
+
+const typedDialogueData: DialogueFile = dialogueData;
+
+interface Npc {
+  name: string;
+  home_location: string;
+  default_dialogue_id: string;
+  portrait: string;
+}
+
+interface QuestReward {
+  xp?: { skill: string; amount: number }[];
+  items?: string[];
+  currency?: number;
+  relationship?: { npc_id: string; change: number }[];
+}
+
+interface Quest {
+  title: string;
+  giver_id: string;
+  description: string;
+  stages: any[]; // We can refine this later if needed
+  rewards: QuestReward;
+}
+
+interface WorldState {
+  quests: Record<string, Quest>;
+  npcs: Record<string, Npc>;
+}
+
+const typedNpcsData: Record<string, Npc> = npcsData;
+const typedQuestsData: Record<string, Quest> = questsData;
 
 interface DialogueState {
   currentDialogueId: string | null;
@@ -31,32 +71,50 @@ export class DialogueService {
   private static dialogueHistory: string[] = [];
 
   static startDialogue(npcId: string): DialogueNode | null {
+    // Add NPC to known list and create diary entry if not already known
+    const worldStateStore = useWorldStateStore.getState();
+    if (!worldStateStore.knownNpcs.includes(npcId)) {
+      worldStateStore.addKnownNpc(npcId);
+      const npcName = typedNpcsData[npcId]?.name || 'Unknown NPC';
+      useDiaryStore.getState().addInteraction(`Met ${npcName} for the first time.`);
+    }
+
     // Find the default dialogue for this NPC
-    const npcData = npcsData[npcId as keyof typeof npcsData];
+    const npcData = typedNpcsData[npcId];
     if (!npcData) {
       console.error('NPC not found in NPC data:', npcId);
       return null;
     }
 
-    const dialogueId = npcData.default_dialogue_id;
-    const dialogue = dialogueData[dialogueId as keyof typeof dialogueData];
+    let dialogueId = npcData.default_dialogue_id;
 
-    if (!dialogue) {
+    // Check if Roberta's quest is completed
+    if (npcId === 'npc_roberta') {
+      const journalStore = useJournalStore.getState();
+      const robertaQuest = journalStore.quests['roberta_planks_for_the_past'];
+      if (robertaQuest && robertaQuest.completed) {
+        dialogueId = 'roberta_planks_completed';
+      }
+    }
+
+    const dialogueEntry = typedDialogueData[dialogueId];
+
+    if (!dialogueEntry) {
       console.error('Dialogue not found:', dialogueId);
       return null;
     }
 
     this.currentDialogueId = dialogueId;
     this.currentNodeId = '0';
-    this.dialogueHistory = [dialogue.nodes['0'].npc_text];
+    this.dialogueHistory = [dialogueEntry.nodes['0'].npc_text];
 
-    return dialogue.nodes['0'];
+    return dialogueEntry.nodes['0'];
   }
 
   static selectResponse(responseIndex: number): DialogueNode | null {
     if (!this.currentDialogueId) return null;
 
-    const currentDialogue = dialogueData[this.currentDialogueId as keyof typeof dialogueData];
+    const currentDialogue = typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData];
     if (!currentDialogue) return null;
 
     const currentNode = currentDialogue.nodes[this.currentNodeId as keyof typeof currentDialogue.nodes];
@@ -82,10 +140,7 @@ export class DialogueService {
         this.dialogueHistory.push(nextNode.npc_text);
         return nextNode;
       }
-    }
-
-    // End dialogue if closes_dialogue is true or no next_node
-    if (response.closes_dialogue || !response.next_node) {
+    } else if (response.closes_dialogue) {
       this.endDialogue();
       return null;
     }
@@ -96,10 +151,10 @@ export class DialogueService {
   static getCurrentDialogue(): DialogueNode | null {
     if (!this.currentDialogueId) return null;
 
-    const currentDialogue = dialogueData[this.currentDialogueId as keyof typeof dialogueData];
-    if (!currentDialogue) return null;
+    const dialogueEntry = typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData];
+    if (!dialogueEntry) return null;
 
-    return currentDialogue.nodes[this.currentNodeId as keyof typeof currentDialogue.nodes] || null;
+    return dialogueEntry.nodes[this.currentNodeId as keyof typeof dialogueEntry.nodes] || null;
   }
 
   static getDialogueHistory(): string[] {
@@ -129,7 +184,7 @@ export class DialogueService {
       case 'start_quest':
         {
           const questId = params[0];
-          const q = (questsData as any)[questId];
+          const q = typedQuestsData[questId];
           if (!q) {
             console.warn('Quest not found:', questId);
             break;
@@ -156,8 +211,8 @@ export class DialogueService {
           journalStore.addQuest(canonicalQuest);
 
           // UI quest (journal list)
-          const giverId = q.giver_id as keyof typeof npcsData;
-          const giverName = npcsData[giverId]?.name || 'Unknown';
+          const giverId = q.giver_id;
+          const giverName = typedNpcsData[giverId]?.name || 'Unknown';
           const objectives = (q.stages || []).map((s: any) => ({ text: s.text, completed: false }));
 
           const uiQuest = {
@@ -200,6 +255,14 @@ export class DialogueService {
           const questId = params[0];
           useJournalStore.getState().advanceQuestStage(questId);
           console.log('Advanced quest stage:', questId);
+        }
+        break;
+
+      case 'complete_quest':
+        {
+          const questId = params[0];
+          journalStore.completeQuest(questId);
+          console.log('Quest completed via dialogue:', questId);
         }
         break;
 

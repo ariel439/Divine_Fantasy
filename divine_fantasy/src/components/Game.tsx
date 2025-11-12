@@ -141,6 +141,7 @@ const Game: React.FC = () => {
       case 'dialogue': {
         const npcId = useUIStore.getState().dialogueNpcId || 'npc_roberta';
         const npc = npcsData[npcId as keyof typeof npcsData];
+        DialogueService.startDialogue(npcId);
         const initial = buildInitialDialogue(npcId);
         return (
           <DialogueScreen
@@ -158,6 +159,7 @@ const Game: React.FC = () => {
       case 'dialogueRoberta': {
         const npcId = 'npc_roberta';
         const npc = npcsData[npcId as keyof typeof npcsData];
+        DialogueService.startDialogue(npcId);
         const initial = buildInitialDialogue(npcId);
         return (
           <DialogueScreen

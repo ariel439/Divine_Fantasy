@@ -10,6 +10,7 @@ import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useCompanionStore } from '../stores/useCompanionStore';
 import characterTemplates from '../data/character_templates.json';
+import npcsData from '../data/npcs.json';
 
 export class GameManagerService {
   static startNewGame(templateId: string): void {
@@ -68,6 +69,12 @@ export class GameManagerService {
     useWorldStateStore.setState({
       worldFlags: {},
       eventCooldowns: {},
+      knownNpcs: [
+        'npc_sarah',
+        'npc_old_leo',
+        'npc_robert',
+        'npc_kyle',
+      ],
     });
 
     useCompanionStore.setState({

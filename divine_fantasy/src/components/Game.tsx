@@ -51,6 +51,8 @@ const Game: React.FC = () => {
       const robertaQuest = useJournalStore.getState().quests['roberta_planks_for_the_past'];
       if (robertaQuest && robertaQuest.active && !robertaQuest.completed) {
         dialogueId = 'roberta_planks_active' as keyof typeof dialogueData;
+      } else if (robertaQuest && robertaQuest.completed) {
+        dialogueId = 'roberta_planks_completed' as keyof typeof dialogueData;
       }
     }
     const dialogue = dialogueData[dialogueId];

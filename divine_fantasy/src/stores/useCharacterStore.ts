@@ -40,7 +40,7 @@ interface CharacterState {
   eat: (itemId: string) => void;
   sleep: (bedType: string) => void;
   wait: (hours: number) => void;
-  addCurrency: (copper: number, silver?: number, gold?: number) => void;
+  addCurrency: (type: 'copper' | 'silver' | 'gold', amount: number) => void;
   removeCurrency: (copper: number, silver?: number, gold?: number) => boolean;
   equipItem: (item: Item) => void;
   unequipItem: (item: Item) => void;
@@ -110,13 +110,12 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   wait: (hours) => {
     useWorldTimeStore.getState().passTime(hours * 60);
   },
-  addCurrency: (copper, silver = 0, gold = 0) => {
+  addCurrency: (type, amount) => {
     set((state) => ({
       currency: {
-        copper: state.currency.copper + copper + (silver * 100) + (gold * 10000),
-        silver: state.currency.silver,
-        gold: state.currency.gold
-      }
+        ...state.currency,
+        [type]: state.currency[type] + amount,
+      },
     }));
   },
   removeCurrency: (copper, silver = 0, gold = 0) => {

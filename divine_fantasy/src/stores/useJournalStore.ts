@@ -88,11 +88,10 @@ export const useJournalStore = create<JournalState>((set, get) => ({
 
       // Apply rewards to game state
       if (quest?.rewards) {
-        if (quest.rewards?.currency) {
-          const currencyAmount = quest.rewards.currency.copper || 0;
+        if (typeof quest.rewards?.currency === 'number') {
+          const currencyAmount = quest.rewards.currency;
           if (currencyAmount > 0) {
-            useCharacterStore.getState().currency.copper += currencyAmount;
-            // TODO: Add other currency types if they exist
+            useCharacterStore.getState().addCurrency('copper', currencyAmount);
           }
         }
 

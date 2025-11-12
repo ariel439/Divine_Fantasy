@@ -107,27 +107,27 @@ This phase is a loop: for each mechanic, we will first ensure the data is ready,
         - Connect `LocationScreen.tsx` to a new store that manages the current location, pulling data from `locations.json`.
         - Implement the `passTime` action and the `SleepWaitModal.tsx`.
 
-- [ ] **3.3: Skilling Loop (Woodcutting & Fishing)**
-    - [ ] **Data:** Verify `items.json` (log, fish types) and `locations.json` (actions) are correct.
-    - [ ] **UI:** Use `TimedActionModal.tsx` for the skilling actions.
-    - [ ] **Logic:**
+- [x] **3.3: Skilling Loop (Woodcutting & Fishing)**
+    - [x] **Data:** Verify `items.json` (log, fish types) and `locations.json` (actions) are correct.
+    - [x] **UI:** Use `TimedActionModal.tsx` for the skilling actions.
+    - [x] **Logic:**
         - Implement the skilling actions (e.g., "Chop Wood") that consume energy and time.
         - On completion, grant XP (using `useSkillStore.addXp`) and items (using `useInventoryStore.addItem`).
         - Display results in `ActionSummaryModal.tsx`.
 
-- [ ] **3.4: NPC Interaction & Dialogue**
-    - [ ] **Data:** Ensure `npcs.json` and `dialogue.json` are populated.
-    - [ ] **UI:** Connect `DialogueScreen.tsx` to the `DialogueService`.
-    - [ ] **Logic:** Implement the `DialogueService` to parse dialogue trees from `dialogue.json` and manage conversation flow.
-    - [ ] **Diary:** Connect `DiaryScreen.tsx` to `useDiaryStore` to reflect relationship changes.
+- [x] **3.4: NPC Interaction & Dialogue**
+    - [x] **Data:** Ensure `npcs.json` and `dialogue.json` are populated.
+    - [x] **UI:** Connect `DialogueScreen.tsx` to the `DialogueService`.
+    - [x] **Logic:** Implement the `DialogueService` to parse dialogue trees from `dialogue.json` and manage conversation flow.
+    - [x] **Diary:** Connect `DiaryScreen.tsx` to `useDiaryStore` to reflect relationship changes.
 
-- [ ] **3.5: Quest System**
-    - [ ] **Data:** Ensure `quests.json` is populated with "Planks for the Past".
-    - [ ] **UI:** Connect `JournalScreen.tsx` to `useJournalStore`.
-    - [ ] **Logic:**
-        - Implement quest activation through dialogue.
-        - Implement objective tracking in `useJournalStore`.
-        - Implement the branching logic for "Planks for the Past" (DIY vs. Delegate), updating the `useWorldStateStore`.
+- [x] **3.5: Quest System**
+    - [x] **Data:** Ensure `quests.json` is populated with "Planks for the Past".
+    - [x] **UI:** Connect `JournalScreen.tsx` to `useJournalStore`.
+    - [x] **Logic:**
+        - [x] Implement quest activation through dialogue.
+        - [x] Implement objective tracking in `useJournalStore`.
+        - [x] Implement the branching logic for "Planks for the Past" (DIY vs. Delegate), updating the `useWorldStateStore`.
 
 - [ ] **3.6: Economy & Trading**
     - [ ] **Data:** Ensure `items.json` has base values and merchant inventories are defined in a new `shops.json` or similar.

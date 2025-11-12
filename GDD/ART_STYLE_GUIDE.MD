@@ -33,7 +33,7 @@ To create a prompt for a specific character, append their unique description to 
 
 ### 3.1. Core Principles for Locations
 
-*   **Aspect Ratio:** All location images **must** be generated at a **1:1 aspect ratio** to fit the UI layout.
+*   **Aspect Ratio:** All location images **must** be generated at a **3:2 aspect ratio** to fit the new locations UI layout. Existing 1:1 images remain acceptable for legacy screens, but new assets should follow 3:2.
 *   **Perspective:** The viewpoint should be from a street-level or slightly elevated perspective, as if the player is standing there.
 *   **Aesthetic:** Dark, gritty, and realistic. The mood should be somber and atmospheric. Avoid overly vibrant colors.
 
@@ -68,3 +68,58 @@ Combine the baseline prompt with specific details from the guidelines.
 **Example for Blacksmith's Forge (Interior):**
 
 > [Location Baseline Prompt] + "The interior of a blacksmith's forge. The room is dark and soot-stained. The bright, hot glow of the forge is the primary light source, casting deep, dramatic shadows. Tools are well-used and scattered around workbenches. The air looks thick with smoke and heat."
+
+---
+
+## 4. Item Icons
+
+This section defines the style and prompt structure for item icons, aligned with the overall art direction.
+
+### 4.1. Core Prompt Formula
+
+Use the following formula to construct consistent item icon prompts:
+
+**Formula:** `[Subject] + [Description] + [Style] + [Framing]`
+
+- **Subject:** A clear and simple declaration of the item (e.g., "A single wooden arrow").
+- **Description:** Adjectives and details about condition, material, and key features (e.g., "with a stone tip and feather fletching, slightly uneven and handmade").
+- **Style:** Painterly dark medieval fantasy; fantasy RPG inventory icon style.
+- **Framing:** Isolated on a transparent background.
+
+### 4.2. Best-Practice Examples
+
+- **Wooden Arrow:**
+  > "A single wooden arrow with a stone tip and feather fletching, slightly uneven and handmade, depicted as a fantasy RPG inventory icon, painterly style, isolated on a transparent background."
+
+- **Crude Knife:**
+  > "A crude, hand-forged knife with a chipped blade and a simple wooden handle, looking rugged and utilitarian, in a dark medieval fantasy RPG inventory icon style, isolated on a transparent background."
+
+- **Cooked Flounder:**
+  > "A cooked flounder fish, golden-brown and slightly crispy, presented as an inventory icon, with steam rising and subtle grill marks, in a painterly dark medieval fantasy style, isolated on a transparent background."
+
+### 4.3. Prompts for New Quest Items
+
+Prompts for Roberta's "Planks for the Past" quest items:
+
+- **Old Axe:**
+  > "A rusty and worn old woodcutting axe with a sturdy, dark-wood handle, its steel head pitted and aged but still sharp, in a painterly dark medieval fantasy style, presented as an RPG inventory icon, isolated on a transparent background."
+
+- **Sturdy Wood:**
+  > "A stack of three rough, circular cuts of sturdy wood logs, showing prominent grain and bark on the edges, presented as an RPG inventory icon for a crafting material, in a painterly dark medieval fantasy style, isolated on a transparent background."
+
+- **Wooden Planks:**
+  > "A small, neat stack of freshly cut wooden planks, showing clean grain and a light sawdust coating, presented as an RPG inventory icon for a crafting material, in a painterly dark medieval fantasy style, isolated on a transparent background."
+
+---
+
+## 5. Location Prompts (Driftwatch)
+
+Use the Location Baseline Prompt with city-specific details.
+
+### 5.1. Driftwatch Hub
+
+> [Location Baseline Prompt] + "Driftwatch’s central hub square, a worn coastal city center with rough timber storefronts and basic stone foundations. Weathered wooden stalls, patched signage, and salt-stained planks. Overcast, cool light; damp cobbles with puddles reflecting lanterns. Sparse townsfolk silhouettes, muted colors, gritty textures. Aspect ratio 3:2."
+
+### 5.2. Driftwatch Docks
+
+> [Location Baseline Prompt] + "A gritty, working-class harbor with weathered piers, thick mooring ropes, crates and barrels, and small fishing boats with patched sails. Salt spray, gulls, tar-stained wood, and rusted iron fittings. Cool, desaturated palette; misty horizon and damp surfaces. Lanterns glow faintly in overcast light. Aspect ratio 3:2."

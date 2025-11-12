@@ -53,13 +53,12 @@ const DialogueScreen: FC<DialogueScreenProps> = ({ npcName, npcPortraitUrl, play
     }, [transitioningPortrait]);
 
     const handleOptionSelect = (option: DialogueOption) => {
-        // Handle options that explicitly end dialogue
-        if (option.text.toLowerCase().includes('(leave)')) {
+        // Handle options that explicitly end dialogue via flag
+        if (option.closesDialogue) {
             if (option.onSelect) {
                 option.onSelect();
-            } else {
-                onEndDialogue();
             }
+            onEndDialogue();
             return;
         }
         

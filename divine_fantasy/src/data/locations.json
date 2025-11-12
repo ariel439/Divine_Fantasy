@@ -151,7 +151,7 @@
     "actions": [
       { "text": "Talk to Roberta", "type": "dialogue", "target": "npc_roberta" },
       { "text": "Trade", "type": "shop", "target": "shop_tide_trade" },
-      { "text": "Repair Wall", "type": "use", "target": "repair_wall", "condition": "quest.roberta_planks.stage==2" },
+      { "text": "Repair Wall", "type": "use", "target": "repair_wall", "condition": "quest.roberta_planks_for_the_past.stage==2" },
       { "text": "Travel to Driftwatch Docks", "type": "navigate", "target": "driftwatch_docks" }
     ]
   },

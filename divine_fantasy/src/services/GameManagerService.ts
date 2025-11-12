@@ -79,6 +79,20 @@ export class GameManagerService {
       useInventoryStore.getState().addItem(itemId, 1);
     });
 
+    // Developer convenience: seed 10 wooden planks to start
+    // This helps quickly verify Roberta's quest progression and completion.
+    useInventoryStore.getState().addItem('wooden_plank', 10);
+
+    // If the quest is already accepted before seeding (e.g., dev flows), sync progress
+    try {
+      const journal = useJournalStore.getState() as any;
+      if (typeof journal.syncQuestProgress === 'function') {
+        journal.syncQuestProgress('roberta_planks_for_the_past');
+      }
+    } catch (e) {
+      console.warn('Quest progress sync not available yet:', e);
+    }
+
     console.log('New game started successfully with template:', templateId);
   }
 

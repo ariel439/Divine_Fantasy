@@ -9,6 +9,9 @@ import LocationScreen from './screens/LocationScreen';
 import DialogueScreen from './screens/DialogueScreen';
 import dialogueData from '../data/dialogue.json';
 import npcsData from '../data/npcs.json';
+import { DialogueService } from '../services/DialogueService';
+import { useJournalStore } from '../stores/useJournalStore';
+import { useWorldStateStore } from '../stores/useWorldStateStore';
 import CharacterScreen from './screens/CharacterScreen';
 import InventoryScreen from './screens/InventoryScreen';
 import JobScreen from './screens/JobScreen';
@@ -42,19 +45,80 @@ const Game: React.FC = () => {
   const buildInitialDialogue = (npcId: string) => {
     const npc = npcsData[npcId as keyof typeof npcsData];
     if (!npc) return null;
-    const dialogueId = npc.default_dialogue_id as keyof typeof dialogueData;
+    // Choose alternate dialogue if quest is already active
+    let dialogueId = npc.default_dialogue_id as keyof typeof dialogueData;
+    if (npcId === 'npc_roberta') {
+      const robertaQuest = useJournalStore.getState().quests['roberta_planks_for_the_past'];
+      if (robertaQuest && robertaQuest.active && !robertaQuest.completed) {
+        dialogueId = 'roberta_planks_active' as keyof typeof dialogueData;
+      }
+    }
     const dialogue = dialogueData[dialogueId];
     if (!dialogue) return null;
     const firstNode = dialogue.nodes['0'];
-    const mapChoices = (nodeId: string): any[] => {
+    const checkCondition = (condition?: string): boolean => {
+      if (!condition || typeof condition !== 'string') return true;
+      const parts = condition.split('&&').map(s => s.trim());
+      const journal = useJournalStore.getState();
+      const world = useWorldStateStore.getState();
+      for (const expr of parts) {
+        const [lhs, rhsRaw] = expr.split('==').map(s => s.trim());
+        const rhs = rhsRaw === 'true' ? true : rhsRaw === 'false' ? false : Number(rhsRaw);
+        if (lhs.startsWith('quest.')) {
+          const [, questId, field] = lhs.split('.');
+          const q = journal.quests[questId];
+          if (field === 'active') {
+            if ((q?.active || false) !== rhs) return false;
+          } else if (field === 'completed') {
+            if ((q?.completed || false) !== rhs) return false;
+          } else if (field === 'stage') {
+            const stage = q?.currentStage ?? 0;
+            if (stage !== rhs) return false;
+          }
+        } else if (lhs.startsWith('world_flags.')) {
+          const flag = lhs.replace('world_flags.', '');
+          const val = world.getFlag(flag);
+          if (val !== rhs) return false;
+        }
+      }
+      return true;
+    };
+
+    const mapChoices = (nodeId: string, visited: Set<string> = new Set()): any[] => {
+      // Guard against cycles in dialogue graphs
+      if (visited.has(nodeId)) return [];
+      visited.add(nodeId);
       const node = dialogue.nodes[nodeId as keyof typeof dialogue.nodes];
       if (!node || !node.player_choices) return [];
-      return node.player_choices.map((choice: any) => {
-        const nextNode = choice.next_node ? dialogue.nodes[choice.next_node as keyof typeof dialogue.nodes] : undefined;
+      const filtered = node.player_choices.filter((choice: any) => {
+        // Hide start_quest choices if quest already accepted or completed
+        if (choice.action && typeof choice.action === 'string' && choice.action.startsWith('start_quest:')) {
+          const questId = choice.action.split(':')[1];
+          const existing = useJournalStore.getState().quests[questId];
+          if (existing && (existing.active || existing.completed)) {
+            return false;
+          }
+        }
+        // Apply optional condition field if present
+        if (choice.condition && !checkCondition(choice.condition)) {
+          return false;
+        }
+        return true;
+      });
+      return filtered.map((choice: any) => {
+        const nextNodeId = choice.next_node as string | undefined;
+        const nextNode = nextNodeId ? dialogue.nodes[nextNodeId as keyof typeof dialogue.nodes] : undefined;
         return {
-          text: choice.text + (choice.closes_dialogue ? ' (Leave)' : ''),
+          text: choice.text,
           responseText: nextNode?.npc_text,
-          nextOptions: nextNode ? mapChoices(choice.next_node) : [],
+          // Use a branched visited set per choice to avoid cross-branch pruning
+          nextOptions: nextNodeId ? mapChoices(nextNodeId, new Set(visited)) : [],
+          closesDialogue: Boolean(choice.closes_dialogue),
+          onSelect: () => {
+            if (choice.action) {
+              DialogueService.executeAction(choice.action);
+            }
+          },
         };
       });
     };
@@ -198,8 +262,8 @@ const Game: React.FC = () => {
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
                 // Fade edges to black by masking background (transparent reveals black root background)
-                WebkitMaskImage: currentScreen === 'inGame' ? 'radial-gradient(130% 130% at 50% 50%, black 70%, transparent 100%)' : undefined,
-                maskImage: currentScreen === 'inGame' ? 'radial-gradient(130% 130% at 50% 50%, black 70%, transparent 100%)' : undefined,
+                WebkitMaskImage: currentScreen === 'inGame' ? 'radial-gradient(130% 130% at 50% 50%, white 70%, transparent 100%)' : undefined,
+                maskImage: currentScreen === 'inGame' ? 'radial-gradient(130% 130% at 50% 50%, white 70%, transparent 100%)' : undefined,
               }
         }
       ></div>

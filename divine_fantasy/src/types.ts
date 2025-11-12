@@ -98,6 +98,7 @@ export interface DialogueOption {
   nextPortraitUrl?: string;
   disabled?: boolean;
   skillCheck?: { skill: string; level?: number };
+  closesDialogue?: boolean;
 }
 
 export interface ConversationEntry {

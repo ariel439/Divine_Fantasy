@@ -171,14 +171,69 @@
           {
             "text": "What's the problem?",
             "next_node": "1",
-            "action": "start_quest:roberta_planks_for_the_past",
+            "condition": "quest.roberta_planks_for_the_past.active==false && quest.roberta_planks_for_the_past.completed==false"
+          },
+          {
+            "text": "I'll come back later.",
             "closes_dialogue": true
           }
         ]
       },
       "1": {
         "npc_text": "A hole in the wall. Need planks to fix it.",
-        "player_choices": []
+        "player_choices": [
+          {
+            "text": "I'll help. What do you need?",
+            "action": "start_quest:roberta_planks_for_the_past",
+            "closes_dialogue": true
+          },
+          {
+            "text": "Not now.",
+            "closes_dialogue": true
+          },
+          {
+            "text": "How do I get planks?",
+            "next_node": "2"
+          }
+        ]
+      },
+      "2": {
+        "npc_text": "Cut logs in the woods, then visit the sawmill to turn them into planks.",
+        "player_choices": [
+          {
+            "text": "Got it. I'll help.",
+            "action": "start_quest:roberta_planks_for_the_past",
+            "closes_dialogue": true
+          },
+          {
+            "text": "I'll pass.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  },
+  "roberta_planks_active": {
+    "nodes": {
+      "0": {
+        "npc_text": "How's the repair going?",
+        "player_choices": [
+          { "text": "How do I get planks?", "next_node": "1" },
+          { "text": "The wall is repaired.", "next_node": "reward", "action": "advance_quest_stage:roberta_planks_for_the_past", "condition": "quest.roberta_planks_for_the_past.stage==3" },
+          { "text": "I'll come back later.", "closes_dialogue": true }
+        ]
+      },
+      "1": {
+        "npc_text": "Cut logs in the woods, then visit the sawmill to turn them into planks.",
+        "player_choices": [
+          { "text": "(Leave) I'll be on my way.", "closes_dialogue": true }
+        ]
+      },
+      "reward": {
+        "npc_text": "Thank you. Here's your reward for fixing the wall.",
+        "player_choices": [
+          { "text": "(Leave) I'll be on my way.", "closes_dialogue": true }
+        ]
       }
     }
   },

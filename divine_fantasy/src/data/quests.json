@@ -6,7 +6,8 @@
     "stages": [
       { "id": 0, "text": "I should speak to Roberta at Tide & Trade to see what's troubling her.", "type": "talk", "target": "npc_roberta" },
       { "id": 1, "text": "I need to find a way to get 10 Wooden Planks to help Roberta.", "type": "gather", "target": "wooden_plank", "quantity": 10 },
-      { "id": 2, "text": "I have the planks. I should use them to repair the wall at Tide & Trade.", "type": "use", "target": "tide_trade" }
+      { "id": 2, "text": "I have the planks. I should use them to repair the wall at Tide & Trade.", "type": "use", "target": "tide_trade" },
+      { "id": 3, "text": "The wall is fixed. I should talk to Roberta to receive my reward.", "type": "talk", "target": "npc_roberta" }
     ],
     "rewards": {
       "xp": [{ "skill": "carpentry", "amount": 500 }],

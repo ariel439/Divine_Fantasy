@@ -3,16 +3,20 @@ import React, { useState, useMemo, useEffect } from 'react';
 import type { FC } from 'react';
 import { CheckSquare, Square, Search } from 'lucide-react';
 import type { Quest } from '../../types';
-import { mockQuests } from '../../data';
+import { useJournalStore } from '../../stores/useJournalStore';
 import Section from '../ui/Section';
 
 const JournalScreen: FC = () => {
     const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [questStatusTab, setQuestStatusTab] = useState<'active' | 'completed'>('active');
+    const { questsList } = useJournalStore();
+
+    // Do not seed mock quests; show only actual quests present in store
 
     const filteredQuests = useMemo(() => {
-        let quests = mockQuests.filter(q => q.status === questStatusTab);
+        const source = questsList || [];
+        let quests = source.filter(q => q.status === questStatusTab);
         if (searchTerm) {
             quests = quests.filter(q => 
                 q.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -20,7 +24,7 @@ const JournalScreen: FC = () => {
             );
         }
         return quests;
-    }, [questStatusTab, searchTerm]);
+    }, [questStatusTab, searchTerm, questsList]);
     
     // Set initial quest on tab change or first load
     useEffect(() => {
@@ -63,7 +67,9 @@ const JournalScreen: FC = () => {
                         <Search size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500" />
                     </div>
                     <div className="overflow-y-auto flex-grow custom-scrollbar pr-2 space-y-1 mt-2">
-                        {filteredQuests.map(quest => (
+                        {filteredQuests.length === 0 ? (
+                            <div className="text-zinc-500 text-sm p-3">No quests yet. Talk to NPCs to discover quests.</div>
+                        ) : filteredQuests.map(quest => (
                             <button
                                 key={quest.id}
                                 onClick={() => setSelectedQuest(quest)}
@@ -88,23 +94,42 @@ const JournalScreen: FC = () => {
                                 <p className="text-zinc-300 leading-relaxed">{selectedQuest.description}</p>
                                 <Section title="Objectives">
                                     <div className="space-y-2">
-                                        {selectedQuest.objectives.map((obj, index) => (
-                                            <div key={index} className="flex items-center gap-3 bg-black/20 p-3 rounded-md">
-                                                {obj.completed ? <CheckSquare size={20} className="text-green-400 flex-shrink-0" /> : <Square size={20} className="text-zinc-500 flex-shrink-0" />}
-                                                <p className={`text-sm ${obj.completed ? 'text-zinc-400 line-through' : 'text-zinc-200'}`}>{obj.text}</p>
-                                            </div>
-                                        ))}
+                                        {selectedQuest.status === 'active' ? (
+                                            (() => {
+                                                const nextObj = selectedQuest.objectives.find(o => !o.completed);
+                                                return nextObj ? (
+                                                    <div className="flex items-center gap-3 bg-black/20 p-3 rounded-md">
+                                                        <Square size={20} className="text-zinc-500 flex-shrink-0" />
+                                                        <p className="text-sm text-zinc-200">{nextObj.text}</p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center gap-3 bg-black/20 p-3 rounded-md">
+                                                        <CheckSquare size={20} className="text-green-400 flex-shrink-0" />
+                                                        <p className="text-sm text-zinc-200">All objectives completed.</p>
+                                                    </div>
+                                                );
+                                            })()
+                                        ) : (
+                                            selectedQuest.objectives.map((obj, index) => (
+                                                <div key={index} className="flex items-center gap-3 bg-black/20 p-3 rounded-md">
+                                                    {obj.completed ? <CheckSquare size={20} className="text-green-400 flex-shrink-0" /> : <Square size={20} className="text-zinc-500 flex-shrink-0" />}
+                                                    <p className={`text-sm ${obj.completed ? 'text-zinc-400 line-through' : 'text-zinc-200'}`}>{obj.text}</p>
+                                                </div>
+                                            ))
+                                        )}
                                     </div>
                                 </Section>
-                                <Section title="Rewards">
-                                     <div className="space-y-2">
-                                        {selectedQuest.rewards.map((reward, index) => (
-                                             <div key={index} className="bg-black/20 p-3 rounded-md text-sm text-yellow-300 border-l-2 border-yellow-400">
-                                                <p>{reward}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </Section>
+                                {selectedQuest.status === 'completed' && (
+                                  <Section title="Rewards">
+                                       <div className="space-y-2">
+                                          {selectedQuest.rewards.map((reward, index) => (
+                                               <div key={index} className="bg-black/20 p-3 rounded-md text-sm text-yellow-300 border-l-2 border-yellow-400">
+                                                  <p>{reward}</p>
+                                              </div>
+                                          ))}
+                                      </div>
+                                  </Section>
+                                )}
                             </div>
                         </>
                     ) : (

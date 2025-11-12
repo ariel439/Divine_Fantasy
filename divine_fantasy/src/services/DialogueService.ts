@@ -3,9 +3,11 @@
 
 import dialogueData from '../data/dialogue.json';
 import npcsData from '../data/npcs.json';
+import questsData from '../data/quests.json';
 import { useDiaryStore } from '../stores/useDiaryStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useCharacterStore } from '../stores/useCharacterStore';
+import { useJournalStore } from '../stores/useJournalStore';
 
 interface DialogueNode {
   npc_text: string;
@@ -110,10 +112,11 @@ export class DialogueService {
     this.dialogueHistory = [];
   }
 
-  private static executeAction(action: string): void {
+  static executeAction(action: string): void {
     // Simple action executor - can be expanded
     const diaryStore = useDiaryStore.getState();
     const worldState = useWorldStateStore.getState();
+    const journalStore = useJournalStore.getState();
 
     // Example actions:
     // "start_quest:rodrick_wolf_pack"
@@ -124,8 +127,62 @@ export class DialogueService {
 
     switch (actionType) {
       case 'start_quest':
-        // TODO: Implement quest starting
-        console.log('Starting quest:', params[0]);
+        {
+          const questId = params[0];
+          const q = (questsData as any)[questId];
+          if (!q) {
+            console.warn('Quest not found:', questId);
+            break;
+          }
+
+          // Prevent duplicate acceptance
+          const existing = useJournalStore.getState().quests[questId];
+          if (existing && (existing.active || existing.completed)) {
+            console.log('Quest already accepted or completed:', questId);
+            break;
+          }
+
+          // Canonical quest (store record)
+          const canonicalQuest = {
+            id: questId,
+            title: q.title,
+            description: q.description,
+            stages: q.stages || [],
+            rewards: q.rewards || {},
+            completed: false,
+            active: true,
+            currentStage: 0,
+          };
+          journalStore.addQuest(canonicalQuest);
+
+          // UI quest (journal list)
+          const giverId = q.giver_id as keyof typeof npcsData;
+          const giverName = npcsData[giverId]?.name || 'Unknown';
+          const objectives = (q.stages || []).map((s: any) => ({ text: s.text, completed: false }));
+
+          const uiQuest = {
+            id: questId,
+            title: q.title,
+            giver: giverName,
+            description: q.description,
+            objectives,
+            rewards: [],
+            status: 'active' as const,
+          };
+          const currentList = useJournalStore.getState().questsList || [];
+          if (!currentList.some(q => q.id === questId)) {
+            useJournalStore.getState().setQuestsList([...currentList, uiQuest]);
+          }
+          // Move to stage 1 after acceptance (talk stage completed)
+          useJournalStore.getState().setQuestStage(questId, 1);
+          // If player already has required items (e.g., 10 planks), auto-sync to stage 2
+          try {
+            useJournalStore.getState().syncQuestProgress(questId);
+          } catch (e) {
+            // Journal store may not expose sync yet; ignore
+          }
+          console.log('Quest started via dialogue:', questId);
+        }
         break;
 
       case 'hire_job':
@@ -136,6 +193,14 @@ export class DialogueService {
       case 'recruit_companion':
         // TODO: Implement companion recruitment
         console.log('Recruiting companion:', params[0]);
+        break;
+
+      case 'advance_quest_stage':
+        {
+          const questId = params[0];
+          useJournalStore.getState().advanceQuestStage(questId);
+          console.log('Advanced quest stage:', questId);
+        }
         break;
 
       default:

@@ -3,6 +3,8 @@ import { useCharacterStore } from '../../stores/useCharacterStore';
 import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
 import { useLocationStore } from '../../stores/useLocationStore';
 import { useUIStore } from '../../stores/useUIStore';
+import { useJournalStore } from '../../stores/useJournalStore';
+import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import { Sun, Moon, MessageSquare, Hammer, Fish, MapPin, ShoppingCart, CookingPot, Bed, Search, Swords, Leaf, Snowflake, Sprout, Cloud, CloudRain, BookOpen, User, Package, Briefcase, Heart, Library, Zap, Award } from 'lucide-react';
 import ProgressBar from '../ui/ProgressBar';
 import ActionButton from '../ui/ActionButton';
@@ -123,6 +125,42 @@ import type { ActionSummary } from '../../types';
       case 'job':
         setScreen('jobScreen');
         break;
+      case 'use': {
+        // Handle context actions like repairing the wall at Tide & Trade
+        if (action.target === 'repair_wall') {
+          const journal = useJournalStore.getState();
+          const questId = 'roberta_planks_for_the_past';
+          const q = journal.quests[questId];
+          const inventory = useInventoryStore.getState();
+          const planks = inventory.getItemQuantity('wooden_plank');
+          if (q && q.active && !q.completed && (q.currentStage ?? 0) === 2) {
+            if (planks >= 10) {
+              // Consume 10 planks and complete the quest
+              const removed = inventory.removeItem('wooden_plank', 10);
+              if (removed) {
+                // Advance to final talk stage (stage 3); do not complete yet
+                journal.setQuestStage(questId, 3);
+                // Set a world flag for future conditions (e.g., different dialogue or visuals)
+                useWorldStateStore.getState().setFlag('tide_trade_wall_repaired', true);
+
+                // Show summary modal
+                const summary: ActionSummary = {
+                  title: 'Wall Repaired',
+                  durationInMinutes: 15,
+                  vitalsChanges: [],
+                  expended: [{ name: 'Wooden Plank', quantity: 10, icon: <Package size={20} className="text-zinc-300"/> }],
+                  rewards: [{ name: 'Wall Fixed', quantity: 1, icon: <Hammer size={20} className="text-green-300"/> }],
+                };
+                setSummaryData(summary);
+                setSummaryModalOpen(true);
+              }
+            } else {
+              console.log('Not enough planks to repair. Need 10, have', planks);
+            }
+          }
+        }
+        break;
+      }
       case 'navigate':
         // Free travel: no modal. Timed travel: show confirmation modal
         if (action.time_cost && action.time_cost > 0) {
@@ -443,6 +481,35 @@ import type { ActionSummary } from '../../types';
               if (isAHub && !isBHub) return 1;
               if (!isAHub && isBHub) return -1;
               return 0;
+            })
+            .filter((action: any) => {
+              // Evaluate optional condition field
+              const condition = action.condition;
+              if (!condition) return true;
+              const parts = String(condition).split('&&').map(s => s.trim());
+              const journal = useJournalStore.getState();
+              const world = useWorldStateStore.getState();
+              for (const expr of parts) {
+                const [lhs, rhsRaw] = expr.split('==').map(s => s.trim());
+                const rhs = rhsRaw === 'true' ? true : rhsRaw === 'false' ? false : Number(rhsRaw);
+                if (lhs.startsWith('quest.')) {
+                  const [, questId, field] = lhs.split('.');
+                  const q = journal.quests[questId];
+                  if (field === 'active') {
+                    if ((q?.active || false) !== rhs) return false;
+                  } else if (field === 'completed') {
+                    if ((q?.completed || false) !== rhs) return false;
+                  } else if (field === 'stage') {
+                    const stage = q?.currentStage ?? 0;
+                    if (stage !== rhs) return false;
+                  }
+                } else if (lhs.startsWith('world_flags.')) {
+                  const flag = lhs.replace('world_flags.', '');
+                  const val = world.getFlag(flag);
+                  if (val !== rhs) return false;
+                }
+              }
+              return true;
             })
             .map((action: any, index: number) => (
             <ActionButton

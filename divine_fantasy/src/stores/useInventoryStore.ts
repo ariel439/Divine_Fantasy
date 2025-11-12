@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { useCharacterStore } from './useCharacterStore';
+import { useJournalStore } from './useJournalStore';
 import itemsData from '../data/items.json';
 
 interface InventoryItem {
@@ -46,6 +47,12 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
         };
       }
     });
+    // Sync quest progress (e.g., Roberta's planks quest)
+    try {
+      useJournalStore.getState().syncQuestProgress('roberta_planks_for_the_past');
+    } catch (e) {
+      // Ignore if journal store not ready
+    }
     return true;
   },
   removeItem: (itemId, quantity) => {
@@ -71,6 +78,12 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
         };
       }
     });
+    // Sync quest progress after removal too (in case quantities drop below thresholds)
+    try {
+      useJournalStore.getState().syncQuestProgress('roberta_planks_for_the_past');
+    } catch (e) {
+      // Ignore if journal store not ready
+    }
     return true;
   },
   useItem: (itemId) => {

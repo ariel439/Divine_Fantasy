@@ -9,9 +9,12 @@ import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useCompanionStore } from '../stores/useCompanionStore';
-import { useShopStore } from '../stores/useShopStore'; // Import useShopStore
+import { useShopStore } from '../stores/useShopStore';
+import { useCombatStore } from '../stores/useCombatStore';
+import { useUIStore } from '../stores/useUIStore';
 import characterTemplates from '../data/character_templates.json';
-import npcsData from '../data/npcs.json';
+import enemiesJson from '../data/enemies.json';
+import type { CombatParticipant } from '../stores/useCombatStore';
 
 export class GameManagerService {
   private static currentDay: number = 0;
@@ -45,7 +48,13 @@ export class GameManagerService {
 
     // Reset and initialize all stores
     useCharacterStore.setState({
-      attributes: { ...template.starting_attributes },
+      attributes: {
+        strength: template.starting_attributes.Strength,
+        agility: template.starting_attributes.Agility,
+        intelligence: template.starting_attributes.Intelligence,
+        wisdom: template.starting_attributes.Wisdom,
+        charisma: template.starting_attributes.Charisma,
+      },
       hp: 100,
       energy: 100,
       hunger: 0,
@@ -139,5 +148,74 @@ export class GameManagerService {
   static resumeGame(): void {
     // TODO: Resume game logic
     console.log('Game resumed');
+  }
+
+  static startWoodsCombat(wolfCountParam?: number): void {
+    const character = useCharacterStore.getState();
+    const companion = useCompanionStore.getState().activeCompanion;
+
+    // Pick 1-4 wolves randomly
+    const finalWolfCount = wolfCountParam || Math.floor(Math.random() * 4) + 1; // 1 to 4
+    const wolfId = 'wolf_forest'; // Only forest wolves for now
+    const selectedWolves: CombatParticipant[] = [];
+    for (let i = 0; i < finalWolfCount; i++) {
+
+      const wolfTemplate = enemiesJson[wolfId];
+      if (wolfTemplate) {
+        selectedWolves.push({
+          id: `wolf_${i}_${Date.now()}`,
+          name: wolfTemplate.name,
+          hp: wolfTemplate.stats.hp,
+          maxHp: wolfTemplate.stats.hp,
+
+
+          attack: wolfTemplate.stats.attack,
+          defence: wolfTemplate.stats.defence,
+          agility: wolfTemplate.stats.agility,
+          portraitUrl: 'https://i.imgur.com/gUNzyBA.jpeg', // TODO: Add wolf portrait
+          isPlayer: false,
+          isCompanion: false,
+        });
+      }
+    }
+
+    // Create player combatant
+    const player: CombatParticipant = {
+      id: 'player',
+      name: character.bio.name,
+      hp: character.hp,
+      maxHp: 100,
+
+
+      attack: character.attributes.strength,
+      defence: character.attributes.strength,
+      agility: character.attributes.agility,
+      portraitUrl: character.bio.image,
+      isPlayer: true,
+      isCompanion: false,
+    };
+
+    // Create companion combatant if available
+    let companionCombatant: CombatParticipant | null = null;
+    if (companion) {
+      companionCombatant = {
+        id: 'companion',
+        name: companion.name,
+        hp: companion.stats.hp,
+        maxHp: companion.stats.maxHp,
+        attack: companion.stats.attack,
+        defence: companion.stats.defence,
+
+
+        agility: companion.stats.agility,
+        portraitUrl: '', // TODO: Add companion portrait URL
+        isPlayer: false,
+        isCompanion: true,
+      };
+    }
+
+    // Start combat
+    useCombatStore.getState().startCombat(player, companionCombatant, selectedWolves);
+    useUIStore.getState().setScreen('combat');
   }
 }

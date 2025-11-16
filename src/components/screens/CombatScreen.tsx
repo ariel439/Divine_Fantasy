@@ -9,6 +9,7 @@ import CombatantCard from '../ui/CombatantCard';
 interface CombatScreenProps {
   party: Combatant[];
   enemies: Combatant[];
+  turnOrder: Combatant[];
   activeCharacterId?: string;
   selectedTargetId?: string;
   isPlayerTurn: boolean;
@@ -38,6 +39,7 @@ const TurnOrderTimeline: FC<{ combatants: Combatant[]; activeId?: string }> = ({
 const CombatScreen: FC<CombatScreenProps> = ({
   party,
   enemies,
+  turnOrder,
   activeCharacterId,
   selectedTargetId,
   isPlayerTurn,
@@ -48,8 +50,10 @@ const CombatScreen: FC<CombatScreenProps> = ({
   combatLog
 }) => {
     const logEndRef = useRef<HTMLDivElement>(null);
-    const [damageEvents, setDamageEvents] = useState<{ targetId: string, damage: number, key: number }[]>([]);
+    const [enemyDamageEvents, setEnemyDamageEvents] = useState<{ targetId: string, damage: number, key: number }[]>([]);
+    const [partyDamageEvents, setPartyDamageEvents] = useState<{ targetId: string, damage: number, key: number }[]>([]);
     const prevEnemiesRef = useRef<Combatant[]>(JSON.parse(JSON.stringify(enemies)));
+    const prevPartyRef = useRef<Combatant[]>(JSON.parse(JSON.stringify(party)));
 
     useEffect(() => {
         logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -66,10 +70,10 @@ const CombatScreen: FC<CombatScreenProps> = ({
         });
 
         if (newDamageEvents.length > 0) {
-            setDamageEvents(prev => [...prev, ...newDamageEvents]);
+            setEnemyDamageEvents(prev => [...prev, ...newDamageEvents]);
             newDamageEvents.forEach(event => {
                 setTimeout(() => {
-                    setDamageEvents(currentEvents => currentEvents.filter(e => e.key !== event.key));
+                    setEnemyDamageEvents(currentEvents => currentEvents.filter(e => e.key !== event.key));
                 }, 1000); // Animation duration is 1s
             });
         }
@@ -78,7 +82,30 @@ const CombatScreen: FC<CombatScreenProps> = ({
         prevEnemiesRef.current = JSON.parse(JSON.stringify(enemies));
     }, [enemies]);
 
-    const turnOrder = useMemo(() => {
+    useEffect(() => {
+        const newDamageEvents: { targetId: string, damage: number, key: number }[] = [];
+        party.forEach(currentMember => {
+            const prevMember = prevPartyRef.current.find(e => e.id === currentMember.id);
+            if (prevMember && prevMember.hp > currentMember.hp) {
+                const damage = prevMember.hp - currentMember.hp;
+                newDamageEvents.push({ targetId: currentMember.id, damage, key: Date.now() + Math.random() });
+            }
+        });
+
+        if (newDamageEvents.length > 0) {
+            setPartyDamageEvents(prev => [...prev, ...newDamageEvents]);
+            newDamageEvents.forEach(event => {
+                setTimeout(() => {
+                    setPartyDamageEvents(currentEvents => currentEvents.filter(e => e.key !== event.key));
+                }, 1000);
+            });
+        }
+
+        prevPartyRef.current = JSON.parse(JSON.stringify(party));
+    }, [party]);
+
+    // Use the provided turnOrder from the combat store instead of creating our own
+    /*const turnOrder = useMemo(() => {
         // Simple alternating turn order for the demo
         const order: Combatant[] = [];
         const maxLength = Math.max(party.length, enemies.length);
@@ -87,7 +114,7 @@ const CombatScreen: FC<CombatScreenProps> = ({
             if (enemies[i]) order.push(enemies[i]);
         }
         return order;
-    }, [party, enemies]);
+    }, [party, enemies]);*/
     
     const CombatActionButton: FC<{ icon: React.ReactNode; text: string; onClick: () => void; disabled?: boolean }> = ({ icon, text, onClick, disabled }) => (
         <button
@@ -105,20 +132,26 @@ const CombatScreen: FC<CombatScreenProps> = ({
             {/* Main Combat Area */}
             <main className="flex-grow flex flex-col lg:flex-row items-center justify-around p-4 md:p-8">
                 {/* Party Column */}
-                <div className="w-full max-w-md lg:max-w-xs flex flex-row lg:flex-col justify-center items-center gap-4 lg:gap-8 mb-8 lg:mb-0">
+                <div className="w-full max-w-xl grid gap-4 lg:gap-8 mb-8 lg:mb-0" style={{ gridTemplateColumns: `repeat(${Math.min(2, party.length)}, minmax(0, 1fr))` }}>
                     {party.map(member => (
                         <div key={member.id} className="relative w-full">
                              <CombatantCard
                                 combatant={member}
                                 isPartyMember={true}
                                 isActive={member.id === activeCharacterId}
-                            />
+                                wasJustHit={partyDamageEvents.some(e => e.targetId === member.id)}
+                             />
+                            {partyDamageEvents.filter(e => e.targetId === member.id).map(event => (
+                                <div key={event.key} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl font-bold text-red-500 animate-float-up" style={{textShadow: '0 0 8px rgba(255, 255, 255, 0.7)'}}>
+                                  {event.damage}
+                                </div>
+                            ))}
                         </div>
                     ))}
                 </div>
 
                 {/* Enemies Grid */}
-                <div className="grid grid-cols-2 gap-4 lg:gap-6 w-full max-w-md lg:max-w-xl">
+                <div className="grid gap-4 lg:gap-6 w-full max-w-xl" style={{ gridTemplateColumns: `repeat(${Math.min(2, enemies.length)}, minmax(0, 1fr))` }}>
                     {enemies.map(enemy => (
                          <div key={enemy.id} className="relative">
                             <CombatantCard
@@ -126,9 +159,9 @@ const CombatScreen: FC<CombatScreenProps> = ({
                                 isPartyMember={false}
                                 isSelected={enemy.id === selectedTargetId}
                                 onClick={() => onSelectTarget(enemy.id)}
-                                wasJustHit={damageEvents.some(e => e.targetId === enemy.id)}
+                                wasJustHit={enemyDamageEvents.some(e => e.targetId === enemy.id)}
                             />
-                            {damageEvents.filter(e => e.targetId === enemy.id).map(event => (
+                            {enemyDamageEvents.filter(e => e.targetId === enemy.id).map(event => (
                                 <div key={event.key} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl font-bold text-red-500 animate-float-up" style={{textShadow: '0 0 8px rgba(255, 255, 255, 0.7)'}}>
                                   {event.damage}
                                 </div>

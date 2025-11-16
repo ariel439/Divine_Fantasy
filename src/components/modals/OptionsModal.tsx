@@ -4,6 +4,7 @@ import type { FC } from 'react';
 import { X } from 'lucide-react';
 import Slider from '../ui/Slider';
 import ToggleSwitch from '../ui/ToggleSwitch';
+import { useAudioStore } from '../../stores/useAudioStore';
 import Dropdown from '../ui/Dropdown';
 
 interface OptionsModalProps {
@@ -15,10 +16,8 @@ type Tab = 'Audio' | 'Graphics' | 'Gameplay';
 
 const OptionsModal: FC<OptionsModalProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState<Tab>('Audio');
+  const { musicEnabled, sfxEnabled, musicVolume, sfxVolume, toggleMusic, toggleSFX, setMusicVolume, setSFXVolume } = useAudioStore();
   const [settings, setSettings] = useState({
-    masterVolume: 80,
-    musicVolume: 60,
-    sfxVolume: 90,
     screenMode: 'Fullscreen',
     resolution: '1920x1080',
     vsync: true,
@@ -31,7 +30,6 @@ const OptionsModal: FC<OptionsModalProps> = ({ isOpen, onClose }) => {
   };
 
   const handleSave = () => {
-    console.log('Settings saved:', settings);
     onClose();
   };
 
@@ -44,20 +42,25 @@ const OptionsModal: FC<OptionsModalProps> = ({ isOpen, onClose }) => {
       case 'Audio':
         return (
           <div className="space-y-6">
-            <Slider
-              label="Master Volume"
-              value={settings.masterVolume}
-              onChange={(e) => handleSettingChange('masterVolume', parseInt(e.target.value, 10))}
+            <ToggleSwitch
+              label="Enable Music"
+              checked={musicEnabled}
+              onChange={(e) => toggleMusic()}
             />
             <Slider
               label="Music Volume"
-              value={settings.musicVolume}
-              onChange={(e) => handleSettingChange('musicVolume', parseInt(e.target.value, 10))}
+              value={Math.round(musicVolume * 100)}
+              onChange={(e) => setMusicVolume(parseInt(e.target.value, 10) / 100)}
+            />
+            <ToggleSwitch
+              label="Enable SFX"
+              checked={sfxEnabled}
+              onChange={(e) => toggleSFX()}
             />
             <Slider
               label="SFX Volume"
-              value={settings.sfxVolume}
-              onChange={(e) => handleSettingChange('sfxVolume', parseInt(e.target.value, 10))}
+              value={Math.round(sfxVolume * 100)}
+              onChange={(e) => setSFXVolume(parseInt(e.target.value, 10) / 100)}
             />
           </div>
         );

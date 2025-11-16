@@ -15,7 +15,7 @@ interface CombatantCardProps {
 
 const CombatantCard: FC<CombatantCardProps> = ({ combatant, isPartyMember, isActive = false, isSelected = false, wasJustHit = false, onClick }) => {
     const cardClasses = `
-        relative w-full max-w-xs bg-zinc-950/80 backdrop-blur-sm rounded-xl border-2 shadow-2xl overflow-hidden transition-all duration-300
+        relative w-full bg-zinc-950/80 backdrop-blur-sm rounded-xl border-2 shadow-2xl overflow-hidden transition-all duration-300
         ${isActive && !isPartyMember ? 'border-yellow-400' : ''}
         ${isActive && isPartyMember ? 'border-yellow-400 animate-pulse-active' : 'border-zinc-700/80'}
         ${isSelected ? 'border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]' : ''}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useUIStore } from '../stores/useUIStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useLocationStore } from '../stores/useLocationStore';
@@ -27,20 +27,66 @@ import ChoiceEventScreen from './screens/ChoiceEventScreen';
 import CombatScreen from './screens/CombatScreen';
 import VictoryScreen from './screens/VictoryScreen';
 import CompanionScreen from './screens/CompanionScreen';
+import CombatManager from './CombatManager';
 import LocationNav from './LocationNav';
+import OptionsModal from './modals/OptionsModal';
 import { lukePrologueSlides } from '../data';
+import { useAudioStore } from '../stores/useAudioStore';
 
 const Game: React.FC = () => {
-  const { currentScreen, setScreen, shopId } = useUIStore();
+  const { currentScreen, setScreen, shopId, activeModal, openModal, closeModal } = useUIStore();
   const { day, hour, minute, passTime } = useWorldTimeStore();
-  const { getCurrentLocation } = useLocationStore();
+  const { getCurrentLocation, currentLocationId } = useLocationStore();
   const { loadShops } = useShopStore();
+  const { musicEnabled, sfxEnabled, musicVolume, sfxVolume } = useAudioStore();
+
+  const musicRef = useRef<HTMLAudioElement | null>(null);
+  const sfxRef = useRef<HTMLAudioElement | null>(null);
+  
+  
 
   // Initialize GameManagerService on component mount
   useEffect(() => {
     GameManagerService.init();
     loadShops();
   }, [loadShops]);
+
+  useEffect(() => {
+    if (!musicRef.current) {
+      musicRef.current = new Audio('/assets/musics/Whisper of the Pines.mp3');
+      musicRef.current.loop = true;
+    }
+    if (musicRef.current) {
+      musicRef.current.volume = musicVolume;
+      if (musicEnabled) {
+        musicRef.current.play().catch(() => {});
+      } else {
+        musicRef.current.pause();
+      }
+    }
+  }, [musicEnabled, musicVolume]);
+
+  useEffect(() => {
+    const loc = getCurrentLocation();
+    const allowed = new Set(['driftwatch', 'driftwatch_main_street', 'driftwatch_noble_quarter', 'driftwatch_docks', 'driftwatch_slums']);
+    const isAllowed = currentScreen === 'inGame' && allowed.has(loc.id) && !loc.is_indoor;
+    const src = hour >= 6 && hour < 18 ? '/assets/sfx/coastal.mp3' : '/assets/sfx/waves.mp3';
+    if (!sfxRef.current) {
+      sfxRef.current = new Audio(src);
+      sfxRef.current.loop = true;
+    }
+    if (sfxRef.current) {
+      sfxRef.current.volume = sfxVolume;
+      if (isAllowed && sfxEnabled) {
+        if (sfxRef.current.src.indexOf(src) === -1) {
+          sfxRef.current.src = src;
+        }
+        sfxRef.current.play().catch(() => {});
+      } else {
+        sfxRef.current.pause();
+      }
+    }
+  }, [hour, sfxEnabled, sfxVolume, currentLocationId, currentScreen]);
 
   // Game clock logic
   useEffect(() => {
@@ -206,7 +252,7 @@ const Game: React.FC = () => {
       case 'choiceEvent':
         return <ChoiceEventScreen />;
       case 'combat':
-        return <CombatScreen />;
+        return <CombatManager />;
       case 'combatVictory':
         return <VictoryScreen />;
       case 'companion':
@@ -231,8 +277,7 @@ const Game: React.FC = () => {
   };
 
   const handleOpenOptionsModal = () => {
-    // TODO: Implement options modal
-    console.log('Open options modal');
+    openModal('options');
   };
 
   const handleOpenSaveLoadModal = () => {
@@ -283,6 +328,9 @@ const Game: React.FC = () => {
             onOpenOptionsModal={handleOpenOptionsModal}
             onOpenSaveLoadModal={handleOpenSaveLoadModal}
           />
+        )}
+        {activeModal === 'options' && (
+          <OptionsModal isOpen={true} onClose={closeModal} />
         )}
       </div>
     </div>

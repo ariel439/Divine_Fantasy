@@ -1,6 +1,8 @@
 import React from 'react';
 import type { FC, ReactNode } from 'react';
 import { useUIStore } from '../../stores/useUIStore';
+import { Volume2, VolumeX } from 'lucide-react';
+import { useAudioStore } from '../../stores/useAudioStore';
 
 const MainMenu: FC = () => {
     const { setScreen } = useUIStore();
@@ -32,7 +34,7 @@ const MainMenu: FC = () => {
                     <MenuButton onClick={() => setScreen('characterSelection')}>New Game</MenuButton>
                     <MenuButton onClick={() => setScreen('characterSelection')}>Continue</MenuButton>
                     <MenuButton>Load Game</MenuButton>
-                    <MenuButton>Settings</MenuButton>
+                    <MenuButton onClick={() => useUIStore.getState().openModal('options')}>Settings</MenuButton>
                     <MenuButton>Quit</MenuButton>
                 </div>
             </div>
@@ -42,6 +44,25 @@ const MainMenu: FC = () => {
             >
                 v0.1.0-alpha
             </div>
+            {(() => {
+                const { musicEnabled, sfxEnabled, setMusicEnabled, setSFXEnabled } = useAudioStore.getState();
+                const allEnabled = musicEnabled && sfxEnabled;
+                const Icon = allEnabled ? Volume2 : VolumeX;
+                const toggleAll = () => {
+                    const next = !allEnabled;
+                    setMusicEnabled(next);
+                    setSFXEnabled(next);
+                };
+                return (
+                    <button
+                        onClick={toggleAll}
+                        className="absolute bottom-4 left-4 p-3 rounded-full bg-black/40 border border-white/30 text-white hover:bg-white/10 hover:border-white/70 transition-colors"
+                        aria-label={allEnabled ? 'Disable Sound' : 'Enable Sound'}
+                    >
+                        <Icon size={22} />
+                    </button>
+                );
+            })()}
         </div>
     );
 };

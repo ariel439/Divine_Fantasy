@@ -5,12 +5,14 @@ import { useLocationStore } from '../../stores/useLocationStore';
 import { useUIStore } from '../../stores/useUIStore';
 import { useJournalStore } from '../../stores/useJournalStore';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
+import { GameManagerService } from '../../services/GameManagerService';
 import { Sun, Moon, MessageSquare, Hammer, Fish, MapPin, ShoppingCart, CookingPot, Bed, Search, Swords, Leaf, Snowflake, Sprout, Cloud, CloudRain, BookOpen, User, Package, Briefcase, Heart, Library, Zap, Award } from 'lucide-react';
 import ProgressBar from '../ui/ProgressBar';
 import ActionButton from '../ui/ActionButton';
 import LocationNav from '../LocationNav';
 import WeatherParticles from '../effects/WeatherParticles';
 import { ConfirmationModal } from '../modals/ConfirmationModal';
+import EncounterModal from '../modals/EncounterModal';
 import TimedActionModal from '../modals/TimedActionModal';
 import ActionSummaryModal from '../modals/ActionSummaryModal';
 import { useInventoryStore } from '../../stores/useInventoryStore';
@@ -46,6 +48,8 @@ import { DialogueService } from '../../services/DialogueService';
   const [selectedSkillHours, setSelectedSkillHours] = useState<number>(1);
   const [summaryModalOpen, setSummaryModalOpen] = useState(false);
   const [summaryData, setSummaryData] = useState<ActionSummary | null>(null);
+  const [encounterModalOpen, setEncounterModalOpen] = useState(false);
+  const [pendingEncounter, setPendingEncounter] = useState<any>(null);
 
   const seasonIcons = {
     Spring: Sprout,
@@ -71,6 +75,7 @@ import { DialogueService } from '../../services/DialogueService';
         weatherText = isNight ? 'Clear' : 'Sunny';
         WeatherIcon = isNight ? Moon : Sun;
         break;
+
       case 'Cloudy':
         WeatherIcon = Cloud;
         temp -= 4;
@@ -125,6 +130,25 @@ import { DialogueService } from '../../services/DialogueService';
         setSkillProgress(null);
         setSkillModalOpen(true);
         break;
+      case 'explore': {
+        // Woods exploration triggers combat
+        if (action.target === 'explore_woods') {
+          // Generate encounter description - match GameManagerService logic exactly
+          const wolfCount = Math.floor(Math.random() * 4) + 1; // 1 to 4 wolves
+          const encounterEnemies = [`${wolfCount}x Forest Wolf`];
+          
+          const encounter = {
+            type: 'combat' as const,
+            description: `As you venture deeper into the woods, you hear rustling in the underbrush. Suddenly, ${wolfCount === 1 ? 'a wolf' : `${wolfCount} wolves`} emerge${wolfCount === 1 ? 's' : ''} from the shadows!`,
+            enemies: encounterEnemies,
+            wolfCount: wolfCount // Store the exact count for GameManagerService to use
+          };
+          
+          setPendingEncounter(encounter);
+          setEncounterModalOpen(true);
+        }
+        break;
+      }
       case 'job':
         setScreen('jobScreen');
         break;
@@ -601,6 +625,21 @@ import { DialogueService } from '../../services/DialogueService';
         onStart={handleStartSkilling}
         progress={skillProgress}
         onClose={handleSkillClose}
+      />
+
+      {/* Encounter Modal */}
+      <EncounterModal
+        isOpen={encounterModalOpen}
+        onClose={() => {
+          setEncounterModalOpen(false);
+          setPendingEncounter(null);
+        }}
+        onConfirm={() => {
+          setEncounterModalOpen(false);
+          GameManagerService.startWoodsCombat(pendingEncounter?.wolfCount);
+          setPendingEncounter(null);
+        }}
+        encounter={pendingEncounter}
       />
 
       {/* Action Summary Modal */}

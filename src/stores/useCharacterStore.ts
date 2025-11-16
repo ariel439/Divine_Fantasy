@@ -6,11 +6,11 @@ import type { EquipmentSlot, Item } from '../types';
 interface CharacterState {
   // Core Attributes
   attributes: {
-    Strength: number;
-    Agility: number;
-    Intelligence: number;
-    Wisdom: number;
-    Charisma: number;
+    strength: number;
+    agility: number;
+    intelligence: number;
+    wisdom: number;
+    charisma: number;
   };
   // Core Vitals
   hp: number;
@@ -49,11 +49,11 @@ interface CharacterState {
 export const useCharacterStore = create<CharacterState>((set, get) => ({
   // Initial state - will be set by GameManagerService on new game
   attributes: {
-    Strength: 1,
-    Agility: 1,
-    Intelligence: 1,
-    Wisdom: 1,
-    Charisma: 1,
+    strength: 1,
+    agility: 1,
+    intelligence: 1,
+    wisdom: 1,
+    charisma: 1,
   },
   hp: 100,
   energy: 100,

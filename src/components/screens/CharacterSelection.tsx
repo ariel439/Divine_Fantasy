@@ -6,7 +6,10 @@ import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ConfirmationModal } from '../modals/ConfirmationModal';
 import { characters, getDescriptiveAttributeLabel } from '../../data';
 import { useUIStore } from '../../stores/useUIStore';
+import { useWorldStateStore } from '../../stores/useWorldStateStore';
+import { useLocationStore } from '../../stores/useLocationStore';
 import { GameManagerService } from '../../services/GameManagerService';
+import { DialogueService } from '../../services/DialogueService';
 
 const AttributeBar: FC<{ label: keyof typeof characters[0]['attributes']; value: number }> = ({ label, value }) => {
     const maxValue = 10;
@@ -44,7 +47,12 @@ const CharacterSelection: FC = () => {
         setIsConfirmModalOpen(false);
         // Start new game with the selected template
         GameManagerService.startNewGame('luke_orphan');
-        setScreen('prologue');
+        useWorldStateStore.getState().setIntroMode(true);
+        useWorldStateStore.getState().setIntroCompleted(false);
+        useWorldStateStore.getState().setTutorialStep(0);
+        DialogueService.executeAction('start_quest:luke_tutorial');
+        useLocationStore.getState().setLocation('orphanage_room');
+        setScreen('inGame');
     };
     
     const NavArrow: FC<{direction: 'left' | 'right', disabled: boolean}> = ({ direction, disabled }) => {

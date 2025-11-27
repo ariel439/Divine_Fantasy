@@ -9,10 +9,10 @@ interface Skill {
 
 interface SkillState {
   skills: Record<string, Skill>;
-  // Actions
   addXp: (skill: string, amount: number) => void;
   getSkillLevel: (skill: string) => number;
   getXpToNextLevel: (skill: string) => number;
+  setSkillLevel: (skill: string, level: number) => void;
 }
 
 // Attribute to skill links for XP bonuses
@@ -73,5 +73,14 @@ export const useSkillStore = create<SkillState>((set, get) => ({
     if (!nextLevelData) return 0; // Max level
 
     return nextLevelData.total_xp - currentSkill.xp;
+  },
+  setSkillLevel: (skill, level) => {
+    const levelData = xpTable.levels.find(l => l.level === level) || { total_xp: 0 };
+    set((state) => ({
+      skills: {
+        ...state.skills,
+        [skill]: { level, xp: levelData.total_xp }
+      }
+    }));
   },
 }));

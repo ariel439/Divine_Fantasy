@@ -3,6 +3,7 @@ import { useCharacterStore } from '../../stores/useCharacterStore';
 import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
 import { useLocationStore } from '../../stores/useLocationStore';
 import { useUIStore } from '../../stores/useUIStore';
+import { useDiaryStore } from '../../stores/useDiaryStore';
 import { useJournalStore } from '../../stores/useJournalStore';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import { GameManagerService } from '../../services/GameManagerService';
@@ -19,6 +20,7 @@ import { useInventoryStore } from '../../stores/useInventoryStore';
 import { useSkillStore } from '../../stores/useSkillStore';
 import type { ActionSummary } from '../../types';
 import { DialogueService } from '../../services/DialogueService';
+import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, wakeupEventSlides } from '../../data';
 
   const LocationScreen: React.FC = () => {
   const { attributes, hp, energy, hunger, maxWeight } = useCharacterStore();
@@ -105,6 +107,17 @@ import { DialogueService } from '../../services/DialogueService';
   };
 
   const { temp, weatherText, WeatherIcon } = getWeatherDisplay();
+  const worldState = useWorldStateStore.getState();
+  const introMode = worldState.introMode;
+  const tutorialStep = worldState.tutorialStep;
+
+  useEffect(() => {
+    if (!introMode) return;
+    const loc = useLocationStore.getState().getCurrentLocation();
+    if (loc.id === 'orphanage_room' && tutorialStep === 0 && !useWorldStateStore.getState().seenRoomTutorial) {
+      useUIStore.getState().openModal('tutorial');
+    }
+  }, [introMode, tutorialStep, currentLocation.id]);
 
   const handleAction = (action: any) => {
     switch (action.type) {
@@ -152,6 +165,59 @@ import { DialogueService } from '../../services/DialogueService';
       case 'job':
         setScreen('jobScreen');
         break;
+      case 'tutorial_lunch': {
+        useWorldTimeStore.getState().passTime(60);
+        useWorldStateStore.getState().setTutorialStep(5);
+        break;
+      }
+      case 'tutorial_breakfast': {
+        useWorldTimeStore.getState().passTime(30);
+        useWorldStateStore.getState().setTutorialStep(5);
+        try { useJournalStore.getState().setQuestStage('luke_tutorial', 5); } catch {}
+        useUIStore.getState().setEventSlides(breakfastEventSlides);
+        useUIStore.getState().setCurrentEventId('breakfast');
+        setScreen('event');
+        break;
+      }
+      case 'tutorial_play_sarah': {
+        useDiaryStore.getState().updateRelationship('npc_sarah', { friendship: 10 });
+        useWorldStateStore.getState().setTutorialStep(5);
+        useUIStore.getState().setEventSlides(playEventSlidesSarah);
+        useUIStore.getState().setCurrentEventId('play_sarah');
+        setScreen('event');
+        break;
+      }
+      case 'tutorial_play_robert': {
+        useDiaryStore.getState().updateRelationship('npc_robert', { friendship: 10 });
+        useWorldStateStore.getState().setTutorialStep(5);
+        useUIStore.getState().setEventSlides(playEventSlidesRobert);
+        useUIStore.getState().setCurrentEventId('play_robert');
+        setScreen('event');
+        break;
+      }
+      case 'tutorial_play_alone': {
+        useWorldStateStore.getState().setFlag('played_midday', true);
+        useWorldStateStore.getState().setTutorialStep(6);
+        try { useJournalStore.getState().setQuestStage('luke_tutorial', 6); } catch {}
+        useUIStore.getState().setEventSlides(playEventSlidesAlone);
+        useUIStore.getState().setCurrentEventId('play_alone');
+        setScreen('event');
+        break;
+      }
+      case 'tutorial_sleep': {
+        useUIStore.getState().setSleepWaitMode('sleep');
+        useUIStore.getState().openModal('sleepWait');
+        break;
+      }
+      case 'end_intro': {
+        useWorldStateStore.getState().setIntroCompleted(true);
+        useWorldStateStore.getState().setIntroMode(false);
+        useLocationStore.getState().setLocation('driftwatch_slums');
+        useUIStore.getState().setEventSlides(wakeupEventSlides);
+        useUIStore.getState().setCurrentEventId('wakeup');
+        setScreen('event');
+        break;
+      }
       case 'use': {
         // Handle context actions like repairing the wall at Tide & Trade
         if (action.target === 'repair_wall') {
@@ -195,6 +261,9 @@ import { DialogueService } from '../../services/DialogueService';
           setTravelModalOpen(true);
         } else {
           useLocationStore.getState().setLocation(action.target);
+          if (introMode && action.target === 'leo_lighthouse' && tutorialStep === 0) {
+            useWorldStateStore.getState().setTutorialStep(1);
+          }
           setPendingTravelAction(null);
         }
         break;
@@ -230,8 +299,8 @@ import { DialogueService } from '../../services/DialogueService';
   };
 
   const handleOpenSleepWaitModal = (mode: 'sleep' | 'wait') => {
-    // TODO: Implement sleep/wait modal
-    console.log('Open sleep/wait modal:', mode);
+    useUIStore.getState().setSleepWaitMode(mode);
+    useUIStore.getState().openModal('sleepWait');
   };
 
   const handleOpenOptionsModal = () => {
@@ -481,8 +550,8 @@ import { DialogueService } from '../../services/DialogueService';
       <aside className="absolute top-8 right-8 bottom-24 z-10 w-full max-w-sm bg-zinc-950/85 backdrop-blur-xl rounded-xl border border-zinc-700/80 p-4 flex flex-col">
         {/* Date & Time Header */}
         <div className="flex-shrink-0 mb-4 px-2">
-          <div className="flex justify-between items-center">
-            <h2 className="text-4xl font-bold font-mono tracking-tighter" style={{lineHeight: '1'}}>{timeString}</h2>
+        <div className="flex justify-between items-center">
+          <h2 className="text-4xl font-bold font-mono tracking-tighter" style={{lineHeight: '1'}}>{introMode ? (tutorialStep < 4 ? 'Morning' : tutorialStep < 6 ? 'Midday' : 'Evening') : timeString}</h2>
             <div className="flex items-center space-x-2 text-lg text-white/90">
               <span className="font-semibold">{temp}°C {weatherText}</span>
               {WeatherIcon}
@@ -538,15 +607,71 @@ import { DialogueService } from '../../services/DialogueService';
               }
               return true;
             })
-            .map((action: any, index: number) => (
-            <ActionButton
-              key={index}
-              onClick={() => handleAction(action)}
-              category={getActionCategory(action.type)}
-              icon={getActionIcon(action.type)}
-              text={action.text}
-            />
-          ))}
+            .filter((action: any) => {
+              if (!introMode) return !String(action.type).startsWith('tutorial_') && action.type !== 'end_intro';
+              const locId = currentLocation.id;
+              if (locId === 'orphanage_room') {
+                if (tutorialStep === 0) return action.type === 'navigate' && action.target === 'leo_lighthouse';
+                if (tutorialStep === 6) return action.type === 'tutorial_sleep';
+                return false;
+              }
+              if (locId === 'leo_lighthouse') {
+                if (tutorialStep <= 2) return action.type === 'dialogue' && action.target === 'npc_old_leo';
+                if (tutorialStep === 3) return action.type === 'tutorial_breakfast';
+                if (tutorialStep === 5) return (action.type === 'dialogue' && (action.target === 'npc_sarah' || action.target === 'npc_robert')) || action.type === 'tutorial_play_alone';
+                if (tutorialStep === 6) return (action.type === 'navigate' && action.target === 'orphanage_room');
+              }
+              return false;
+            })
+            .map((action: any, index: number) => {
+              let disabled = false;
+              let highlight = false;
+              let tooltip: string | undefined;
+              if (introMode) {
+                const locId = currentLocation.id;
+                if (locId === 'orphanage_room') {
+                  disabled = false;
+                  highlight = true;
+                  tooltip = 'Locations show time, weather, and actions. Click to leave the room.';
+                } else if (locId === 'leo_lighthouse') {
+                  if (tutorialStep <= 2) {
+                    disabled = false;
+                    highlight = true;
+                    tooltip = 'Talk to Leo to choose one of three starting paths.';
+                  } else if (tutorialStep === 3) {
+                    disabled = false;
+                    highlight = true;
+                    tooltip = 'Start the day with a simple breakfast.';
+                  } else if (tutorialStep === 5) {
+                    disabled = false;
+                    highlight = (action.type === 'dialogue' && (action.target === 'npc_sarah' || action.target === 'npc_robert')) || action.type === 'tutorial_play_alone';
+                    tooltip = 'Play with Robert or Sarah, or spend some time alone.';
+                  } else if (tutorialStep === 6) {
+                    disabled = false;
+                    highlight = (action.type === 'navigate' && action.target === 'orphanage_room');
+                    tooltip = 'Return to the room.';
+                  }
+                } else if (locId === 'orphanage_room') {
+                  if (tutorialStep === 6) {
+                    disabled = false;
+                    highlight = action.type === 'tutorial_sleep';
+                    tooltip = 'Sleep to end the day.';
+                  }
+                }
+              }
+              return (
+                <ActionButton
+                  key={index}
+                  onClick={() => !disabled && handleAction(action)}
+                  category={highlight ? 'highlighted' : getActionCategory(action.type)}
+                  icon={getActionIcon(action.type)}
+                  text={action.text}
+                  disabled={disabled}
+                  highlight={highlight}
+                  tooltip={undefined}
+                />
+              );
+            })}
         </div>
       </aside>
 

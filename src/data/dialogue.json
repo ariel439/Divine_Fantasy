@@ -486,4 +486,57 @@
       }
     }
   }
+  ,
+  "old_leo_intro": {
+    "nodes": {
+      "0": {
+        "npc_text": "Good morning, Luke. I waited at the door last night and you did not come until the lamps burned low. Tell me—what kept you so long?",
+        "player_choices": [
+          { "text": "I lingered at the canals, practicing with the nets.", "next_node": "fish", "action": "grant_skill_level:fishing:5" },
+          { "text": "I stayed on the street speaking with Roberta.", "next_node": "roberta", "action": "grant_skill_level:charisma:3|update_relationship:npc_roberta:20" },
+          { "text": "I was drawn into a fight with a noble boy.", "next_node": "fight" }
+        ]
+      },
+      "fish": {
+        "npc_text": "Diligence at the water is an honest answer. The canals can teach a careful hand. Still, do not keep the orphanage waiting again. Go and take your breakfast, and return with a steadier habit.",
+        "player_choices": [
+          { "text": "Yes, Leo.", "closes_dialogue": true }
+        ]
+      },
+      "roberta": {
+        "npc_text": "Words well placed can mend more than boards. Roberta is a good sort; keep good company, and mind your hours. Go now and eat before the day runs ahead of you.",
+        "player_choices": [
+          { "text": "Yes, Leo.", "closes_dialogue": true }
+        ]
+      },
+      "fight": {
+        "npc_text": "No more brawling, Luke. Pride is a poor meal and trouble is quick to follow it. If you wish to stand tall, do so in your work. Go and take your breakfast, and do not be late again.",
+        "player_choices": [
+          { "text": "Yes, Leo.", "closes_dialogue": true }
+        ]
+      }
+    }
+  },
+  "sarah_intro": {
+    "nodes": {
+      "0": {
+        "npc_text": "Hi Luke! Want to help me later?",
+        "player_choices": [
+          { "text": "Let's play.", "closes_dialogue": true, "action": "set_flag:played_midday:true|update_relationship:npc_sarah:10" },
+          { "text": "Talk to you later.", "closes_dialogue": true }
+        ]
+      }
+    }
+  },
+  "robert_intro": {
+    "nodes": {
+      "0": {
+        "npc_text": "Luke, think we can team up sometime?",
+        "player_choices": [
+          { "text": "Let's play.", "closes_dialogue": true, "action": "set_flag:played_midday:true|update_relationship:npc_robert:10" },
+          { "text": "Talk to you later.", "closes_dialogue": true }
+        ]
+      }
+    }
+  }
 }

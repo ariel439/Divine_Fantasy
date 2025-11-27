@@ -71,28 +71,67 @@ export const lukePrologueSlides: Slide[] = [
   }
 ];
 
+export const wakeupEventSlides: Slide[] = [
+  {
+    image: "/assets/locations/salty_mug_rented_room.png",
+    text: "You wake in a cramped room at the Salty Mug. Old Man Finn bangs on the door: ‘Two months without rent, kid. Out.’ The lesson ends. The day begins."
+  },
+  {
+    image: "/assets/locations/driftwatch_slums_day.png",
+    text: "Kicked to the streets, you step into Driftwatch’s slums. The real world doesn’t wait—and neither should you."
+  }
+];
+
+export const breakfastEventSlides: Slide[] = [
+  {
+    image: "/assets/events/luke_breakfast.png",
+    text: "You share a simple breakfast at Leo’s Lighthouse—warm bread, salted fish, and a quiet moment before the day."
+  }
+];
+
+export const playEventSlidesSarah: Slide[] = [
+  {
+    image: "/assets/events/luke_play_together.png",
+    text: "You spend time with Sarah, helping tidy the common room and laughing at quiet memories. Her calm steadies you more than you'd admit."
+  }
+];
+
+export const playEventSlidesRobert: Slide[] = [
+  {
+    image: "/assets/events/luke_play_together.png",
+    text: "You trade jabs with Robert and talk dreams bigger than the docks. Work hard, aim higher, and don't let the wind decide your path."
+  }
+];
+
+export const playEventSlidesAlone: Slide[] = [
+  {
+    image: "/assets/events/luke_play_alone.png",
+    text: "You spend a quiet hour by yourself. The lighthouse hums with distant voices, but your thoughts are your own—clear, steady, and sharp."
+  }
+];
+
 // FIX: Replaced JSX syntax with React.createElement to be valid in a .ts file.
 export const mockInventory: Item[] = [
-    { id: '1', name: 'Driftwood', description: 'A sturdy piece of wood washed ashore.', icon: React.createElement(Sprout, { size: 24, className: "text-orange-300" }), category: 'Resource', weight: 1.5, value: 2, quantity: 12, stackable: true, actions: ['Drop'] },
-    { id: '2', name: 'Salted Fish', description: 'Preserved fish. A reliable source of sustenance.', icon: React.createElement(Fish, { size: 24, className: "text-blue-300" }), category: 'Consumable', weight: 0.5, value: 10, quantity: 4, stackable: true, effects: { 'Restores': '15 Hunger' }, actions: ['Use', 'Drop'] },
-    { id: '3', name: 'Old Fishing Rod', description: 'A simple but effective fishing rod.', icon: React.createElement(Hammer, { size: 24, className: "text-gray-400" }), category: 'Tool', weight: 2.0, value: 25, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'weapon', stats: { 'Fishing Power': 2 } },
-    { id: '4', name: "Captain's Log Page", description: 'A water-logged page from a ship\'s log. The writing is barely legible.', icon: React.createElement(Scroll, { size: 24, className: "text-yellow-200" }), category: 'Quest', weight: 0.1, value: 0, stackable: false, actions: ['Drop'] },
-    { id: '5', name: 'Red Apple', description: 'A crisp, juicy red apple.', icon: React.createElement(Apple, { size: 24, className: "text-red-400" }), category: 'Consumable', weight: 0.2, value: 5, quantity: 8, stackable: true, effects: { 'Restores': '5 Hunger' }, actions: ['Use', 'Drop'] },
-    { id: '6', name: 'Iron Ore', description: 'A chunk of unrefined iron.', icon: React.createElement(Sprout, { size: 24, className: "text-gray-500" }), category: 'Resource', weight: 3.0, value: 15, quantity: 5, stackable: true, actions: ['Drop'] },
-    { id: '7', name: 'Leather Tunic', description: 'A simple tunic made from cured leather. Offers basic protection.', icon: React.createElement(Shirt, { size: 24, className: "text-amber-700" }), category: 'Equipment', weight: 4.0, value: 40, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'chest', stats: { 'Defence': 3 } },
-    { id: '8', name: 'Worn Boots', description: 'Sturdy leather boots, worn from many miles of travel.', icon: React.createElement(Footprints, { size: 24, className: "text-amber-800" }), category: 'Equipment', weight: 1.5, value: 15, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'boots', stats: { 'Defence': 1, 'Speed': 1 } },
-    { id: '9', name: 'Iron Longsword', description: 'A standard-issue longsword. Reliable and sharp.', icon: React.createElement(Sword, { size: 24, className: "text-slate-400" }), category: 'Equipment', weight: 3.0, value: 60, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'weapon', stats: { 'Attack': 8, 'Speed': -2 } },
-    { id: '10', name: 'Iron Platelegs', description: 'Heavy iron platelegs. Excellent protection.', icon: React.createElement(SplitSquareHorizontal, { size: 24, className: "text-slate-400" }), category: 'Equipment', weight: 6.0, value: 75, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'legs', stats: { 'Defence': 7 } },
-    { id: '11', name: 'Wooden Shield', description: 'A simple round shield made of wood.', icon: React.createElement(Shield, { size: 24, className: "text-amber-700" }), category: 'Equipment', weight: 4.0, value: 30, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'shield', stats: { 'Defence': 4 } },
+    { id: '1', name: 'Driftwood', description: 'A sturdy piece of wood washed ashore.', icon: React.createElement(Sprout, { size: 24, className: "text-orange-300" }), category: 'Resource', weight: 1.5, base_value: 2, quantity: 12, stackable: true, actions: ['Drop'] },
+    { id: '2', name: 'Salted Fish', description: 'Preserved fish. A reliable source of sustenance.', icon: React.createElement(Fish, { size: 24, className: "text-blue-300" }), category: 'Consumable', weight: 0.5, base_value: 10, quantity: 4, stackable: true, effects: { 'Restores': '15 Hunger' }, actions: ['Use', 'Drop'] },
+    { id: '3', name: 'Old Fishing Rod', description: 'A simple but effective fishing rod.', icon: React.createElement(Hammer, { size: 24, className: "text-gray-400" }), category: 'Tool', weight: 2.0, base_value: 25, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'weapon', stats: { 'Fishing Power': 2 } },
+    { id: '4', name: "Captain's Log Page", description: 'A water-logged page from a ship\'s log. The writing is barely legible.', icon: React.createElement(Scroll, { size: 24, className: "text-yellow-200" }), category: 'Quest', weight: 0.1, base_value: 0, stackable: false, actions: ['Drop'] },
+    { id: '5', name: 'Red Apple', description: 'A crisp, juicy red apple.', icon: React.createElement(Apple, { size: 24, className: "text-red-400" }), category: 'Consumable', weight: 0.2, base_value: 5, quantity: 8, stackable: true, effects: { 'Restores': '5 Hunger' }, actions: ['Use', 'Drop'] },
+    { id: '6', name: 'Iron Ore', description: 'A chunk of unrefined iron.', icon: React.createElement(Sprout, { size: 24, className: "text-gray-500" }), category: 'Resource', weight: 3.0, base_value: 15, quantity: 5, stackable: true, actions: ['Drop'] },
+    { id: '7', name: 'Leather Tunic', description: 'A simple tunic made from cured leather. Offers basic protection.', icon: React.createElement(Shirt, { size: 24, className: "text-amber-700" }), category: 'Equipment', weight: 4.0, base_value: 40, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'chest', stats: { 'Defence': 3 } },
+    { id: '8', name: 'Worn Boots', description: 'Sturdy leather boots, worn from many miles of travel.', icon: React.createElement(Footprints, { size: 24, className: "text-amber-800" }), category: 'Equipment', weight: 1.5, base_value: 15, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'boots', stats: { 'Defence': 1, 'Speed': 1 } },
+    { id: '9', name: 'Iron Longsword', description: 'A standard-issue longsword. Reliable and sharp.', icon: React.createElement(Sword, { size: 24, className: "text-slate-400" }), category: 'Equipment', weight: 3.0, base_value: 60, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'weapon', stats: { 'Attack': 8, 'Speed': -2 } },
+    { id: '10', name: 'Iron Platelegs', description: 'Heavy iron platelegs. Excellent protection.', icon: React.createElement(SplitSquareHorizontal, { size: 24, className: "text-slate-400" }), category: 'Equipment', weight: 6.0, base_value: 75, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'legs', stats: { 'Defence': 7 } },
+    { id: '11', name: 'Wooden Shield', description: 'A simple round shield made of wood.', icon: React.createElement(Shield, { size: 24, className: "text-amber-700" }), category: 'Equipment', weight: 4.0, base_value: 30, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'shield', stats: { 'Defence': 4 } },
 ];
 
 export const mockEquippedItems: Partial<Record<EquipmentSlot, Item>> = {
-  weapon: { id: 'e1', name: 'Rusty Shortsword', description: 'A short, tarnished blade. Better than nothing.', icon: React.createElement(Sword, { size: 24, className: "text-orange-900" }), category: 'Equipment', weight: 2.5, value: 10, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'weapon', stats: { 'Attack': 5, 'Speed': -1 } },
-  chest: { id: 'e2', name: 'Padded Gambeson', description: 'A thick, padded jacket that offers minimal protection.', icon: React.createElement(Shirt, { size: 24, className: "text-amber-600" }), category: 'Equipment', weight: 5.0, value: 25, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'chest', stats: { 'Defence': 5 } },
-  amulet: { id: 'e3', name: 'Tarnished Locket', description: 'A small, dented locket that won\'t open.', icon: React.createElement(Gem, { size: 24, className: "text-zinc-400" }), category: 'Equipment', weight: 0.1, value: 5, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'amulet', stats: {} },
-  cape: { id: 'e4', name: 'Woolen Cloak', description: 'A heavy cloak that offers some protection from the elements.', icon: React.createElement(Ribbon, { size: 24, className: "text-green-800" }), category: 'Equipment', weight: 2.0, value: 20, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'cape', stats: { 'Cold Resist': 5 } },
+  weapon: { id: 'e1', name: 'Rusty Shortsword', description: 'A short, tarnished blade. Better than nothing.', icon: React.createElement(Sword, { size: 24, className: "text-orange-900" }), category: 'Equipment', weight: 2.5, base_value: 10, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'weapon', stats: { 'Attack': 5, 'Speed': -1 } },
+  chest: { id: 'e2', name: 'Padded Gambeson', description: 'A thick, padded jacket that offers minimal protection.', icon: React.createElement(Shirt, { size: 24, className: "text-amber-600" }), category: 'Equipment', weight: 5.0, base_value: 25, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'chest', stats: { 'Defence': 5 } },
+  amulet: { id: 'e3', name: 'Tarnished Locket', description: 'A small, dented locket that won\'t open.', icon: React.createElement(Gem, { size: 24, className: "text-zinc-400" }), category: 'Equipment', weight: 0.1, base_value: 5, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'amulet', stats: {} },
+  cape: { id: 'e4', name: 'Woolen Cloak', description: 'A heavy cloak that offers some protection from the elements.', icon: React.createElement(Ribbon, { size: 24, className: "text-green-800" }), category: 'Equipment', weight: 2.0, base_value: 20, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'cape', stats: { 'Cold Resist': 5 } },
   // FIX: Replaced non-existent 'Ring' icon with 'Radio'.
-  ring: { id: 'e5', name: 'Iron Ring', description: 'A simple, unadorned iron ring.', icon: React.createElement(Radio, { size: 24, className: "text-slate-500" }), category: 'Equipment', weight: 0.1, value: 10, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'ring', stats: {} },
+  ring: { id: 'e5', name: 'Iron Ring', description: 'A simple, unadorned iron ring.', icon: React.createElement(Radio, { size: 24, className: "text-slate-500" }), category: 'Equipment', weight: 0.1, base_value: 10, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'ring', stats: {} },
 };
 
 
@@ -242,10 +281,10 @@ export const mockMerchant: {
   totalCopper: 70000, // 5g, 200s -> 7g
   inventory: [
 // FIX: Replaced JSX syntax with React.createElement to be valid in a .ts file.
-    { id: 'm1', name: 'Fishing Bait', description: 'Wriggly worms, perfect for luring fish.', icon: React.createElement(Sprout, { size: 24, className: "text-lime-400" }), category: 'Consumable', weight: 0.1, value: 5, quantity: 50, stackable: true, actions: [] },
-    { id: 'm2', name: 'Sturdy Fishing Net', description: 'A well-made net for catching multiple fish at once.', icon: React.createElement(Backpack, { size: 24, className: "text-amber-600" }), category: 'Tool', weight: 3.0, value: 150, stackable: false, actions: [] },
-    { id: 'm3', name: 'Minor Health Potion', description: 'A vial of red liquid that restores a small amount of health.', icon: React.createElement(Apple, { size: 24, className: "text-red-500" }), category: 'Consumable', weight: 0.3, value: 30, quantity: 10, stackable: true, actions: [] },
-    { id: 'm4', name: 'Map of the Coast', description: 'A hand-drawn map detailing the nearby coastline and fishing spots.', icon: React.createElement(Scroll, { size: 24, className: "text-yellow-200" }), category: 'Quest', weight: 0.1, value: 100, stackable: false, actions: [] },
+    { id: 'm1', name: 'Fishing Bait', description: 'Wriggly worms, perfect for luring fish.', icon: React.createElement(Sprout, { size: 24, className: "text-lime-400" }), category: 'Consumable', weight: 0.1, base_value: 5, quantity: 50, stackable: true, actions: [] },
+    { id: 'm2', name: 'Sturdy Fishing Net', description: 'A well-made net for catching multiple fish at once.', icon: React.createElement(Backpack, { size: 24, className: "text-amber-600" }), category: 'Tool', weight: 3.0, base_value: 150, stackable: false, actions: [] },
+    { id: 'm3', name: 'Minor Health Potion', description: 'A vial of red liquid that restores a small amount of health.', icon: React.createElement(Apple, { size: 24, className: "text-red-500" }), category: 'Consumable', weight: 0.3, base_value: 30, quantity: 10, stackable: true, actions: [] },
+    { id: 'm4', name: 'Map of the Coast', description: 'A hand-drawn map detailing the nearby coastline and fishing spots.', icon: React.createElement(Scroll, { size: 24, className: "text-yellow-200" }), category: 'Quest', weight: 0.1, base_value: 100, stackable: false, actions: [] },
   ],
 };
 
@@ -255,7 +294,7 @@ export const mockRecipes: Recipe[] = [
         skill: 'Carpentry',
         levelRequired: 1,
         result: {
-            id: 'c1', name: 'Wooden Stool', description: 'A simple, sturdy stool. Better than sitting on the floor.', icon: React.createElement(Armchair, { size: 24, className: "text-orange-400" }), category: 'Tool', weight: 3.0, value: 15, stackable: false, actions: ['Drop']
+            id: 'c1', name: 'Wooden Stool', description: 'A simple, sturdy stool. Better than sitting on the floor.', icon: React.createElement(Armchair, { size: 24, className: "text-orange-400" }), category: 'Tool', weight: 3.0, base_value: 15, stackable: false, actions: ['Drop']
         },
         ingredients: [
             { itemId: '1', quantity: 5 }, // 5 Driftwood
@@ -268,7 +307,7 @@ export const mockRecipes: Recipe[] = [
         skill: 'Carpentry',
         levelRequired: 3,
         result: {
-            id: 'c2', name: 'Sturdy Chest', description: 'A small chest to store your belongings.', icon: React.createElement(Backpack, { size: 24, className: "text-orange-500" }), category: 'Tool', weight: 10.0, value: 50, stackable: false, actions: ['Drop']
+            id: 'c2', name: 'Sturdy Chest', description: 'A small chest to store your belongings.', icon: React.createElement(Backpack, { size: 24, className: "text-orange-500" }), category: 'Tool', weight: 10.0, base_value: 50, stackable: false, actions: ['Drop']
         },
         ingredients: [
             { itemId: '1', quantity: 10 }, // 10 Driftwood
@@ -282,7 +321,7 @@ export const mockRecipes: Recipe[] = [
         skill: 'Cooking',
         levelRequired: 1,
         result: {
-            id: 'c3', name: 'Grilled Fish', description: 'A simple but satisfying meal.', icon: React.createElement(UtensilsCrossed, { size: 24, className: "text-amber-300" }), category: 'Consumable', weight: 0.4, value: 20, stackable: true, quantity: 1, effects: { 'Restores': '30 Hunger' }, actions: ['Use', 'Drop']
+            id: 'c3', name: 'Grilled Fish', description: 'A simple but satisfying meal.', icon: React.createElement(UtensilsCrossed, { size: 24, className: "text-amber-300" }), category: 'Consumable', weight: 0.4, base_value: 20, stackable: true, quantity: 1, effects: { 'Restores': '30 Hunger' }, actions: ['Use', 'Drop']
         },
         ingredients: [
             { itemId: '2', quantity: 1 }, // 1 Salted Fish
@@ -295,7 +334,7 @@ export const mockRecipes: Recipe[] = [
         skill: 'Cooking',
         levelRequired: 2,
         result: {
-            id: 'c4', name: 'Fish Stew', description: 'A hearty stew that warms the soul.', icon: React.createElement(CookingPot, { size: 24, className: "text-amber-400" }), category: 'Consumable', weight: 0.8, value: 45, stackable: true, quantity: 1, effects: { 'Restores': '60 Hunger', 'Warms': 'Slightly' }, actions: ['Use', 'Drop']
+            id: 'c4', name: 'Fish Stew', description: 'A hearty stew that warms the soul.', icon: React.createElement(CookingPot, { size: 24, className: "text-amber-400" }), category: 'Consumable', weight: 0.8, base_value: 45, stackable: true, quantity: 1, effects: { 'Restores': '60 Hunger', 'Warms': 'Slightly' }, actions: ['Use', 'Drop']
         },
         ingredients: [
             { itemId: '2', quantity: 2 }, // 2 Salted Fish

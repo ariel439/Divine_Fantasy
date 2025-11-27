@@ -8,6 +8,9 @@ import { useDiaryStore } from '../stores/useDiaryStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useCharacterStore } from '../stores/useCharacterStore';
 import { useJournalStore } from '../stores/useJournalStore';
+import { useInventoryStore } from '../stores/useInventoryStore';
+import { useSkillStore } from '../stores/useSkillStore';
+import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 interface DialogueNode {
   npc_text: string;
   player_choices?: {
@@ -87,6 +90,12 @@ export class DialogueService {
     }
 
     let dialogueId = npcData.default_dialogue_id;
+    const introMode = useWorldStateStore.getState().introMode;
+    if (introMode) {
+      if (npcId === 'npc_old_leo') dialogueId = 'old_leo_intro';
+      if (npcId === 'npc_sarah') dialogueId = 'sarah_intro';
+      if (npcId === 'npc_robert') dialogueId = 'robert_intro';
+    }
 
     // Check if Roberta's quest is completed
     if (npcId === 'npc_roberta') {
@@ -168,7 +177,11 @@ export class DialogueService {
   }
 
   static executeAction(action: string): void {
-    // Simple action executor - can be expanded
+    const multi = action.split('|').map(a => a.trim()).filter(a => a.length > 0);
+    if (multi.length > 1) {
+      multi.forEach(a => this.executeAction(a));
+      return;
+    }
     const diaryStore = useDiaryStore.getState();
     const worldState = useWorldStateStore.getState();
     const journalStore = useJournalStore.getState();
@@ -181,6 +194,14 @@ export class DialogueService {
     const [actionType, ...params] = action.split(':');
 
     switch (actionType) {
+      case 'set_flag':
+        {
+          const flag = params[0];
+          const valRaw = params[1];
+          const val = valRaw === 'true' ? true : valRaw === 'false' ? false : Boolean(valRaw);
+          useWorldStateStore.getState().setFlag(flag, val);
+        }
+        break;
       case 'start_quest':
         {
           const questId = params[0];
@@ -263,6 +284,40 @@ export class DialogueService {
           const questId = params[0];
           journalStore.completeQuest(questId);
           console.log('Quest completed via dialogue:', questId);
+        }
+        break;
+
+      case 'pass_time':
+        {
+          const minutes = Number(params[0] || '0');
+          useWorldTimeStore.getState().passTime(minutes);
+        }
+        break;
+
+      case 'grant_item':
+        {
+          const itemId = params[0];
+          const qty = params[1] ? Number(params[1]) : 1;
+          useInventoryStore.getState().addItem(itemId, qty);
+          diaryStore.addInteraction('Received item: ' + itemId);
+        }
+        break;
+
+      case 'grant_skill_level':
+        {
+          const skillId = params[0];
+          const level = Number(params[1] || '1');
+          useSkillStore.getState().setSkillLevel(skillId, level);
+          diaryStore.addInteraction('Gained skill level in ' + skillId);
+        }
+        break;
+
+      case 'update_relationship':
+        {
+          const npcId = params[0];
+          const delta = Number(params[1] || '0');
+          useDiaryStore.getState().updateRelationship(npcId, { friendship: delta });
+          diaryStore.addInteraction('Relationship changed with ' + (typedNpcsData[npcId]?.name || npcId));
         }
         break;
 

@@ -3,6 +3,7 @@ import type { FC } from 'react';
 import { User, Backpack, ScrollText, Settings, MapPin, Watch, PawPrint, Save, MoreHorizontal, Briefcase, BookUser, BookOpen } from 'lucide-react';
 import type { GameState, NavVariant } from '../types';
 import NavButton from './ui/NavButton';
+import { useWorldStateStore } from '../stores/useWorldStateStore';
 
 interface LocationNavProps {
     onNavigate: (screen: GameState) => void;
@@ -15,6 +16,7 @@ interface LocationNavProps {
 }
 
 const LocationNav: FC<LocationNavProps> = ({ onNavigate, activeScreen, onOpenSleepWaitModal, showTimeControls, onOpenOptionsModal, onOpenSaveLoadModal }) => {
+    const { introMode } = useWorldStateStore();
     const footerClasses = `
         absolute bottom-0 left-0 right-0 z-20 flex justify-center
     `;
@@ -44,14 +46,14 @@ const LocationNav: FC<LocationNavProps> = ({ onNavigate, activeScreen, onOpenSle
             <div className={containerClasses}>
                  <nav className="flex justify-center items-center space-x-1 md:space-x-2 p-2 transition-all duration-300 ease-in-out">
                     <NavButton icon={<MapPin size={24} />} tooltip="Location" onClick={() => onNavigate('inGame')} isActive={activeScreen === 'inGame'} />
-                    <NavButton icon={<User size={24} />} tooltip="Character" onClick={() => onNavigate('characterScreen')} isActive={activeScreen === 'characterScreen'} />
+                    {!introMode && <NavButton icon={<User size={24} />} tooltip="Character" onClick={() => onNavigate('characterScreen')} isActive={activeScreen === 'characterScreen'} />}
                     <NavButton icon={<Backpack size={24} />} tooltip="Inventory" onClick={() => onNavigate('inventory')} isActive={activeScreen === 'inventory'} />
                     <NavButton icon={<ScrollText size={24} />} tooltip="Journal" onClick={() => onNavigate('journal')} isActive={activeScreen === 'journal'} />
-                    <NavButton icon={<BookUser size={24} />} tooltip="Diary" onClick={() => onNavigate('diary')} isActive={activeScreen === 'diary'} />
-                    <NavButton icon={<Briefcase size={24} />} tooltip="Job" onClick={() => onNavigate('jobScreen')} isActive={activeScreen === 'jobScreen'} />
-                    <NavButton icon={<PawPrint size={24} />} tooltip="Companion" onClick={() => onNavigate('companion')} isActive={activeScreen === 'companion'} />
+                    {!introMode && <NavButton icon={<BookUser size={24} />} tooltip="Diary" onClick={() => onNavigate('diary')} isActive={activeScreen === 'diary'} />}
+                    {!introMode && <NavButton icon={<Briefcase size={24} />} tooltip="Job" onClick={() => onNavigate('jobScreen')} isActive={activeScreen === 'jobScreen'} />}
+                    {!introMode && <NavButton icon={<PawPrint size={24} />} tooltip="Companion" onClick={() => onNavigate('companion')} isActive={activeScreen === 'companion'} />}
 
-                    {showTimeControls && moreActionsPopover}
+                    {showTimeControls && !introMode && moreActionsPopover}
                 </nav>
             </div>
         </footer>

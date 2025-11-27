@@ -12,6 +12,7 @@ interface SleepWaitModalProps {
   onComplete: (hours: number) => void;
   onCancel: () => void;
   currentTimeInSeconds: number;
+  fixedDuration?: number;
 }
 
 const formatTime = (totalSeconds: number): string => {
@@ -30,6 +31,7 @@ const SleepWaitModal: FC<SleepWaitModalProps> = ({
   onComplete,
   onCancel,
   currentTimeInSeconds,
+  fixedDuration,
 }) => {
   const [duration, setDuration] = useState(1);
   const [isProgressing, setIsProgressing] = useState(false);
@@ -40,12 +42,12 @@ const SleepWaitModal: FC<SleepWaitModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      setDuration(1);
+      setDuration(fixedDuration ?? 1);
       setIsProgressing(false);
       setProgressTime(0);
       if (progressTimerRef.current) clearInterval(progressTimerRef.current);
     }
-  }, [isOpen]);
+  }, [isOpen, fixedDuration]);
 
   if (!isOpen) {
     return null;
@@ -79,7 +81,7 @@ const SleepWaitModal: FC<SleepWaitModalProps> = ({
   const renderSetupView = () => (
     <>
       <div className="text-center">
-        <p className="text-sm text-zinc-400 mb-6">Select duration</p>
+        <p className="text-sm text-zinc-400 mb-6">{fixedDuration ? 'Sleeping until morning' : 'Select duration'}</p>
         <div className="text-5xl font-bold font-mono my-2">{duration} <span className="text-3xl">Hour{duration > 1 ? 's' : ''}</span></div>
         <input
             type="range"
@@ -87,6 +89,7 @@ const SleepWaitModal: FC<SleepWaitModalProps> = ({
             max="12"
             value={duration}
             onChange={(e) => setDuration(parseInt(e.target.value, 10))}
+            disabled={!!fixedDuration}
             className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer range-thumb mt-4"
         />
       </div>

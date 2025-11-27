@@ -23,16 +23,16 @@
     "music_track": "GDD/assets/audio/music/driftwatch_main.mp3",
     "actions": [
       { "text": "Travel to Leo's Lighthouse", "type": "navigate", "target": "leo_lighthouse" },
-      { "text": "Travel to Beryl's General Goods", "type": "navigate", "target": "beryls_general_goods" },
-      { "text": "Travel to Kaelen's Forge", "type": "navigate", "target": "kaelens_forge" },
-      { "text": "Travel to Hub", "type": "navigate", "target": "driftwatch" }
+      { "text": "Travel to Beryl's General Goods", "type": "navigate", "target": "beryls_general_goods", "condition": "world_flags.intro_completed==true" },
+      { "text": "Travel to Kaelen's Forge", "type": "navigate", "target": "kaelens_forge", "condition": "world_flags.intro_completed==true" },
+      { "text": "Travel to Hub", "type": "navigate", "target": "driftwatch", "condition": "world_flags.intro_completed==true" }
     ]
   },
   "leo_lighthouse": {
     "name": "Leo's Lighthouse",
     "day_description": "A repurposed lighthouse that now serves as a home for the city's orphans, run by the kindly Old Leo.",
     "night_description": "The lighthouse stands tall, its light guiding ships through the night.",
-    "day_background": "/assets/locations/leo_lighthouse.jpg",
+    "day_background": "/assets/locations/leo_lighthouse.png",
     "music_track": "GDD/assets/audio/music/lighthouse.mp3",
     "is_indoor": true,
     "actions": [
@@ -40,7 +40,23 @@
       { "text": "Talk to Sarah", "type": "dialogue", "target": "npc_sarah" },
       { "text": "Talk to Robert", "type": "dialogue", "target": "npc_robert" },
       { "text": "Talk to Kyle", "type": "dialogue", "target": "npc_kyle" },
+      { "text": "Eat Breakfast", "type": "tutorial_breakfast", "target": "breakfast", "condition": "world_flags.intro_completed==false" },
+      { "text": "Play Alone", "type": "tutorial_play_alone", "target": "alone", "condition": "world_flags.intro_completed==false" },
+      { "text": "End the Day", "type": "end_intro", "target": "end_intro", "condition": "world_flags.intro_completed==false" },
+      { "text": "Return to Room", "type": "navigate", "target": "orphanage_room", "condition": "world_flags.intro_completed==false" },
       { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
+    ]
+  },
+  "orphanage_room": {
+    "name": "Orphanage Dorm",
+    "day_description": "Luke's shared room at Leo's Lighthouse. A simple bed, a chest, and the morning light through the window.",
+    "night_description": "Dim lantern light flickers across the walls; it's quiet and still.",
+    "day_background": "/assets/locations/leo_lighthouse_room.png",
+    "music_track": "GDD/assets/audio/music/room.mp3",
+    "is_indoor": true,
+    "actions": [
+      { "text": "Leave the Room", "type": "navigate", "target": "leo_lighthouse" },
+      { "text": "Sleep", "type": "tutorial_sleep", "target": "sleep_confirm" }
     ]
   },
   "beryls_general_goods": {

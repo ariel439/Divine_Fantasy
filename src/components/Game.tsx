@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useUIStore } from '../stores/useUIStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
+import { useCharacterStore } from '../stores/useCharacterStore';
 import { useLocationStore } from '../stores/useLocationStore';
 import { useShopStore } from '../stores/useShopStore';
 import { GameManagerService } from '../services/GameManagerService'; // Import GameManagerService
 import MainMenu from './screens/MainMenu';
 import CharacterSelection from './screens/CharacterSelection';
 import EventScreen from './screens/EventScreen';
+import SleepWaitModal from './modals/SleepWaitModal';
 import LocationScreen from './screens/LocationScreen';
 import DialogueScreen from './screens/DialogueScreen';
 import dialogueData from '../data/dialogue.json';
@@ -30,11 +32,13 @@ import CompanionScreen from './screens/CompanionScreen';
 import CombatManager from './CombatManager';
 import LocationNav from './LocationNav';
 import OptionsModal from './modals/OptionsModal';
-import { lukePrologueSlides } from '../data';
+import TutorialModal from './modals/TutorialModal';
+import { lukePrologueSlides, playEventSlidesSarah, playEventSlidesRobert, wakeupEventSlides } from '../data';
 import { useAudioStore } from '../stores/useAudioStore';
 
 const Game: React.FC = () => {
   const { currentScreen, setScreen, shopId, activeModal, openModal, closeModal } = useUIStore();
+  const ui = useUIStore();
   const { day, hour, minute, passTime } = useWorldTimeStore();
   const { getCurrentLocation, currentLocationId } = useLocationStore();
   const { loadShops } = useShopStore();
@@ -102,6 +106,12 @@ const Game: React.FC = () => {
     if (!npc) return null;
     // Choose alternate dialogue if quest is already active
     let dialogueId = npc.default_dialogue_id as keyof typeof dialogueData;
+    const world = useWorldStateStore.getState();
+    if (world.introMode) {
+      if (npcId === 'npc_old_leo') dialogueId = 'old_leo_intro' as keyof typeof dialogueData;
+      if (npcId === 'npc_sarah') dialogueId = 'sarah_intro' as keyof typeof dialogueData;
+      if (npcId === 'npc_robert') dialogueId = 'robert_intro' as keyof typeof dialogueData;
+    }
     if (npcId === 'npc_roberta') {
       const robertaQuest = useJournalStore.getState().quests['roberta_planks_for_the_past'];
       if (robertaQuest && robertaQuest.active && !robertaQuest.completed) {
@@ -193,6 +203,23 @@ const Game: React.FC = () => {
         return <CharacterSelection />;
       case 'prologue':
         return <EventScreen slides={lukePrologueSlides} onComplete={() => setScreen('inGame')} />;
+      case 'event': {
+        const slides = ui.eventSlides || [];
+        return (
+          <EventScreen
+            slides={slides}
+            onComplete={() => {
+              const id = ui.currentEventId;
+              if (id === 'wakeup') {
+                try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
+              }
+              ui.setEventSlides(null);
+              ui.setCurrentEventId(null);
+              setScreen('inGame');
+            }}
+          />
+        );
+      }
       case 'inGame':
         return <LocationScreen />;
       case 'dialogue': {
@@ -200,6 +227,7 @@ const Game: React.FC = () => {
         const npc = npcsData[npcId as keyof typeof npcsData];
         DialogueService.startDialogue(npcId);
         const initial = buildInitialDialogue(npcId);
+        
         return (
           <DialogueScreen
             npcName={npc?.name || 'NPC'}
@@ -208,7 +236,32 @@ const Game: React.FC = () => {
             initialDialogue={initial || { text: '...', options: [] }}
             onEndDialogue={() => {
               useUIStore.getState().setDialogueNpcId(null);
-              setScreen('inGame');
+              try {
+                const world = useWorldStateStore.getState();
+                const loc = useLocationStore.getState().getCurrentLocation();
+                if (world.introMode && loc.id === 'leo_lighthouse' && world.tutorialStep <= 2 && npcId === 'npc_old_leo') {
+                  useWorldStateStore.getState().setTutorialStep(3);
+                  try { useJournalStore.getState().setQuestStage('luke_tutorial', 4); } catch {}
+                } else if (world.introMode && loc.id === 'leo_lighthouse' && world.tutorialStep === 5 && (npcId === 'npc_sarah' || npcId === 'npc_robert')) {
+                  useWorldStateStore.getState().setTutorialStep(6);
+                  try { useJournalStore.getState().setQuestStage('luke_tutorial', 6); } catch {}
+                  const ui = useUIStore.getState();
+                  if (npcId === 'npc_sarah') {
+                    ui.setEventSlides(playEventSlidesSarah);
+                    ui.setCurrentEventId('play_sarah');
+                  } else {
+                    ui.setEventSlides(playEventSlidesRobert);
+                    ui.setCurrentEventId('play_robert');
+                  }
+                  useUIStore.getState().setScreen('event');
+                }
+              } catch {}
+              const uiState = useUIStore.getState();
+              if (uiState.currentEventId) {
+                setScreen('event');
+              } else {
+                setScreen('inGame');
+              }
             }}
           />
         );
@@ -265,6 +318,16 @@ const Game: React.FC = () => {
   const isSolidBg = ['characterScreen', 'inventory', 'journal', 'diary', 'trade', 'crafting', 'jobScreen', 'library', 'companion'].includes(currentScreen);
   const isInGame = ['inGame', 'characterScreen', 'inventory', 'journal', 'diary', 'jobScreen', 'companion'].includes(currentScreen);
 
+  useEffect(() => {
+    const world = useWorldStateStore.getState();
+    const npcId = useUIStore.getState().dialogueNpcId;
+    if (currentScreen === 'dialogue' && world.introMode && npcId === 'npc_old_leo' && world.tutorialStep <= 2 && !world.seenLeoTutorial && activeModal !== 'tutorial') {
+      openModal('tutorial');
+    }
+  }, [currentScreen, activeModal]);
+
+  // (removed duplicate modal opener effect)
+
 
 
   const handleNavigate = (screen: any) => {
@@ -272,8 +335,8 @@ const Game: React.FC = () => {
   };
 
   const handleOpenSleepWaitModal = (mode: 'sleep' | 'wait') => {
-    // TODO: Implement sleep/wait modal
-    console.log('Open sleep/wait modal:', mode);
+    ui.setSleepWaitMode(mode);
+    openModal('sleepWait');
   };
 
   const handleOpenOptionsModal = () => {
@@ -329,9 +392,71 @@ const Game: React.FC = () => {
             onOpenSaveLoadModal={handleOpenSaveLoadModal}
           />
         )}
+        
         {activeModal === 'options' && (
           <OptionsModal isOpen={true} onClose={closeModal} />
         )}
+        {activeModal === 'sleepWait' && (
+          (() => {
+            const world = useWorldStateStore.getState();
+            const loc = useLocationStore.getState().getCurrentLocation();
+            const isIntroSleep = world.introMode && world.tutorialStep === 6 && loc.id === 'orphanage_room';
+            const currentSeconds = isIntroSleep ? (20 * 3600) : (useWorldTimeStore.getState().hour * 3600 + useWorldTimeStore.getState().minute * 60);
+            const fixedDuration = isIntroSleep ? 12 : undefined;
+            return (
+              <SleepWaitModal
+                isOpen={true}
+                mode={ui.sleepWaitMode || 'wait'}
+                sleepQuality={1.0}
+                currentTimeInSeconds={currentSeconds}
+                fixedDuration={fixedDuration}
+                onComplete={(hours) => {
+                  const worldState = useWorldStateStore.getState();
+                  const currentLoc = useLocationStore.getState().getCurrentLocation();
+                  if (ui.sleepWaitMode === 'sleep') {
+                    useCharacterStore.setState((state) => ({ energy: Math.min(100, state.energy + (fixedDuration ?? hours) * 10) }));
+                  }
+                  if (isIntroSleep) {
+                    useWorldTimeStore.setState({ hour: 8, minute: 0 });
+                    ui.setEventSlides(wakeupEventSlides);
+                    ui.setCurrentEventId('wakeup');
+                    useWorldStateStore.getState().setIntroCompleted(true);
+                    useWorldStateStore.getState().setIntroMode(false);
+                    useLocationStore.getState().setLocation('driftwatch_slums');
+                    setScreen('event');
+                  } else {
+                    useWorldTimeStore.getState().passTime(hours * 60);
+                  }
+                  closeModal();
+                }}
+                onCancel={closeModal}
+              />
+            );
+          })()
+        )}
+        {activeModal === 'tutorial' && (() => {
+          const loc = getCurrentLocation();
+          const { tutorialStep } = useWorldStateStore.getState();
+          let message = 'Follow the highlighted action to proceed.';
+          if (loc.id === 'orphanage_room' && tutorialStep === 0) {
+            message = 'Locations display the current time and weather, with available actions listed to the right. Please select the highlighted action to leave the room.';
+          } else if (currentScreen === 'dialogue' && useUIStore.getState().dialogueNpcId === 'npc_old_leo' && tutorialStep <= 2) {
+            message = 'Conversations present choices. Speak with Old Leo and select one starting path to begin your day.';
+          }
+          const handleClose = () => {
+            const world = useWorldStateStore.getState();
+            if (loc.id === 'orphanage_room' && world.tutorialStep === 0) {
+              useWorldStateStore.getState().setSeenRoomTutorial(true);
+            }
+            if (currentScreen === 'dialogue' && useUIStore.getState().dialogueNpcId === 'npc_old_leo' && world.tutorialStep <= 2) {
+              useWorldStateStore.getState().setSeenLeoTutorial(true);
+            }
+            closeModal();
+          };
+          return (
+            <TutorialModal isOpen={true} title="Tutorial" message={message} onClose={handleClose} />
+          );
+        })()}
       </div>
     </div>
   );

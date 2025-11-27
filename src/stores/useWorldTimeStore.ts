@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useWorldStateStore } from './useWorldStateStore';
 
 type Weather = 'Sunny' | 'Cloudy' | 'Rainy' | 'Snowy';
 type Season = 'Spring' | 'Summer' | 'Autumn' | 'Winter';
@@ -59,8 +60,9 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
     return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
   },
   getFormattedDate: () => {
-    const { day } = get();
-    return `Day ${day}`;
+    const intro = useWorldStateStore.getState().introMode;
+    if (intro) return '12 August 773';
+    return '3 May 780';
   },
   updateEnvironment: () => {
     set((state) => {

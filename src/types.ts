@@ -5,6 +5,7 @@ export type GameState =
   | 'mainMenu'
   | 'characterSelection'
   | 'prologue'
+  | 'event'
   | 'inGame'
   | 'dialogue'
   | 'dialogueRoberta'

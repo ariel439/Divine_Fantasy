@@ -41,11 +41,11 @@ const CharacterScreen: FC = () => {
         energy,
         hunger,
         attributes: {
-            strength: attributes.Strength,
-            dexterity: attributes.Agility,
-            intelligence: attributes.Intelligence,
-            wisdom: attributes.Wisdom,
-            charisma: attributes.Charisma
+            strength: attributes.strength,
+            dexterity: attributes.agility,
+            intelligence: attributes.intelligence,
+            wisdom: attributes.wisdom,
+            charisma: attributes.charisma
         },
         skills: [
             { name: 'Attack', level: getSkillLevel('attack'), icon: <Sword size={24} /> },
@@ -55,7 +55,7 @@ const CharacterScreen: FC = () => {
             { name: 'Fishing', level: getSkillLevel('fishing'), icon: <Fish size={24} /> },
             { name: 'Cooking', level: getSkillLevel('cooking'), icon: <ChefHat size={24} /> },
             { name: 'Carpentry', level: getSkillLevel('carpentry'), icon: <Hammer size={24} /> },
-            { name: 'Charisma', level: getSkillLevel('charisma'), icon: <Smile size={24} /> },
+            { name: 'Persuasion', level: getSkillLevel('persuasion'), icon: <Smile size={24} /> },
             { name: 'Coercion', level: getSkillLevel('coercion'), icon: <Angry size={24} /> },
         ]
     };

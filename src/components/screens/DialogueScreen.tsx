@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import type { FC } from 'react';
 import { User } from 'lucide-react';
 import type { DialogueOption, ConversationEntry } from '../../types';
+import { useUIStore } from '../../stores/useUIStore';
 
 interface DialogueScreenProps {
   npcName: string;
@@ -53,12 +54,16 @@ const DialogueScreen: FC<DialogueScreenProps> = ({ npcName, npcPortraitUrl, play
     }, [transitioningPortrait]);
 
     const handleOptionSelect = (option: DialogueOption) => {
+        // Always run side effects attached to the option
+        if (option.onSelect) {
+            option.onSelect();
+        }
         // Handle options that explicitly end dialogue via flag
         if (option.closesDialogue) {
-            if (option.onSelect) {
-                option.onSelect();
+            const nextScreen = useUIStore.getState().currentScreen;
+            if (nextScreen === 'dialogue' || nextScreen === 'dialogueRoberta') {
+                onEndDialogue();
             }
-            onEndDialogue();
             return;
         }
         
@@ -70,19 +75,25 @@ const DialogueScreen: FC<DialogueScreenProps> = ({ npcName, npcPortraitUrl, play
             setCurrentPortrait(option.nextPortraitUrl);
         }
         
-        // Add NPC response to history
-        const npcResponseText = option.responseText || "Is that so?";
-        newHistory.push({ speaker: 'npc', text: npcResponseText});
+        // Add NPC response to history only if provided
+        if (option.responseText && option.responseText.length > 0) {
+            newHistory.push({ speaker: 'npc', text: option.responseText });
+        }
         setHistory(newHistory);
 
         // Check for follow-up options
         if (option.nextOptions && option.nextOptions.length > 0) {
             setOptions(option.nextOptions);
         } else {
-            // If no more options, default to leaving
-            setOptions([
-                { text: "(Leave) I'll be on my way.", onSelect: onEndDialogue }
-            ]);
+            const ui = useUIStore.getState();
+            if (ui.currentScreen === 'dialogue' || ui.currentScreen === 'dialogueRoberta') {
+                setOptions([
+                    ...initialDialogue.options,
+                    { text: "(Leave) I'll be on my way.", onSelect: onEndDialogue }
+                ]);
+            } else {
+                setOptions([{ text: "(Leave) I'll be on my way.", onSelect: onEndDialogue }]);
+            }
         }
     };
 

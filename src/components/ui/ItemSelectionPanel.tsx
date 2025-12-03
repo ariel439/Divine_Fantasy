@@ -80,13 +80,21 @@ const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({ title, items, onItemS
                     >
                         <div className="flex items-center gap-3 w-3/5">
                             <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-black/40 rounded-md border border-zinc-700">
-                                {item.icon}
+                                {item.icon || ((itemsData as any)[item.id]?.image ? <img src={(itemsData as any)[item.id].image} alt={item.name} className="w-6 h-6" /> : null)}
                             </div>
                             <span className="truncate">{item.name}</span>
                             {item.stackable && item.quantity && item.quantity > 1 && <span className="text-xs text-zinc-400">({item.quantity})</span>}
                         </div>
                         <span className="text-right w-1/5">{(item.weight ?? 0).toFixed(1)}</span>
-                        <span className="text-right w-1/5 text-yellow-300/90">{(item.base_value * valueMultiplier).toFixed(0)}c</span>
+                        {(() => {
+                            const v = Math.round((item.base_value || 0) * valueMultiplier);
+                            const gold = Math.floor(v / 10000);
+                            const silver = Math.floor((v % 10000) / 100);
+                            const copper = v % 100;
+                            const color = gold > 0 ? 'text-yellow-300/90' : silver > 0 ? 'text-gray-300/90' : 'text-orange-300/90';
+                            const text = gold > 0 ? `${gold}g ${silver}s ${copper}c` : (silver > 0 ? `${silver}s ${copper}c` : `${copper}c`);
+                            return <span className={`text-right w-1/5 ${color}`}>{text}</span>;
+                        })()}
                     </button>
                 )})}
             </div>
@@ -95,3 +103,4 @@ const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({ title, items, onItemS
 };
 
 export default ItemSelectionPanel;
+import itemsData from '../../data/items.json';

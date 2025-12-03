@@ -17,11 +17,11 @@ interface SkillState {
 
 // Attribute to skill links for XP bonuses
 const ATTRIBUTE_LINKS: Record<string, string[]> = {
-  Strength: ['strength', 'mining', 'blacksmithing'],
-  Agility: ['archery', 'thievery'],
-  Intelligence: ['carpentry', 'management', 'crafting', 'cooking'],
-  Wisdom: ['magic', 'fishing'],
-  Charisma: ['charisma', 'coercion', 'leadership']
+  strength: ['strength', 'mining', 'blacksmithing'],
+  agility: ['archery', 'thievery'],
+  intelligence: ['carpentry', 'management', 'crafting', 'cooking'],
+  wisdom: ['magic', 'fishing'],
+  charisma: ['persuasion', 'coercion', 'leadership']
 };
 
 export const useSkillStore = create<SkillState>((set, get) => ({

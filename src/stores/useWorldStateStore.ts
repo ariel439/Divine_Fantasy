@@ -19,6 +19,9 @@ interface WorldState {
   setTutorialStep: (step: number) => void;
   setSeenRoomTutorial: (value: boolean) => void;
   setSeenLeoTutorial: (value: boolean) => void;
+  stringData: Record<string, string>;
+  setData: (key: string, value: string) => void;
+  getData: (key: string) => string;
 }
 
 export const useWorldStateStore = create<WorldState>((set, get) => ({
@@ -30,6 +33,7 @@ export const useWorldStateStore = create<WorldState>((set, get) => ({
   tutorialStep: 0,
   seenRoomTutorial: false,
   seenLeoTutorial: false,
+  stringData: {},
   setFlag: (flag, value) => {
     set((state) => ({
       worldFlags: {
@@ -77,5 +81,16 @@ export const useWorldStateStore = create<WorldState>((set, get) => ({
   },
   setSeenLeoTutorial: (value) => {
     set({ seenLeoTutorial: value });
+  },
+  setData: (key, value) => {
+    set((state) => ({
+      stringData: {
+        ...state.stringData,
+        [key]: value,
+      },
+    }));
+  },
+  getData: (key) => {
+    return get().stringData[key] || '';
   },
 }));

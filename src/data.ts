@@ -82,6 +82,13 @@ export const wakeupEventSlides: Slide[] = [
   }
 ];
 
+export const finnDebtIntroSlides: Slide[] = [
+  {
+    image: "/assets/locations/salty_mug_rented_room.png",
+    text: "You wake to Old Man Finn staring down, a guard idling beside him—knife glinting."
+  }
+];
+
 export const breakfastEventSlides: Slide[] = [
   {
     image: "/assets/events/luke_breakfast.png",
@@ -290,6 +297,19 @@ export const mockMerchant: {
 
 export const mockRecipes: Recipe[] = [
     {
+        id: 'recipe_planks',
+        skill: 'Carpentry',
+        levelRequired: 1,
+        result: {
+            id: 'wooden_plank', name: 'Wooden Plank', description: 'Process logs into planks at the sawmill.', icon: React.createElement(Hammer, { size: 24, className: "text-amber-300" }), category: 'Resource', weight: 2.5, base_value: 5, stackable: true, actions: []
+        },
+        ingredients: [
+            { itemId: 'log', quantity: 1 }
+        ],
+        timeCost: 1,
+        energyCost: 0,
+    },
+    {
         id: 'recipe1',
         skill: 'Carpentry',
         levelRequired: 1,
@@ -415,7 +435,7 @@ export const eliasDialogue: { text: string; options: DialogueOption[] } = {
   options: [
     {
       text: "I'm looking for work. I heard you're the one to talk to.",
-      skillCheck: { skill: 'Charisma', level: 3 },
+      skillCheck: { skill: 'Persuasion', level: 3 },
       responseText: "Work, eh? Not many have the stomach for it. I might have something. Depends. Are you afraid of getting your hands dirty?",
       nextOptions: [
         {
@@ -482,7 +502,8 @@ export const mockBooks: Book[] = [
     {
         id: 'odrans-rebellion',
         title: "Odran's Rebellion",
-        author: "By a Master of Whispers",
+        author: "Maester Alister",
+        coverUrl: "/assets/books/odran_cover.png",
         content: [
             { type: 'h1', content: "Odran's Rebellion (730 AW)" },
             { type: 'p', content: "Odran's Rebellion (730 AW) was a significant armed conflict in The Whispers region, where several southern noble houses led by House Odran attempted to secede from the rule of House Seryn. The rebellion was ultimately crushed by King Arthur Seryn, known as the \"Sword of Tomorrow,\" resulting in the complete extinction of Houses Odran and Cramb." },
@@ -495,13 +516,13 @@ export const mockBooks: Book[] = [
             { type: 'p', content: "Rebels: House Odran, House Veynor, House Rellmont, House Cramb, and other southern allies." },
             { type: 'h2', content: "Course of the Rebellion" },
             { type: 'h1', content: "The Downfall of House Cramb" },
-            { type: 'img', content: "https://i.imgur.com/8z8p2cW.jpeg", caption: "The burning of Murkwater, marking the end of House Cramb" },
+            { type: 'img', content: "/assets/books/odran_swamp.png", caption: "The burning of Murkwater" },
             { type: 'p', content: "The first significant clash of Odran's Rebellion began disastrously for the rebels. House Cramb, led by Lord Marcel Cramb, attempted to join forces with House Veynor in a bid to secure the Blackwood Forest. The plan was to take control of the forest swiftly, solidifying their power base and resources. However, unknown to them, the Knights of the Moon had been training at Hawk's Nest, and House Valtara's scouts had keenly monitored the rebels' movements." },
             { type: 'p', content: "As House Cramb's forces marched south, they were caught off guard by a sudden ambush. The combined cavalry of the Knights of the Moon and the Valtara Falconers descended upon them, shattering their lines. Marcel Cramb, a seasoned warrior yet unprepared for the ferocity of the assault, fell amidst the chaos, his body trampled under the charge of the Knights." },
             { type: 'p', content: "In disarray, the survivors of House Cramb scattered, fleeing to the swamps of Murkwater, their fortified seat. There, Marcel's young and inexperienced son, Robert Cramb, took command. Only sixteen and untested by war, he chose a desperate strategy—burning the swamps to prevent a siege. Yet the winds betrayed them, and the fire turned against their own. Flames engulfed the city and castle, while fleeing soldiers and citizens were consumed by the blaze or dragged beneath the murky waters by lurking crocodiles." },
             { type: 'p', content: "Seryn and Valtara forces, better disciplined and with clearer escape routes, withdrew swiftly. House Cramb, however, was left to perish. The massacre marked the end of their line—Murkwater was left an abandoned, haunted ruin, and House Cramb's name became a grim cautionary tale. Despite efforts to reclaim the land, every attempt failed, with settlers vanishing or fleeing from the accursed place. The doom of House Cramb was a severe blow to the rebels, foreshadowing the fate that awaited any who stood against the Seryns." },
             { type: 'h1', content: "The Twin Offensive" },
-            { type: 'img', content: "https://i.imgur.com/G4T58uI.jpeg", caption: "Rebel forces approaching Nightfall during the siege." },
+            { type: 'img', content: "/assets/books/odran_siege.png", caption: "Siege of Nightfall" },
             { type: 'p', content: "Following the initial success against House Cramb, King Arthur Seryn devised a bold strategy that would become known as the Twin Offensive - two simultaneous campaigns that would divide and conquer the remaining rebel forces. While the king himself led the Strigora Campaign in the Blackwood Forest, the rebels launched their own assault on Nightfall, creating a two-front war that would test both sides to their limits." },
             { type: 'h2', content: "The Strigora Campaign" },
             { type: 'p', content: "King Arthur Seryn, often known as the Sword of Tomorrow for his foresight in warfare, led a decisive campaign to dismantle House Veynor and their southern allies entrenched in the Blackwood Forest. The loyalty of House Strigora, with their expert troops known as the Shadow Owl, provided a critical advantage. These stealthy, cunning fighters were adept at ambushes and night warfare, exploiting the dense, foreboding woods that had once served as a shield for the rebels." },
@@ -510,7 +531,7 @@ export const mockBooks: Book[] = [
             { type: 'p', content: "Simultaneously with the Strigora Campaign, the remaining rebel forces of House Odran and Rellmont converged at Riverwatch. They seized the opportunity created by King Arthur's campaign in the Blackwood Forest, gathering boats and small ships to sail through the Twin River toward Nightfall, the heart of House Seryn's power." },
             { type: 'p', content: "However, King Arthur's foresight once again prevailed. The rebels managed to breach the walls of Nightfall, igniting street battles and chaos. Yet, the cost of the siege had been catastrophic. In a bitter clash near the castle's heart, both Lord Arthur Draymor and Lord Norbert Durnhart fell, their sacrifices solidifying the defense. When King Arthur returned from the Blackwood Forest, his forces swiftly reclaimed Nightfall, scattering the exhausted remnants of the rebellion." },
             { type: 'h1', content: "The Fall of Riverwatch & The Duel of Fate" },
-            { type: 'img', content: "https://i.imgur.com/sN02IN7.jpeg", caption: "Representation of the duel between King Arthur Seryn and Lord Christian Odran." },
+            { type: 'img', content: "/assets/books/odran_duel.png", caption: "The Duel of Fate" },
             { type: 'p', content: "After reclaiming Nightfall, King Arthur's campaign turned swiftly toward Riverwatch. Lord Igor Rellmont, desperate and defiant, refused to surrender. In a shocking turn, it was one of Rellmont's own men who struck him down. Riverwatch fell without further bloodshed." },
             { type: 'p', content: "Marching to Embris, King Arthur found House Odran steadfast in their defiance. The battle was brutal. As the last of their warriors fell, Lord Christian Odran raised a white flag, but rather than submit, Christian challenged King Arthur Seryn to a duel. If Christian won, he and his family would be exiled; if he lost, House Odran's name would be erased from history." },
             { type: 'p', content: "In the moonlit courtyard of Embris, the two men faced each other. King Arthur, wielding his signature rapier, struck with relentless precision. Christian, exhausted and burdened, faltered. The duel was a grim spectacle — a testament to King Arthur's mastery and the futility of House Odran's defiance." },

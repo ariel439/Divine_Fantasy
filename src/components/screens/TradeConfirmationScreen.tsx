@@ -54,7 +54,7 @@ const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onClose, on
                         <div key={offer.item.id} className="flex justify-between items-center p-2 rounded-md bg-zinc-800/50">
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-black/40 rounded-md border border-zinc-700">
-                                    {offer.item.icon}
+                                    {offer.item.icon || ((itemsData as any)[offer.item.id]?.image ? <img src={(itemsData as any)[offer.item.id].image} alt={offer.item.name} className="w-6 h-6" /> : null)}
                                 </div>
                                 <span className="truncate">{offer.item.name}</span>
                                 {offer.item.stackable && offer.quantity > 1 && <span className="text-xs text-zinc-400">({offer.quantity})</span>}
@@ -116,3 +116,4 @@ const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onClose, on
 };
 
 export default TradeConfirmationScreen;
+import itemsData from '../../data/items.json';

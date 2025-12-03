@@ -18,13 +18,14 @@ import TimedActionModal from '../modals/TimedActionModal';
 import ActionSummaryModal from '../modals/ActionSummaryModal';
 import { useInventoryStore } from '../../stores/useInventoryStore';
 import { useSkillStore } from '../../stores/useSkillStore';
+import { useJobStore } from '../../stores/useJobStore';
 import type { ActionSummary } from '../../types';
 import { DialogueService } from '../../services/DialogueService';
-import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, wakeupEventSlides } from '../../data';
+import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, wakeupEventSlides, finnDebtIntroSlides, mockBooks } from '../../data';
 
   const LocationScreen: React.FC = () => {
   const { attributes, hp, energy, hunger, maxWeight } = useCharacterStore();
-  const { day, hour, minute, getFormattedTime, getFormattedDate, getSeason, getWeather } = useWorldTimeStore();
+  const { month, dayOfMonth, hour, minute, getFormattedTime, getFormattedDate, getSeason, getWeather, temperatureC } = useWorldTimeStore();
   const { getCurrentLocation } = useLocationStore();
   const { setScreen, currentScreen } = useUIStore();
 
@@ -33,6 +34,10 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
 
   const timeString = getFormattedTime();
   const dateString = getFormattedDate();
+  const firstDayOfWeekForMonth = ((month - 1) * 30) % 7; // 0=Sunday
+  const weekdayIndex = (firstDayOfWeekForMonth + dayOfMonth - 1) % 7;
+  const weekdayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const weekday = weekdayNames[weekdayIndex];
 
   const season = getSeason();
   const weather = getWeather();
@@ -42,6 +47,7 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
   const [travelProgressModalOpen, setTravelProgressModalOpen] = useState(false);
   const [pendingTravelAction, setPendingTravelAction] = useState<any>(null);
   const [travelProgress, setTravelProgress] = useState<any>(null);
+  const [pendingTravelMinutes, setPendingTravelMinutes] = useState<number | null>(null);
 
   // Skilling (Woodcutting/Fishing)
   const [skillModalOpen, setSkillModalOpen] = useState(false);
@@ -52,6 +58,8 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
   const [summaryData, setSummaryData] = useState<ActionSummary | null>(null);
   const [encounterModalOpen, setEncounterModalOpen] = useState(false);
   const [pendingEncounter, setPendingEncounter] = useState<any>(null);
+  const [jobEnergyModalOpen, setJobEnergyModalOpen] = useState(false);
+  const [jobEnergyMessage, setJobEnergyMessage] = useState<React.ReactNode>('');
 
   const seasonIcons = {
     Spring: Sprout,
@@ -62,33 +70,22 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
   const SeasonIcon = seasonIcons[season];
 
   const getWeatherDisplay = () => {
-    let temp = 15;
     let weatherText: string = weather;
     let WeatherIcon: React.FC<{ size: number; className?: string }> = Sun;
-
-    switch (season) {
-      case 'Summer': temp = 24; break;
-      case 'Autumn': temp = 12; break;
-      case 'Winter': temp = -2; break;
-    }
 
     switch (weather) {
       case 'Sunny':
         weatherText = isNight ? 'Clear' : 'Sunny';
         WeatherIcon = isNight ? Moon : Sun;
         break;
-
       case 'Cloudy':
         WeatherIcon = Cloud;
-        temp -= 4;
         break;
       case 'Rainy':
         WeatherIcon = CloudRain;
-        temp -= 2;
         break;
       case 'Snowy':
         WeatherIcon = Snowflake;
-        temp -= 6;
         break;
     }
 
@@ -103,6 +100,7 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
       }
     };
 
+    const temp = Math.round(temperatureC);
     return { temp, weatherText, WeatherIcon: <WeatherIcon size={22} className={getIconColor()} /> };
   };
 
@@ -124,13 +122,23 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
       case 'dialogue':
         // Set selected NPC for dialogue and open the dialogue screen
         useUIStore.getState().setDialogueNpcId(action.target);
-        DialogueService.startDialogue(action.target);
         setScreen('dialogue');
         break;
+      case 'craft': {
+        useUIStore.getState().setCraftingSkill('Carpentry');
+        setScreen('crafting');
+        break;
+      }
       case 'shop':
         useUIStore.getState().setShopId(action.shopId);
         setScreen('trade');
         break;
+      case 'library': {
+        const odran = mockBooks.find(b => b.id === 'odrans-rebellion');
+        useUIStore.getState().setLibraryBooks(odran ? [odran] : []);
+        setScreen('library');
+        break;
+      }
       case 'fish':
         // Open skilling setup modal for Fishing
         setPendingSkillAction(action);
@@ -162,9 +170,57 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
         }
         break;
       }
-      case 'job':
-        setScreen('jobScreen');
+      case 'job': {
+        const js = useJobStore.getState();
+        js.loadJobs();
+        const active = js.activeJob;
+        if (!active || active.jobId !== action.target) {
+          setScreen('jobScreen');
+          break;
+        }
+        const job = js.jobs[active.jobId];
+        if (!job || job.locationId !== currentLocation.id) {
+          setScreen('jobScreen');
+          break;
+        }
+        const energyAvail = useCharacterStore.getState().energy;
+        const minEnergy = Math.min(30, job.energyCost / 2);
+        if (energyAvail < minEnergy) {
+          setJobEnergyMessage(
+            <div>
+              <p className="mb-2">You don’t have enough energy to start this shift.</p>
+              <p className="text-zinc-300">Required: <strong>{minEnergy}</strong> Energy • Current: <strong>{energyAvail}</strong> Energy</p>
+              <p className="mt-2 text-zinc-400">Sleep or eat to recover, then try again.</p>
+            </div>
+          );
+          setJobEnergyModalOpen(true);
+          break;
+        }
+        const outcome = js.workShift();
+        if (!outcome) {
+          const t = useWorldTimeStore.getState();
+          const todayKey = `${t.year}-${String(t.month).padStart(2, '0')}-${String(t.dayOfMonth).padStart(2, '0')}`;
+          const hiredToday = active.hiredOn === todayKey;
+          const summary: ActionSummary = {
+            title: hiredToday ? 'Starts Tomorrow' : 'Missed Shift',
+            durationInMinutes: 0,
+            vitalsChanges: [],
+            rewards: [{ name: 'No Pay', quantity: 0 }],
+          } as any;
+          setSummaryData(summary);
+          setSummaryModalOpen(true);
+          break;
+        }
+        const summary: ActionSummary = {
+          title: outcome.status === 'insufficient' ? 'Too Tired' : outcome.status === 'exhausted' ? 'Exhausted' : (outcome.status === 'late' ? 'Late Shift' : 'Worked Shift'),
+          durationInMinutes: outcome.minutesWorked,
+          vitalsChanges: outcome.energySpent ? [{ vital: 'Energy', change: -outcome.energySpent }] : [],
+          rewards: [{ name: 'Copper', quantity: outcome.payCopper }],
+        };
+        setSummaryData(summary);
+        setSummaryModalOpen(true);
         break;
+      }
       case 'tutorial_lunch': {
         useWorldTimeStore.getState().passTime(60);
         useWorldStateStore.getState().setTutorialStep(5);
@@ -205,16 +261,39 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
         break;
       }
       case 'tutorial_sleep': {
+        const step = useWorldStateStore.getState().tutorialStep;
+        if (step === 6) {
+          useUIStore.getState().setSleepWaitMode('sleep');
+          useWorldTimeStore.getState().setClockPaused(true);
+          useUIStore.getState().setSleepQuality(1.0);
+          useUIStore.getState().openModal('sleepWait');
+        } else {
+          useWorldTimeStore.getState().setClockPaused(true);
+          useUIStore.getState().openModal('confirmation');
+        }
+        break;
+      }
+      case 'sleep': {
         useUIStore.getState().setSleepWaitMode('sleep');
+        const target = String(action.target || '');
+        let quality = 1.0;
+        if (target === 'sleep_floor') quality = 0.3;
+        if (target === 'sleep_bed') quality = 1.0;
+        useUIStore.getState().setSleepQuality(quality);
+        useWorldTimeStore.getState().setClockPaused(true);
         useUIStore.getState().openModal('sleepWait');
         break;
       }
       case 'end_intro': {
         useWorldStateStore.getState().setIntroCompleted(true);
+        useWorldStateStore.getState().setFlag('intro_completed', true);
         useWorldStateStore.getState().setIntroMode(false);
-        useLocationStore.getState().setLocation('driftwatch_slums');
-        useUIStore.getState().setEventSlides(wakeupEventSlides);
-        useUIStore.getState().setCurrentEventId('wakeup');
+        useWorldTimeStore.setState({ year: 780 });
+        useLocationStore.getState().setLocation('salty_mug');
+        useWorldStateStore.getState().setFlag('finn_debt_intro_pending', true);
+        useUIStore.getState().setEventSlides(finnDebtIntroSlides);
+        useUIStore.getState().setCurrentEventId('finn_debt_intro');
+        try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
         setScreen('event');
         break;
       }
@@ -278,7 +357,9 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
       case 'shop': return <ShoppingCart size={20} className="text-yellow-300" />;
     case 'fish': return <Fish size={20} className="text-orange-400" />;
     case 'woodcut': return <Leaf size={20} className="text-orange-400" />; // match Fishing orange card
-      case 'job': return <Briefcase size={20} className="text-orange-300" />;
+      case 'craft': return <Hammer size={20} className="text-orange-300" />;
+      case 'job': return <Briefcase size={20} className="text-orange-400" />;
+      case 'library': return <BookOpen size={20} className="text-zinc-300" />;
       case 'navigate': return <MapPin size={20} className="text-green-300" />;
       default: return <Search size={20} className="text-zinc-300" />;
     }
@@ -288,7 +369,8 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
     switch (type) {
       case 'dialogue': return 'dialogue';
       case 'shop': return 'commerce';
-      case 'fish': case 'job': case 'woodcut': return 'action';
+      case 'fish': case 'job': case 'woodcut': case 'craft': return 'action';
+      case 'library': return 'dialogue';
       case 'navigate': return 'travel';
       default: return 'explore';
     }
@@ -338,10 +420,12 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
       const world = useWorldTimeStore.getState();
       const startSeconds = world.hour * 3600 + world.minute * 60;
       const totalSeconds = modifiedTimeCost * 60;
+      setPendingTravelMinutes(modifiedTimeCost);
       setTravelProgress({ currentTime: 0, totalTime: totalSeconds, startTime: startSeconds });
     } else {
       useLocationStore.getState().setLocation(pendingTravelAction.target);
       setPendingTravelAction(null);
+      setPendingTravelMinutes(null);
     }
   };
 
@@ -351,15 +435,24 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
   };
 
   const handleTimedActionClose = useCallback(() => {
+    if (!pendingTravelAction) {
+      // Resume clock and reset UI if nothing pending
+      useWorldTimeStore.getState().setClockPaused(false);
+      setTravelProgressModalOpen(false);
+      setTravelProgress(null);
+      return;
+    }
     if (pendingTravelAction) {
       useLocationStore.getState().setLocation(pendingTravelAction.target);
-      useWorldTimeStore.getState().passTime(pendingTravelAction.time_cost || 0);
+      const minutes = pendingTravelMinutes ?? (pendingTravelAction.time_cost || 0);
+      useWorldTimeStore.getState().passTime(Math.round(minutes));
     }
     // Resume the global clock after timed travel completes
     useWorldTimeStore.getState().setClockPaused(false);
     setTravelProgressModalOpen(false);
     setPendingTravelAction(null);
     setTravelProgress(null);
+    setPendingTravelMinutes(null);
   }, [pendingTravelAction]);
 
   // Skilling preview for TimedActionModal setup view
@@ -558,7 +651,7 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
             </div>
           </div>
           <div className="flex justify-between items-center mt-1">
-            <p className="text-sm text-white/70">{dateString}</p>
+            <p className="text-sm text-white/70">{weekday}, {dateString}</p>
             <div className="flex items-center space-x-2 text-sm text-zinc-300">
               <SeasonIcon size={18} />
               <span className="font-semibold">{season}</span>
@@ -579,30 +672,80 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
               return 0;
             })
             .filter((action: any) => {
+              // Hide job action if player is jobless
+              if (action.type === 'job') {
+                const js = useJobStore.getState();
+                const activeJob = js.activeJob;
+                if (!activeJob) return false;
+                const job = js.jobs[activeJob.jobId];
+                if (!job) return false;
+                if (currentLocation.id !== job.locationId) return false;
+                if (action.target !== activeJob.jobId) return false;
+                const t = useWorldTimeStore.getState();
+                const firstDow = ((t.month - 1) * 30) % 7; // 0=Sunday
+                const weekday = (firstDow + t.dayOfMonth - 1) % 7; // 0=Sunday ... 6=Saturday
+                if (weekday === 0 || weekday === 6) return false; // Hide job action on weekends
+                const todayKey = `${t.year}-${String(t.month).padStart(2, '0')}-${String(t.dayOfMonth).padStart(2, '0')}`;
+                if (activeJob.hiredOn === todayKey) return false;
+                const now = t.hour * 60 + t.minute;
+                const start = job.schedule.startHour * 60;
+                const end = job.schedule.endHour * 60;
+                const graceEnd = start + job.schedule.lateGracePeriodHours * 60;
+                const preWindowStart = Math.max(0, start - 60);
+                const allowed = (now >= preWindowStart && now <= graceEnd);
+                if (!allowed) return false;
+                return true;
+              }
+              return true;
+            })
+            .filter((action: any) => {
               // Evaluate optional condition field
               const condition = action.condition;
               if (!condition) return true;
               const parts = String(condition).split('&&').map(s => s.trim());
               const journal = useJournalStore.getState();
               const world = useWorldStateStore.getState();
+              const timeStore = useWorldTimeStore.getState();
               for (const expr of parts) {
                 const [lhs, rhsRaw] = expr.split('==').map(s => s.trim());
-                const rhs = rhsRaw === 'true' ? true : rhsRaw === 'false' ? false : Number(rhsRaw);
+                const rhsBool = rhsRaw === 'true' ? true : rhsRaw === 'false' ? false : undefined;
+                const rhsNum = rhsBool === undefined ? Number(rhsRaw) : undefined;
                 if (lhs.startsWith('quest.')) {
                   const [, questId, field] = lhs.split('.');
                   const q = journal.quests[questId];
                   if (field === 'active') {
-                    if ((q?.active || false) !== rhs) return false;
+                    if ((q?.active || false) !== (rhsBool as boolean)) return false;
                   } else if (field === 'completed') {
-                    if ((q?.completed || false) !== rhs) return false;
+                    if ((q?.completed || false) !== (rhsBool as boolean)) return false;
                   } else if (field === 'stage') {
                     const stage = q?.currentStage ?? 0;
-                    if (stage !== rhs) return false;
+                    if (stage !== (rhsNum as number)) return false;
                   }
                 } else if (lhs.startsWith('world_flags.')) {
                   const flag = lhs.replace('world_flags.', '');
                   const val = world.getFlag(flag);
-                  if (val !== rhs) return false;
+                  const target = rhsBool !== undefined ? rhsBool : rhsNum;
+                  if (val !== target) return false;
+                } else if (lhs === 'time.is_day') {
+                  const hour = timeStore.hour;
+                  const isDay = hour >= 6 && hour < 18;
+                  if (isDay !== (rhsBool as boolean)) return false;
+                } else if (lhs === 'time.is_night') {
+                  const hour = timeStore.hour;
+                  const isNight = hour < 6 || hour >= 18;
+                  if (isNight !== (rhsBool as boolean)) return false;
+                } else if (lhs === 'time.hour_lt') {
+                  const hour = timeStore.hour;
+                  if (!(hour < (rhsNum as number))) return false;
+                } else if (lhs === 'time.hour_gte') {
+                  const hour = timeStore.hour;
+                  if (!(hour >= (rhsNum as number))) return false;
+                } else if (lhs === 'time.weekday') {
+                  const names = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+                  const firstDow = ((timeStore.month - 1) * 30) % 7; // 0=Sunday
+                  const weekday = (firstDow + timeStore.dayOfMonth - 1) % 7; // 0..6
+                  const current = names[weekday];
+                  if (current !== rhsRaw) return false;
                 }
               }
               return true;
@@ -735,6 +878,7 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
 
       {/* Travel Progress Modal */}
       <TimedActionModal
+        key={travelProgress?.startTime ?? 'travel'}
         isOpen={travelProgressModalOpen}
         actionName="Traveling..."
         progress={travelProgress}
@@ -775,6 +919,15 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
           onClose={() => setSummaryModalOpen(false)}
         />
       )}
+      <ConfirmationModal
+        isOpen={jobEnergyModalOpen}
+        title="Too Tired"
+        message={jobEnergyMessage}
+        onConfirm={() => setJobEnergyModalOpen(false)}
+        onCancel={() => setJobEnergyModalOpen(false)}
+        confirmText="OK"
+        cancelText="Close"
+      />
     </>
   );
 };

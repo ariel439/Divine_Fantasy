@@ -9,8 +9,12 @@ import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useCharacterStore } from '../stores/useCharacterStore';
 import { useJournalStore } from '../stores/useJournalStore';
 import { useInventoryStore } from '../stores/useInventoryStore';
+import { useUIStore } from '../stores/useUIStore';
+import { useShopStore } from '../stores/useShopStore';
 import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
+import { useJobStore } from '../stores/useJobStore';
+import { useLocationStore } from '../stores/useLocationStore';
 interface DialogueNode {
   npc_text: string;
   player_choices?: {
@@ -74,9 +78,11 @@ export class DialogueService {
   private static dialogueHistory: string[] = [];
 
   static startDialogue(npcId: string): DialogueNode | null {
-    // Add NPC to known list and create diary entry if not already known
+    // Determine known state before updating, to support first-time greeting behavior
     const worldStateStore = useWorldStateStore.getState();
-    if (!worldStateStore.knownNpcs.includes(npcId)) {
+    const wasKnown = worldStateStore.knownNpcs.includes(npcId);
+    console.log('[DialogueService][start] npcId=', npcId, 'wasKnown=', wasKnown);
+    if (!wasKnown) {
       worldStateStore.addKnownNpc(npcId);
       const npcName = typedNpcsData[npcId]?.name || 'Unknown NPC';
       useDiaryStore.getState().addInteraction(`Met ${npcName} for the first time.`);
@@ -105,6 +111,22 @@ export class DialogueService {
         dialogueId = 'roberta_planks_completed';
       }
     }
+    if (npcId === 'npc_boric') {
+      const aj = useJobStore.getState().activeJob;
+      const fired = useJobStore.getState().firedJobs['job_dockhand'];
+      const greeted = useWorldStateStore.getState().getFlag('greeted_npc_boric');
+      console.log('[DialogueService][start] boric state', { greeted, activeJob: aj?.jobId, fired: Boolean(fired) });
+      if (aj?.jobId === 'job_dockhand') {
+        dialogueId = 'boric_employee';
+      } else if (fired) {
+        dialogueId = 'boric_fired';
+      } else {
+        const greetedFlagBoric = 'greeted_npc_boric';
+        if (!useWorldStateStore.getState().getFlag(greetedFlagBoric)) {
+          dialogueId = 'boric_intro';
+        }
+      }
+    }
 
     const dialogueEntry = typedDialogueData[dialogueId];
 
@@ -115,9 +137,21 @@ export class DialogueService {
 
     this.currentDialogueId = dialogueId;
     this.currentNodeId = '0';
-    this.dialogueHistory = [dialogueEntry.nodes['0'].npc_text];
-
-    return dialogueEntry.nodes['0'];
+    const firstNode = dialogueEntry.nodes['0'];
+    const greetedFlag = `greeted_${npcId}`;
+    const shouldGreet = !useWorldStateStore.getState().getFlag(greetedFlag);
+    console.log('[DialogueService][start] selected dialogueId=', dialogueId, 'shouldGreet=', shouldGreet);
+    if (shouldGreet) {
+      useWorldStateStore.getState().setFlag(greetedFlag, true);
+    }
+    const npcName = typedNpcsData[npcId]?.name || 'Unknown';
+    const effectiveFirstNode = (() => {
+      if (npcId === 'npc_boric') return firstNode; // Use custom intro/default nodes without auto-greeting
+      return shouldGreet ? { ...firstNode, npc_text: `Hello. I'm ${npcName}. ${firstNode.npc_text}` } : firstNode;
+    })();
+    // Initial NPC line prepared
+    this.dialogueHistory = [effectiveFirstNode.npc_text];
+    return effectiveFirstNode;
   }
 
   static selectResponse(responseIndex: number): DialogueNode | null {
@@ -133,9 +167,9 @@ export class DialogueService {
 
     const response = currentNode.player_choices[responseIndex];
 
-    // Execute action if present
     if (response.action) {
-      this.executeAction(response.action);
+      const actionStr = response.action as string;
+      this.executeAction(actionStr);
     }
 
     // Add to history
@@ -154,7 +188,8 @@ export class DialogueService {
       return null;
     }
 
-    return null;
+    // If action mutated the dialogue (e.g., switched current node), return the current node
+    return this.getCurrentDialogue();
   }
 
   static getCurrentDialogue(): DialogueNode | null {
@@ -262,8 +297,40 @@ export class DialogueService {
         break;
 
       case 'hire_job':
-        // TODO: Implement job hiring
-        console.log('Hiring for job:', params[0]);
+        {
+          const jobId = params[0];
+          useJobStore.getState().loadJobs();
+          const can = useJobStore.getState().canHire(jobId);
+          if (!can.ok) {
+            useDiaryStore.getState().addInteraction(`Supervisor: We can't rehire you yet. Come back after ${can.rehiredFrom}.`);
+            break;
+          }
+          useJobStore.getState().takeJob(jobId);
+          useDiaryStore.getState().addInteraction(`Hired for job: ${jobId}`);
+          useDiaryStore.getState().addInteraction(`Supervisor: You start tomorrow at ${String(useJobStore.getState().jobs[jobId]?.schedule.startHour ?? 8).padStart(2, '0')}:00.`);
+        }
+        break;
+
+      case 'try_hire_or_deny':
+        {
+          const jobId = params[0];
+          const denyNodeId = params[1];
+          useJobStore.getState().loadJobs();
+          const can = useJobStore.getState().canHire(jobId);
+          if (!can.ok) {
+            const currentDialogue = this.currentDialogueId ? typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData] : null;
+            if (currentDialogue && denyNodeId && currentDialogue.nodes[denyNodeId]) {
+              const denyNode = currentDialogue.nodes[denyNodeId];
+              this.currentNodeId = denyNodeId;
+              this.dialogueHistory.push(denyNode.npc_text);
+            }
+            break;
+          }
+          useJobStore.getState().takeJob(jobId);
+          useDiaryStore.getState().addInteraction(`Hired for job: ${jobId}`);
+          useDiaryStore.getState().addInteraction(`Supervisor: You start tomorrow at ${String(useJobStore.getState().jobs[jobId]?.schedule.startHour ?? 8).padStart(2, '0')}:00.`);
+          this.endDialogue();
+        }
         break;
 
       case 'recruit_companion':
@@ -303,6 +370,207 @@ export class DialogueService {
         }
         break;
 
+      case 'open_shop':
+        {
+          const shopId = params[0];
+          useUIStore.getState().setShopId(shopId);
+          useUIStore.getState().setScreen('trade');
+        }
+        break;
+
+      case 'convert_logs_to_planks':
+        {
+          const qtyRaw = params[0] || '0';
+          const inv = useInventoryStore.getState();
+          const char = useCharacterStore.getState();
+          const logsAvailable = inv.getItemQuantity('log');
+          const requested = qtyRaw === 'all' ? logsAvailable : Math.max(0, Number(qtyRaw));
+          const maxByCopper = Math.floor(char.currency.copper / 2);
+          const produce = Math.min(requested, logsAvailable, maxByCopper);
+          if (produce <= 0) {
+            diaryStore.addInteraction('Sawmill: Not enough logs or copper.');
+            break;
+          }
+          const removed = inv.removeItem('log', produce);
+          if (!removed) {
+            diaryStore.addInteraction('Sawmill: Failed to remove logs.');
+            break;
+          }
+          const cost = produce * 2;
+          const paid = useCharacterStore.getState().removeCurrency(cost);
+          if (!paid) {
+            // Rollback log removal if payment fails
+            inv.addItem('log', produce);
+            diaryStore.addInteraction('Sawmill: Payment failed.');
+            break;
+          }
+          inv.addItem('wooden_plank', produce);
+          diaryStore.addInteraction(`Converted ${produce} logs to planks at the sawmill.`);
+        }
+        break;
+
+      case 'offer_debt_payment':
+        {
+          // No-op placeholder: UI could present choices in dialogue JSON
+          diaryStore.addInteraction('Discussed debt with Finn.');
+        }
+        break;
+
+      case 'start_debt_collection':
+        {
+          useWorldStateStore.getState().setFlag('finn_debt_collection_active', true);
+          useWorldStateStore.getState().setFlag('debt_paid_by_ben', false);
+          useWorldStateStore.getState().setFlag('debt_paid_by_beryl', false);
+          useWorldStateStore.getState().setFlag('debt_paid_by_elara', false);
+          try { useJournalStore.getState().setQuestStage('finn_debt_collection', 1); } catch {}
+          const day = useWorldTimeStore.getState().day;
+          try {
+            useWorldStateStore.getState().setCooldown('finn_debt_deadline_start', day);
+          } catch {}
+        }
+        break;
+
+      case 'collect_debt_from':
+        {
+          const targetNpcId = params[0];
+          const flagMap: Record<string, string> = {
+            'npc_ben': 'debt_paid_by_ben',
+            'npc_beryl': 'debt_paid_by_beryl',
+            'npc_elara': 'debt_paid_by_elara',
+          };
+          const flag = flagMap[targetNpcId];
+          if (!flag) break;
+          const world = useWorldStateStore.getState();
+          if (world.getFlag(flag)) {
+            diaryStore.addInteraction('Already collected from ' + (typedNpcsData[targetNpcId]?.name || targetNpcId) + '.');
+            break;
+          }
+          if (!world.getFlag('finn_debt_collection_active')) {
+            diaryStore.addInteraction('Debt collection is not active.');
+            break;
+          }
+          useCharacterStore.getState().addCurrency('silver', 10);
+          world.setFlag(flag, true);
+          try { useJournalStore.getState().advanceQuestStage('finn_debt_collection'); } catch {}
+          diaryStore.addInteraction('Collected 10 silvers from ' + (typedNpcsData[targetNpcId]?.name || targetNpcId) + '.');
+        }
+        break;
+
+      case 'turn_in_debt':
+        {
+          const requiredSilvers = Number(params[0] || '30');
+          const world = useWorldStateStore.getState();
+          const allCollected = world.getFlag('debt_paid_by_ben') && world.getFlag('debt_paid_by_beryl') && world.getFlag('debt_paid_by_elara');
+          if (!allCollected) {
+            diaryStore.addInteraction('npc_finn: You have not collected from all three yet.');
+            break;
+          }
+          const totalCopperNeeded = requiredSilvers * 100;
+          const paid = useCharacterStore.getState().removeCurrency(totalCopperNeeded);
+          if (!paid) {
+            diaryStore.addInteraction('npc_finn: Come back when you actually did the job.');
+            break;
+          }
+          world.setFlag('finn_debt_collection_active', false);
+          diaryStore.addInteraction('npc_finn: Debt job complete.');
+          try {
+            useJournalStore.getState().completeQuest('finn_debt_collection');
+          } catch {}
+        }
+        break;
+
+      case 'turn_in_debt_or_rebuke':
+        {
+          const requiredSilvers = Number(params[0] || '30');
+          const rebukeNodeId = params[1];
+          const world = useWorldStateStore.getState();
+          const allCollected = world.getFlag('debt_paid_by_ben') && world.getFlag('debt_paid_by_beryl') && world.getFlag('debt_paid_by_elara');
+          const currentDialogue = this.currentDialogueId ? typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData] : null;
+          const showRebuke = () => {
+            if (currentDialogue && rebukeNodeId && currentDialogue.nodes[rebukeNodeId]) {
+              const node = currentDialogue.nodes[rebukeNodeId];
+              this.currentNodeId = rebukeNodeId;
+              this.dialogueHistory.push(node.npc_text);
+            } else {
+              diaryStore.addInteraction('npc_finn: Come back when you actually did the job.');
+            }
+          };
+          if (!allCollected) {
+            showRebuke();
+            break;
+          }
+          const totalCopperNeeded = requiredSilvers * 100;
+          const paid = useCharacterStore.getState().removeCurrency(totalCopperNeeded);
+          if (!paid) {
+            showRebuke();
+            break;
+          }
+          world.setFlag('finn_debt_collection_active', false);
+          diaryStore.addInteraction('npc_finn: Debt job complete.');
+          try {
+            useJournalStore.getState().completeQuest('finn_debt_collection');
+          } catch {}
+          this.endDialogue();
+        }
+        break;
+
+      case 'enter_temporal_instance':
+        {
+          const locationId = params[0];
+          const year = Number(params[1] || '780');
+          const month = Number(params[2] || '1');
+          const dayOfMonth = Number(params[3] || '1');
+          const hour = Number(params[4] || '8');
+          const minute = Number(params[5] || '0');
+          const locStore = useLocationStore.getState();
+          const currentLoc = locStore.currentLocationId;
+          useWorldStateStore.getState().setData('temporal_return_location', currentLoc || 'driftwatch');
+          useWorldTimeStore.getState().enterTemporalInstance({ year, month, dayOfMonth, hour, minute });
+          if (locationId) locStore.setLocation(locationId);
+          useUIStore.getState().setScreen('inGame');
+          diaryStore.addInteraction(`Entered temporal instance at ${locationId || currentLoc}: ${dayOfMonth}/${month}/${year} ${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`);
+        }
+        break;
+
+      case 'exit_temporal_instance':
+        {
+          useWorldTimeStore.getState().exitTemporalInstance();
+          const ret = useWorldStateStore.getState().getData('temporal_return_location');
+          if (ret) {
+            useLocationStore.getState().setLocation(ret);
+          }
+          diaryStore.addInteraction('Exited temporal instance.');
+          useUIStore.getState().setScreen('inGame');
+        }
+        break;
+
+      case 'pay_debt':
+        {
+          const amount = Number(params[0] || '0');
+          if (amount <= 0) break;
+          const paid = useCharacterStore.getState().removeCurrency(amount);
+          if (paid) {
+            useWorldStateStore.getState().setFlag('finn_debt_paid', true);
+            diaryStore.addInteraction(`Paid ${amount}c to Finn. Debt cleared.`);
+          } else {
+            diaryStore.addInteraction('Payment failed: not enough copper.');
+          }
+        }
+        break;
+
+      case 'rent_room':
+        {
+          const debtPaid = useWorldStateStore.getState().getFlag('finn_debt_paid');
+          if (!debtPaid) {
+            diaryStore.addInteraction('Cannot rent: debt not cleared.');
+            break;
+          }
+          useUIStore.getState().setSleepWaitMode('sleep');
+          useUIStore.getState().openModal('sleepWait');
+          diaryStore.addInteraction('Rented a room at the Salty Mug.');
+        }
+        break;
+
       case 'grant_skill_level':
         {
           const skillId = params[0];
@@ -318,6 +586,23 @@ export class DialogueService {
           const delta = Number(params[1] || '0');
           useDiaryStore.getState().updateRelationship(npcId, { friendship: delta });
           diaryStore.addInteraction('Relationship changed with ' + (typedNpcsData[npcId]?.name || npcId));
+        }
+        break;
+      case 'set_relationship':
+        {
+          const npcId = params[0];
+          const target = Number(params[1] || '0');
+          const current = useDiaryStore.getState().relationships[npcId]?.friendship?.value || 0;
+          const delta = target - current;
+          useDiaryStore.getState().updateRelationship(npcId, { friendship: delta });
+          diaryStore.addInteraction('Relationship set for ' + (typedNpcsData[npcId]?.name || npcId));
+        }
+        break;
+      case 'add_known_npc':
+        {
+          const id = params[0];
+          useWorldStateStore.getState().addKnownNpc(id);
+          diaryStore.addInteraction('Now know NPC: ' + (typedNpcsData[id]?.name || id));
         }
         break;
 

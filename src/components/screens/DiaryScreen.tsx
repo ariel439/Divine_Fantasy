@@ -51,7 +51,12 @@ const DiaryScreen: FC = () => {
         if (!selectedNpc) return null;
 
         const npcData = npcsData[selectedNpc.id];
-        const npcRelationship = relationships[selectedNpc.id] || {};
+        const npcRelationship = relationships[selectedNpc.id] || {
+            friendship: { value: 0, max: 100 },
+            love: { value: 0, max: 100 },
+            fear: { value: 0, max: 100 },
+            obedience: { value: 0, max: 100 },
+        };
         const npcHistory = interactionHistory.filter((entry) => entry.startsWith(`${selectedNpc.id}:`));
 
         return {
@@ -76,7 +81,7 @@ const DiaryScreen: FC = () => {
             </header>
             <div className="w-full max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 flex-grow min-h-0">
                 {/* Left Panel: NPC List */}
-                <div className="lg:col-span-1 bg-black/20 rounded-lg border border-zinc-800 p-4 flex flex-col h-full">
+                <div className="lg:col-span-1 bg-black/20 rounded-lg border border-zinc-800 p-4 flex flex-col h-full min-h-0">
                      {/* Search Bar */}
                      <div className="relative mb-4 flex-shrink-0">
                         <input 
@@ -89,7 +94,7 @@ const DiaryScreen: FC = () => {
                          <Search size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500" />
                      </div>
                      {/* List */}
-                     <div className="overflow-y-auto flex-grow custom-scrollbar pr-2 space-y-2">
+                     <div className="overflow-y-auto flex-grow min-h-0 custom-scrollbar pr-2 space-y-2">
                         {filteredNpcs.map(npc => (
                             <button
                                 key={npc.id}
@@ -104,7 +109,7 @@ const DiaryScreen: FC = () => {
                 </div>
                 
                 {/* Right Panel: Details */}
-                <div className="lg:col-span-2 bg-black/20 rounded-lg border border-zinc-800 p-6 flex flex-col overflow-y-auto custom-scrollbar h-full">
+                <div className="lg:col-span-2 bg-black/20 rounded-lg border border-zinc-800 p-6 flex flex-col overflow-y-auto custom-scrollbar h-full min-h-0">
                     {displayNpc ? (
                         <>
                             {/* Header */}
@@ -120,14 +125,14 @@ const DiaryScreen: FC = () => {
                             <div className="space-y-8">
                                 <Section title="Relationships">
                                     <div className="space-y-3">
-                                        <ProgressBar label="Friendship" value={displayNpc.relationships.friendship.value} max={displayNpc.relationships.friendship.max} colorClass="bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.7)]" />
+                                        <ProgressBar label="Friendship" value={displayNpc.relationships.friendship.value} max={displayNpc.relationships.friendship.max} colorClass="bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.7)]" negativeColorClass="bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]" />
                                         <ProgressBar label="Love" value={displayNpc.relationships.love.value} max={displayNpc.relationships.love.max} colorClass="bg-pink-500 shadow-[0_0_8px_rgba(236,72,153,0.7)]" />
                                         <ProgressBar label="Obedience" value={displayNpc.relationships.obedience.value} max={displayNpc.relationships.obedience.max} colorClass="bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.7)]" />
                                         <ProgressBar label="Fear" value={displayNpc.relationships.fear.value} max={displayNpc.relationships.fear.max} colorClass="bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.7)]" />
                                     </div>
                                 </Section>
                                 <Section title="Recent History">
-                                    <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-2">
+                                    <div className="space-y-2 pr-2">
                                         {displayNpc.history.map((event, index) => (
                                             <div key={index} className="bg-black/20 p-3 rounded-md text-sm text-zinc-300 border-l-2 border-zinc-600">
                                                 <p>{event}</p>

@@ -9,6 +9,7 @@ import MainMenu from './screens/MainMenu';
 import CharacterSelection from './screens/CharacterSelection';
 import EventScreen from './screens/EventScreen';
 import SleepWaitModal from './modals/SleepWaitModal';
+import ConfirmationModal from './modals/ConfirmationModal';
 import LocationScreen from './screens/LocationScreen';
 import DialogueScreen from './screens/DialogueScreen';
 import dialogueData from '../data/dialogue.json';
@@ -16,6 +17,8 @@ import npcsData from '../data/npcs.json';
 import { DialogueService } from '../services/DialogueService';
 import { useJournalStore } from '../stores/useJournalStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
+import { useDiaryStore } from '../stores/useDiaryStore';
+import { useJobStore } from '../stores/useJobStore';
 import CharacterScreen from './screens/CharacterScreen';
 import InventoryScreen from './screens/InventoryScreen';
 import JobScreen from './screens/JobScreen';
@@ -33,7 +36,7 @@ import CombatManager from './CombatManager';
 import LocationNav from './LocationNav';
 import OptionsModal from './modals/OptionsModal';
 import TutorialModal from './modals/TutorialModal';
-import { lukePrologueSlides, playEventSlidesSarah, playEventSlidesRobert, wakeupEventSlides } from '../data';
+import { lukePrologueSlides, playEventSlidesSarah, playEventSlidesRobert, wakeupEventSlides, finnDebtIntroSlides } from '../data';
 import { useAudioStore } from '../stores/useAudioStore';
 
 const Game: React.FC = () => {
@@ -46,6 +49,10 @@ const Game: React.FC = () => {
 
   const musicRef = useRef<HTMLAudioElement | null>(null);
   const sfxRef = useRef<HTMLAudioElement | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const sfxSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const filterNodeRef = useRef<BiquadFilterNode | null>(null);
+  const shelfNodeRef = useRef<BiquadFilterNode | null>(null);
   
   
 
@@ -72,18 +79,77 @@ const Game: React.FC = () => {
 
   useEffect(() => {
     const loc = getCurrentLocation();
-    const allowed = new Set(['driftwatch', 'driftwatch_main_street', 'driftwatch_noble_quarter', 'driftwatch_docks', 'driftwatch_slums']);
-    const isAllowed = currentScreen === 'inGame' && allowed.has(loc.id) && !loc.is_indoor;
-    const src = hour >= 6 && hour < 18 ? '/assets/sfx/coastal.mp3' : '/assets/sfx/waves.mp3';
-    if (!sfxRef.current) {
-      sfxRef.current = new Audio(src);
-      sfxRef.current.loop = true;
+    let desiredSrc: string | undefined;
+    let applyMuffle = false;
+    if (currentScreen === 'inGame') {
+      if (loc.id === 'salty_mug') {
+        desiredSrc = '/assets/sfx/bar.mp3';
+      } else if (loc.is_indoor) {
+        desiredSrc = hour >= 6 && hour < 18 ? '/assets/sfx/coastal.mp3' : '/assets/sfx/waves.mp3';
+        applyMuffle = true;
+      } else if (new Set(['driftwatch', 'driftwatch_main_street', 'driftwatch_noble_quarter', 'driftwatch_docks', 'driftwatch_slums', 'mosswatch_keep']).has(loc.id)) {
+        desiredSrc = hour >= 6 && hour < 18 ? '/assets/sfx/coastal.mp3' : '/assets/sfx/waves.mp3';
+      }
     }
+
+    const src = desiredSrc || (hour >= 6 && hour < 18 ? '/assets/sfx/coastal.mp3' : '/assets/sfx/waves.mp3');
+
+    if (!sfxRef.current) {
+      sfxRef.current = new Audio(src || '/assets/sfx/coastal.mp3');
+      sfxRef.current.loop = true;
+      if (!audioCtxRef.current) {
+        try {
+          audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        } catch {}
+      }
+      if (audioCtxRef.current && sfxRef.current && !sfxSourceRef.current) {
+        try {
+          sfxSourceRef.current = audioCtxRef.current.createMediaElementSource(sfxRef.current);
+        } catch {}
+      }
+    }
+
     if (sfxRef.current) {
-      sfxRef.current.volume = sfxVolume;
-      if (isAllowed && sfxEnabled) {
+      sfxRef.current.volume = applyMuffle ? Math.max(0, Math.min(1, sfxVolume * 0.8)) : sfxVolume;
+      if (desiredSrc && sfxEnabled) {
         if (sfxRef.current.src.indexOf(src) === -1) {
           sfxRef.current.src = src;
+        }
+
+        if (audioCtxRef.current && sfxSourceRef.current) {
+          try {
+            sfxSourceRef.current.disconnect();
+          } catch {}
+          if (applyMuffle) {
+            if (!filterNodeRef.current && audioCtxRef.current) {
+              filterNodeRef.current = audioCtxRef.current.createBiquadFilter();
+              filterNodeRef.current.type = 'lowpass';
+              filterNodeRef.current.frequency.value = 800;
+              filterNodeRef.current.Q.value = 0.7;
+            }
+            if (!shelfNodeRef.current && audioCtxRef.current) {
+              shelfNodeRef.current = audioCtxRef.current.createBiquadFilter();
+              shelfNodeRef.current.type = 'highshelf';
+              shelfNodeRef.current.frequency.value = 3000;
+              shelfNodeRef.current.gain.value = -12;
+            }
+            if (filterNodeRef.current) {
+              sfxSourceRef.current.connect(filterNodeRef.current);
+              if (shelfNodeRef.current) {
+                filterNodeRef.current.connect(shelfNodeRef.current);
+                shelfNodeRef.current.connect(audioCtxRef.current.destination);
+              } else {
+                filterNodeRef.current.connect(audioCtxRef.current.destination);
+              }
+            } else {
+              sfxSourceRef.current.connect(audioCtxRef.current.destination);
+            }
+          } else {
+            sfxSourceRef.current.connect(audioCtxRef.current.destination);
+          }
+          try {
+            audioCtxRef.current.resume();
+          } catch {}
         }
         sfxRef.current.play().catch(() => {});
       } else {
@@ -95,11 +161,37 @@ const Game: React.FC = () => {
   // Game clock logic
   useEffect(() => {
     const timerId = setInterval(() => {
-      passTime(1); // Pass 1 minute every 2 seconds
+      const store = useWorldTimeStore.getState();
+      if (!store.clockPaused) {
+        store.passTime(1);
+      }
     }, 2000);
 
     return () => clearInterval(timerId);
-  }, [passTime]);
+  }, []);
+
+  useEffect(() => {
+    const wt = useWorldTimeStore.getState();
+    const modalOpen = Boolean(activeModal);
+    const shouldPause = modalOpen || currentScreen === 'dialogue' || currentScreen !== 'inGame';
+    wt.setClockPaused(shouldPause);
+  }, [currentScreen, activeModal]);
+
+  useEffect(() => {
+    if (currentScreen === 'dialogue') {
+      const npcId = useUIStore.getState().dialogueNpcId;
+      if (npcId) {
+        const ws = useWorldStateStore.getState();
+        const flag = `greeted_${npcId}`;
+        if (!ws.getFlag(flag)) {
+          ws.setFlag(flag, true);
+        }
+        if (!ws.knownNpcs.includes(npcId)) {
+          ws.addKnownNpc(npcId);
+        }
+      }
+    }
+  }, [currentScreen]);
 
   const buildInitialDialogue = (npcId: string) => {
     const npc = npcsData[npcId as keyof typeof npcsData];
@@ -107,10 +199,14 @@ const Game: React.FC = () => {
     // Choose alternate dialogue if quest is already active
     let dialogueId = npc.default_dialogue_id as keyof typeof dialogueData;
     const world = useWorldStateStore.getState();
+    console.log('[Dialogue][build] npcId=', npcId);
     if (world.introMode) {
       if (npcId === 'npc_old_leo') dialogueId = 'old_leo_intro' as keyof typeof dialogueData;
       if (npcId === 'npc_sarah') dialogueId = 'sarah_intro' as keyof typeof dialogueData;
       if (npcId === 'npc_robert') dialogueId = 'robert_intro' as keyof typeof dialogueData;
+    }
+    if (npcId === 'npc_finn' && useWorldStateStore.getState().getFlag('finn_debt_intro_pending')) {
+      dialogueId = 'finn_debt_intro' as keyof typeof dialogueData;
     }
     if (npcId === 'npc_roberta') {
       const robertaQuest = useJournalStore.getState().quests['roberta_planks_for_the_past'];
@@ -120,32 +216,77 @@ const Game: React.FC = () => {
         dialogueId = 'roberta_planks_completed' as keyof typeof dialogueData;
       }
     }
+    if (npcId === 'npc_boric') {
+      const js = useJobStore.getState();
+      const aj = js.activeJob;
+      const greetedFlagBoric = 'greeted_npc_boric';
+      const greeted = useWorldStateStore.getState().getFlag(greetedFlagBoric);
+      console.log('[Dialogue][build] boric state', { greeted, activeJob: aj?.jobId, fired: Boolean(js.firedJobs && js.firedJobs['job_dockhand']) });
+      if (aj?.jobId === 'job_dockhand') {
+        dialogueId = 'boric_employee' as keyof typeof dialogueData;
+      } else if (js.firedJobs && js.firedJobs['job_dockhand']) {
+        dialogueId = 'boric_fired' as keyof typeof dialogueData;
+      } else {
+        if (!greeted) {
+          dialogueId = 'boric_intro' as keyof typeof dialogueData;
+        }
+      }
+    }
+    console.log('[Dialogue][build] selected dialogueId=', dialogueId);
     const dialogue = dialogueData[dialogueId];
     if (!dialogue) return null;
     const firstNode = dialogue.nodes['0'];
+    const greetedFlag = `greeted_${npcId}`;
+    const shouldGreet = !useWorldStateStore.getState().getFlag(greetedFlag);
+    console.log('[Dialogue][build] shouldGreet=', shouldGreet);
     const checkCondition = (condition?: string): boolean => {
       if (!condition || typeof condition !== 'string') return true;
       const parts = condition.split('&&').map(s => s.trim());
       const journal = useJournalStore.getState();
       const world = useWorldStateStore.getState();
+      const diary = useDiaryStore.getState();
       for (const expr of parts) {
-        const [lhs, rhsRaw] = expr.split('==').map(s => s.trim());
-        const rhs = rhsRaw === 'true' ? true : rhsRaw === 'false' ? false : Number(rhsRaw);
+        let op = '==';
+        if (expr.includes('>=')) op = '>=';
+        else if (expr.includes('<=')) op = '<=';
+        else if (expr.includes('>')) op = '>';
+        else if (expr.includes('<')) op = '<';
+        const [lhsRaw, rhsRaw] = expr.split(op).map(s => s.trim());
+        const lhs = lhsRaw;
+        const rhsNum = Number(rhsRaw);
+        const rhsBool = rhsRaw === 'true' ? true : rhsRaw === 'false' ? false : undefined;
         if (lhs.startsWith('quest.')) {
           const [, questId, field] = lhs.split('.');
           const q = journal.quests[questId];
           if (field === 'active') {
-            if ((q?.active || false) !== rhs) return false;
+            const val = q?.active || false;
+            if (op !== '==' || rhsBool === undefined) return false;
+            if (val !== rhsBool) return false;
           } else if (field === 'completed') {
-            if ((q?.completed || false) !== rhs) return false;
+            const val = q?.completed || false;
+            if (op !== '==' || rhsBool === undefined) return false;
+            if (val !== rhsBool) return false;
           } else if (field === 'stage') {
-            const stage = q?.currentStage ?? 0;
-            if (stage !== rhs) return false;
+            const val = q?.currentStage ?? 0;
+            if (op === '==') { if (val !== rhsNum) return false; }
+            else if (op === '>=') { if (!(val >= rhsNum)) return false; }
+            else if (op === '<=') { if (!(val <= rhsNum)) return false; }
+            else if (op === '>') { if (!(val > rhsNum)) return false; }
+            else if (op === '<') { if (!(val < rhsNum)) return false; }
           }
         } else if (lhs.startsWith('world_flags.')) {
           const flag = lhs.replace('world_flags.', '');
           const val = world.getFlag(flag);
-          if (val !== rhs) return false;
+          if (op !== '==' || rhsBool === undefined) return false;
+          if (val !== rhsBool) return false;
+        } else if (lhs.startsWith('relationship.')) {
+          const npcId = lhs.replace('relationship.', '');
+          const val = diary.relationships[npcId]?.friendship?.value || 0;
+          if (op === '==') { if (val !== rhsNum) return false; }
+          else if (op === '>=') { if (!(val >= rhsNum)) return false; }
+          else if (op === '<=') { if (!(val <= rhsNum)) return false; }
+          else if (op === '>') { if (!(val > rhsNum)) return false; }
+          else if (op === '<') { if (!(val < rhsNum)) return false; }
         }
       }
       return true;
@@ -177,20 +318,27 @@ const Game: React.FC = () => {
         const nextNode = nextNodeId ? dialogue.nodes[nextNodeId as keyof typeof dialogue.nodes] : undefined;
         return {
           text: choice.text,
-          responseText: nextNode?.npc_text,
+          responseText: nextNodeId === '0' ? '' : nextNode?.npc_text,
           // Use a branched visited set per choice to avoid cross-branch pruning
           nextOptions: nextNodeId ? mapChoices(nextNodeId, new Set(visited)) : [],
           closesDialogue: Boolean(choice.closes_dialogue),
           onSelect: () => {
             if (choice.action) {
-              DialogueService.executeAction(choice.action);
+              const actionStr = String(choice.action);
+              DialogueService.executeAction(actionStr);
             }
           },
         };
       });
     };
+    const text = (() => {
+      const idStr = String(dialogueId);
+      if (idStr === 'finn_debt_intro') return firstNode.npc_text;
+      if (npcId === 'npc_boric') return firstNode.npc_text;
+      return shouldGreet ? `Hello. I'm ${npc.name}. ${firstNode.npc_text}` : firstNode.npc_text;
+    })();
     return {
-      text: firstNode.npc_text,
+      text,
       options: mapChoices('0'),
     };
   };
@@ -202,7 +350,23 @@ const Game: React.FC = () => {
       case 'characterSelection':
         return <CharacterSelection />;
       case 'prologue':
-        return <EventScreen slides={lukePrologueSlides} onComplete={() => setScreen('inGame')} />;
+        return (
+          <EventScreen
+            slides={lukePrologueSlides}
+            onComplete={() => {
+              useWorldStateStore.getState().setIntroCompleted(true);
+              useWorldStateStore.getState().setFlag('intro_completed', true);
+              useWorldStateStore.getState().setIntroMode(false);
+              useWorldTimeStore.setState({ hour: 8, minute: 0, year: 780 });
+              useLocationStore.getState().setLocation('salty_mug');
+              useWorldStateStore.getState().setFlag('finn_debt_intro_pending', true);
+              ui.setEventSlides(finnDebtIntroSlides);
+              ui.setCurrentEventId('finn_debt_intro');
+              try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
+              setScreen('event');
+            }}
+          />
+        );
       case 'event': {
         const slides = ui.eventSlides || [];
         return (
@@ -212,6 +376,13 @@ const Game: React.FC = () => {
               const id = ui.currentEventId;
               if (id === 'wakeup') {
                 try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
+              }
+              if (id === 'finn_debt_intro') {
+                ui.setEventSlides(null);
+                ui.setCurrentEventId(null);
+                useUIStore.getState().setDialogueNpcId('npc_finn');
+                setScreen('dialogue');
+                return;
               }
               ui.setEventSlides(null);
               ui.setCurrentEventId(null);
@@ -225,8 +396,8 @@ const Game: React.FC = () => {
       case 'dialogue': {
         const npcId = useUIStore.getState().dialogueNpcId || 'npc_roberta';
         const npc = npcsData[npcId as keyof typeof npcsData];
-        DialogueService.startDialogue(npcId);
-        const initial = buildInitialDialogue(npcId);
+        const built = buildInitialDialogue(npcId);
+        const initial = { text: built?.text || '...', options: built?.options || [] };
         
         return (
           <DialogueScreen
@@ -238,10 +409,22 @@ const Game: React.FC = () => {
               useUIStore.getState().setDialogueNpcId(null);
               try {
                 const world = useWorldStateStore.getState();
+                const lastNpcId = npcId;
+                if (lastNpcId === 'npc_finn' && world.getFlag('finn_debt_intro_pending')) {
+                  useWorldStateStore.getState().setFlag('finn_debt_intro_pending', false);
+                }
                 const loc = useLocationStore.getState().getCurrentLocation();
                 if (world.introMode && loc.id === 'leo_lighthouse' && world.tutorialStep <= 2 && npcId === 'npc_old_leo') {
                   useWorldStateStore.getState().setTutorialStep(3);
                   try { useJournalStore.getState().setQuestStage('luke_tutorial', 4); } catch {}
+                  // Ensure Roberta known + relationship applied if player selected her in intro
+                  const spokeRoberta = world.getFlag('intro_spoke_roberta');
+                  if (spokeRoberta) {
+                    useWorldStateStore.getState().addKnownNpc('npc_roberta');
+                    const current = useDiaryStore.getState().relationships['npc_roberta']?.friendship?.value || 0;
+                    const delta = 20 - current;
+                    useDiaryStore.getState().updateRelationship('npc_roberta', { friendship: delta });
+                  }
                 } else if (world.introMode && loc.id === 'leo_lighthouse' && world.tutorialStep === 5 && (npcId === 'npc_sarah' || npcId === 'npc_robert')) {
                   useWorldStateStore.getState().setTutorialStep(6);
                   try { useJournalStore.getState().setQuestStage('luke_tutorial', 6); } catch {}
@@ -269,8 +452,9 @@ const Game: React.FC = () => {
       case 'dialogueRoberta': {
         const npcId = 'npc_roberta';
         const npc = npcsData[npcId as keyof typeof npcsData];
-        DialogueService.startDialogue(npcId);
-        const initial = buildInitialDialogue(npcId);
+        const initialFromService = DialogueService.startDialogue(npcId);
+        const built = buildInitialDialogue(npcId);
+        const initial = { text: built?.text || initialFromService?.npc_text || 'Welcome.', options: built?.options || [] };
         return (
           <DialogueScreen
             npcName={npc?.name || 'Roberta'}
@@ -295,21 +479,59 @@ const Game: React.FC = () => {
       case 'diary':
         return <DiaryScreen />;
       case 'library':
-        return <LibraryScreen />;
+        return <LibraryScreen onClose={() => setScreen('inGame')} />;
       case 'trade':
-        return shopId ? <TradeScreen shopId={shopId} onConfirmTrade={() => {}} onClose={() => setScreen('inGame')} /> : <div className="text-white">No shop selected.</div>;
+        return shopId ? (
+          <TradeScreen
+            shopId={shopId}
+            onConfirmTrade={() => {}}
+            onClose={() => {
+              const uiState = useUIStore.getState();
+              if (uiState.dialogueNpcId) {
+                setScreen('dialogue');
+              } else {
+                setScreen('inGame');
+              }
+            }}
+          />
+        ) : (
+          <div className="text-white">No shop selected.</div>
+        );
       case 'tradeConfirmation':
-        return <TradeConfirmationScreen />;
+        return (
+          <TradeConfirmationScreen
+            onClose={() => setScreen('inGame')}
+            onCancel={() => setScreen('trade')}
+            playerOffer={[]}
+            merchantOffer={[]}
+            tradeMode="idle"
+          />
+        );
       case 'crafting':
-        return <CraftingScreen />;
+        return (
+          <CraftingScreen
+            onClose={() => setScreen('inGame')}
+            initialSkill={useUIStore.getState().craftingSkill}
+            onStartCrafting={(recipe, quantity) => {
+              if (recipe.result.id === 'wooden_plank') {
+                DialogueService.executeAction(`convert_logs_to_planks:${quantity}`);
+              }
+            }}
+          />
+        );
       case 'choiceEvent':
-        return <ChoiceEventScreen />;
+        return (
+          <ChoiceEventScreen
+            eventText={"An event occurs."}
+            choices={[{ text: 'Continue', onSelect: () => setScreen('inGame') }]}
+          />
+        );
       case 'combat':
         return <CombatManager />;
       case 'combatVictory':
-        return <VictoryScreen />;
+        return <VictoryScreen rewards={{ items: [], copper: 0 }} onContinue={() => setScreen('inGame')} />;
       case 'companion':
-        return <CompanionScreen />;
+        return <CompanionScreen hasPet={false} />;
       default:
         return <MainMenu />;
     }
@@ -336,6 +558,7 @@ const Game: React.FC = () => {
 
   const handleOpenSleepWaitModal = (mode: 'sleep' | 'wait') => {
     ui.setSleepWaitMode(mode);
+    useWorldTimeStore.getState().setClockPaused(true);
     openModal('sleepWait');
   };
 
@@ -384,7 +607,7 @@ const Game: React.FC = () => {
         {isInGame && (
           <LocationNav
             onNavigate={handleNavigate}
-            variant={isSolidBg ? 'solid' : 'floating'}
+            variant={isSolidBg ? 'compact' : 'floating'}
             activeScreen={currentScreen}
             onOpenSleepWaitModal={handleOpenSleepWaitModal}
             showTimeControls={currentScreen === 'inGame'}
@@ -400,40 +623,94 @@ const Game: React.FC = () => {
           (() => {
             const world = useWorldStateStore.getState();
             const loc = useLocationStore.getState().getCurrentLocation();
-            const isIntroSleep = world.introMode && world.tutorialStep === 6 && loc.id === 'orphanage_room';
+          const isIntroSleep = world.introMode && world.tutorialStep === 6 && loc.id === 'orphanage_room';
             const currentSeconds = isIntroSleep ? (20 * 3600) : (useWorldTimeStore.getState().hour * 3600 + useWorldTimeStore.getState().minute * 60);
             const fixedDuration = isIntroSleep ? 12 : undefined;
             return (
               <SleepWaitModal
                 isOpen={true}
                 mode={ui.sleepWaitMode || 'wait'}
-                sleepQuality={1.0}
+                sleepQuality={ui.sleepQuality ?? 1.0}
                 currentTimeInSeconds={currentSeconds}
                 fixedDuration={fixedDuration}
                 onComplete={(hours) => {
+                  console.log(`[SleepWait] complete mode=${ui.sleepWaitMode} hours=${fixedDuration ?? hours}`);
                   const worldState = useWorldStateStore.getState();
                   const currentLoc = useLocationStore.getState().getCurrentLocation();
                   if (ui.sleepWaitMode === 'sleep') {
-                    useCharacterStore.setState((state) => ({ energy: Math.min(100, state.energy + (fixedDuration ?? hours) * 10) }));
+                    const quality = ui.sleepQuality ?? 1.0;
+                    const restore = (fixedDuration ?? hours) * 10 * quality;
+                    useCharacterStore.setState((state) => ({ energy: Math.min(100, state.energy + Math.floor(restore)) }));
                   }
-                  if (isIntroSleep) {
+                if (isIntroSleep) {
                     useWorldTimeStore.setState({ hour: 8, minute: 0 });
-                    ui.setEventSlides(wakeupEventSlides);
-                    ui.setCurrentEventId('wakeup');
                     useWorldStateStore.getState().setIntroCompleted(true);
+                    useWorldStateStore.getState().setFlag('intro_completed', true);
                     useWorldStateStore.getState().setIntroMode(false);
-                    useLocationStore.getState().setLocation('driftwatch_slums');
+                    useWorldTimeStore.setState({ year: 780 });
+                    useLocationStore.getState().setLocation('salty_mug');
+                    useWorldStateStore.getState().setFlag('finn_debt_intro_pending', true);
+                    ui.setEventSlides(finnDebtIntroSlides);
+                    ui.setCurrentEventId('finn_debt_intro');
+                    try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
                     setScreen('event');
                   } else {
-                    useWorldTimeStore.getState().passTime(hours * 60);
+                    const durationMin = (fixedDuration ?? hours) * 60;
+                    console.log(`[SleepWait] passTime ${durationMin}m`);
+                    useWorldTimeStore.getState().passTime(durationMin);
                   }
+                  useWorldTimeStore.getState().setClockPaused(false);
                   closeModal();
                 }}
-                onCancel={closeModal}
+                onCancel={() => { useWorldTimeStore.getState().setClockPaused(false); closeModal(); }}
               />
             );
           })()
         )}
+        {activeModal === 'confirmation' && (() => {
+          const loc = getCurrentLocation();
+          const { tutorialStep, introMode } = useWorldStateStore.getState();
+          const isIntroSkip = introMode && loc.id === 'orphanage_room' && tutorialStep === 0;
+          const message = isIntroSkip ? (
+            <div>
+              <p className="mb-2">Are you sure you want to skip the intro?</p>
+              <p className="text-zinc-400 text-sm">You will start at the Salty Mug without receiving any intro rewards.</p>
+            </div>
+          ) : (
+            <p>Are you sure?</p>
+          );
+          const onConfirm = () => {
+            if (isIntroSkip) {
+              useWorldTimeStore.setState({ hour: 8, minute: 0 });
+              useWorldStateStore.getState().setIntroCompleted(true);
+              useWorldStateStore.getState().setFlag('intro_completed', true);
+              useWorldStateStore.getState().setIntroMode(false);
+              useWorldTimeStore.setState({ year: 780 });
+              useLocationStore.getState().setLocation('salty_mug');
+              ui.setEventSlides(finnDebtIntroSlides);
+              ui.setCurrentEventId('finn_debt_intro');
+              try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
+              setScreen('event');
+            }
+            useWorldTimeStore.getState().setClockPaused(false);
+            closeModal();
+          };
+          const onCancel = () => {
+            useWorldTimeStore.getState().setClockPaused(false);
+            closeModal();
+          };
+          return (
+            <ConfirmationModal
+              isOpen={true}
+              title={isIntroSkip ? 'Skip Intro' : undefined}
+              message={message}
+              onConfirm={onConfirm}
+              onCancel={onCancel}
+              confirmText={isIntroSkip ? 'Skip Intro' : 'Confirm'}
+              cancelText={'Cancel'}
+            />
+          );
+        })()}
         {activeModal === 'tutorial' && (() => {
           const loc = getCurrentLocation();
           const { tutorialStep } = useWorldStateStore.getState();
@@ -453,8 +730,22 @@ const Game: React.FC = () => {
             }
             closeModal();
           };
+          const handleSkipIntro = () => {
+            useWorldTimeStore.setState({ hour: 8, minute: 0 });
+            useWorldStateStore.getState().setIntroCompleted(true);
+            useWorldStateStore.getState().setFlag('intro_completed', true);
+            useWorldStateStore.getState().setIntroMode(false);
+            useWorldStateStore.getState().setFlag('finn_debt_intro_pending', true);
+            useWorldTimeStore.setState({ year: 780 });
+            useLocationStore.getState().setLocation('salty_mug');
+            ui.setEventSlides(finnDebtIntroSlides);
+            ui.setCurrentEventId('finn_debt_intro');
+            try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
+            setScreen('event');
+            closeModal();
+          };
           return (
-            <TutorialModal isOpen={true} title="Tutorial" message={message} onClose={handleClose} />
+            <TutorialModal isOpen={true} title="Tutorial" message={message} onClose={handleClose} secondaryActionText={loc.id === 'orphanage_room' && tutorialStep === 0 ? 'Skip Intro' : undefined} onSecondary={loc.id === 'orphanage_room' && tutorialStep === 0 ? handleSkipIntro : undefined} />
           );
         })()}
       </div>

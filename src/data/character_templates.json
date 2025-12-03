@@ -17,10 +17,11 @@
       "items": ["fishing_rod", "axe_basic"]
     },
     "starting_relationships": {
-      "npc_old_leo": { "friendship": { "value": 80, "max": 100 } },
-      "npc_sarah": { "friendship": { "value": 90, "max": 100 } },
-      "npc_robert": { "friendship": { "value": 70, "max": 100 } },
-      "npc_kyle": { "friendship": { "value": 70, "max": 100 } }
+      "npc_old_leo": { "friendship": { "value": 50, "max": 100 } },
+      "npc_sarah": { "friendship": { "value": 50, "max": 100 } },
+      "npc_robert": { "friendship": { "value": 50, "max": 100 } },
+      "npc_kyle": { "friendship": { "value": 50, "max": 100 } },
+      "npc_finn": { "friendship": { "value": -20, "max": 100 } }
     },
     "gameplay_notes": "The 'standard' but most difficult start. High INT provides good long-term XP bonuses for building/crafting skills. Low CHA will make all early social encounters challenging."
   }

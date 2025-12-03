@@ -5,6 +5,7 @@ import type { FC } from 'react';
 import { Search, BookOpen, ChevronLeft, MapPin } from 'lucide-react';
 import type { Book, BookContent } from '../../types';
 import { mockBooks } from '../../data';
+import { useUIStore } from '../../stores/useUIStore';
 
 // Updated renderContent to apply better styling for readability
 const renderContent = (content: BookContent, index: number) => {
@@ -32,15 +33,21 @@ interface LibraryScreenProps {
 }
 
 const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
+    const { libraryBooks } = useUIStore();
+    const handleClose = () => {
+        if (onClose) return onClose();
+        useUIStore.getState().setScreen('inGame');
+    };
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedBook, setSelectedBook] = useState<Book | null>(null);
 
+    const books = libraryBooks && libraryBooks.length > 0 ? libraryBooks : mockBooks;
     const filteredBooks = useMemo(() => {
-        return mockBooks.filter(book => 
+        return books.filter(book => 
             book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             book.author.toLowerCase().includes(searchTerm.toLowerCase())
         );
-    }, [searchTerm]);
+    }, [searchTerm, books]);
 
     // Reading View (when a book is selected)
     if (selectedBook) {
@@ -83,7 +90,7 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
                     </div>
                 </div>
                 <button 
-                    onClick={onClose} 
+                    onClick={handleClose} 
                     className="flex items-center gap-2 mt-2 px-4 py-2 text-sm font-semibold text-white/90 bg-zinc-800 border border-zinc-700 rounded-md transition-all duration-300 hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-600"
                 >
                     <MapPin size={16} />
@@ -92,16 +99,24 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
             </header>
             <div className="w-full max-w-screen-2xl mx-auto flex-grow overflow-y-auto custom-scrollbar min-h-0 pr-4 pt-2">
                 {filteredBooks.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
                         {filteredBooks.map(book => (
                             <button
                                 key={book.id}
                                 onClick={() => setSelectedBook(book)}
-                                className="group bg-black/20 rounded-lg border border-zinc-800 p-4 text-center aspect-[3/4] flex flex-col justify-center items-center hover:bg-zinc-800/60 hover:border-zinc-600 transform hover:-translate-y-1 transition-all duration-300"
+                                className="group relative overflow-hidden rounded-lg transform hover:-translate-y-1 transition-all duration-300 w-full max-w-[160px] sm:max-w-[180px] md:max-w-[200px] mx-auto"
                             >
-                                <BookOpen size={48} className="text-zinc-500 group-hover:text-zinc-300 mb-4 transition-colors" />
-                                <h3 className="font-bold text-lg text-white leading-tight">{book.title}</h3>
-                                <p className="text-sm text-zinc-400 mt-1">{book.author}</p>
+                                {book.coverUrl ? (
+                                    <img
+                                        src={book.coverUrl}
+                                        alt={`${book.title} cover`}
+                                        className="block w-full h-auto"
+                                    />
+                                ) : (
+                                    <div className="flex items-center justify-center h-full min-h-[220px]">
+                                        <BookOpen size={48} className="text-zinc-500 group-hover:text-zinc-300 transition-colors" />
+                                    </div>
+                                )}
                             </button>
                         ))}
                     </div>

@@ -111,24 +111,28 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     useWorldTimeStore.getState().passTime(hours * 60);
   },
   addCurrency: (type, amount) => {
-    set((state) => ({
-      currency: {
-        ...state.currency,
-        [type]: state.currency[type] + amount,
-      },
-    }));
+    set((state) => {
+      let c = state.currency.copper;
+      let s = state.currency.silver;
+      let g = state.currency.gold;
+      if (type === 'copper') c += amount; else if (type === 'silver') s += amount; else g += amount;
+      // Normalize
+      if (c >= 100) { s += Math.floor(c / 100); c = c % 100; }
+      if (s >= 100) { g += Math.floor(s / 100); s = s % 100; }
+      return { currency: { copper: c, silver: s, gold: g } };
+    });
   },
   removeCurrency: (copper, silver = 0, gold = 0) => {
     const totalCopper = copper + (silver * 100) + (gold * 10000);
     const state = get();
-    if (state.currency.copper >= totalCopper) {
-      set((state) => ({
-        currency: {
-          copper: state.currency.copper - totalCopper,
-          silver: state.currency.silver,
-          gold: state.currency.gold
-        }
-      }));
+    const availableCopper = state.currency.copper + state.currency.silver * 100 + state.currency.gold * 10000;
+    if (availableCopper >= totalCopper) {
+      let remaining = availableCopper - totalCopper;
+      const newGold = Math.floor(remaining / 10000);
+      remaining = remaining % 10000;
+      const newSilver = Math.floor(remaining / 100);
+      const newCopper = remaining % 100;
+      set({ currency: { gold: newGold, silver: newSilver, copper: newCopper } });
       return true;
     }
     return false;

@@ -5,7 +5,8 @@
     "type": "resource",
     "stackable": true,
     "weight": 5.0,
-    "base_value": 2
+    "base_value": 2,
+    "image": "/assets/items/wood.png"
   },
   "wooden_plank": {
     "name": "Wooden Plank",
@@ -13,7 +14,8 @@
     "type": "resource",
     "stackable": true,
     "weight": 2.5,
-    "base_value": 5
+    "base_value": 5,
+    "image": "/assets/items/planks.png"
   },
   "fish_sardine": {
     "name": "Raw Sardine",
@@ -96,7 +98,8 @@
     "stackable": false,
     "weight": 3.0,
     "base_value": 50,
-    "equip_slot": "main_hand"
+    "equip_slot": "main_hand",
+    "image": "/assets/items/old_axe.png"
   },
   "fishing_rod": {
     "name": "Fishing Rod",
@@ -105,7 +108,8 @@
     "stackable": false,
     "weight": 1.5,
     "base_value": 40,
-    "equip_slot": "main_hand"
+    "equip_slot": "main_hand",
+    "image": "/assets/items/wooden_rod.png"
   },
   "hammer": {
     "name": "Hammer",
@@ -114,7 +118,18 @@
     "stackable": false,
     "weight": 2.0,
     "base_value": 30,
-    "equip_slot": "main_hand"
+    "equip_slot": "main_hand",
+    "image": "/assets/items/hammer.png"
+  },
+  "spade": {
+    "name": "Spade",
+    "description": "A sturdy spade for digging and light earthwork.",
+    "type": "tool",
+    "stackable": false,
+    "weight": 2.5,
+    "base_value": 25,
+    "equip_slot": "main_hand",
+    "image": "/assets/items/spade.png"
   },
   "nails": {
     "name": "Nails",
@@ -122,7 +137,8 @@
     "type": "resource",
     "stackable": true,
     "weight": 0.1,
-    "base_value": 1
+    "base_value": 1,
+    "image": "/assets/items/nails.png"
   },
   "bread": {
     "name": "Bread",

@@ -5,6 +5,12 @@
     "default_dialogue_id": "beryl_default",
     "portrait": "/assets/portraits/Beryl.png"
   },
+  "npc_beryl_tavern": {
+    "name": "Beryl",
+    "home_location": "salty_mug",
+    "default_dialogue_id": "beryl_tavern",
+    "portrait": "/assets/portraits/Beryl.png"
+  },
   "npc_kaelen": {
     "name": "Kaelen",
     "home_location": "kaelens_forge",
@@ -39,7 +45,7 @@
     "name": "Boric",
     "home_location": "driftwatch_docks",
     "default_dialogue_id": "boric_default",
-    "portrait": "/assets/icons/DivineFantasy.png"
+    "portrait": "/assets/portraits/Boric.png"
   },
   "npc_elias_captain": {
     "name": "Captain Elias",
@@ -117,7 +123,7 @@
     "name": "Robert",
     "home_location": "leo_lighthouse",
     "default_dialogue_id": "robert_default",
-    "portrait": "/assets/icons/DivineFantasy.png"
+    "portrait": "/assets/portraits/Robert.png"
   },
   "npc_kyle": {
     "name": "Kyle",

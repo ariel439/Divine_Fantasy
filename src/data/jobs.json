@@ -6,6 +6,10 @@
     "supervisor_id": "npc_boric",
     "pay_per_shift": 20,
     "energy_cost": 60,
+    "late_pay_factor": 0.75,
+    "min_energy_to_start": 30,
+    "dismissal": { "max_missed": 3, "max_late": 5, "min_friendship": -50 },
+    "pay_schedule": "daily",
     "schedule": {
       "start_hour": 8,
       "end_hour": 16,

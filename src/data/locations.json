@@ -22,9 +22,9 @@
     "night_background": "/assets/locations/driftwatch_main_street_night.png",
     "music_track": "GDD/assets/audio/music/driftwatch_main.mp3",
     "actions": [
-      { "text": "Travel to Leo's Lighthouse", "type": "navigate", "target": "leo_lighthouse" },
-      { "text": "Travel to Beryl's General Goods", "type": "navigate", "target": "beryls_general_goods", "condition": "world_flags.intro_completed==true" },
-      { "text": "Travel to Kaelen's Forge", "type": "navigate", "target": "kaelens_forge", "condition": "world_flags.intro_completed==true" },
+      { "text": "Travel to Leo's Lighthouse", "type": "navigate", "target": "leo_lighthouse", "condition": "time.is_day==true" },
+      { "text": "Travel to Beryl's General Goods", "type": "navigate", "target": "beryls_general_goods", "condition": "world_flags.intro_completed==true&&time.is_day==true" },
+      { "text": "Travel to Kaelen's Forge", "type": "navigate", "target": "kaelens_forge", "condition": "world_flags.intro_completed==true&&time.is_day==true" },
       { "text": "Travel to Hub", "type": "navigate", "target": "driftwatch", "condition": "world_flags.intro_completed==true" }
     ]
   },
@@ -68,7 +68,6 @@
     "is_indoor": true,
     "actions": [
       { "text": "Talk to Beryl", "type": "dialogue", "target": "npc_beryl" },
-      { "text": "Trade", "type": "shop", "target": "shop_beryls_general", "shopId": "shop_beryls_general"  },
       { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
     ]
   },
@@ -94,21 +93,21 @@
     "music_track": "GDD/assets/audio/music/noble_quarter.mp3",
     "actions": [
       { "text": "Travel to Mosswatch Keep", "type": "navigate", "target": "mosswatch_keep" },
-      { "text": "Travel to The Grand Library", "type": "navigate", "target": "grand_library" },
+      { "text": "Travel to The Grand Library", "type": "navigate", "target": "grand_library", "condition": "time.is_day==true" },
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" }
     ]
   },
   "mosswatch_keep": {
-    "name": "Mosswatch Keep",
+    "name": "Mosswatch Keep (Outside)",
     "day_description": "An imposing stone fortress that houses the Driftwatch city guard.",
     "night_description": "The keep stands vigilant in the night.",
-    "day_background": "/assets/locations/mosswatch_keep_day.jpg",
-    "night_background": "/assets/locations/mosswatch_keep_night.jpg",
-    "music_track": "GDD/assets/audio/music/keep.mp3",
+    "day_background": "/assets/locations/mosswatch_keep_day.png",
+    "night_background": "/assets/locations/mosswatch_keep_night.png",
+    "music_track": "GDD/assets/audio/music/driftwatch_main.mp3",
     "actions": [
       { "text": "Talk to Corporal Matthias", "type": "dialogue", "target": "npc_matthias" },
-      { "text": "Travel to Noble Quarter", "type": "navigate", "target": "driftwatch_noble_quarter" },
-      { "text": "Travel to Tidehunter Quarter", "type": "navigate", "target": "tidehunter_quarter" }
+      { "text": "Travel to Tidehunter Quarter", "type": "navigate", "target": "tidehunter_quarter" },
+      { "text": "Travel to Noble Quarter", "type": "navigate", "target": "driftwatch_noble_quarter" }
     ]
   },
   "grand_library": {
@@ -143,11 +142,12 @@
     "night_background": "/assets/locations/driftwatch_docks_night.png",
     "music_track": "GDD/assets/audio/music/docks.mp3",
     "actions": [
-      { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain" },
-      { "text": "Talk to Boric", "type": "dialogue", "target": "npc_boric" },
+      { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.is_day==true&&time.weekday==Saturday" },
+      { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.is_day==true&&time.weekday==Sunday" },
+      { "text": "Talk to Boric", "type": "dialogue", "target": "npc_boric", "condition": "time.is_day==true" },
       { "text": "Fish", "type": "fish", "target": "fish_docks" },
       { "text": "Work", "type": "job", "target": "job_dockhand" },
-      { "text": "Travel to Tide & Trade", "type": "navigate", "target": "tide_trade" },
+      { "text": "Travel to Tide & Trade", "type": "navigate", "target": "tide_trade", "condition": "time.is_day==true" },
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" }
     ]
   },
@@ -159,7 +159,6 @@
     "is_indoor": true,
     "actions": [
       { "text": "Talk to Roberta", "type": "dialogue", "target": "npc_roberta" },
-      { "text": "Trade", "type": "shop", "target": "shop_tide_trade", "shopId": "tide_and_trade" },
       { "text": "Repair Wall", "type": "use", "target": "repair_wall", "condition": "quest.roberta_planks_for_the_past.stage==2" },
       { "text": "Travel to Driftwatch Docks", "type": "navigate", "target": "driftwatch_docks" }
     ]
@@ -175,7 +174,7 @@
       { "text": "Sleep on the Floor", "type": "sleep", "target": "sleep_floor" },
       { "text": "Cook on Firepit", "type": "cook", "target": "cook_firepit" },
       { "text": "Travel to Salty Mug", "type": "navigate", "target": "salty_mug" },
-      { "text": "Travel to Herbalist's Hovel", "type": "navigate", "target": "herbalists_hovel" },
+      { "text": "Travel to Herbalist's Hovel", "type": "navigate", "target": "herbalists_hovel", "condition": "time.is_day==true" },
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" }
     ]
   },
@@ -183,14 +182,17 @@
     "name": "Salty Mug",
     "day_description": "A dimly lit, rowdy tavern frequented by sailors and the city's underbelly.",
     "night_description": "The tavern is lively even at night.",
-    "day_background": "/assets/locations/salty_mug.jpg",
+    "day_background": "/assets/locations/salty_mug.png",
     "music_track": "GDD/assets/audio/music/tavern.mp3",
     "is_indoor": true,
     "actions": [
       { "text": "Talk to Finn", "type": "dialogue", "target": "npc_finn" },
       { "text": "Talk to Old Crank", "type": "dialogue", "target": "npc_old_crank" },
-      { "text": "Trade", "type": "shop", "target": "shop_salty_mug", "shopId": "shop_salty_mug" },
-      { "text": "Rent Room", "type": "rent", "target": "salty_mug_rented_room" },
+      { "text": "Talk to Beryl", "type": "dialogue", "target": "npc_beryl_tavern", "condition": "time.is_night==true" },
+      { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.is_night==true&&time.weekday==Saturday" },
+      { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.is_night==true&&time.weekday==Sunday" },
+      { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.weekday==Monday&&time.hour_lt==6" },
+      { "text": "Talk to Ben", "type": "dialogue", "target": "npc_ben", "condition": "time.is_night==true" },
       { "text": "Travel to Driftwatch Slums", "type": "navigate", "target": "driftwatch_slums" }
     ]
   },
@@ -215,7 +217,7 @@
     "is_indoor": true,
     "music_track": "GDD/assets/audio/music/woods.mp3",
     "actions": [
-      { "text": "Talk to Ronald", "type": "dialogue", "target": "npc_ronald" },
+      { "text": "Talk to Ronald", "type": "dialogue", "target": "npc_ronald", "condition": "time.is_day==true" },
       { "text": "Travel to Driftwatch Woods", "type": "navigate", "target": "driftwatch_woods" }
     ]
   },
@@ -225,6 +227,7 @@
     "night_description": "The hovel is eerie in the moonlight.",
     "day_background": "/assets/locations/herbalists_hovel.png",
     "music_track": "GDD/assets/audio/music/hovel.mp3",
+    "is_indoor": true,
     "actions": [
       { "text": "Talk to Elara", "type": "dialogue", "target": "npc_elara" },
       { "text": "Travel to Driftwatch Slums", "type": "navigate", "target": "driftwatch_slums" }
@@ -234,8 +237,8 @@
     "name": "The Crossroads",
     "day_description": "A crucial intersection where the path from Driftwatch splits.",
     "night_description": "The crossroads are deserted at night.",
-    "day_background": "/assets/locations/the_crossroads_day.png",
-    "night_background": "/assets/locations/the_crossroads_night.png",
+    "day_background": "/assets/locations/driftwatch_crossroads_day.png",
+    "night_background": "/assets/locations/driftwatch_crossroads_night.png",
     "music_track": "GDD/assets/audio/music/crossroads.mp3",
     "actions": [
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" },
@@ -251,12 +254,12 @@
     "night_background": "/assets/locations/driftwatch_woods_night.png",
     "music_track": "GDD/assets/audio/music/woods.mp3",
     "actions": [
+      { "text": "Explore", "type": "explore", "target": "explore_woods" },
       { "text": "Chop Wood", "type": "woodcut", "target": "woodcut_basic" },
       { "text": "Fish", "type": "fish", "target": "fish_river" },
-      { "text": "Explore", "type": "explore", "target": "explore_woods" },
-      { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 },
       { "text": "Travel to Hunter's Cabin", "type": "navigate", "target": "hunters_cabin" },
-      { "text": "Travel to Sawmill", "type": "navigate", "target": "sawmill" }
+      { "text": "Travel to Sawmill", "type": "navigate", "target": "sawmill" },
+      { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 }
     ]
   },
   "sawmill": {
@@ -267,8 +270,8 @@
     "night_background": "/assets/locations/sawmill_night.png",
     "music_track": "GDD/assets/audio/music/sawmill.mp3",
     "actions": [
-      { "text": "Talk to Crawler", "type": "dialogue", "target": "npc_crawler" },
-      { "text": "Convert Logs to Planks", "type": "craft", "target": "craft_planks" },
+      { "text": "Talk to Crawler", "type": "dialogue", "target": "npc_crawler", "condition": "time.is_day==true" },
+      { "text": "Make Planks", "type": "craft", "target": "craft_planks", "condition": "world_flags.sawmill_unlocked==true" },
       { "text": "Travel to Driftwatch Woods", "type": "navigate", "target": "driftwatch_woods" }
     ]
   },
@@ -280,9 +283,9 @@
     "night_background": "/assets/locations/homestead_farm_night.png",
     "music_track": "GDD/assets/audio/music/farm.mp3",
     "actions": [
-      { "text": "Talk to Ben", "type": "dialogue", "target": "npc_ben" },
-      { "text": "Talk to Elisa", "type": "dialogue", "target": "npc_elisa" },
-      { "text": "Talk to Rowan", "type": "dialogue", "target": "npc_rowan" },
+      { "text": "Talk to Ben", "type": "dialogue", "target": "npc_ben", "condition": "time.is_day==true" },
+      { "text": "Talk to Elisa", "type": "dialogue", "target": "npc_elisa", "condition": "time.is_day==true" },
+      { "text": "Talk to Rowan", "type": "dialogue", "target": "npc_rowan", "condition": "time.is_day==true" },
       { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads" }
     ]
   }

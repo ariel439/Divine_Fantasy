@@ -52,5 +52,23 @@
       "currency": 0,
       "relationship": []
     }
+  },
+  "finn_debt_collection": {
+    "title": "Finn's Debt Collection",
+    "giver_id": "npc_finn",
+    "description": "Finn at the Salty Mug says Luke owes three months of rent (18 silvers). He knows you can't pay and offers a job: collect 10 silvers each from Ben (Homestead Farm), Beryl (Beryl's General Goods), and Elara (Herbalist's Hovel). Return with 30 silvers within 30 days.",
+    "stages": [
+      { "id": 0, "text": "Speak to Finn at the Salty Mug.", "type": "talk", "target": "npc_finn" },
+      { "id": 1, "text": "Collect 10 silvers from Ben at Homestead Farm.", "type": "collect", "target": "npc_ben", "quantity": 10 },
+      { "id": 2, "text": "Collect 10 silvers from Beryl at Beryl's General Goods.", "type": "collect", "target": "npc_beryl", "quantity": 10 },
+      { "id": 3, "text": "Collect 10 silvers from Elara at the Herbalist's Hovel.", "type": "collect", "target": "npc_elara", "quantity": 10 },
+      { "id": 4, "text": "Bring 30 silvers to Finn within 30 days.", "type": "deliver", "target": "npc_finn", "quantity": 30 }
+    ],
+    "rewards": {
+      "xp": [],
+      "items": [],
+      "currency": 0,
+      "relationship": [{ "npc_id": "npc_finn", "change": 10 }]
+    }
   }
 }

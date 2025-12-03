@@ -2,10 +2,13 @@
 
 import React, { useState, useMemo, useEffect, ReactNode, ReactElement } from 'react';
 import type { FC } from 'react';
-import { X, Search, CookingPot, Hammer, Clock, Zap, Minus, Plus } from 'lucide-react';
-import { mockRecipes, mockInventory } from '../../data';
+import { X, Search, CookingPot, Hammer, Clock, Zap, Minus, Plus, Coins } from 'lucide-react';
+import { mockRecipes } from '../../data';
 import type { Recipe, Item, CraftingSkill } from '../../types';
 import { ConfirmationModal } from '../modals/ConfirmationModal';
+import { useInventoryStore } from '../../stores/useInventoryStore';
+import { useCharacterStore } from '../../stores/useCharacterStore';
+import itemsData from '../../data/items.json';
 
 interface CraftingScreenProps {
   onClose: () => void;
@@ -31,9 +34,10 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
     const [sortBy, setSortBy] = useState<'level' | 'name'>('level');
     
     const playerInventoryMap = useMemo(() => {
-        const map = new Map<string, Item>();
-        mockInventory.forEach(item => {
-            map.set(item.id, item);
+        const map = new Map<string, number>();
+        const inv = useInventoryStore.getState();
+        inv.items.forEach(invItem => {
+            map.set(invItem.id, invItem.quantity);
         });
         return map;
     }, []);
@@ -43,6 +47,7 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
         
         const filtered = mockRecipes.filter(recipe => 
             recipe.skill === initialSkill &&
+            recipe.result.id === 'wooden_plank' &&
             recipe.result.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
@@ -69,11 +74,11 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
     const ingredientsWithStatus = useMemo(() => {
         if (!selectedRecipe) return [];
         return selectedRecipe.ingredients.map(ing => {
-            const itemDetails = playerInventoryMap.get(ing.itemId);
-            const playerQty = itemDetails?.quantity || 0;
+            const data = itemsData[ing.itemId as keyof typeof itemsData] as any;
+            const playerQty = playerInventoryMap.get(ing.itemId) || 0;
             return {
                 ...ing,
-                itemDetails,
+                itemData: data,
                 playerQty,
             };
         });
@@ -82,15 +87,26 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
     const maxCraftable = useMemo(() => {
         if (!selectedRecipe || ingredientsWithStatus.length === 0) return 1;
         const craftableAmounts = ingredientsWithStatus.map(ing => {
-            if (!ing.itemDetails) return 0;
             return Math.floor(ing.playerQty / ing.quantity);
         });
-        return Math.max(1, Math.min(...craftableAmounts));
+        let baseMax = Math.max(1, Math.min(...craftableAmounts));
+        if (selectedRecipe.result.id === 'wooden_plank') {
+            const copper = useCharacterStore.getState().currency.copper;
+            const maxByCopper = Math.floor(copper / 2);
+            baseMax = Math.max(1, Math.min(baseMax, maxByCopper));
+        }
+        return baseMax;
     }, [selectedRecipe, ingredientsWithStatus]);
 
     const canCraftQuantity = useMemo(() => {
         if (!selectedRecipe || craftQuantity === 0) return false;
-        return ingredientsWithStatus.every(ing => ing.playerQty >= (ing.quantity * craftQuantity));
+        const itemsOk = ingredientsWithStatus.every(ing => ing.playerQty >= (ing.quantity * craftQuantity));
+        if (!itemsOk) return false;
+        if (selectedRecipe.result.id === 'wooden_plank') {
+            const copper = useCharacterStore.getState().currency.copper;
+            return copper >= (2 * craftQuantity);
+        }
+        return true;
     }, [ingredientsWithStatus, craftQuantity, selectedRecipe]);
 
     const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,12 +139,18 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
             <div className="bg-black/20 p-3 rounded-md border border-zinc-700 space-y-2 max-h-32 overflow-y-auto custom-scrollbar">
               {ingredientsWithStatus.map(ing => (
                 <div key={ing.itemId} className="flex justify-between items-center text-sm">
-                  <span className="text-zinc-300">{ing.itemDetails?.name || 'Unknown Item'}</span>
+                  <span className="text-zinc-300">{ing.itemData?.name || ing.itemId}</span>
                   <span className="font-mono text-zinc-400">
                     {ing.quantity * craftQuantity} used
                   </span>
                 </div>
               ))}
+              {selectedRecipe && selectedRecipe.result.id === 'wooden_plank' && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-zinc-300">Copper</span>
+                  <span className="font-mono text-zinc-400">{2 * craftQuantity} used</span>
+                </div>
+              )}
             </div>
             <div className="mt-4 border-t border-zinc-700 pt-3 space-y-1">
                 <div className="flex justify-between text-sm">
@@ -195,7 +217,13 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
                             <>
                                 <div className="text-center border-b border-zinc-700 pb-4 mb-4">
                                     <div className="mx-auto w-28 h-28 bg-black/30 rounded-lg flex items-center justify-center p-4 border border-zinc-700">
-                                        {React.cloneElement(selectedRecipe.result.icon as ReactElement<{ size: number }>, { size: 64 })}
+                                        {(() => {
+                                            const data = itemsData[selectedRecipe.result.id as keyof typeof itemsData] as any;
+                                            const img = data?.image;
+                                            if (img) return <img src={img} alt={data?.name || selectedRecipe.result.name} className="w-20 h-20 object-contain" />;
+                                            if (selectedRecipe.result.icon) return React.cloneElement(selectedRecipe.result.icon as ReactElement<{ size: number }>, { size: 64 });
+                                            return <Hammer size={64} className="text-zinc-400"/>;
+                                        })()}
                                     </div>
                                     <h2 className="text-3xl font-bold mt-3 text-white" style={{ fontFamily: 'Cinzel, serif' }}>{selectedRecipe.result.name}</h2>
                                     <p className="text-zinc-400 italic leading-relaxed text-base mt-1">{selectedRecipe.result.description}</p>
@@ -207,16 +235,29 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
                                         {ingredientsWithStatus.map(ing => (
                                             <div key={ing.itemId} className="flex justify-between items-center bg-zinc-900/70 p-2 rounded-md">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-black/40 rounded-md border border-zinc-700">
-                                                        {ing.itemDetails?.icon}
+                                                    <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-black/40 rounded-md border border-zinc-700 overflow-hidden">
+                                                        {ing.itemData?.image ? <img src={ing.itemData.image} alt={ing.itemData?.name || ing.itemId} className="w-full h-full object-contain"/> : <Hammer size={16} className="text-zinc-400"/>}
                                                     </div>
-                                                    <span className="truncate">{ing.itemDetails?.name || 'Unknown Item'}</span>
+                                                    <span className="truncate">{ing.itemData?.name || ing.itemId}</span>
                                                 </div>
                                                 <span className={`font-mono text-sm ${ing.playerQty >= (ing.quantity * craftQuantity) ? 'text-zinc-300' : 'text-red-400'}`}>
                                                     {ing.quantity * craftQuantity} / {ing.playerQty}
                                                 </span>
                                             </div>
                                         ))}
+                                        {selectedRecipe && selectedRecipe.result.id === 'wooden_plank' && (
+                                            <div className="flex justify-between items-center bg-zinc-900/70 p-2 rounded-md">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-black/40 rounded-md border border-zinc-700">
+                                                        <Coins size={16} className="text-amber-300"/>
+                                                    </div>
+                                                    <span className="truncate">Copper</span>
+                                                </div>
+                                                <span className={`font-mono text-sm ${useCharacterStore.getState().currency.copper >= (2 * craftQuantity) ? 'text-zinc-300' : 'text-red-400'}`}>
+                                                    {2 * craftQuantity} / {useCharacterStore.getState().currency.copper}
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 
@@ -238,7 +279,7 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
                                         disabled={!canCraftQuantity}
                                         className="w-full mt-4 p-3 text-md font-semibold tracking-wide bg-zinc-700 border border-zinc-600 rounded-md transition-all hover:bg-zinc-600 disabled:bg-zinc-600/50 disabled:border-zinc-500 disabled:cursor-not-allowed disabled:text-zinc-400"
                                     >
-                                        Craft {craftQuantity > 1 ? `${craftQuantity}x` : ''}
+                                        {selectedRecipe?.result.id === 'wooden_plank' ? 'Make Planks' : 'Craft'} {craftQuantity > 1 ? `${craftQuantity}x` : ''}
                                     </button>
                                 </div>
                             </>
@@ -261,7 +302,7 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
             message={renderConfirmationMessage()}
             onConfirm={handleConfirmCraft}
             onCancel={() => setIsConfirmModalOpen(false)}
-            confirmText="Craft"
+            confirmText={selectedRecipe?.result.id === 'wooden_plank' ? 'Make Planks' : 'Craft'}
         />
     </>
   );

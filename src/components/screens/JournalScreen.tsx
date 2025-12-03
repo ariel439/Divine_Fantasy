@@ -94,52 +94,12 @@ const JournalScreen: FC = () => {
                                 <p className="text-zinc-300 leading-relaxed">{selectedQuest.description}</p>
                                 <Section title="Objectives">
                                     <div className="space-y-2">
-                                        {selectedQuest.status === 'active' ? (
-                                            (() => {
-                                                const objectivesToDisplay = [];
-                                                let activeFound = false;
-                                                for (const obj of selectedQuest.objectives) {
-                                                    if (obj.completed) {
-                                                        objectivesToDisplay.push(
-                                                            <div key={obj.text} className="flex items-center gap-3 bg-black/20 p-3 rounded-md">
-                                                                <CheckSquare size={20} className="text-green-400 flex-shrink-0" />
-                                                                <p className="text-sm text-zinc-400 line-through">{obj.text}</p>
-                                                            </div>
-                                                        );
-                                                    } else if (!activeFound) {
-                                                        objectivesToDisplay.push(
-                                                            <div key={obj.text} className="flex items-center gap-3 bg-black/20 p-3 rounded-md">
-                                                                <Square size={20} className="text-zinc-500 flex-shrink-0" />
-                                                                <p className="text-sm text-zinc-200">{obj.text}</p>
-                                                            </div>
-                                                        );
-                                                        activeFound = true;
-                                                    }
-                                                }
-                                                if (objectivesToDisplay.length === 0 && selectedQuest.objectives.length > 0) {
-                                                    // Fallback if no objectives are marked as active but quest is active
-                                                    objectivesToDisplay.push(
-                                                        <div key={selectedQuest.objectives[0].text} className="flex items-center gap-3 bg-black/20 p-3 rounded-md">
-                                                            <Square size={20} className="text-zinc-500 flex-shrink-0" />
-                                                            <p className="text-sm text-zinc-200">{selectedQuest.objectives[0].text}</p>
-                                                        </div>
-                                                    );
-                                                }
-                                                return objectivesToDisplay.length > 0 ? objectivesToDisplay : (
-                                                    <div className="flex items-center gap-3 bg-black/20 p-3 rounded-md">
-                                                        <CheckSquare size={20} className="text-green-400 flex-shrink-0" />
-                                                        <p className="text-sm text-zinc-200">All objectives completed.</p>
-                                                    </div>
-                                                );
-                                            })()
-                                        ) : (
-                                            selectedQuest.objectives.map((obj, index) => (
-                                                <div key={index} className="flex items-center gap-3 bg-black/20 p-3 rounded-md">
-                                                    {obj.completed ? <CheckSquare size={20} className="text-green-400 flex-shrink-0" /> : <Square size={20} className="text-zinc-500 flex-shrink-0" />}
-                                                    <p className={`text-sm ${obj.completed ? 'text-zinc-400 line-through' : 'text-zinc-200'}`}>{obj.text}</p>
-                                                </div>
-                                            ))
-                                        )}
+                                        {selectedQuest.objectives.map((obj, index) => (
+                                            <div key={index} className="flex items-center gap-3 bg-black/20 p-3 rounded-md">
+                                                {obj.completed ? <CheckSquare size={20} className="text-green-400 flex-shrink-0" /> : <Square size={20} className="text-zinc-500 flex-shrink-0" />}
+                                                <p className={`text-sm ${obj.completed ? 'text-zinc-400 line-through' : 'text-zinc-200'}`}>{obj.text}</p>
+                                            </div>
+                                        ))}
                                     </div>
                                 </Section>
                                 {selectedQuest.status === 'completed' && (

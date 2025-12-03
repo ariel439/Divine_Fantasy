@@ -37,6 +37,7 @@ const SleepWaitModal: FC<SleepWaitModalProps> = ({
   const [isProgressing, setIsProgressing] = useState(false);
   const [progressTime, setProgressTime] = useState(0);
   const progressTimerRef = useRef<number | null>(null);
+  const completedRef = useRef<boolean>(false);
   
   const MOCK_ENERGY_RESTORE_PER_HOUR = 10;
 
@@ -45,6 +46,7 @@ const SleepWaitModal: FC<SleepWaitModalProps> = ({
       setDuration(fixedDuration ?? 1);
       setIsProgressing(false);
       setProgressTime(0);
+      completedRef.current = false;
       if (progressTimerRef.current) clearInterval(progressTimerRef.current);
     }
   }, [isOpen, fixedDuration]);
@@ -66,7 +68,10 @@ const SleepWaitModal: FC<SleepWaitModalProps> = ({
               if (newTime >= totalSeconds) {
                   if (progressTimerRef.current) clearInterval(progressTimerRef.current);
                   setTimeout(() => {
-                    onComplete(duration); // Close modal and apply changes after a short delay
+                    if (!completedRef.current) {
+                      completedRef.current = true;
+                      onComplete(duration); // Close modal and apply changes after a short delay
+                    }
                   }, 300);
                   return totalSeconds;
               }
@@ -86,7 +91,7 @@ const SleepWaitModal: FC<SleepWaitModalProps> = ({
         <input
             type="range"
             min="1"
-            max="12"
+            max={mode === 'wait' ? 24 : 12}
             value={duration}
             onChange={(e) => setDuration(parseInt(e.target.value, 10))}
             disabled={!!fixedDuration}

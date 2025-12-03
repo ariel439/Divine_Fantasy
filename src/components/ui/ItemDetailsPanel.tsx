@@ -87,9 +87,19 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
                 <button onClick={onShowEquipment} className="absolute -top-2 left-0 flex items-center gap-1 text-sm text-zinc-400 hover:text-white transition-colors">
                     <ChevronLeft size={16} /> Show Equipment
                 </button>
-                <div className="mx-auto w-24 h-24 bg-black/30 rounded-lg flex items-center justify-center p-4 border border-zinc-700 mt-6">
-                    {/* FIX: Provided a more specific type assertion to React.cloneElement to ensure the `size` prop is recognized. */}
-                    {React.cloneElement(selectedItem.icon as ReactElement<{ size: number }>, { size: 56 })}
+                <div className="mx-auto w-28 h-28 bg-black/30 rounded-lg flex items-center justify-center p-4 border border-zinc-700 mt-6">
+                    {(() => {
+                        const iconEl = selectedItem.icon as ReactElement<any> | undefined;
+                        if (iconEl && typeof iconEl.type === 'string' && iconEl.type === 'img') {
+                            const src = (iconEl.props && (iconEl.props as any).src) || '';
+                            const alt = (iconEl.props && (iconEl.props as any).alt) || selectedItem.name;
+                            return <img src={src} alt={alt} className="w-20 h-20 object-contain rounded"/>;
+                        }
+                        if (iconEl) {
+                            return React.cloneElement(iconEl as ReactElement<{ size?: number; className?: string }>, { size: 56, className: 'w-20 h-20' });
+                        }
+                        return <User size={40} className="text-zinc-500"/>;
+                    })()}
                 </div>
                 <h2 className="text-2xl font-bold mt-3 text-white" style={{ fontFamily: 'Cinzel, serif' }}>{selectedItem.name}</h2>
             </div>
@@ -101,7 +111,15 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
                 <div className="bg-white/5 p-3 rounded-md space-y-2">
                     <div className="flex justify-between"><span className="text-zinc-300">Category:</span> <span className="font-semibold">{selectedItem.category}</span></div>
                     <div className="flex justify-between"><span className="text-zinc-300">Weight:</span> <span className="font-semibold">{selectedItem.weight.toFixed(1)} kg</span></div>
-                    <div className="flex justify-between"><span className="text-zinc-300">Value:</span> <span className="font-semibold">{selectedItem.value}c</span></div>
+                    <div className="flex justify-between"><span className="text-zinc-300">Value:</span> {(() => {
+                        const v = Math.round(selectedItem.base_value || 0);
+                        const gold = Math.floor(v / 10000);
+                        const silver = Math.floor((v % 10000) / 100);
+                        const copper = v % 100;
+                        const color = gold > 0 ? 'text-yellow-300' : silver > 0 ? 'text-gray-300' : 'text-orange-300';
+                        const text = gold > 0 ? `${gold}g ${silver}s ${copper}c` : (silver > 0 ? `${silver}s ${copper}c` : `${copper}c`);
+                        return <span className={`font-semibold ${color}`}>{text}</span>;
+                    })()}</div>
                     {selectedItem.effects && Object.entries(selectedItem.effects).map(([key, value]) => (
                         <div key={key} className="flex justify-between"><span className="text-green-400">{key}:</span> <span className="font-semibold text-green-300">{value}</span></div>
                     ))}

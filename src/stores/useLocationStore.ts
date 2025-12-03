@@ -39,7 +39,7 @@ export const useLocationStore = create<LocationState>((set, get) => ({
     return get().getLocation(currentLocationId)!;
   },
   getLocation: (locationId) => {
-    const locationData: Location = locations[locationId as keyof typeof locations] as Location;
+    const locationData: any = locations[locationId as keyof typeof locations] as any;
     if (!locationData) return null;
 
     // Use in-game clock instead of system time
@@ -56,7 +56,9 @@ export const useLocationStore = create<LocationState>((set, get) => ({
         background = '/assets/locations/tide_trade.png';
       }
     } else if (locationData.is_indoor) {
-      background = locationData.day_background || ''; // Use day_background for indoor locations
+      background = isNight && locationData.night_background
+        ? locationData.night_background
+        : (locationData.day_background || '');
     } else {
       background = (isNight ? locationData.night_background : locationData.day_background) || '';
     }

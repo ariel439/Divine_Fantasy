@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useLayoutEffect } from 'react';
 import type { FC } from 'react';
 import { X, Clock, Zap } from 'lucide-react';
 import ProgressBar from '../ui/ProgressBar';
@@ -45,6 +45,7 @@ const TimedActionModal: FC<TimedActionModalProps> = ({
 
   const [progressTime, setProgressTime] = useState(0);
   const progressTimerRef = useRef<number | null>(null);
+  const hasClosedRef = useRef(false);
 
   useEffect(() => {
     if (isOpen && !progress) {
@@ -55,31 +56,36 @@ const TimedActionModal: FC<TimedActionModalProps> = ({
     }
   }, [isOpen, progress]);
 
-  // This effect starts the fast animation when the `progress` prop is set
+  useLayoutEffect(() => {
+    if (progress && progress.totalTime > 0) {
+      setProgressTime(0);
+      hasClosedRef.current = false;
+    }
+  }, [progress]);
+
   useEffect(() => {
     if (progress && progress.totalTime > 0) {
-      setProgressTime(0); // Reset progress time on new animation
       const totalSeconds = progress.totalTime;
-      const stepDuration = 50; // ms per update
-      const timeStep = totalSeconds / (2000 / stepDuration); // Complete in 2 seconds real time
-
+      const stepDuration = 50;
+      const timeStep = totalSeconds / (2000 / stepDuration);
+      if (progressTimerRef.current) clearInterval(progressTimerRef.current);
       progressTimerRef.current = window.setInterval(() => {
-          setProgressTime(prev => {
-              const newTime = prev + timeStep;
-              if (newTime >= totalSeconds) {
-                  if (progressTimerRef.current) clearInterval(progressTimerRef.current);
-                  setTimeout(() => {
-                    onClose(); // Close modal after animation
-                  }, 300);
-                  return totalSeconds;
-              }
-              return newTime;
-          });
+        setProgressTime(prev => {
+          const newTime = prev + timeStep;
+          if (newTime >= totalSeconds) {
+            if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+            if (!hasClosedRef.current) {
+              hasClosedRef.current = true;
+              setTimeout(() => { onClose(); }, 300);
+            }
+            return totalSeconds;
+          }
+          return newTime;
+        });
       }, stepDuration);
-      
       return () => {
-          if(progressTimerRef.current) clearInterval(progressTimerRef.current);
-      }
+        if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+      };
     }
   }, [progress, onClose]);
 

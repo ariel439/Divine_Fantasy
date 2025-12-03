@@ -90,10 +90,18 @@ export class GameManagerService {
     });
 
     useWorldTimeStore.setState({
+      year: 780,
+      month: 5,
+      dayOfMonth: 3,
       day: 1,
       hour: 8,
       minute: 0,
+      clockPaused: false,
     });
+    try {
+      useWorldTimeStore.getState().rollDailyEnvironment();
+      useWorldTimeStore.getState().applyHourlyEnvironment();
+    } catch {}
 
     useWorldStateStore.setState({
       worldFlags: {},
@@ -103,6 +111,7 @@ export class GameManagerService {
         'npc_old_leo',
         'npc_robert',
         'npc_kyle',
+        'npc_finn',
       ],
     });
 

@@ -10,6 +10,7 @@ import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import { useLocationStore } from '../../stores/useLocationStore';
 import { GameManagerService } from '../../services/GameManagerService';
 import { DialogueService } from '../../services/DialogueService';
+import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
 
 const AttributeBar: FC<{ label: keyof typeof characters[0]['attributes']; value: number }> = ({ label, value }) => {
     const maxValue = 10;
@@ -50,6 +51,7 @@ const CharacterSelection: FC = () => {
         useWorldStateStore.getState().setIntroMode(true);
         useWorldStateStore.getState().setIntroCompleted(false);
         useWorldStateStore.getState().setTutorialStep(0);
+        useWorldTimeStore.setState({ year: 775 });
         DialogueService.executeAction('start_quest:luke_tutorial');
         useLocationStore.getState().setLocation('orphanage_room');
         setScreen('inGame');

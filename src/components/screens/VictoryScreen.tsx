@@ -4,6 +4,7 @@ import type { FC } from 'react';
 import type { Item } from '../../types';
 import { Coins, Package } from 'lucide-react';
 import Section from '../ui/Section';
+import itemsData from '../../data/items.json';
 
 interface VictoryScreenProps {
   rewards: {
@@ -35,7 +36,7 @@ const VictoryScreen: FC<VictoryScreenProps> = ({ rewards, onContinue }) => {
                         {rewards.items.length > 0 ? rewards.items.map(item => (
                             <div key={item.id} className="flex items-center gap-4 bg-black/20 p-2 rounded-md border border-zinc-800">
                                 <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-black/40 rounded-md border border-zinc-700">
-                                    {item.icon}
+                                        {item.icon || ((itemsData as any)[item.id]?.image ? <img src={(itemsData as any)[item.id].image} alt={item.name} className="w-6 h-6" /> : null)}
                                 </div>
                                 <div>
                                     <p className="font-semibold text-white">{item.name}</p>

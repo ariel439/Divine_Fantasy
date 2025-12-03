@@ -26,11 +26,12 @@ const InventoryScreen: FC = () => {
             const itemData = itemsData[invItem.id as keyof typeof itemsData];
             if (!itemData) return null;
             const equipSlot = (itemData as any).equip_slot as any;
+            const iconSrc = (itemData as any).image as string | undefined;
             return {
                 id: invItem.id,
                 name: itemData.name,
                 description: itemData.description,
-                icon: <div>Icon</div>, // TODO: Add proper icons
+                icon: iconSrc ? (<img src={iconSrc} alt={itemData.name} className="w-6 h-6" />) : undefined,
                 category: itemData.type as any, // TODO: Map to proper categories
                 weight: itemData.weight,
                 base_value: itemData.base_value,

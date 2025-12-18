@@ -180,5 +180,23 @@
     "effects": {
       "energy": 10
     }
+  },
+  "beryl_noble_letter": {
+    "name": "Noble's Letter",
+    "description": "A letter revealing a dangerous romantic affair between Beryl and a noble woman.",
+    "type": "quest_item",
+    "stackable": false,
+    "weight": 0.1,
+    "base_value": 0,
+    "image": "/assets/items/letter.png"
+  },
+  "deadly_nightshade": {
+    "name": "Deadly Nightshade",
+    "description": "A poisonous herb that looks similar to healing herbs.",
+    "type": "quest_item",
+    "stackable": true,
+    "weight": 0.1,
+    "base_value": 5,
+    "image": "/assets/items/herb_poison.png"
   }
 }

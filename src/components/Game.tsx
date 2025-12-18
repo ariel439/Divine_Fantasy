@@ -19,6 +19,7 @@ import { useJournalStore } from '../stores/useJournalStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useDiaryStore } from '../stores/useDiaryStore';
 import { useJobStore } from '../stores/useJobStore';
+import { useInventoryStore } from '../stores/useInventoryStore';
 import CharacterScreen from './screens/CharacterScreen';
 import InventoryScreen from './screens/InventoryScreen';
 import JobScreen from './screens/JobScreen';
@@ -36,16 +37,20 @@ import CombatManager from './CombatManager';
 import LocationNav from './LocationNav';
 import OptionsModal from './modals/OptionsModal';
 import TutorialModal from './modals/TutorialModal';
-import { lukePrologueSlides, playEventSlidesSarah, playEventSlidesRobert, wakeupEventSlides, finnDebtIntroSlides } from '../data';
+import { lukePrologueSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesKyle, wakeupEventSlides, finnDebtIntroSlides, robertCaughtSlides, backToLighthouseSlides } from '../data';
 import { useAudioStore } from '../stores/useAudioStore';
+import { useCompanionStore } from '../stores/useCompanionStore';
 
 const Game: React.FC = () => {
-  const { currentScreen, setScreen, shopId, activeModal, openModal, closeModal } = useUIStore();
+  const { currentScreen, setScreen, shopId, activeModal, openModal, closeModal, dialogueNpcId } = useUIStore();
   const ui = useUIStore();
   const { day, hour, minute, passTime } = useWorldTimeStore();
   const { getCurrentLocation, currentLocationId } = useLocationStore();
   const { loadShops } = useShopStore();
   const { musicEnabled, sfxEnabled, musicVolume, sfxVolume } = useAudioStore();
+
+  const [dialogueNode, setDialogueNode] = useState<any>(null);
+  const [dialogueHistory, setDialogueHistory] = useState<any[]>([]);
 
   const musicRef = useRef<HTMLAudioElement | null>(null);
   const sfxRef = useRef<HTMLAudioElement | null>(null);
@@ -179,168 +184,83 @@ const Game: React.FC = () => {
 
   useEffect(() => {
     if (currentScreen === 'dialogue') {
-      const npcId = useUIStore.getState().dialogueNpcId;
+      const npcId = dialogueNpcId;
       if (npcId) {
-        const ws = useWorldStateStore.getState();
-        const flag = `greeted_${npcId}`;
-        if (!ws.getFlag(flag)) {
-          ws.setFlag(flag, true);
-        }
-        if (!ws.knownNpcs.includes(npcId)) {
-          ws.addKnownNpc(npcId);
-        }
+        const node = DialogueService.startDialogue(npcId);
+        setDialogueNode(node);
+        setDialogueHistory(DialogueService.getDialogueHistory());
       }
+    } else {
+      setDialogueNode(null);
+      setDialogueHistory([]);
     }
-  }, [currentScreen]);
+  }, [currentScreen, dialogueNpcId]);
 
-  const buildInitialDialogue = (npcId: string) => {
-    const npc = npcsData[npcId as keyof typeof npcsData];
-    if (!npc) return null;
-    // Choose alternate dialogue if quest is already active
-    let dialogueId = npc.default_dialogue_id as keyof typeof dialogueData;
-    const world = useWorldStateStore.getState();
-    console.log('[Dialogue][build] npcId=', npcId);
-    if (world.introMode) {
-      if (npcId === 'npc_old_leo') dialogueId = 'old_leo_intro' as keyof typeof dialogueData;
-      if (npcId === 'npc_sarah') dialogueId = 'sarah_intro' as keyof typeof dialogueData;
-      if (npcId === 'npc_robert') dialogueId = 'robert_intro' as keyof typeof dialogueData;
+  const handleDialogueOption = (option: any, index: number) => {
+    const nextNode = DialogueService.selectResponse(index);
+    setDialogueHistory(DialogueService.getDialogueHistory());
+    
+    if (nextNode) {
+      setDialogueNode(nextNode);
+    } else {
+      handleEndDialogue();
     }
-    if (npcId === 'npc_finn' && useWorldStateStore.getState().getFlag('finn_debt_intro_pending')) {
-      dialogueId = 'finn_debt_intro' as keyof typeof dialogueData;
-    }
-    if (npcId === 'npc_roberta') {
-      const robertaQuest = useJournalStore.getState().quests['roberta_planks_for_the_past'];
-      if (robertaQuest && robertaQuest.active && !robertaQuest.completed) {
-        dialogueId = 'roberta_planks_active' as keyof typeof dialogueData;
-      } else if (robertaQuest && robertaQuest.completed) {
-        dialogueId = 'roberta_planks_completed' as keyof typeof dialogueData;
-      }
-    }
-    if (npcId === 'npc_boric') {
-      const js = useJobStore.getState();
-      const aj = js.activeJob;
-      const greetedFlagBoric = 'greeted_npc_boric';
-      const greeted = useWorldStateStore.getState().getFlag(greetedFlagBoric);
-      console.log('[Dialogue][build] boric state', { greeted, activeJob: aj?.jobId, fired: Boolean(js.firedJobs && js.firedJobs['job_dockhand']) });
-      if (aj?.jobId === 'job_dockhand') {
-        dialogueId = 'boric_employee' as keyof typeof dialogueData;
-      } else if (js.firedJobs && js.firedJobs['job_dockhand']) {
-        dialogueId = 'boric_fired' as keyof typeof dialogueData;
-      } else {
-        if (!greeted) {
-          dialogueId = 'boric_intro' as keyof typeof dialogueData;
-        }
-      }
-    }
-    console.log('[Dialogue][build] selected dialogueId=', dialogueId);
-    const dialogue = dialogueData[dialogueId];
-    if (!dialogue) return null;
-    const firstNode = dialogue.nodes['0'];
-    const greetedFlag = `greeted_${npcId}`;
-    const shouldGreet = !useWorldStateStore.getState().getFlag(greetedFlag);
-    console.log('[Dialogue][build] shouldGreet=', shouldGreet);
-    const checkCondition = (condition?: string): boolean => {
-      if (!condition || typeof condition !== 'string') return true;
-      const parts = condition.split('&&').map(s => s.trim());
-      const journal = useJournalStore.getState();
+  };
+
+  const handleEndDialogue = () => {
+    const npcId = useUIStore.getState().dialogueNpcId;
+    DialogueService.endDialogue();
+    useUIStore.getState().setDialogueNpcId(null);
+    try {
       const world = useWorldStateStore.getState();
-      const diary = useDiaryStore.getState();
-      for (const expr of parts) {
-        let op = '==';
-        if (expr.includes('>=')) op = '>=';
-        else if (expr.includes('<=')) op = '<=';
-        else if (expr.includes('>')) op = '>';
-        else if (expr.includes('<')) op = '<';
-        const [lhsRaw, rhsRaw] = expr.split(op).map(s => s.trim());
-        const lhs = lhsRaw;
-        const rhsNum = Number(rhsRaw);
-        const rhsBool = rhsRaw === 'true' ? true : rhsRaw === 'false' ? false : undefined;
-        if (lhs.startsWith('quest.')) {
-          const [, questId, field] = lhs.split('.');
-          const q = journal.quests[questId];
-          if (field === 'active') {
-            const val = q?.active || false;
-            if (op !== '==' || rhsBool === undefined) return false;
-            if (val !== rhsBool) return false;
-          } else if (field === 'completed') {
-            const val = q?.completed || false;
-            if (op !== '==' || rhsBool === undefined) return false;
-            if (val !== rhsBool) return false;
-          } else if (field === 'stage') {
-            const val = q?.currentStage ?? 0;
-            if (op === '==') { if (val !== rhsNum) return false; }
-            else if (op === '>=') { if (!(val >= rhsNum)) return false; }
-            else if (op === '<=') { if (!(val <= rhsNum)) return false; }
-            else if (op === '>') { if (!(val > rhsNum)) return false; }
-            else if (op === '<') { if (!(val < rhsNum)) return false; }
-          }
-        } else if (lhs.startsWith('world_flags.')) {
-          const flag = lhs.replace('world_flags.', '');
-          const val = world.getFlag(flag);
-          if (op !== '==' || rhsBool === undefined) return false;
-          if (val !== rhsBool) return false;
-        } else if (lhs.startsWith('relationship.')) {
-          const npcId = lhs.replace('relationship.', '');
-          const val = diary.relationships[npcId]?.friendship?.value || 0;
-          if (op === '==') { if (val !== rhsNum) return false; }
-          else if (op === '>=') { if (!(val >= rhsNum)) return false; }
-          else if (op === '<=') { if (!(val <= rhsNum)) return false; }
-          else if (op === '>') { if (!(val > rhsNum)) return false; }
-          else if (op === '<') { if (!(val < rhsNum)) return false; }
-        }
+      const lastNpcId = npcId;
+      if (lastNpcId === 'npc_finn' && world.getFlag('finn_debt_intro_pending')) {
+        useWorldStateStore.getState().setFlag('finn_debt_intro_pending', false);
       }
-      return true;
-    };
-
-    const mapChoices = (nodeId: string, visited: Set<string> = new Set()): any[] => {
-      // Guard against cycles in dialogue graphs
-      if (visited.has(nodeId)) return [];
-      visited.add(nodeId);
-      const node = dialogue.nodes[nodeId as keyof typeof dialogue.nodes];
-      if (!node || !node.player_choices) return [];
-      const filtered = node.player_choices.filter((choice: any) => {
-        // Hide start_quest choices if quest already accepted or completed
-        if (choice.action && typeof choice.action === 'string' && choice.action.startsWith('start_quest:')) {
-          const questId = choice.action.split(':')[1];
-          const existing = useJournalStore.getState().quests[questId];
-          if (existing && (existing.active || existing.completed)) {
-            return false;
-          }
+      const loc = useLocationStore.getState().getCurrentLocation();
+      if (world.introMode && loc.id === 'leo_lighthouse' && world.tutorialStep <= 2 && npcId === 'npc_old_leo') {
+        useWorldStateStore.getState().setTutorialStep(3);
+        try { useJournalStore.getState().setQuestStage('luke_tutorial', 4); } catch {}
+        const spokeRoberta = world.getFlag('intro_spoke_roberta');
+        if (spokeRoberta) {
+          useWorldStateStore.getState().addKnownNpc('npc_roberta');
+          const current = useDiaryStore.getState().relationships['npc_roberta']?.friendship?.value || 0;
+          const delta = 20 - current;
+          useDiaryStore.getState().updateRelationship('npc_roberta', { friendship: delta });
         }
-        // Apply optional condition field if present
-        if (choice.condition && !checkCondition(choice.condition)) {
-          return false;
+      } else if (world.introMode && loc.id === 'leo_lighthouse' && world.tutorialStep === 5 && (npcId === 'npc_sarah' || npcId === 'npc_kyle')) {
+        useWorldStateStore.getState().setTutorialStep(6);
+        try { useJournalStore.getState().setQuestStage('luke_tutorial', 6); } catch {}
+        const ui = useUIStore.getState();
+        if (npcId === 'npc_sarah') {
+          ui.setEventSlides(playEventSlidesSarah);
+          ui.setCurrentEventId('play_sarah');
+        } else {
+          ui.setEventSlides(playEventSlidesKyle);
+          ui.setCurrentEventId('play_kyle');
         }
-        return true;
-      });
-      return filtered.map((choice: any) => {
-        const nextNodeId = choice.next_node as string | undefined;
-        const nextNode = nextNodeId ? dialogue.nodes[nextNodeId as keyof typeof dialogue.nodes] : undefined;
-        return {
-          text: choice.text,
-          responseText: nextNodeId === '0' ? '' : nextNode?.npc_text,
-          // Use a branched visited set per choice to avoid cross-branch pruning
-          nextOptions: nextNodeId ? mapChoices(nextNodeId, new Set(visited)) : [],
-          closesDialogue: Boolean(choice.closes_dialogue),
-          onSelect: () => {
-            if (choice.action) {
-              const actionStr = String(choice.action);
-              DialogueService.executeAction(actionStr);
-            }
-          },
-        };
-      });
-    };
-    const text = (() => {
-      const idStr = String(dialogueId);
-      if (idStr === 'finn_debt_intro') return firstNode.npc_text;
-      if (npcId === 'npc_boric') return firstNode.npc_text;
-      return shouldGreet ? `Hello. I'm ${npc.name}. ${firstNode.npc_text}` : firstNode.npc_text;
-    })();
-    return {
-      text,
-      options: mapChoices('0'),
-    };
+        useUIStore.getState().setScreen('event');
+      } else if (useUIStore.getState().currentEventId === 'kyle_smuggler_alert' && npcId === 'npc_kyle') {
+        const uiState = useUIStore.getState();
+        uiState.setCurrentEventId(null);
+        useWorldTimeStore.setState({ hour: 22, minute: 0 });
+        useLocationStore.getState().setLocation('driftwatch_docks');
+        useCompanionStore.getState().setCompanion({
+          id: 'npc_robert_companion',
+          name: 'Robert',
+          type: 'human',
+          stats: { hp: 70, maxHp: 70, attack: 7, defence: 6, agility: 7 },
+          equippedItems: [],
+        });
+        useWorldStateStore.getState().setFlag('smuggler_help_available', true);
+      }
+    } catch {}
+    const uiState = useUIStore.getState();
+    if (uiState.currentEventId) {
+      setScreen('event');
+    } else {
+      setScreen('inGame');
+    }
   };
 
   const renderScreen = () => {
@@ -367,104 +287,76 @@ const Game: React.FC = () => {
             }}
           />
         );
-      case 'event': {
-        const slides = ui.eventSlides || [];
-        return (
-          <EventScreen
-            slides={slides}
-            onComplete={() => {
-              const id = ui.currentEventId;
-              if (id === 'wakeup') {
-                try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
-              }
-              if (id === 'finn_debt_intro') {
-                ui.setEventSlides(null);
-                ui.setCurrentEventId(null);
-                useUIStore.getState().setDialogueNpcId('npc_finn');
-                setScreen('dialogue');
-                return;
-              }
-              ui.setEventSlides(null);
-              ui.setCurrentEventId(null);
-              setScreen('inGame');
-            }}
-          />
-        );
-      }
+  case 'event': {
+    const slides = ui.eventSlides || [];
+    return (
+      <EventScreen
+        slides={slides}
+        onComplete={() => {
+          const id = ui.currentEventId;
+          if (id === 'wakeup') {
+            try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
+          }
+          if (id === 'finn_debt_intro') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            useWorldStateStore.getState().setIntroMode(false);
+            useWorldStateStore.getState().setIntroCompleted(true);
+            useWorldStateStore.getState().setFlag('intro_completed', true);
+            try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
+            useUIStore.getState().setDialogueNpcId('npc_finn');
+            setScreen('dialogue');
+            return;
+          }
+          if (id === 'smuggler_trap') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            useLocationStore.getState().setLocation('driftwatch_docks');
+            setScreen('inGame');
+            return;
+          }
+          if (id === 'robert_caught') {
+            ui.setEventSlides(backToLighthouseSlides);
+            ui.setCurrentEventId('back_to_lighthouse');
+            setScreen('event');
+            return;
+          }
+          if (id === 'back_to_lighthouse') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            useLocationStore.getState().setLocation('orphanage_room');
+            useWorldStateStore.getState().setFlag('start_finn_debt_on_sleep', true);
+            setScreen('inGame');
+            return;
+          }
+          ui.setEventSlides(null);
+          ui.setCurrentEventId(null);
+          setScreen('inGame');
+        }}
+      />
+    );
+  }
       case 'inGame':
         return <LocationScreen />;
       case 'dialogue': {
-        const npcId = useUIStore.getState().dialogueNpcId || 'npc_roberta';
+        const npcId = useUIStore.getState().dialogueNpcId;
+        if (!npcId || !dialogueNode) return null;
+
         const npc = npcsData[npcId as keyof typeof npcsData];
-        const built = buildInitialDialogue(npcId);
-        const initial = { text: built?.text || '...', options: built?.options || [] };
-        
+        const options = (dialogueNode.player_choices || []).map((c: any) => ({
+          text: c.text,
+          closesDialogue: c.closes_dialogue,
+        }));
+
         return (
           <DialogueScreen
             npcName={npc?.name || 'NPC'}
             npcPortraitUrl={npc?.portrait || '/assets/icons/DivineFantasy.png'}
             playerPortraitUrl={'/assets/portraits/luke.jpg'}
-            initialDialogue={initial || { text: '...', options: [] }}
-            onEndDialogue={() => {
-              useUIStore.getState().setDialogueNpcId(null);
-              try {
-                const world = useWorldStateStore.getState();
-                const lastNpcId = npcId;
-                if (lastNpcId === 'npc_finn' && world.getFlag('finn_debt_intro_pending')) {
-                  useWorldStateStore.getState().setFlag('finn_debt_intro_pending', false);
-                }
-                const loc = useLocationStore.getState().getCurrentLocation();
-                if (world.introMode && loc.id === 'leo_lighthouse' && world.tutorialStep <= 2 && npcId === 'npc_old_leo') {
-                  useWorldStateStore.getState().setTutorialStep(3);
-                  try { useJournalStore.getState().setQuestStage('luke_tutorial', 4); } catch {}
-                  // Ensure Roberta known + relationship applied if player selected her in intro
-                  const spokeRoberta = world.getFlag('intro_spoke_roberta');
-                  if (spokeRoberta) {
-                    useWorldStateStore.getState().addKnownNpc('npc_roberta');
-                    const current = useDiaryStore.getState().relationships['npc_roberta']?.friendship?.value || 0;
-                    const delta = 20 - current;
-                    useDiaryStore.getState().updateRelationship('npc_roberta', { friendship: delta });
-                  }
-                } else if (world.introMode && loc.id === 'leo_lighthouse' && world.tutorialStep === 5 && (npcId === 'npc_sarah' || npcId === 'npc_robert')) {
-                  useWorldStateStore.getState().setTutorialStep(6);
-                  try { useJournalStore.getState().setQuestStage('luke_tutorial', 6); } catch {}
-                  const ui = useUIStore.getState();
-                  if (npcId === 'npc_sarah') {
-                    ui.setEventSlides(playEventSlidesSarah);
-                    ui.setCurrentEventId('play_sarah');
-                  } else {
-                    ui.setEventSlides(playEventSlidesRobert);
-                    ui.setCurrentEventId('play_robert');
-                  }
-                  useUIStore.getState().setScreen('event');
-                }
-              } catch {}
-              const uiState = useUIStore.getState();
-              if (uiState.currentEventId) {
-                setScreen('event');
-              } else {
-                setScreen('inGame');
-              }
-            }}
-          />
-        );
-      }
-      case 'dialogueRoberta': {
-        const npcId = 'npc_roberta';
-        const npc = npcsData[npcId as keyof typeof npcsData];
-        const initialFromService = DialogueService.startDialogue(npcId);
-        const built = buildInitialDialogue(npcId);
-        const initial = { text: built?.text || initialFromService?.npc_text || 'Welcome.', options: built?.options || [] };
-        return (
-          <DialogueScreen
-            npcName={npc?.name || 'Roberta'}
-            npcPortraitUrl={npc?.portrait || '/assets/portraits/Roberta.png'}
-            playerPortraitUrl={'/assets/portraits/luke.jpg'}
-            initialDialogue={initial || { text: 'Welcome.', options: [] }}
-            onEndDialogue={() => {
-              useUIStore.getState().setDialogueNpcId(null);
-              setScreen('inGame');
-            }}
+            history={dialogueHistory}
+            options={options}
+            onOptionSelect={handleDialogueOption}
+            onEndDialogue={handleEndDialogue}
           />
         );
       }
@@ -546,6 +438,9 @@ const Game: React.FC = () => {
     if (currentScreen === 'dialogue' && world.introMode && npcId === 'npc_old_leo' && world.tutorialStep <= 2 && !world.seenLeoTutorial && activeModal !== 'tutorial') {
       openModal('tutorial');
     }
+    if (currentScreen === 'combat' && !world.getFlag('combat_tutorial_seen') && activeModal !== 'tutorial') {
+      openModal('tutorial');
+    }
   }, [currentScreen, activeModal]);
 
   // (removed duplicate modal opener effect)
@@ -623,9 +518,9 @@ const Game: React.FC = () => {
           (() => {
             const world = useWorldStateStore.getState();
             const loc = useLocationStore.getState().getCurrentLocation();
-          const isIntroSleep = world.introMode && world.tutorialStep === 6 && loc.id === 'orphanage_room';
+            const isIntroSleep = world.introMode && (world.tutorialStep === 6 || world.tutorialStep === 7) && loc.id === 'orphanage_room';
             const currentSeconds = isIntroSleep ? (20 * 3600) : (useWorldTimeStore.getState().hour * 3600 + useWorldTimeStore.getState().minute * 60);
-            const fixedDuration = isIntroSleep ? 12 : undefined;
+            const fixedDuration = isIntroSleep ? 10 : undefined;
             return (
               <SleepWaitModal
                 isOpen={true}
@@ -642,18 +537,22 @@ const Game: React.FC = () => {
                     const restore = (fixedDuration ?? hours) * 10 * quality;
                     useCharacterStore.setState((state) => ({ energy: Math.min(100, state.energy + Math.floor(restore)) }));
                   }
-                if (isIntroSleep) {
-                    useWorldTimeStore.setState({ hour: 8, minute: 0 });
-                    useWorldStateStore.getState().setIntroCompleted(true);
-                    useWorldStateStore.getState().setFlag('intro_completed', true);
-                    useWorldStateStore.getState().setIntroMode(false);
-                    useWorldTimeStore.setState({ year: 780 });
+                  if (useWorldStateStore.getState().getFlag('start_finn_debt_on_sleep')) {
+                    useWorldStateStore.getState().setFlag('start_finn_debt_on_sleep', false);
+                    useWorldTimeStore.setState({ hour: 8, minute: 0, year: 780 });
                     useLocationStore.getState().setLocation('salty_mug');
                     useWorldStateStore.getState().setFlag('finn_debt_intro_pending', true);
                     ui.setEventSlides(finnDebtIntroSlides);
                     ui.setCurrentEventId('finn_debt_intro');
-                    try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
                     setScreen('event');
+                  } else if (isIntroSleep) {
+                    useWorldTimeStore.setState({ hour: 6, minute: 0 });
+                    useWorldStateStore.getState().setFlag('robert_smuggler_incident', true);
+                    try { useJournalStore.getState().setQuestStage('luke_tutorial', 7); } catch {}
+                    useLocationStore.getState().setLocation('leo_lighthouse');
+                    ui.setCurrentEventId('kyle_smuggler_alert');
+                    useUIStore.getState().setDialogueNpcId('npc_kyle');
+                    setScreen('dialogue');
                   } else {
                     const durationMin = (fixedDuration ?? hours) * 60;
                     console.log(`[SleepWait] passTime ${durationMin}m`);
@@ -719,6 +618,9 @@ const Game: React.FC = () => {
             message = 'Locations display the current time and weather, with available actions listed to the right. Please select the highlighted action to leave the room.';
           } else if (currentScreen === 'dialogue' && useUIStore.getState().dialogueNpcId === 'npc_old_leo' && tutorialStep <= 2) {
             message = 'Conversations present choices. Speak with Old Leo and select one starting path to begin your day.';
+          } else if (currentScreen === 'combat' && !useWorldStateStore.getState().getFlag('combat_tutorial_seen')) {
+            message = 'In combat, select a target on the right, then press Attack.';
+            useWorldStateStore.getState().setFlag('combat_tutorial_active', true);
           }
           const handleClose = () => {
             const world = useWorldStateStore.getState();
@@ -727,6 +629,10 @@ const Game: React.FC = () => {
             }
             if (currentScreen === 'dialogue' && useUIStore.getState().dialogueNpcId === 'npc_old_leo' && world.tutorialStep <= 2) {
               useWorldStateStore.getState().setSeenLeoTutorial(true);
+            }
+            if (currentScreen === 'combat' && world.getFlag('combat_tutorial_active')) {
+              useWorldStateStore.getState().setFlag('combat_tutorial_active', false);
+              useWorldStateStore.getState().setFlag('combat_tutorial_seen', true);
             }
             closeModal();
           };

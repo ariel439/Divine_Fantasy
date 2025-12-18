@@ -6,9 +6,7 @@ This document outlines the technical architecture for "Divine Fantasy: Whispers.
 
 ## 1. UI Technology Stack
 
-To achieve the desired "dark, modern, and clean" aesthetic with maximum design flexibility, the project will use **Tailwind CSS**. This utility-first framework is ideal for creating a custom user interface from the ground up and works exceptionally well with AI-powered component generation tools.
-
-To accelerate development while maintaining design control, component scaffolding will be handled by **shadcn/ui**. This provides a library of accessible, unstyled base components that can be copied directly into the project and styled with Tailwind CSS.
+To achieve the desired "dark, modern, and clean" aesthetic with maximum design flexibility, the project uses **Tailwind CSS** throughout. Components are built directly with Tailwind utility classes to maintain full design control and rapid iteration.
 
 ---
 

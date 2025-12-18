@@ -1,44 +1,46 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import type { FC } from 'react';
-import { User } from 'lucide-react';
 import type { DialogueOption, ConversationEntry } from '../../types';
-import { useUIStore } from '../../stores/useUIStore';
 
 interface DialogueScreenProps {
   npcName: string;
   npcPortraitUrl: string;
   playerPortraitUrl: string;
-  initialDialogue: {
-    text: string;
-    options: DialogueOption[];
-  }
+  history: ConversationEntry[];
+  options: DialogueOption[];
+  onOptionSelect: (option: DialogueOption, index: number) => void;
   onEndDialogue: () => void;
 }
 
-const DialogueScreen: FC<DialogueScreenProps> = ({ npcName, npcPortraitUrl, playerPortraitUrl, initialDialogue, onEndDialogue }) => {
-    const [history, setHistory] = useState<ConversationEntry[]>([{ speaker: 'npc', text: initialDialogue.text }]);
-    const [options, setOptions] = useState<DialogueOption[]>(initialDialogue.options);
+const DialogueScreen: FC<DialogueScreenProps> = ({ 
+    npcName, 
+    npcPortraitUrl, 
+    playerPortraitUrl, 
+    history, 
+    options, 
+    onOptionSelect, 
+    onEndDialogue 
+}) => {
     const historyEndRef = useRef<HTMLDivElement>(null);
     
     const [currentPortrait, setCurrentPortrait] = useState(npcPortraitUrl);
     const [transitioningPortrait, setTransitioningPortrait] = useState<string | null>(null);
 
-    // Preload all potential portraits to prevent flash on transition
+    // Preload portraits
     useEffect(() => {
         const allPortraits = [
             npcPortraitUrl,
-            ...initialDialogue.options
+            ...options
                 .map(opt => opt.nextPortraitUrl)
-                .filter((url): url is string => !!url) // Filter out undefined/null URLs
+                .filter((url): url is string => !!url)
         ];
-        const uniquePortraits = [...new Set(allPortraits)]; // Ensure no duplicate downloads
+        const uniquePortraits = [...new Set(allPortraits)];
         
         uniquePortraits.forEach(url => {
             const img = new Image();
             img.src = url;
         });
-    }, [npcPortraitUrl, initialDialogue.options]);
+    }, [npcPortraitUrl, options]);
 
     useEffect(() => {
         historyEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -48,53 +50,17 @@ const DialogueScreen: FC<DialogueScreenProps> = ({ npcName, npcPortraitUrl, play
         if (transitioningPortrait) {
             const timer = setTimeout(() => {
                 setTransitioningPortrait(null);
-            }, 500); // This duration should match the fade-out animation in index.html
+            }, 500);
             return () => clearTimeout(timer);
         }
     }, [transitioningPortrait]);
 
-    const handleOptionSelect = (option: DialogueOption) => {
-        // Always run side effects attached to the option
-        if (option.onSelect) {
-            option.onSelect();
-        }
-        // Handle options that explicitly end dialogue via flag
-        if (option.closesDialogue) {
-            const nextScreen = useUIStore.getState().currentScreen;
-            if (nextScreen === 'dialogue' || nextScreen === 'dialogueRoberta') {
-                onEndDialogue();
-            }
-            return;
-        }
-        
-        // Add player choice to history
-        const newHistory: ConversationEntry[] = [...history, { speaker: 'player', text: option.text }];
-        
+    const handleOptionSelect = (option: DialogueOption, index: number) => {
         if (option.nextPortraitUrl && option.nextPortraitUrl !== currentPortrait) {
             setTransitioningPortrait(currentPortrait);
             setCurrentPortrait(option.nextPortraitUrl);
         }
-        
-        // Add NPC response to history only if provided
-        if (option.responseText && option.responseText.length > 0) {
-            newHistory.push({ speaker: 'npc', text: option.responseText });
-        }
-        setHistory(newHistory);
-
-        // Check for follow-up options
-        if (option.nextOptions && option.nextOptions.length > 0) {
-            setOptions(option.nextOptions);
-        } else {
-            const ui = useUIStore.getState();
-            if (ui.currentScreen === 'dialogue' || ui.currentScreen === 'dialogueRoberta') {
-                setOptions([
-                    ...initialDialogue.options,
-                    { text: "(Leave) I'll be on my way.", onSelect: onEndDialogue }
-                ]);
-            } else {
-                setOptions([{ text: "(Leave) I'll be on my way.", onSelect: onEndDialogue }]);
-            }
-        }
+        onOptionSelect(option, index);
     };
 
     return (
@@ -174,7 +140,7 @@ const DialogueScreen: FC<DialogueScreenProps> = ({ npcName, npcPortraitUrl, play
                         {options.map((opt, index) => (
                             <button 
                                 key={index} 
-                                onClick={() => handleOptionSelect(opt)} 
+                                onClick={() => handleOptionSelect(opt, index)} 
                                 className="w-full text-left p-3 sm:p-4 bg-zinc-800/80 border border-zinc-700 rounded-lg transition-all duration-300 hover:bg-zinc-700/60 hover:border-zinc-600 hover:border-l-4 hover:border-l-zinc-500 group"
                             >
                                 <span className="font-semibold text-white/90">

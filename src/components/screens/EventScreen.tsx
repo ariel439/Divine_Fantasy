@@ -16,13 +16,16 @@ const EventScreen: FC<EventScreenProps> = ({ slides, onComplete }) => {
     const currentSlide = slides[currentIndex];
     const isLastSlide = currentIndex === slides.length - 1;
 
-    // Preload images to prevent flicker
+    // Preload images to prevent flicker and reset index on slides change
     useEffect(() => {
+        setCurrentIndex(0);
         slides.forEach(slide => {
             const img = new Image();
             img.src = slide.image;
         });
     }, [slides]);
+
+    if (!currentSlide) return null;
 
     const handleNavigation = (direction: 'next' | 'prev') => {
         const nextIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;

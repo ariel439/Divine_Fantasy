@@ -1,11 +1,42 @@
 {
+  "crazy_pete_intro": {
+    "nodes": {
+      "0": {
+        "npc_text": "The crabs! They whisper secrets in the foam! Do you hear them? Clack-clack-clack!",
+        "player_choices": [
+          { "text": "What secrets?", "next_node": "crazy_pete_secrets" },
+          { "text": "You need help.", "next_node": "crazy_pete_help" },
+          { "text": "Why are you here in the dark?", "next_node": "crazy_pete_night", "condition": "time.is_night==true" },
+          { "text": "Goodbye.", "closes_dialogue": true }
+        ]
+      },
+      "crazy_pete_secrets": {
+        "npc_text": "They say the tide is coming... for your socks! Hide them! Hide them deep in the sand!",
+        "player_choices": [
+          { "text": "Okay... (Back)", "next_node": "0" }
+        ]
+      },
+      "crazy_pete_help": {
+        "npc_text": "Help? I don't need help. I need a bucket! A SQUARE bucket! Round ones roll away!",
+        "player_choices": [
+          { "text": "Right. (Back)", "next_node": "0" }
+        ]
+      },
+      "crazy_pete_night": {
+        "npc_text": "The moon is watching. Shhh. It sees everything. Even the crabs.",
+        "player_choices": [
+          { "text": "I see. (Back)", "next_node": "0" }
+        ]
+      }
+    }
+  },
   "beryl_default": {
     "nodes": {
       "0": {
-        "npc_text": "Welcome to Beryl's General Goods!",
+        "npc_text": "Welcome to Beryl's General Goods! What do you need?",
         "player_choices": [
-          { "text": "Show me your goods.", "closes_dialogue": true, "action": "open_shop:beryls_general_goods" },
-          { "text": "Finn sent me. Pay 10 silvers.", "action": "collect_debt_from:npc_beryl", "closes_dialogue": true, "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_beryl==false" },
+          { "text": "Show me your goods.", "action": "open_shop:beryls_general_goods" },
+          { "text": "Finn sent me. Pay 10 silvers.", "action": "collect_debt_from:npc_beryl", "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_beryl==false", "next_node": "0" },
           { "text": "Goodbye, Beryl.", "closes_dialogue": true }
         ]
       }
@@ -88,22 +119,33 @@
       "0": {
         "npc_text": "Oh, a new face. I haven’t seen you on the docks yet, I know everyone that comes through. Name’s Boric, by the way.",
         "player_choices": [
-          { "text": "I’m looking for work.", "next_node": "bi_work", "condition": "relationship.npc_boric>=-50" },
+          { "text": "I’m looking for work.", "next_node": "bi_work", "condition": "relationship.npc_boric>=-50 && job.job_dockhand.active==false && job.job_dockhand.fired==false" },
+          { "text": "Can I have my job back?", "next_node": "bi_rehiring", "condition": "job.job_dockhand.fired==true" },
           { "text": "I’m looking for work.", "next_node": "bi_refuse", "condition": "relationship.npc_boric<-50" },
-          { "text": "I’ll leave you to it.", "closes_dialogue": true }
+          { "text": "About the job...", "next_node": "bi_work", "condition": "job.job_dockhand.active==true" },
+          { "text": "Goodbye, Boric.", "closes_dialogue": true }
         ]
       },
       "bi_work": {
         "npc_text": "Dockhands haul crates, lash lines, and mind the tide. Twenty copper a shift. Hours are eight to four, weekdays. Be here before the horn, and don’t make me regret putting your name in the ledger.",
         "player_choices": [
-          { "text": "Hire me.", "action": "hire_job:job_dockhand", "closes_dialogue": true },
-          { "text": "Not now.", "closes_dialogue": true }
+          { "text": "Hire me.", "action": "hire_job:job_dockhand", "next_node": "0", "condition": "job.job_dockhand.active==false" },
+          { "text": "Understood. (Back)", "next_node": "0", "condition": "job.job_dockhand.active==true" },
+          { "text": "Not now. (Back)", "next_node": "0", "condition": "job.job_dockhand.active==false" }
         ]
       },
       "bi_refuse": {
         "npc_text": "Get off my pier. I don’t hire dead weight.",
         "player_choices": [ { "text": "I’ll leave you to it.", "closes_dialogue": true } ]
-      }
+      },
+      "bi_rehiring": {
+        "npc_text": "We tried you. Missed days or didn’t cut it. You’re off the roster.",
+        "player_choices": [
+          { "text": "Please, give me another chance.", "action": "try_hire_or_deny:job_dockhand:bi_deny", "next_node": "0" },
+          { "text": "I understand. (Back)", "next_node": "0" }
+        ]
+      },
+      "bi_deny": { "npc_text": "No.", "player_choices": [ { "text": "Understood. (Back)", "next_node": "0" } ] }
     }
   },
   "boric_default": {
@@ -111,42 +153,33 @@
       "0": {
         "npc_text": "Harbor’s loud today. What do you need?",
         "player_choices": [
-          { "text": "I’m looking for work.", "next_node": "bd_work", "condition": "relationship.npc_boric>=-50" },
+          { "text": "I’m looking for work.", "next_node": "bd_work", "condition": "relationship.npc_boric>=-50 && job.job_dockhand.active==false && job.job_dockhand.fired==false" },
+          { "text": "Can I have my job back?", "next_node": "bd_rehiring", "condition": "job.job_dockhand.fired==true" },
           { "text": "I’m looking for work.", "next_node": "bd_refuse", "condition": "relationship.npc_boric<-50" },
-          { "text": "I’ll leave you to it.", "closes_dialogue": true }
+          { "text": "About the job...", "next_node": "bd_work", "condition": "job.job_dockhand.active==true" },
+          { "text": "Goodbye, Boric.", "closes_dialogue": true }
         ]
       },
       "bd_work": {
         "npc_text": "Twenty copper a shift, eight to four, weekdays. Show up before the horn.",
         "player_choices": [
-          { "text": "Hire me.", "action": "hire_job:job_dockhand", "closes_dialogue": true },
-          { "text": "Not now.", "closes_dialogue": true }
+          { "text": "Hire me.", "action": "hire_job:job_dockhand", "next_node": "0", "condition": "job.job_dockhand.active==false" },
+          { "text": "Understood. (Back)", "next_node": "0", "condition": "job.job_dockhand.active==true" },
+          { "text": "Not now. (Back)", "next_node": "0", "condition": "job.job_dockhand.active==false" }
         ]
       },
       "bd_refuse": {
         "npc_text": "Get off my pier. I don’t hire dead weight.",
         "player_choices": [ { "text": "I’ll leave you to it.", "closes_dialogue": true } ]
-      }
-    }
-  },
-  "boric_employee": {
-    "nodes": {
-      "0": {
-        "npc_text": "You’re on my ledger. Keep showing up and keep your hands steady.",
-        "player_choices": [ { "text": "I’ll leave you to it.", "closes_dialogue": true } ]
-      }
-    }
-  },
-  "boric_fired": {
-    "nodes": {
-      "0": {
+      },
+      "bd_rehiring": {
         "npc_text": "We tried you. Missed days or didn’t cut it. You’re off the roster.",
         "player_choices": [
-          { "text": "Can you give me the job back?", "action": "try_hire_or_deny:job_dockhand:bf_deny" },
-          { "text": "I’ll leave you to it.", "closes_dialogue": true }
+          { "text": "Please, give me another chance.", "action": "try_hire_or_deny:job_dockhand:bd_deny", "next_node": "0" },
+          { "text": "I understand. (Back)", "next_node": "0" }
         ]
       },
-      "bf_deny": { "npc_text": "No.", "player_choices": [ { "text": "Understood.", "closes_dialogue": true } ] }
+      "bd_deny": { "npc_text": "No.", "player_choices": [ { "text": "Understood. (Back)", "next_node": "0" } ] }
     }
   },
   "elias_default": {
@@ -160,37 +193,36 @@
   "roberta_default": {
     "nodes": {
       "0": {
-        "npc_text": "Welcome. Tide & Trade is a bit battered today. What can I do for you?",
+        "npc_text": "Tide & Trade, finest goods in Port Kael. What can I get you?",
         "player_choices": [
-          { "text": "What's for sale?", "closes_dialogue": true, "action": "open_shop:tide_and_trade" },
+          { "text": "What's for sale?", "action": "open_shop:tide_and_trade" },
           { "text": "What happened to the wall?", "next_node": "rb_wall", "condition": "quest.roberta_planks_for_the_past.active==false && quest.roberta_planks_for_the_past.completed==false" },
+          { "text": "How is the wall repair going?", "next_node": "rb_help_gate", "condition": "quest.roberta_planks_for_the_past.active==true" },
+          { "text": "I have the planks you needed.", "action": "complete_quest:roberta_planks_for_the_past", "next_node": "0", "condition": "quest.roberta_planks_for_the_past.active==true && inventory.wood_plank>=5" },
           { "text": "Tell me about Tide & Trade.", "next_node": "rb_lore_tide_trade1", "condition": "world_flags.roberta_lore_seen==false" },
-          { "text": "I'll come back later.", "closes_dialogue": true }
+          { "text": "Goodbye, Roberta.", "closes_dialogue": true }
         ]
       },
       "rb_wall": {
-        "npc_text": "A storm carved a hole through the side. I need planks to brace and patch it before the next squall.",
+        "npc_text": "The storm took a chunk out of the east storehouse. I need planks to patch it before the next high tide.",
         "player_choices": [
-          { "text": "Can I help with the repairs?", "next_node": "rb_help_gate" },
-          { "text": "How do I get planks?", "next_node": "rb_hint_planks" },
-          { "text": "Back to counter", "next_node": "0" }
+          { "text": "I can help with that.", "next_node": "rb_help_gate", "condition": "relationship.npc_roberta>=20" },
+          { "text": "I can help with that.", "next_node": "rb_trust_refusal", "condition": "relationship.npc_roberta<20" },
+          { "text": "Sorry to hear that. (Back)", "next_node": "0" }
+        ]
+      },
+      "rb_trust_refusal": {
+        "npc_text": "I appreciate the offer, but I don't know you well enough to trust you with my shop's repairs yet. Maybe stick around, trade a bit, and we'll see.",
+        "player_choices": [
+          { "text": "Understood. (Back)", "next_node": "0" }
         ]
       },
       "rb_help_gate": {
-        "npc_text": "I'd be grateful. Repairs take trust and care.",
+        "npc_text": "I'll pay you for the trouble. I need 5 Wood Planks. You can find them at the lumberyard or scavenging the shore.",
         "player_choices": [
-          { "text": "I'll help. Let's start the repairs.", "action": "start_quest:roberta_planks_for_the_past", "condition": "relationship.npc_roberta>=20", "closes_dialogue": true },
-          { "text": "Can I help now?", "next_node": "rb_gate_refusal", "condition": "relationship.npc_roberta<20" },
-          { "text": "Back to counter", "next_node": "0" }
+          { "text": "I'll find them.", "action": "start_quest:roberta_planks_for_the_past", "next_node": "0", "condition": "quest.roberta_planks_for_the_past.active==false" },
+          { "text": "I'm still looking.", "next_node": "0", "condition": "quest.roberta_planks_for_the_past.active==true" }
         ]
-      },
-      "rb_gate_refusal": {
-        "npc_text": "I don't know you well enough to rely on you yet. Maybe another time.",
-        "player_choices": [ { "text": "I understand.", "next_node": "0" } ]
-      },
-      "rb_hint_planks": {
-        "npc_text": "Cut logs in the woods, then use the sawmill to make planks. Crawler runs it: two copper per plank.",
-        "player_choices": [ { "text": "Back to counter", "next_node": "0" } ]
       },
       "rb_lore_tide_trade1": {
         "npc_text": "Tide & Trade is one of Driftwatch’s oldest shops. It’s stood through lean years and storms.",
@@ -199,6 +231,10 @@
       "rb_lore_tide_trade2": {
         "npc_text": "My father ran it for decades. He passed recently… I'm still learning to handle everything.",
         "player_choices": [ { "text": "Back to counter", "next_node": "0", "action": "set_flag:roberta_lore_seen:true" } ]
+      },
+      "rb_lore_family": {
+        "npc_text": "It's just me now. The shop is all I have left of them.",
+        "player_choices": [ { "text": "Back to counter", "next_node": "0" } ]
       }
     }
   },
@@ -209,7 +245,7 @@
         "player_choices": [
           { "text": "How do I get planks again?", "next_node": "1" },
           { "text": "I brought the planks.", "next_node": "reward", "action": "advance_quest_stage:roberta_planks_for_the_past", "condition": "quest.roberta_planks_for_the_past.stage==3" },
-          { "text": "What's for sale?", "action": "open_shop:tide_and_trade", "closes_dialogue": true },
+          { "text": "What's for sale?", "action": "open_shop:tide_and_trade" },
           { "text": "I'll come back later.", "closes_dialogue": true }
         ]
       },
@@ -228,10 +264,18 @@
       "0": {
         "npc_text": "The patch held through the last squall. I couldn’t have done it without you.",
         "player_choices": [
-          { "text": "What's for sale?", "action": "open_shop:tide_and_trade", "closes_dialogue": true },
+          { "text": "What's for sale?", "action": "open_shop:tide_and_trade" },
           { "text": "Tell me about Tide & Trade.", "next_node": "tide_trade_lore", "condition": "world_flags.roberta_lore_seen==false" },
           { "text": "I'll come back later.", "closes_dialogue": true }
         ]
+      },
+      "tide_trade_lore": {
+        "npc_text": "Tide & Trade is one of Driftwatch’s oldest shops. It’s stood through lean years and storms.",
+        "player_choices": [ { "text": "And your family?", "next_node": "tide_trade_lore2" } ]
+      },
+      "tide_trade_lore2": {
+        "npc_text": "My father ran it for decades. He passed recently… I'm still learning to handle everything.",
+        "player_choices": [ { "text": "Back to counter", "next_node": "0", "action": "set_flag:roberta_lore_seen:true" } ]
       }
     }
   },
@@ -240,7 +284,7 @@
       "0": {
         "npc_text": "Welcome to the Salty Mug.",
         "player_choices": [
-          { "text": "Let me see your stock.", "action": "open_shop:salty_mug", "closes_dialogue": true },
+          { "text": "Let me see your stock.", "action": "open_shop:salty_mug" },
           { "text": "About the collection job.", "next_node": "job_progress", "condition": "world_flags.finn_debt_collection_active==true" },
           { "text": "Leave.", "closes_dialogue": true, "condition": "world_flags.finn_debt_collection_active==true" }
         ]
@@ -388,7 +432,7 @@
       "0": {
         "npc_text": "Welcome home, child.",
         "player_choices": [
-          { "text": "Hey Leo, can you remind me of the story of the lighthouse?", "next_node": "lighthouse_lore" },
+          { "text": "Hey Leo, can you remind me of the story of the lighthouse?", "next_node": "lighthouse_lore", "condition": "world_flags.leo_lighthouse_history_seen==false" },
           { "text": "Goodbye, Leo.", "closes_dialogue": true }
         ]
       },
@@ -439,6 +483,16 @@
     }
   }
   ,
+  "kyle_smuggler_alert": {
+    "nodes": {
+      "0": {
+        "npc_text": "Luke—wake up. Robert slipped out before dawn. I saw him heading toward the docks with some rough-looking men.",
+        "player_choices": [
+          { "text": "We go now.", "closes_dialogue": true }
+        ]
+      }
+    }
+  },
   "old_leo_intro": {
     "nodes": {
       "0": {
@@ -487,6 +541,98 @@
         "player_choices": [
           { "text": "Let's play.", "closes_dialogue": true, "action": "set_flag:played_midday:true|update_relationship:npc_robert:10" },
           { "text": "Talk to you later.", "closes_dialogue": true }
+        ]
+      }
+    }
+  },
+  "kyle_intro": {
+    "nodes": {
+      "0": {
+        "npc_text": "Luke! Want to run around a bit?",
+        "player_choices": [
+          { "text": "Let's play.", "closes_dialogue": true, "action": "set_flag:played_midday:true|update_relationship:npc_kyle:10" },
+          { "text": "Talk to you later.", "closes_dialogue": true }
+        ]
+      }
+    }
+  },
+  "beryl_debt_approach": {
+    "nodes": {
+      "0": {
+        "npc_text": "Welcome to Beryl's General Goods!",
+        "player_choices": [
+          { "text": "Show me your goods.", "closes_dialogue": true, "action": "open_shop:beryls_general_goods" },
+          { "text": "Finn sent me. Pay 10 silvers.", "next_node": "debt_confrontation", "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_beryl==false" },
+          { "text": "Goodbye, Beryl.", "closes_dialogue": true }
+        ]
+      },
+      "debt_confrontation": {
+        "npc_text": "Ten silvers? That's a lot of money. What are my options?",
+        "player_choices": [
+          { "text": "You could help me with some chores.", "next_node": "soft_approach", "condition": "world_flags.beryl_soft_approach_started==false" },
+          { "text": "I found this interesting letter...", "next_node": "hard_approach", "condition": "inventory.beryl_noble_letter>0 && world_flags.beryl_hard_approach_started==false" },
+          { "text": "Just pay up or else.", "action": "collect_debt_from:npc_beryl", "closes_dialogue": true },
+          { "text": "I'll come back later.", "closes_dialogue": true }
+        ]
+      },
+      "soft_approach": {
+        "npc_text": "Chores, eh? Well, I could use some help organizing the storeroom. It's been a mess for weeks.",
+        "player_choices": [
+          { "text": "I'll help organize your storeroom.", "action": "set_flag:beryl_soft_approach_started:true|update_relationship:npc_beryl:5", "closes_dialogue": true },
+          { "text": "Actually, let me think about it.", "closes_dialogue": true }
+        ]
+      },
+      "hard_approach": {
+        "npc_text": "A letter? What kind of letter?",
+        "player_choices": [
+          { "text": "A letter about you and a certain noble woman...", "action": "set_flag:beryl_hard_approach_started:true|remove_item:beryl_noble_letter:1|update_relationship:npc_beryl:-20", "next_node": "blackmail_result" },
+          { "text": "Never mind.", "closes_dialogue": true }
+        ]
+      },
+      "blackmail_result": {
+        "npc_text": "You... you found that? Fine! Take your ten silvers and leave me be!",
+        "player_choices": [
+          { "text": "Pleasure doing business.", "action": "collect_debt_from:npc_beryl", "closes_dialogue": true }
+        ]
+      }
+    }
+  },
+  "elara_debt_approach": {
+    "nodes": {
+      "0": {
+        "npc_text": "Herbs and potions, stranger.",
+        "player_choices": [
+          { "text": "Finn sent me. Pay 10 silvers.", "next_node": "debt_confrontation", "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_elara==false" },
+          { "text": "Goodbye, Elara.", "closes_dialogue": true }
+        ]
+      },
+      "debt_confrontation": {
+        "npc_text": "Ten silvers? I'm just a simple herbalist. Perhaps we can work something out?",
+        "player_choices": [
+          { "text": "Maybe I could help you gather herbs?", "next_node": "soft_approach", "condition": "world_flags.elara_soft_approach_started==false" },
+          { "text": "I found some interesting herbs...", "next_node": "hard_approach", "condition": "inventory.deadly_nightshade>0 && world_flags.elara_hard_approach_started==false" },
+          { "text": "Just pay what you owe.", "action": "collect_debt_from:npc_elara", "closes_dialogue": true },
+          { "text": "I'll return later.", "closes_dialogue": true }
+        ]
+      },
+      "soft_approach": {
+        "npc_text": "Ah, you know about herbs? I could use an apprentice to help me gather some rare plants in the forest.",
+        "player_choices": [
+          { "text": "I'd be happy to help gather herbs.", "action": "set_flag:elara_soft_approach_started:true|update_relationship:npc_elara:5", "closes_dialogue": true },
+          { "text": "Maybe another time.", "closes_dialogue": true }
+        ]
+      },
+      "hard_approach": {
+        "npc_text": "Herbs? What kind of herbs did you find?",
+        "player_choices": [
+          { "text": "Some nightshade that looks like healing herbs...", "action": "set_flag:elara_hard_approach_started:true|remove_item:deadly_nightshade:1|update_relationship:npc_elara:-20", "next_node": "framing_result" },
+          { "text": "Nothing important.", "closes_dialogue": true }
+        ]
+      },
+      "framing_result": {
+        "npc_text": "You... you would threaten me with false accusations? Fine! Take your money and leave!",
+        "player_choices": [
+          { "text": "Wise choice.", "action": "collect_debt_from:npc_elara", "closes_dialogue": true }
         ]
       }
     }

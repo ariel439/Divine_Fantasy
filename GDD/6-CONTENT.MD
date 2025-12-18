@@ -406,6 +406,7 @@ This section defines the initial quests for the v1.0 release.
 *   **Quest ID:** `rodrick_wolf_pack`
 *   **Giver:** Sergeant Rodrick (`npc_rodrick`), after being directed by Corporal Matthias.
 *   **Description:** Sergeant Rodrick is concerned about a growing wolf pack that has been attacking travelers on the roads near the woods. He needs someone to deal with the pack's leader, a large, scarred alpha wolf.
+*   **Status:** Deferred for a full remake in a future update. Current outline is placeholder and not part of the v1.0 core scope.
 *   **Objectives & Player Choices:**
     1.  **Get the Lead:** Talk to Corporal Matthias at Mosswatch Keep, who will point you towards Sergeant Rodrick for any real work.
     2.  **Receive the Task:** Speak with Sergeant Rodrick in the Tidehunter Quarter. He'll explain the problem and suggest you talk to the hunter in the woods for more information.

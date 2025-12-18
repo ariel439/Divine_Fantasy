@@ -1,4 +1,10 @@
 {
+  "npc_crazy_pete": {
+    "name": "Crazy Pete",
+    "home_location": "sandy_shore",
+    "default_dialogue_id": "crazy_pete_intro",
+    "portrait": "/assets/portraits/OldManFinn.png"
+  },
   "npc_beryl": {
     "name": "Beryl",
     "home_location": "beryls_general_goods",

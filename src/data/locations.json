@@ -243,6 +243,7 @@
     "actions": [
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" },
       { "text": "Travel to Driftwatch Woods", "type": "navigate", "target": "driftwatch_woods", "time_cost": 60 },
+      { "text": "Travel to Sandy Shore", "type": "navigate", "target": "sandy_shore", "time_cost": 60 },
       { "text": "Travel to Homestead Farm", "type": "navigate", "target": "homestead_farm" }
     ]
   },
@@ -259,6 +260,19 @@
       { "text": "Fish", "type": "fish", "target": "fish_river" },
       { "text": "Travel to Hunter's Cabin", "type": "navigate", "target": "hunters_cabin" },
       { "text": "Travel to Sawmill", "type": "navigate", "target": "sawmill" },
+      { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 }
+    ]
+  },
+  "sandy_shore": {
+    "name": "Sandy Shore",
+    "day_description": "An open stretch of beach where the desert meets the sea. Winds whip across the dunes.",
+    "night_description": "Under the moonlight, the shore is quiet and the dunes cast long shadows.",
+    "day_background": "/assets/locations/sandy_shore_day.png",
+    "night_background": "/assets/locations/sandy_shore_night.png",
+    "music_track": "GDD/assets/audio/music/coast.mp3",
+    "actions": [
+      { "text": "Talk to Crazy Pete", "type": "dialogue", "target": "npc_crazy_pete" },
+      { "text": "Explore", "type": "explore", "target": "explore_beach" },
       { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 }
     ]
   },

@@ -25,7 +25,15 @@ interface WorldState {
 }
 
 export const useWorldStateStore = create<WorldState>((set, get) => ({
-  worldFlags: {},
+  worldFlags: {
+    // Smuggler trap event tracking
+    robert_smuggler_incident: false,
+    // Debt collection approach tracking
+    beryl_soft_approach_started: false,
+    beryl_hard_approach_started: false,
+    elara_soft_approach_started: false,
+    elara_hard_approach_started: false,
+  },
   eventCooldowns: {},
   knownNpcs: [],
   introMode: false,

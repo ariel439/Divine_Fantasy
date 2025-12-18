@@ -42,7 +42,7 @@ Defines all playable areas in the game, including their descriptive text, imager
     "music_track": "GDD/assets/audio/music/shops.mp3",
     "actions": [
       { "text": "Talk to Roberta", "type": "dialogue", "target": "npc_roberta" },
-      { "text": "Trade", "type": "shop", "target": "shop_tide_trade" },
+      { "text": "Trade", "type": "shop", "shopId": "tide_and_trade" },
       { "text": "Navigate to Docks", "type": "navigate", "target": "driftwatch_docks" }
     ]
   }
@@ -315,6 +315,40 @@ Defines all branching dialogue trees.
 }
 ```
 
+### Supported Actions
+- `set_flag:<flag>:<true|false>` sets a world flag
+- `start_quest:<quest_id>` starts a quest and advances initial stage
+- `advance_quest_stage:<quest_id>` advances current quest stage
+- `complete_quest:<quest_id>` completes a quest
+- `hire_job:<job_id>` hires the player for a job
+- `try_hire_or_deny:<job_id>:<deny_node_id>` hires or switches to a denial node
+- `recruit_companion:<companion_id>` recruits a companion
+- `pass_time:<minutes>` advances world time
+- `grant_item:<item_id>[:<qty>]` grants an item to inventory
+- `open_shop:<shop_id>` opens the trade UI for the given shop
+- `convert_logs_to_planks:<qty|all>` converts logs to planks at sawmill cost
+- `offer_debt_payment` records a debt discussion with Finn
+- `start_debt_collection` activates Finn’s debt collection quest
+- `collect_debt_from:<npc_id>` collects payment from a target NPC
+- `turn_in_debt:<required_silvers>` turns in collected debt to Finn
+- `turn_in_debt_or_rebuke:<required_silvers>:<rebuke_node_id>` conditionally completes or rebukes
+- `enter_temporal_instance:<location_id>:<year>:<month>:<day>:<hour>:<minute>` enters a time instance
+- `exit_temporal_instance` exits the time instance and returns to stored location
+- `pay_debt:<amount_copper>` pays debt in copper
+- `rent_room` opens sleep modal if debt cleared
+- `grant_skill_level:<skill_id>:<level>` sets a skill level
+- `update_relationship:<npc_id>:<delta>` adjusts relationship friendship value
+- `set_relationship:<npc_id>:<target_value>` sets relationship friendship to target
+- `add_known_npc:<npc_id>` marks an NPC as known
+
+### Condition Syntax
+- `time.is_day==true|false`, `time.is_night==true|false`
+- `time.weekday==<Sunday|Monday|...>`
+- `time.hour_lt==<number>` evaluates hour less-than comparisons
+- `world_flags.<flag>==true|false`
+- `quest.<quest_id>.stage==<number>`
+- Conditions apply to `player_choices` and `location.actions` to gate visibility or availability.
+
 ---
 
 ## 7.J. `recipes.json` (New)
@@ -404,28 +438,30 @@ Defines the inventories and price modifiers for all shops.
 {
   "shop_id": {
     "name": "string",
-    "merchant_id": "string (npc_id)",
-    "buy_price_modifier": "number (e.g., 1.1 for 10% markup)",
-    "sell_price_modifier": "number (e.g., 0.9 for 10% markdown)",
+    "location_id": "string (location_id)",
+    "currency": "number (initial copper held by shop)",
+    "buy_multiplier": "number (e.g., 0.8 means shop buys for 80% base)",
+    "sell_multiplier": "number (e.g., 1.2 means shop sells at 120% base)",
     "inventory": [
-      { "item_id": "string", "stock": "number (-1 for infinite)" }
+      { "item_id": "string", "quantity": "number" }
     ]
   }
 }
 ```
 
-### Example: `shop_beryls_general`
+### Example: `beryls_general_goods`
 ```json
 {
-  "shop_beryls_general": {
+  "beryls_general_goods": {
     "name": "Beryl's General Goods",
-    "merchant_id": "npc_beryl",
-    "buy_price_modifier": 1.15,
-    "sell_price_modifier": 0.85,
+    "location_id": "driftwatch_main_street",
+    "currency": 1000,
+    "buy_multiplier": 0.8,
+    "sell_multiplier": 1.2,
     "inventory": [
-      { "item_id": "axe_basic", "stock": 5 },
-      { "item_id": "fishing_rod", "stock": 5 },
-      { "item_id": "bread", "stock": -1 }
+      { "item_id": "axe_basic", "quantity": 2 },
+      { "item_id": "bread", "quantity": 12 },
+      { "item_id": "nails", "quantity": 20 }
     ]
   }
 }

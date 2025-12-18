@@ -110,10 +110,32 @@ export const playEventSlidesRobert: Slide[] = [
   }
 ];
 
+export const playEventSlidesKyle: Slide[] = [
+  {
+    image: "/assets/events/luke_play_together.png",
+    text: "You chase Kyle through the lighthouse halls, laughing as he slips past your reach. Mischief fades, leaving the night a little lighter."
+  }
+];
+
 export const playEventSlidesAlone: Slide[] = [
   {
     image: "/assets/events/luke_play_alone.png",
     text: "You spend a quiet hour by yourself. The lighthouse hums with distant voices, but your thoughts are your own—clear, steady, and sharp."
+  }
+];
+
+export const smugglerTrapSlides: Slide[] = [
+  {
+    image: "/assets/locations/leo_lighthouse_room.png",
+    text: "A frantic knock jolts you awake. Kyle whispers through the door: ‘Luke, get up—Robert’s slipped out. Something’s wrong.’"
+  },
+  {
+    image: "/assets/locations/driftwatch_docks_night.png",
+    text: "You and Kyle hurry to the docks. Lanterns sway in the wind; shadows move between stacked crates."
+  },
+  {
+    image: "/assets/locations/driftwatch_docks_night.png",
+    text: "Down by the water, Robert meets figures in the dark. You stay low—watching, listening—ready to act."
   }
 ];
 
@@ -140,6 +162,24 @@ export const mockEquippedItems: Partial<Record<EquipmentSlot, Item>> = {
   // FIX: Replaced non-existent 'Ring' icon with 'Radio'.
   ring: { id: 'e5', name: 'Iron Ring', description: 'A simple, unadorned iron ring.', icon: React.createElement(Radio, { size: 24, className: "text-slate-500" }), category: 'Equipment', weight: 0.1, base_value: 10, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'ring', stats: {} },
 };
+
+export const robertCaughtSlides: Slide[] = [
+  {
+    image: "/assets/locations/driftwatch_docks_night.png",
+    text: "The smugglers overwhelm Robert, blades flashing in the dark. He takes blow after blow, blood staining his shirt, but he refuses to fall."
+  },
+  {
+    image: "/assets/locations/driftwatch_docks_night.png",
+    text: "With a desperate shout, Robert throws himself at the attackers, blocking their path. 'Run! Get Kyle out of here!' he screams, sacrificing himself to buy you time."
+  }
+];
+
+export const backToLighthouseSlides: Slide[] = [
+  {
+    image: "/assets/locations/leo_lighthouse_room.png",
+    text: "Breathless, you and Kyle return to Leo’s Lighthouse. The door closes on the whispering wind. There’s nothing to do tonight but try to sleep."
+  }
+];
 
 
 export const mockNpcs: Npc[] = [

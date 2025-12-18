@@ -47,7 +47,7 @@ const LocationNav: FC<LocationNavProps> = ({ onNavigate, activeScreen, onOpenSle
                  <nav className="flex justify-center items-center space-x-1 md:space-x-2 p-2 transition-all duration-300 ease-in-out">
                     <NavButton icon={<MapPin size={24} />} tooltip="Location" onClick={() => onNavigate('inGame')} isActive={activeScreen === 'inGame'} />
                     {!introMode && <NavButton icon={<User size={24} />} tooltip="Character" onClick={() => onNavigate('characterScreen')} isActive={activeScreen === 'characterScreen'} />}
-                    <NavButton icon={<Backpack size={24} />} tooltip="Inventory" onClick={() => onNavigate('inventory')} isActive={activeScreen === 'inventory'} />
+                    {!introMode && <NavButton icon={<Backpack size={24} />} tooltip="Inventory" onClick={() => onNavigate('inventory')} isActive={activeScreen === 'inventory'} />}
                     <NavButton icon={<ScrollText size={24} />} tooltip="Journal" onClick={() => onNavigate('journal')} isActive={activeScreen === 'journal'} />
                     {!introMode && <NavButton icon={<BookUser size={24} />} tooltip="Diary" onClick={() => onNavigate('diary')} isActive={activeScreen === 'diary'} />}
                     {!introMode && <NavButton icon={<Briefcase size={24} />} tooltip="Job" onClick={() => onNavigate('jobScreen')} isActive={activeScreen === 'jobScreen'} />}

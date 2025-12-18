@@ -5,6 +5,7 @@ import type { FC } from 'react';
 import { Swords, Shield, Footprints } from 'lucide-react';
 import type { Combatant } from '../../types';
 import CombatantCard from '../ui/CombatantCard';
+import { useWorldStateStore } from '../../stores/useWorldStateStore';
 
 interface CombatScreenProps {
   party: Combatant[];
@@ -52,6 +53,7 @@ const CombatScreen: FC<CombatScreenProps> = ({
     const logEndRef = useRef<HTMLDivElement>(null);
     const [enemyDamageEvents, setEnemyDamageEvents] = useState<{ targetId: string, damage: number, key: number }[]>([]);
     const [partyDamageEvents, setPartyDamageEvents] = useState<{ targetId: string, damage: number, key: number }[]>([]);
+    const tutorialActive = useWorldStateStore.getState().getFlag('combat_tutorial_active');
     const prevEnemiesRef = useRef<Combatant[]>(JSON.parse(JSON.stringify(enemies)));
     const prevPartyRef = useRef<Combatant[]>(JSON.parse(JSON.stringify(party)));
 
@@ -120,15 +122,15 @@ const CombatScreen: FC<CombatScreenProps> = ({
         <button
             onClick={onClick}
             disabled={disabled}
-            className="flex items-center justify-center gap-2 w-full max-w-[140px] px-4 py-3 bg-zinc-800/80 border border-zinc-700 rounded-lg transition-all duration-300 hover:enabled:bg-zinc-700/60 hover:enabled:border-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed group"
+            className={`flex items-center justify-center gap-2 w-full max-w-[140px] px-4 py-3 bg-zinc-800/80 border ${text === 'Attack' && tutorialActive ? 'border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.6)]' : 'border-zinc-700'} rounded-lg transition-all duration-300 hover:enabled:bg-zinc-700/60 hover:enabled:${text === 'Attack' && tutorialActive ? 'border-yellow-300' : 'border-zinc-600'} disabled:opacity-50 disabled:cursor-not-allowed group`}
         >
             <div className="text-zinc-300 group-hover:enabled:text-white transition-colors">{icon}</div>
             <span className="font-semibold text-sm text-white/90">{text}</span>
         </button>
     );
     
-    return (
-        <div className="w-full h-full flex flex-col relative">
+  return (
+    <div className="w-full h-full flex flex-col relative">
             {/* Main Combat Area */}
             <main className="flex-grow flex flex-col lg:flex-row items-center justify-around p-4 md:p-8">
                 {/* Party Column */}
@@ -151,7 +153,7 @@ const CombatScreen: FC<CombatScreenProps> = ({
                 </div>
 
                 {/* Enemies Grid */}
-                <div className="grid gap-4 lg:gap-6 w-full max-w-xl" style={{ gridTemplateColumns: `repeat(${Math.min(2, enemies.length)}, minmax(0, 1fr))` }}>
+                <div className={`grid gap-4 lg:gap-6 w-full max-w-xl ${tutorialActive ? 'ring-2 ring-yellow-400 rounded-lg p-2' : ''}`} style={{ gridTemplateColumns: `repeat(${Math.min(2, enemies.length)}, minmax(0, 1fr))` }}>
                     {enemies.map(enemy => (
                          <div key={enemy.id} className="relative">
                             <CombatantCard

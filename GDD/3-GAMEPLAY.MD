@@ -40,10 +40,8 @@ The game features a persistent clock and calendar.
 ### 2.6. Travel & Exploration
 - **Travel Time:** Moving between major world areas (e.g., from the city to the wilderness) is not instantaneous. It is a meaningful action that causes the in-game clock to advance, making the world feel larger and requiring players to plan their days.
 - **Travel Cost (v1.0):** For the v1.0 release, travel **only costs time**. It does not consume resources like Energy or Hunger. This is to prevent players from getting stranded in a location with no way to rest or recover. Resource costs for travel may be introduced in a future update.
-- **Example Travel Times:**
-    -   Crossroads to Shingleback Shore: 15 minutes
--   Crossroads to Driftwatch Woods: 60 minutes
-    -   Crossroads to Southern Mountains: 1 hour 30 minutes
+- **Implemented Travel Times (v1.0):**
+-   Crossroads ↔ Driftwatch Woods: 60 minutes
 
 #### 2.6.1. User Interface
 - **Confirmation:** When the player initiates travel, a **Confirmation Modal** will appear, displaying the destination and the travel time (e.g., "Travel to the Driftwatch Woods? This will take 30 minutes."). This reuses the existing `ConfirmationModal.tsx` component.

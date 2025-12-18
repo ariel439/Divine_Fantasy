@@ -13,4 +13,12 @@
       { "item_id": "wolf_pelt", "quantity": 2, "chance": 1 }
     ]
   }
+  ,
+  "smuggler_dockhand": {
+    "name": "Smuggler",
+    "stats": { "hp": 60, "attack": 7, "defence": 5, "agility": 6 },
+    "loot_table": [
+      { "item_id": "copper_coin", "quantity": 5, "chance": 0.5 }
+    ]
+  }
 }

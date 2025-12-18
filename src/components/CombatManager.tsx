@@ -6,7 +6,9 @@ import { useUIStore } from '../stores/useUIStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useInventoryStore } from '../stores/useInventoryStore';
 import { useSkillStore } from '../stores/useSkillStore';
+import { useWorldStateStore } from '../stores/useWorldStateStore';
 import CombatScreen from './screens/CombatScreen';
+import { robertCaughtSlides } from '../data';
 
 const CombatManager: React.FC = () => {
   const {
@@ -32,6 +34,7 @@ const CombatManager: React.FC = () => {
   const { addItem } = useInventoryStore();
   const { addXp: addSkillXp } = useSkillStore();
 
+  const scriptedTurnCount = React.useRef(0);
 
   const [selectedTargetId, setSelectedTargetId] = React.useState<string>('');
 
@@ -62,12 +65,14 @@ const CombatManager: React.FC = () => {
       }, 2000);
     } else if (aliveParty.length === 0) {
       setPhase('defeat');
-      // Return to location after short delay
       setTimeout(() => {
         endCombat();
-        setScreen('inGame');
-        passTime(5); // Combat takes 5 minutes
-      }, 2000);
+        const ui = useUIStore.getState();
+        ui.setEventSlides(robertCaughtSlides);
+        ui.setCurrentEventId('robert_caught');
+        setScreen('event');
+        passTime(5);
+      }, 1500);
     }
   }, [participants, phase, rewards, setPhase, endCombat, setScreen, passTime, addItem, getAliveEnemies, getAliveParty]);
 
@@ -100,6 +105,12 @@ const CombatManager: React.FC = () => {
       addLogEntry(`${target.name} is defeated!`);
     }
     
+    // End combat tutorial highlight after first attack
+    if (useWorldStateStore.getState().getFlag('combat_tutorial_active')) {
+      useWorldStateStore.getState().setFlag('combat_tutorial_active', false);
+      useWorldStateStore.getState().setFlag('combat_tutorial_seen', true);
+    }
+
     nextTurn();
   };
 
@@ -154,37 +165,67 @@ const CombatManager: React.FC = () => {
           return;
         }
 
-        // Simple enemy AI - attack random party member
+        // Scripted Smuggler Encounter Logic
+        const isScriptedLoss = useWorldStateStore.getState().getFlag('smuggler_scripted_loss');
         const aliveParty = getAliveParty();
-        if (aliveParty.length === 0) return;
         
-        const target = aliveParty[Math.floor(Math.random() * aliveParty.length)];
-        const defenceMultiplier = target.defending ? 1.5 : 1;
-        const damage = Math.max(1, currentEnemy.attack - Math.floor(target.defence * defenceMultiplier) + Math.floor(Math.random() * 3) - 1);
-        const newHp = Math.max(0, target.hp - damage);
-        
-        updateParticipant(target.id, { hp: newHp });
-        addLogEntry(`${currentEnemy.name} attacks ${target.name} for ${damage} damage!`);
-        
-        // Award defence skill XP to target for taking damage
-        if ((target.isPlayer || target.isCompanion) && damage > 0) {
-          addSkillXp('defence', Math.floor(damage)); // 1 XP per damage point taken
+        if (aliveParty.length === 0) {
+           nextTurn();
+           return;
+        }
+
+        let target: CombatParticipant | undefined;
+        let damage = 0;
+
+        if (isScriptedLoss) {
+          // Prioritize Robert (Companion)
+          const robert = aliveParty.find(p => p.isCompanion);
+          target = robert || aliveParty[0];
+          
+          damage = 15; // Fixed high damage for cinematic feel
+          scriptedTurnCount.current += 1;
+        } else {
+          // Normal AI - attack random party member
+          target = aliveParty[Math.floor(Math.random() * aliveParty.length)];
+          const defenceMultiplier = target.defending ? 1.5 : 1;
+          damage = Math.max(1, currentEnemy.attack - Math.floor(target.defence * defenceMultiplier) + Math.floor(Math.random() * 3) - 1);
         }
         
-        if (newHp <= 0) {
-          addLogEntry(`${target.name} is defeated!`);
+        if (target) {
+            const newHp = Math.max(0, target.hp - damage);
+            
+            updateParticipant(target.id, { hp: newHp });
+            addLogEntry(`${currentEnemy.name} attacks ${target.name} for ${damage} damage!`);
+            
+            // Award defence skill XP to target for taking damage
+            if ((target.isPlayer || target.isCompanion) && damage > 0) {
+              addSkillXp('defence', Math.floor(damage)); // 1 XP per damage point taken
+            }
+            
+            if (newHp <= 0) {
+              addLogEntry(`${target.name} is defeated!`);
+            }
         }
         
+        // Scripted loss: End combat after 1 full round (4 enemy actions)
+        if (isScriptedLoss && scriptedTurnCount.current >= 4) {
+          getAliveParty().forEach(p => {
+            updateParticipant(p.id, { hp: 0 });
+          });
+          useWorldStateStore.getState().setFlag('smuggler_scripted_loss', false);
+          return; // Stop here, let the victory/defeat effect handle the transition
+        }
+
         nextTurn();
       }, 1500); // Enemy turn delay
       
       return () => clearTimeout(timer);
     }
-  }, [isPlayerTurn, phase, getCurrentParticipant, getAliveParty, nextTurn, updateParticipant, addLogEntry]);
+  }, [isPlayerTurn, phase, getCurrentParticipant, getAliveParty, nextTurn, updateParticipant, addLogEntry, currentTurnIndex]);
 
   return (
     <CombatScreen
-      party={getAliveParty()}
+      party={participants.filter(p => p.isPlayer || p.isCompanion)}
       enemies={getAliveEnemies()}
       turnOrder={turnOrder.map(id => participants.find(p => p.id === id)).filter(Boolean) as CombatParticipant[]}
       activeCharacterId={getCurrentParticipant()?.id}

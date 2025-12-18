@@ -15,6 +15,8 @@ import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useJobStore } from '../stores/useJobStore';
 import { useLocationStore } from '../stores/useLocationStore';
+import type { ConversationEntry } from '../types';
+
 interface DialogueNode {
   npc_text: string;
   player_choices?: {
@@ -75,7 +77,160 @@ interface DialogueState {
 export class DialogueService {
   private static currentDialogueId: string | null = null;
   private static currentNodeId: string = '0';
-  private static dialogueHistory: string[] = [];
+  private static dialogueHistory: ConversationEntry[] = [];
+
+  public static applyConditionsToNode(node: DialogueNode): DialogueNode {
+    const choices = node.player_choices || [];
+    // Debug logging - FULL DUMP
+    const jobStore = useJobStore.getState();
+    const world = useWorldStateStore.getState();
+    const journal = useJournalStore.getState();
+    const diary = useDiaryStore.getState();
+    const timeStore = useWorldTimeStore.getState();
+    const inventory = useInventoryStore.getState();
+
+    console.log('[DialogueService] applyConditionsToNode - START');
+    console.log('[DialogueService] Current Job State:', {
+      activeJob: jobStore.activeJob,
+      firedJobs: jobStore.firedJobs,
+      activeJobId: jobStore.activeJob?.jobId
+    });
+    console.log('[DialogueService] Relationships:', diary.relationships);
+    
+    const filtered = choices.filter((choice) => {
+      const condition = choice.condition;
+      console.log(`[DialogueService] Evaluating choice: "${choice.text}"`);
+      if (!condition) {
+        console.log(`  -> No condition, keeping.`);
+        return true;
+      }
+      
+      console.log(`  -> Condition: "${condition}"`);
+
+      const parts = String(condition).split('&&').map(s => s.trim());
+
+      for (const expr of parts) {
+        let op = '==';
+        let lhs = expr;
+        let rhsRaw = '';
+        let opFound = false;
+
+        // Find operator
+        for (const candidate of ['>=','<=','==','>','<']) {
+          const idx = expr.indexOf(candidate);
+          if (idx >= 0) {
+            op = candidate;
+            lhs = expr.slice(0, idx).trim();
+            rhsRaw = expr.slice(idx + candidate.length).trim();
+            opFound = true;
+            break;
+          }
+        }
+
+        const rhsBool = rhsRaw === 'true' ? true : rhsRaw === 'false' ? false : undefined;
+        const rhsNum = rhsBool === undefined && rhsRaw !== '' && !isNaN(Number(rhsRaw)) ? Number(rhsRaw) : undefined;
+
+        console.log(`    -> Part: "${expr}" parsed as LHS="${lhs}" OP="${op}" RHS="${rhsRaw}"`);
+
+        let result = true; // Default for this part
+
+        if (lhs.startsWith('quest.')) {
+          const [, questId, field] = lhs.split('.');
+          const q = journal.quests[questId];
+          if (field === 'active') {
+            const val = (q?.active || false);
+            if (op === '==') { if (val !== (rhsBool as boolean)) result = false; }
+          } else if (field === 'completed') {
+            const val = (q?.completed || false);
+            if (op === '==') { if (val !== (rhsBool as boolean)) result = false; }
+          } else if (field === 'stage') {
+            const stage = q?.currentStage ?? 0;
+            if (op === '==') { if (stage !== (rhsNum as number)) result = false; }
+            if (op === '>') { if (!(stage > (rhsNum as number))) result = false; }
+            if (op === '<') { if (!(stage < (rhsNum as number))) result = false; }
+            if (op === '>=') { if (!(stage >= (rhsNum as number))) result = false; }
+            if (op === '<=') { if (!(stage <= (rhsNum as number))) result = false; }
+          }
+        } else if (lhs.startsWith('world_flags.')) {
+          const flag = lhs.replace('world_flags.', '');
+          const val = world.getFlag(flag);
+          const target = rhsBool !== undefined ? rhsBool : rhsNum;
+          console.log(`      -> Checking flag "${flag}": val=${val}, target=${target}`);
+          if (op === '==') { if (val !== target) result = false; }
+          if (op === '>') { if (!(Number(val) > (rhsNum as number))) result = false; }
+          if (op === '<') { if (!(Number(val) < (rhsNum as number))) result = false; }
+          if (op === '>=') { if (!(Number(val) >= (rhsNum as number))) result = false; }
+          if (op === '<=') { if (!(Number(val) <= (rhsNum as number))) result = false; }
+        } else if (lhs === 'time.is_day') {
+          const hour = timeStore.hour;
+          const isDay = hour >= 6 && hour < 18;
+          if (op === '==') { if (isDay !== (rhsBool as boolean)) result = false; }
+        } else if (lhs === 'time.is_night') {
+          const hour = timeStore.hour;
+          const isNight = hour < 6 || hour >= 18;
+          if (op === '==') { if (isNight !== (rhsBool as boolean)) result = false; }
+        } else if (lhs === 'time.hour_lt') {
+          const hour = timeStore.hour;
+          if (!(hour < (rhsNum as number))) result = false;
+        } else if (lhs === 'time.hour_gte') {
+          const hour = timeStore.hour;
+          if (!(hour >= (rhsNum as number))) result = false;
+        } else if (lhs === 'time.weekday') {
+          const names = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+          const firstDow = ((timeStore.month - 1) * 30) % 7;
+          const weekday = (firstDow + timeStore.dayOfMonth - 1) % 7;
+          const current = names[weekday];
+          if (current !== rhsRaw) result = false;
+        } else if (lhs.startsWith('relationship.')) {
+          const npcId = lhs.replace('relationship.', '');
+          const val = diary.relationships[npcId]?.friendship?.value ?? 0;
+          console.log(`      -> Checking relationship "${npcId}": val=${val}, target=${rhsNum}`);
+          if (op === '==') { if (val !== (rhsNum as number)) result = false; }
+          if (op === '>') { if (!(val > (rhsNum as number))) result = false; }
+          if (op === '<') { if (!(val < (rhsNum as number))) result = false; }
+          if (op === '>=') { if (!(val >= (rhsNum as number))) result = false; }
+          if (op === '<=') { if (!(val <= (rhsNum as number))) result = false; }
+        } else if (lhs.startsWith('job.')) {
+           const parts = lhs.split('.'); // e.g. ['job', 'job_dockhand', 'active']
+           const jobId = parts[1];
+           const property = parts[2];
+           let val: boolean = false;
+           
+           if (property === 'fired') {
+             val = !!jobStore.firedJobs[jobId];
+           } else {
+             // Default to active check if not specified or 'active'
+             val = jobStore.activeJob?.jobId === jobId;
+           }
+           
+           console.log(`      -> Checking job "${jobId}" property "${property}": val=${val}, target=${rhsBool}`);
+           if (op === '==') { if (val !== (rhsBool as boolean)) result = false; }
+        } else if (lhs.startsWith('inventory.')) {
+          const itemId = lhs.replace('inventory.', '');
+          const qty = inventory.getItemQuantity(itemId);
+          if (op === '==') { if (qty !== (rhsNum as number)) result = false; }
+          if (op === '>') { if (!(qty > (rhsNum as number))) result = false; }
+          if (op === '<') { if (!(qty < (rhsNum as number))) result = false; }
+          if (op === '>=') { if (!(qty >= (rhsNum as number))) result = false; }
+          if (op === '<=') { if (!(qty <= (rhsNum as number))) result = false; }
+        } else {
+           console.warn(`[DialogueService] Unrecognized condition part: "${lhs}"`);
+           // Fail closed for unknown conditions to prevent "ghost buttons"
+           return false; 
+        }
+
+        if (!result) {
+          console.log(`    -> Part FAILED. Excluding choice.`);
+          return false;
+        } else {
+          console.log(`    -> Part PASSED.`);
+        }
+      }
+      console.log(`  -> All parts passed. Keeping choice.`);
+      return true;
+    });
+    return { ...node, player_choices: filtered };
+  }
 
   static startDialogue(npcId: string): DialogueNode | null {
     // Determine known state before updating, to support first-time greeting behavior
@@ -101,30 +256,33 @@ export class DialogueService {
       if (npcId === 'npc_old_leo') dialogueId = 'old_leo_intro';
       if (npcId === 'npc_sarah') dialogueId = 'sarah_intro';
       if (npcId === 'npc_robert') dialogueId = 'robert_intro';
+      if (npcId === 'npc_kyle') dialogueId = 'kyle_intro';
     }
 
-    // Check if Roberta's quest is completed
+    const currentEventId = useUIStore.getState().currentEventId;
+    if (npcId === 'npc_kyle' && currentEventId === 'kyle_smuggler_alert') {
+      dialogueId = 'kyle_smuggler_alert';
+    }
+
+    if (npcId === 'npc_finn' && useWorldStateStore.getState().getFlag('finn_debt_intro_pending')) {
+      dialogueId = 'finn_debt_intro';
+    }
+
+    // Check if Roberta's quest is active or completed
     if (npcId === 'npc_roberta') {
       const journalStore = useJournalStore.getState();
       const robertaQuest = journalStore.quests['roberta_planks_for_the_past'];
-      if (robertaQuest && robertaQuest.completed) {
+      if (robertaQuest && robertaQuest.active && !robertaQuest.completed) {
+        dialogueId = 'roberta_planks_active';
+      } else if (robertaQuest && robertaQuest.completed) {
         dialogueId = 'roberta_planks_completed';
       }
     }
+
     if (npcId === 'npc_boric') {
-      const aj = useJobStore.getState().activeJob;
-      const fired = useJobStore.getState().firedJobs['job_dockhand'];
-      const greeted = useWorldStateStore.getState().getFlag('greeted_npc_boric');
-      console.log('[DialogueService][start] boric state', { greeted, activeJob: aj?.jobId, fired: Boolean(fired) });
-      if (aj?.jobId === 'job_dockhand') {
-        dialogueId = 'boric_employee';
-      } else if (fired) {
-        dialogueId = 'boric_fired';
-      } else {
-        const greetedFlagBoric = 'greeted_npc_boric';
-        if (!useWorldStateStore.getState().getFlag(greetedFlagBoric)) {
-          dialogueId = 'boric_intro';
-        }
+      const greetedFlagBoric = 'greeted_npc_boric';
+      if (!useWorldStateStore.getState().getFlag(greetedFlagBoric)) {
+        dialogueId = 'boric_intro';
       }
     }
 
@@ -150,8 +308,8 @@ export class DialogueService {
       return shouldGreet ? { ...firstNode, npc_text: `Hello. I'm ${npcName}. ${firstNode.npc_text}` } : firstNode;
     })();
     // Initial NPC line prepared
-    this.dialogueHistory = [effectiveFirstNode.npc_text];
-    return effectiveFirstNode;
+    this.dialogueHistory = [{ speaker: 'npc', text: effectiveFirstNode.npc_text }];
+    return DialogueService.applyConditionsToNode(effectiveFirstNode);
   }
 
   static selectResponse(responseIndex: number): DialogueNode | null {
@@ -160,12 +318,17 @@ export class DialogueService {
     const currentDialogue = typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData];
     if (!currentDialogue) return null;
 
-    const currentNode = currentDialogue.nodes[this.currentNodeId as keyof typeof currentDialogue.nodes];
-    if (!currentNode || !currentNode.player_choices[responseIndex]) {
+    const rawNode = currentDialogue.nodes[this.currentNodeId as keyof typeof currentDialogue.nodes];
+    if (!rawNode) return null;
+
+    // Apply conditions to ensure we match the index to the filtered list the user saw
+    const filteredNode = DialogueService.applyConditionsToNode(rawNode);
+
+    if (!filteredNode.player_choices || !filteredNode.player_choices[responseIndex]) {
       return null;
     }
 
-    const response = currentNode.player_choices[responseIndex];
+    const response = filteredNode.player_choices[responseIndex];
 
     if (response.action) {
       const actionStr = response.action as string;
@@ -173,15 +336,15 @@ export class DialogueService {
     }
 
     // Add to history
-    this.dialogueHistory.push(response.text);
+    this.dialogueHistory.push({ speaker: 'player', text: response.text });
 
     // Handle next dialogue
     if (response.next_node) {
       const nextNode = currentDialogue.nodes[response.next_node as keyof typeof currentDialogue.nodes];
       if (nextNode) {
         this.currentNodeId = response.next_node;
-        this.dialogueHistory.push(nextNode.npc_text);
-        return nextNode;
+        this.dialogueHistory.push({ speaker: 'npc', text: nextNode.npc_text });
+        return DialogueService.applyConditionsToNode(nextNode);
       }
     } else if (response.closes_dialogue) {
       this.endDialogue();
@@ -198,10 +361,11 @@ export class DialogueService {
     const dialogueEntry = typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData];
     if (!dialogueEntry) return null;
 
-    return dialogueEntry.nodes[this.currentNodeId as keyof typeof dialogueEntry.nodes] || null;
+    const node = dialogueEntry.nodes[this.currentNodeId as keyof typeof dialogueEntry.nodes] || null;
+    return node ? DialogueService.applyConditionsToNode(node) : null;
   }
 
-  static getDialogueHistory(): string[] {
+  static getDialogueHistory(): ConversationEntry[] {
     return [...this.dialogueHistory];
   }
 
@@ -284,8 +448,11 @@ export class DialogueService {
           if (!currentList.some(q => q.id === questId)) {
             useJournalStore.getState().setQuestsList([...currentList, uiQuest]);
           }
-          // Move to stage 1 after acceptance (talk stage completed)
-          useJournalStore.getState().setQuestStage(questId, 1);
+          // For intro quest, keep all objectives visible without auto-completing the first stage
+          if (questId !== 'luke_tutorial') {
+            // Move to stage 1 after acceptance (talk stage completed)
+            useJournalStore.getState().setQuestStage(questId, 1);
+          }
           // If player already has required items (e.g., 10 planks), auto-sync to stage 2
           try {
             useJournalStore.getState().syncQuestProgress(questId);
@@ -490,7 +657,7 @@ export class DialogueService {
             if (currentDialogue && rebukeNodeId && currentDialogue.nodes[rebukeNodeId]) {
               const node = currentDialogue.nodes[rebukeNodeId];
               this.currentNodeId = rebukeNodeId;
-              this.dialogueHistory.push(node.npc_text);
+              this.dialogueHistory.push({ speaker: 'npc', text: node.npc_text });
             } else {
               diaryStore.addInteraction('npc_finn: Come back when you actually did the job.');
             }

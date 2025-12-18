@@ -263,6 +263,23 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
       case 'tutorial_sleep': {
         const step = useWorldStateStore.getState().tutorialStep;
         if (step === 6) {
+          // Trigger the smuggler trap event as part of the tutorial quest
+          useWorldStateStore.getState().setFlag('robert_smuggler_incident', true);
+          useJournalStore.getState().setQuestStage('luke_tutorial', 7);
+          useWorldStateStore.getState().setTutorialStep(7);
+          // Set time to evening (8 PM) for the sleep
+          useWorldTimeStore.setState({ hour: 20, minute: 0 });
+          useUIStore.getState().setSleepWaitMode('sleep');
+          useWorldTimeStore.getState().setClockPaused(true);
+          useUIStore.getState().setSleepQuality(1.0);
+          useUIStore.getState().openModal('sleepWait');
+        } else if (step === 7) {
+          // At step 7, directly trigger sleep without confirmation
+          // Make sure time is set to evening if not already
+          const currentTime = useWorldTimeStore.getState();
+          if (currentTime.hour < 20) {
+            useWorldTimeStore.setState({ hour: 20, minute: 0 });
+          }
           useUIStore.getState().setSleepWaitMode('sleep');
           useWorldTimeStore.getState().setClockPaused(true);
           useUIStore.getState().setSleepQuality(1.0);
@@ -342,6 +359,10 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
           useLocationStore.getState().setLocation(action.target);
           if (introMode && action.target === 'leo_lighthouse' && tutorialStep === 0) {
             useWorldStateStore.getState().setTutorialStep(1);
+          }
+          // Update tutorial step when navigating back to room at step 6
+          if (introMode && action.target === 'orphanage_room' && tutorialStep === 6) {
+            useWorldStateStore.getState().setTutorialStep(7);
           }
           setPendingTravelAction(null);
         }
@@ -755,13 +776,13 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
               const locId = currentLocation.id;
               if (locId === 'orphanage_room') {
                 if (tutorialStep === 0) return action.type === 'navigate' && action.target === 'leo_lighthouse';
-                if (tutorialStep === 6) return action.type === 'tutorial_sleep';
+                if (tutorialStep === 6 || tutorialStep === 7) return action.type === 'tutorial_sleep';
                 return false;
               }
               if (locId === 'leo_lighthouse') {
                 if (tutorialStep <= 2) return action.type === 'dialogue' && action.target === 'npc_old_leo';
                 if (tutorialStep === 3) return action.type === 'tutorial_breakfast';
-                if (tutorialStep === 5) return (action.type === 'dialogue' && (action.target === 'npc_sarah' || action.target === 'npc_robert')) || action.type === 'tutorial_play_alone';
+                if (tutorialStep === 5) return (action.type === 'dialogue' && (action.target === 'npc_sarah' || action.target === 'npc_kyle')) || action.type === 'tutorial_play_alone';
                 if (tutorialStep === 6) return (action.type === 'navigate' && action.target === 'orphanage_room');
               }
               return false;
@@ -787,15 +808,15 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
                     tooltip = 'Start the day with a simple breakfast.';
                   } else if (tutorialStep === 5) {
                     disabled = false;
-                    highlight = (action.type === 'dialogue' && (action.target === 'npc_sarah' || action.target === 'npc_robert')) || action.type === 'tutorial_play_alone';
-                    tooltip = 'Play with Robert or Sarah, or spend some time alone.';
+                    highlight = (action.type === 'dialogue' && (action.target === 'npc_sarah' || action.target === 'npc_kyle')) || action.type === 'tutorial_play_alone';
+                    tooltip = 'Play with Kyle or Sarah, or spend some time alone.';
                   } else if (tutorialStep === 6) {
                     disabled = false;
                     highlight = (action.type === 'navigate' && action.target === 'orphanage_room');
                     tooltip = 'Return to the room.';
                   }
                 } else if (locId === 'orphanage_room') {
-                  if (tutorialStep === 6) {
+                  if (tutorialStep === 6 || tutorialStep === 7) {
                     disabled = false;
                     highlight = action.type === 'tutorial_sleep';
                     tooltip = 'Sleep to end the day.';
@@ -815,6 +836,22 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
                 />
               );
             })}
+
+          {currentLocation.id === 'driftwatch_docks' && useWorldStateStore.getState().getFlag('smuggler_help_available') && (
+            <ActionButton
+              key="help_robert_action"
+              onClick={() => {
+                useWorldStateStore.getState().setFlag('smuggler_help_available', false);
+                GameManagerService.startSmugglerCombat();
+              }}
+              category="highlighted"
+              icon={<Swords size={24} />}
+              text="Help Robert"
+              disabled={false}
+              highlight={true}
+              tooltip="Rush to Robert's aid against the smugglers"
+            />
+          )}
         </div>
       </aside>
 
@@ -827,6 +864,8 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
           {currentLocation.description}
         </p>
       </main>
+
+      
 
       {/* Navigation */}
       <LocationNav

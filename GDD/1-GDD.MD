@@ -21,9 +21,9 @@ This game is for players who enjoy deep, complex RPGs with a focus on character 
 
 The initial release (v1.0) will serve as a playable introduction to the world and core mechanics. The main features for v1.0 will be:
 - The initial implementation of the "Skilling" and "Relationship" loops.
-- A preview of the "Conquest" loop.
 - The introductory chapter of the story for the starting character, "Luke".
 - A portion of the Driftwatch area, featuring key NPCs and introductory quests.
+- A foundational, simple turn-based combat loop.
 
 ## 4. Key Features
 

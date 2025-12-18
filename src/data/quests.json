@@ -34,17 +34,18 @@
     }
   },
   "luke_tutorial": {
-    "title": "Luke’s First Day",
+    "title": "Luke's First Day",
     "giver_id": "npc_old_leo",
-    "description": "Learn the basics: navigate, talk, choose a perk, share breakfast, meet friends, and end the day.",
+    "description": "Learn the basics: navigate, talk, choose a perk, share breakfast, meet friends, and survive the night.",
     "stages": [
       { "id": 0, "text": "Learn the location UI.", "type": "tutorial", "target": "orphanage_room" },
-      { "id": 1, "text": "Leave the room and go to Leo’s Lighthouse.", "type": "navigate", "target": "leo_lighthouse" },
+      { "id": 1, "text": "Leave the room and go to Leo's Lighthouse.", "type": "navigate", "target": "leo_lighthouse" },
       { "id": 2, "text": "Talk to Old Leo.", "type": "talk", "target": "npc_old_leo" },
       { "id": 3, "text": "Choose a starting perk.", "type": "choice", "target": "leo_perk" },
       { "id": 4, "text": "Eat breakfast at the orphanage.", "type": "wait", "target": "leo_lighthouse" },
-      { "id": 5, "text": "Play with Sarah or Robert, or alone.", "type": "talk", "target": "friends" },
-      { "id": 6, "text": "End the day and go to sleep.", "type": "wait", "target": "driftwatch_slums" }
+      { "id": 5, "text": "Play with Sarah or Robert, or alone.", "type": "talk", "target": "npc_sarah" },
+      { "id": 6, "text": "End the day and go to sleep.", "type": "wait", "target": "driftwatch_slums" },
+      { "id": 7, "text": "Kyle bursts in: Robert's in trouble at the docks! Help him escape from smugglers.", "type": "event", "target": "smuggler_trap" }
     ],
     "rewards": {
       "xp": [],

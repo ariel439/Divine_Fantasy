@@ -4,13 +4,14 @@ import type { FC } from 'react';
 import { CheckSquare, Square, Search } from 'lucide-react';
 import type { Quest } from '../../types';
 import { useJournalStore } from '../../stores/useJournalStore';
+import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import Section from '../ui/Section';
 
 const JournalScreen: FC = () => {
     const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [questStatusTab, setQuestStatusTab] = useState<'active' | 'completed'>('active');
-    const { questsList } = useJournalStore();
+    const { questsList, quests } = useJournalStore();
 
     // Do not seed mock quests; show only actual quests present in store
 
@@ -93,14 +94,79 @@ const JournalScreen: FC = () => {
                             <div className="space-y-6">
                                 <p className="text-zinc-300 leading-relaxed">{selectedQuest.description}</p>
                                 <Section title="Objectives">
-                                    <div className="space-y-2">
-                                        {selectedQuest.objectives.map((obj, index) => (
-                                            <div key={index} className="flex items-center gap-3 bg-black/20 p-3 rounded-md">
-                                                {obj.completed ? <CheckSquare size={20} className="text-green-400 flex-shrink-0" /> : <Square size={20} className="text-zinc-500 flex-shrink-0" />}
-                                                <p className={`text-sm ${obj.completed ? 'text-zinc-400 line-through' : 'text-zinc-200'}`}>{obj.text}</p>
+                                    {(() => {
+                                        const isActive = selectedQuest.status === 'active';
+                                        const isLukeTutorial = selectedQuest.id === 'luke_tutorial';
+                                        const coreQuest = quests[selectedQuest.id];
+                                        const currentStage = coreQuest?.currentStage ?? 0;
+                                        const coreStagesRaw = (coreQuest?.stages || []);
+                                        const coreStages = coreStagesRaw.filter((s: any) => {
+                                            if (isLukeTutorial && (s.id === 0 || s.id === 3)) return false;
+                                            return true;
+                                        });
+                                        const world = useWorldStateStore.getState();
+                                        const isFinnDebt = selectedQuest.id === 'finn_debt_collection';
+
+                                        const displayStages = (() => {
+                                            if (!isActive) return coreStages;
+                                            // Concurrent collect objectives: show all collect steps simultaneously for any quest with multiple collects
+                                            const collectStages = coreStages.filter((s: any) => s.type === 'collect');
+                                            if (collectStages.length >= 2) {
+                                                return coreStages.map((s: any) => {
+                                                    if (s.type === 'collect') {
+                                                        if (isFinnDebt) {
+                                                            const flagMap: Record<string, string> = {
+                                                                'npc_ben': 'debt_paid_by_ben',
+                                                                'npc_beryl': 'debt_paid_by_beryl',
+                                                                'npc_elara': 'debt_paid_by_elara',
+                                                            };
+                                                            const flag = flagMap[s.target];
+                                                            const completed = flag ? world.getFlag(flag) : ((s.id ?? 0) < currentStage);
+                                                            return { ...s, __completed: completed };
+                                                        }
+                                                        const completed = (s.id ?? 0) < currentStage;
+                                                        return { ...s, __completed: completed };
+                                                    }
+                                                    // For non-collect stages, show up to currentStage
+                                                    const completed = (s.id ?? 0) < currentStage;
+                                                    return { ...s, __completed: completed };
+                                                });
+                                            }
+                                            // Sequential: show completed up to currentStage plus the current open stage
+                                            const seq = coreStages.filter((s: any) => (s.id ?? 0) <= currentStage).map((s: any) => ({ ...s, __completed: (s.id ?? 0) < currentStage }));
+                                            // If nothing shows (e.g., currentStage=0 but first filtered out), include the next upcoming stage
+                                            if (seq.length === 0) {
+                                                const nextIdx = coreStages.findIndex((s: any) => (s.id ?? 0) > currentStage);
+                                                if (nextIdx !== -1) {
+                                                    const next = coreStages[nextIdx];
+                                                    return [{ ...next, __completed: false }];
+                                                }
+                                            }
+                                            // Also include the current open stage if not yet included
+                                            const hasCurrent = seq.some((s: any) => (s.id ?? 0) === currentStage);
+                                            if (!hasCurrent) {
+                                                const current = coreStages.find((s: any) => (s.id ?? 0) === currentStage);
+                                                if (current) seq.push({ ...current, __completed: false });
+                                            }
+                                            return seq;
+                                        })();
+                                        return (
+                                            <div className="space-y-2">
+                                                {displayStages.map((s: any, index: number) => {
+                                                    const stageId = s.id ?? index;
+                                                    const completed = typeof s.__completed === 'boolean'
+                                                        ? s.__completed
+                                                        : (stageId < currentStage || selectedQuest.status === 'completed');
+                                                    return (
+                                                        <div key={`${stageId}-${index}`} className="flex items-start gap-3 p-2 rounded-md bg-black/20 border border-zinc-800">
+                                                            {completed ? <CheckSquare size={18} className="text-green-400 mt-0.5" /> : <Square size={18} className="text-zinc-500 mt-0.5" />}
+                                                            <p className={`text-sm ${completed ? 'text-zinc-400 line-through' : 'text-zinc-200'}`}>{s.text}</p>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
-                                        ))}
-                                    </div>
+                                        );
+                                    })()}
                                 </Section>
                                 {selectedQuest.status === 'completed' && (
                                   <Section title="Rewards">

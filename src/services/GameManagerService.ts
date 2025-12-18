@@ -15,6 +15,7 @@ import { useUIStore } from '../stores/useUIStore';
 import characterTemplates from '../data/character_templates.json';
 import enemiesJson from '../data/enemies.json';
 import type { CombatParticipant } from '../stores/useCombatStore';
+import { DataValidator } from './DataValidator';
 
 export class GameManagerService {
   private static currentDay: number = 0;
@@ -34,6 +35,12 @@ export class GameManagerService {
         }
       }
     );
+    try {
+      const issues = DataValidator.run();
+      if (issues.length > 0) {
+        console.warn('[DataValidator] Issues detected:', issues);
+      }
+    } catch {}
   }
 
   static startNewGame(templateId: string): void {
@@ -225,6 +232,62 @@ export class GameManagerService {
 
     // Start combat
     useCombatStore.getState().startCombat(player, companionCombatant, selectedWolves);
+    useUIStore.getState().setScreen('combat');
+  }
+
+  static startSmugglerCombat(): void {
+    const character = useCharacterStore.getState();
+    const companion = useCompanionStore.getState().activeCompanion;
+
+    const enemyTemplate = enemiesJson['smuggler_dockhand'];
+    const enemies: CombatParticipant[] = [];
+    for (let i = 0; i < 4; i++) {
+      enemies.push({
+        id: `smuggler_${i}_${Date.now()}`,
+        name: enemyTemplate?.name || 'Smuggler',
+        hp: enemyTemplate?.stats.hp || 60,
+        maxHp: enemyTemplate?.stats.hp || 60,
+        attack: enemyTemplate?.stats.attack || 7,
+        defence: enemyTemplate?.stats.defence || 5,
+        agility: enemyTemplate?.stats.agility || 6,
+        portraitUrl: '/assets/portraits/Smuggler.png',
+        isPlayer: false,
+        isCompanion: false,
+      });
+    }
+
+    const player: CombatParticipant = {
+      id: 'player',
+      name: character.bio.name,
+      hp: character.hp,
+      maxHp: 100,
+      attack: character.attributes.strength,
+      defence: character.attributes.strength,
+      agility: character.attributes.agility,
+      portraitUrl: character.bio.image,
+      isPlayer: true,
+      isCompanion: false,
+    };
+
+    let companionCombatant: CombatParticipant | null = null;
+    if (companion) {
+      companionCombatant = {
+        id: 'companion',
+        name: companion.name,
+        hp: companion.stats.hp,
+        maxHp: companion.stats.maxHp,
+        attack: companion.stats.attack,
+        defence: companion.stats.defence,
+        agility: companion.stats.agility,
+        portraitUrl: '/assets/portraits/Robert.png',
+        isPlayer: false,
+        isCompanion: true,
+      };
+    }
+
+    useCombatStore.getState().startCombat(player, companionCombatant, enemies);
+    useWorldStateStore.getState().setFlag('smuggler_scripted_loss', true);
+    useWorldStateStore.getState().setFlag('combat_tutorial_active', true);
     useUIStore.getState().setScreen('combat');
   }
 }

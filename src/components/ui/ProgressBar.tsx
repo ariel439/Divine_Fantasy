@@ -53,7 +53,7 @@ const ProgressBar: FC<ProgressBarProps> = ({ label, value, max, colorClass, nega
     <div className="w-full">
       <div className="flex justify-between items-center mb-1 text-xs text-white/90">
         {label && <span className="font-bold tracking-wide">{label}</span>}
-        <span>{value} / {max}</span>
+        {showText && <span>{value} / {max}</span>}
       </div>
       <div className="w-full bg-black/50 rounded-full h-2 shadow-inner">
         <div className={barClass} style={barStyle}></div>

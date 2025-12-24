@@ -145,7 +145,7 @@ const DialogueScreen: FC<DialogueScreenProps> = ({
                             >
                                 <span className="font-semibold text-white/90">
                                     {opt.skillCheck && (
-                                        <span className="mr-2 text-yellow-400 font-bold">
+                                        <span className="mr-2 text-yellow-400 font-bold capitalize">
                                             [{opt.skillCheck.skill}]
                                         </span>
                                     )}

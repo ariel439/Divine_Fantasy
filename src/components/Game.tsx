@@ -301,6 +301,7 @@ const Game: React.FC = () => {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             useWorldStateStore.getState().setIntroMode(false);
+            useWorldStateStore.getState().removeKnownNpc('npc_robert');
             useWorldStateStore.getState().setIntroCompleted(true);
             useWorldStateStore.getState().setFlag('intro_completed', true);
             try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
@@ -316,16 +317,17 @@ const Game: React.FC = () => {
             return;
           }
           if (id === 'robert_caught') {
-            ui.setEventSlides(backToLighthouseSlides);
-            ui.setCurrentEventId('back_to_lighthouse');
-            setScreen('event');
-            return;
-          }
-          if (id === 'back_to_lighthouse') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             useLocationStore.getState().setLocation('orphanage_room');
             useWorldStateStore.getState().setFlag('start_finn_debt_on_sleep', true);
+            setScreen('inGame');
+            return;
+          }
+          if (id === 'beryl_secret_meeting') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            useWorldStateStore.getState().setFlag('beryl_secret_meeting_seen', true);
             setScreen('inGame');
             return;
           }
@@ -412,6 +414,28 @@ const Game: React.FC = () => {
           />
         );
       case 'choiceEvent':
+        const eventId = useUIStore.getState().currentEventId;
+        if (eventId === 'beryl_letter_pickup') {
+           return (
+             <ChoiceEventScreen
+               title="Crumpled Letter"
+               imageUrl="/assets/items/crumpled_letter.png"
+               eventText="A crumpled letter lies in the puddle. It's soaked but legible."
+               choices={[
+                 { 
+                   text: 'Take the letter', 
+                   onSelect: () => {
+                     useInventoryStore.getState().addItem('beryl_noble_letter', 1);
+                     useWorldStateStore.getState().setFlag('beryl_letter_found', true);
+                     useDiaryStore.getState().addInteraction('Picked up Crumpled Letter.');
+                     useUIStore.getState().setCurrentEventId(null);
+                     setScreen('inGame');
+                   } 
+                 }
+               ]}
+             />
+           );
+        }
         return (
           <ChoiceEventScreen
             eventText={"An event occurs."}
@@ -481,7 +505,7 @@ const Game: React.FC = () => {
             : {
                 backgroundImage: `url(${currentScreen === 'inGame'
                   ? getCurrentLocation().background
-                  : (currentScreen === 'mainMenu' ? '/assets/portraits/MainMenu.png' : 'https://i.imgur.com/WsODuhO.png')
+                  : (currentScreen === 'mainMenu' ? '/assets/backgrounds/main_menu.png' : '/assets/backgrounds/minimal_bg.png')
                 })`,
                 // Zoom slightly on wide screens, fill on others
                 backgroundSize: 'cover',
@@ -584,6 +608,7 @@ const Game: React.FC = () => {
               useWorldStateStore.getState().setIntroCompleted(true);
               useWorldStateStore.getState().setFlag('intro_completed', true);
               useWorldStateStore.getState().setIntroMode(false);
+              useWorldStateStore.getState().removeKnownNpc('npc_robert');
               useWorldTimeStore.setState({ year: 780 });
               useLocationStore.getState().setLocation('salty_mug');
               ui.setEventSlides(finnDebtIntroSlides);
@@ -641,6 +666,7 @@ const Game: React.FC = () => {
             useWorldStateStore.getState().setIntroCompleted(true);
             useWorldStateStore.getState().setFlag('intro_completed', true);
             useWorldStateStore.getState().setIntroMode(false);
+            useWorldStateStore.getState().removeKnownNpc('npc_robert');
             useWorldStateStore.getState().setFlag('finn_debt_intro_pending', true);
             useWorldTimeStore.setState({ year: 780 });
             useLocationStore.getState().setLocation('salty_mug');

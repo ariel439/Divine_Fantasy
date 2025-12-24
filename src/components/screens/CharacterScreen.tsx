@@ -136,14 +136,23 @@ const CharacterScreen: FC = () => {
                                     <h3 className="text-2xl font-bold text-zinc-300 mb-4 tracking-wider" style={{ fontFamily: 'Cinzel, serif' }}>Skills</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {characterData.skills.map(skill => (
-                                            <div key={skill.name} className="flex items-center gap-4 bg-black/20 p-3 rounded-lg border border-zinc-800">
-                                                <div className="p-3 bg-black/30 rounded-md text-zinc-300 border border-zinc-700">
-                                                    {skill.icon}
+                                            <div key={skill.name} className="bg-black/20 p-3 rounded-lg border border-zinc-800">
+                                                <div className="flex items-center gap-4 mb-3">
+                                                    <div className="p-3 bg-black/30 rounded-md text-zinc-300 border border-zinc-700">
+                                                        {skill.icon}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-semibold text-white text-lg">{skill.name}</p>
+                                                        <p className="text-md text-zinc-400">{getDescriptiveSkillLabel(skill.level)}</p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <p className="font-semibold text-white text-lg">{skill.name}</p>
-                                                    <p className="text-md text-zinc-400">{getDescriptiveSkillLabel(skill.level)}</p>
-                                                </div>
+                                                <ProgressBar 
+                                                    value={((skill.level - 1) % 10) + 1} 
+                                                    max={10} 
+                                                    colorClass="bg-amber-600 shadow-[0_0_8px_rgba(217,119,6,0.5)]" 
+                                                    variant="slim"
+                                                    showText={false}
+                                                />
                                             </div>
                                         ))}
                                     </div>

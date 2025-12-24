@@ -35,7 +35,7 @@ To create a prompt for a specific character, append their unique description to 
 
 *   **Aspect Ratio:** All location images **must** be generated at a **3:2 aspect ratio** to fit the new locations UI layout. Existing 1:1 images remain acceptable for legacy screens, but new assets should follow 3:2.
 *   **Perspective:** The viewpoint should be from a street-level or slightly elevated perspective, as if the player is standing there.
-*   **Aesthetic:** Dark, gritty, and realistic. The mood should be somber and atmospheric. Avoid overly vibrant colors.
+*   **Aesthetic:** Dark, gritty, and realistic. The mood is generally somber and atmospheric. Avoid overly vibrant colors.
 
 ### 3.2. Baseline Prompt for Locations
 
@@ -73,7 +73,7 @@ Combine the baseline prompt with specific details from the guidelines.
 
 ## 4. Item Icons
 
-This section defines the style and prompt structure for item icons, aligned with the overall art direction.
+This section defines the style and prompt structure for item icons, aligned with the overall art direction but ensuring clarity and distinct textures.
 
 ### 4.1. Core Prompt Formula
 
@@ -83,32 +83,35 @@ Use the following formula to construct consistent item icon prompts:
 
 - **Subject:** A clear and simple declaration of the item (e.g., "A single wooden arrow").
 - **Description:** Adjectives and details about condition, material, and key features (e.g., "with a stone tip and feather fletching, slightly uneven and handmade").
-- **Style:** Painterly dark medieval fantasy; fantasy RPG inventory icon style.
+- **Style:** **Digital painting, semi-realistic RPG item icon, smooth texture, soft lighting, high detail, clean edges.** (Avoid "painterly" or "sketchy" if it adds unwanted noise/fur).
 - **Framing:** Isolated on a transparent background.
 
 ### 4.2. Best-Practice Examples
 
 - **Wooden Arrow:**
-  > "A single wooden arrow with a stone tip and feather fletching, slightly uneven and handmade, depicted as a fantasy RPG inventory icon, painterly style, isolated on a transparent background."
+  > "A single wooden arrow with a stone tip and feather fletching, slightly uneven and handmade. Digital painting, semi-realistic RPG item icon, smooth texture, soft lighting, high detail, clean edges, isolated on a transparent background."
 
 - **Crude Knife:**
-  > "A crude, hand-forged knife with a chipped blade and a simple wooden handle, looking rugged and utilitarian, in a dark medieval fantasy RPG inventory icon style, isolated on a transparent background."
+  > "A crude, hand-forged knife with a chipped blade and a simple wooden handle, looking rugged and utilitarian. Digital painting, semi-realistic RPG item icon, smooth texture, soft lighting, high detail, clean edges, isolated on a transparent background."
 
-- **Cooked Flounder:**
-  > "A cooked flounder fish, golden-brown and slightly crispy, presented as an inventory icon, with steam rising and subtle grill marks, in a painterly dark medieval fantasy style, isolated on a transparent background."
+- **Grilled Fish:**
+  > "A whole grilled fish, golden-brown skin with grill marks, savory and appetizing. Digital painting, semi-realistic RPG item icon, smooth texture, soft lighting, high detail, clean edges, isolated on a transparent background."
+
+- **Loaf of Bread:**
+  > "A rustic loaf of sourdough bread, crusty and golden, dusted with flour. Digital painting, semi-realistic RPG item icon, smooth texture, soft lighting, high detail, clean edges, isolated on a transparent background."
 
 ### 4.3. Prompts for New Quest Items
 
 Prompts for Roberta's "Planks for the Past" quest items:
 
 - **Old Axe:**
-  > "A rusty and worn old woodcutting axe with a sturdy, dark-wood handle, its steel head pitted and aged but still sharp, in a painterly dark medieval fantasy style, presented as an RPG inventory icon, isolated on a transparent background."
+  > "A rusty and worn old woodcutting axe with a sturdy, dark-wood handle, its steel head pitted and aged but still sharp. Digital painting, semi-realistic RPG item icon, smooth texture, soft lighting, high detail, clean edges, isolated on a transparent background."
 
 - **Sturdy Wood:**
-  > "A stack of three rough, circular cuts of sturdy wood logs, showing prominent grain and bark on the edges, presented as an RPG inventory icon for a crafting material, in a painterly dark medieval fantasy style, isolated on a transparent background."
+  > "A stack of three rough, circular cuts of sturdy wood logs, showing prominent grain and bark on the edges. Digital painting, semi-realistic RPG item icon, smooth texture, soft lighting, high detail, clean edges, isolated on a transparent background."
 
 - **Wooden Planks:**
-  > "A small, neat stack of freshly cut wooden planks, showing clean grain and a light sawdust coating, presented as an RPG inventory icon for a crafting material, in a painterly dark medieval fantasy style, isolated on a transparent background."
+  > "A small, neat stack of freshly cut wooden planks, showing clean grain and a light sawdust coating. Digital painting, semi-realistic RPG item icon, smooth texture, soft lighting, high detail, clean edges, isolated on a transparent background."
 
 ---
 

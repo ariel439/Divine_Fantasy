@@ -16,6 +16,7 @@
   ,
   "smuggler_dockhand": {
     "name": "Smuggler",
+    "image": "/assets/portraits/Smuggler.png",
     "stats": { "hp": 60, "attack": 7, "defence": 5, "agility": 6 },
     "loot_table": [
       { "item_id": "copper_coin", "quantity": 5, "chance": 0.5 }

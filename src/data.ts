@@ -33,18 +33,37 @@ export const getDescriptiveAttributeLabel = (attribute: keyof typeof attributeLa
 export const skillProficiencyLabels: { [key: number]: string } = {
     1: 'Novice',
     2: 'Apprentice',
-    3: 'Apprentice',
+    3: 'Journeyman',
     4: 'Adept',
-    5: 'Adept',
+    5: 'Artisan',
     6: 'Expert',
-    7: 'Expert',
-    8: 'Master',
-    9: 'Master',
-    10: 'Grandmaster',
+    7: 'Master',
+    8: 'Grandmaster',
+    9: 'Legend',
+    10: 'Divine',
 };
 
 export const getDescriptiveSkillLabel = (level: number): string => {
-    return skillProficiencyLabels[level] || 'Untrained';
+    // Levels 1-10: Novice (Tier 1)
+    if (level <= 10) return skillProficiencyLabels[1];
+    // Levels 11-20: Apprentice (Tier 2)
+    if (level <= 20) return skillProficiencyLabels[2];
+    // Levels 21-30: Journeyman (Tier 3)
+    if (level <= 30) return skillProficiencyLabels[3];
+    // Levels 31-40: Adept (Tier 4)
+    if (level <= 40) return skillProficiencyLabels[4];
+    // Levels 41-50: Artisan (Tier 5)
+    if (level <= 50) return skillProficiencyLabels[5];
+    // Levels 51-60: Expert (Tier 6)
+    if (level <= 60) return skillProficiencyLabels[6];
+    // Levels 61-70: Master (Tier 7)
+    if (level <= 70) return skillProficiencyLabels[7];
+    // Levels 71-80: Grandmaster (Tier 8)
+    if (level <= 80) return skillProficiencyLabels[8];
+    // Levels 81-90: Legend (Tier 9)
+    if (level <= 90) return skillProficiencyLabels[9];
+    // Levels 91-99: Divine (Tier 10)
+    return skillProficiencyLabels[10];
 };
 
 
@@ -165,12 +184,12 @@ export const mockEquippedItems: Partial<Record<EquipmentSlot, Item>> = {
 
 export const robertCaughtSlides: Slide[] = [
   {
-    image: "/assets/locations/driftwatch_docks_night.png",
-    text: "The smugglers overwhelm Robert, blades flashing in the dark. He takes blow after blow, blood staining his shirt, but he refuses to fall."
+    image: "/assets/events/robert_caught.png",
+    text: "The smugglers overwhelm Robert, blades flashing in the dark. He takes blow after blow, but refuses to fall. With a desperate shout, he throws himself at the attackers. 'Run! Get Kyle out of here!' he screams, sacrificing himself. You grab Kyle and sprint into the night, the sounds of the struggle fading behind you."
   },
   {
-    image: "/assets/locations/driftwatch_docks_night.png",
-    text: "With a desperate shout, Robert throws himself at the attackers, blocking their path. 'Run! Get Kyle out of here!' he screams, sacrificing himself to buy you time."
+    image: "/assets/locations/leo_lighthouse_room.png",
+    text: "Breathless, you and Kyle burst back into Leo’s Lighthouse. The door closes on the whispering wind, shutting out the danger but not the grief. Robert is gone. There’s nothing to do tonight but try to sleep, the memory of his sacrifice burning in your mind."
   }
 ];
 
@@ -191,7 +210,6 @@ export const mockNpcs: Npc[] = [
     relationships: {
       friendship: { value: 75, max: 100 },
       love: { value: 10, max: 100 },
-      obedience: { value: 5, max: 100 },
       fear: { value: 60, max: 100 },
     },
     history: [
@@ -208,7 +226,6 @@ export const mockNpcs: Npc[] = [
     relationships: {
       friendship: { value: 55, max: 100 },
       love: { value: 0, max: 100 },
-      obedience: { value: 15, max: 100 },
       fear: { value: 45, max: 100 },
     },
     history: [
@@ -225,7 +242,6 @@ export const mockNpcs: Npc[] = [
     relationships: {
       friendship: { value: 85, max: 100 },
       love: { value: 0, max: 100 },
-      obedience: { value: 25, max: 100 },
       fear: { value: 20, max: 100 },
     },
     history: [
@@ -242,7 +258,6 @@ export const mockNpcs: Npc[] = [
     relationships: {
       friendship: { value: 20, max: 100 },
       love: { value: 0, max: 100 },
-      obedience: { value: 40, max: 100 },
       fear: { value: 70, max: 100 },
     },
     history: [
@@ -259,7 +274,6 @@ export const mockNpcs: Npc[] = [
     relationships: {
       friendship: { value: 15, max: 100 },
       love: { value: 0, max: 100 },
-      obedience: { value: 50, max: 100 },
       fear: { value: 10, max: 100 },
     },
     history: [

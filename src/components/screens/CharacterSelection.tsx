@@ -78,7 +78,7 @@ const CharacterSelection: FC = () => {
 
     return (
         <>
-            <div className="w-full h-full" style={{ backgroundImage: `url(https://i.imgur.com/WsODuhO.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+            <div className="w-full h-full" style={{ backgroundImage: `url(/assets/backgrounds/minimal_bg.png)`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
                 <div className="absolute inset-0 bg-black/40"></div>
                 <div className="relative z-10 w-full h-full flex flex-col items-center justify-center p-4 sm:p-6">
                     <button onClick={() => setScreen('mainMenu')} className="absolute top-6 left-6 text-zinc-300 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10 z-10">

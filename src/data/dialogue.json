@@ -36,8 +36,69 @@
         "npc_text": "Welcome to Beryl's General Goods! What do you need?",
         "player_choices": [
           { "text": "Show me your goods.", "action": "open_shop:beryls_general_goods" },
-          { "text": "Finn sent me. Pay 10 silvers.", "action": "collect_debt_from:npc_beryl", "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_beryl==false", "next_node": "0" },
+          { "text": "About that letter...", "next_node": "beryl_confrontation", "condition": "world_flags.beryl_letter_found==true && world_flags.debt_paid_by_beryl==false" },
+          { "text": "Finn sent me. Pay 10 silvers.", "next_node": "beryl_refusal", "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_beryl==false && world_flags.beryl_refused_debt==false && world_flags.beryl_letter_found==false" },
+          { "text": "Finn sent me. Pay 10 silvers.", "next_node": "beryl_refusal_repeat", "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_beryl==false && world_flags.beryl_refused_debt==true && world_flags.beryl_letter_found==false" },
           { "text": "Goodbye, Beryl.", "closes_dialogue": true }
+        ]
+      },
+      "beryl_refusal": {
+        "npc_text": "I... I can't! Business has been slow... please, tell Finn I need more time!",
+        "player_choices": [
+          { "text": "He wants it now.", "next_node": "beryl_refusal_2" },
+          { "text": "I'll see what I can do.", "closes_dialogue": true, "action": "set_flag:beryl_refused_debt:true" }
+        ]
+      },
+      "beryl_refusal_2": {
+        "npc_text": "I don't have it! Leave me alone!",
+        "player_choices": [
+          { "text": "Listen, old man... pay up or else.", "next_node": "beryl_pay_intimidate", "req_skill_level": { "skill": "coercion", "level": 10 } },
+          { "text": "Fine.", "closes_dialogue": true, "action": "set_flag:beryl_refused_debt:true" }
+        ]
+      },
+      "beryl_refusal_repeat": {
+        "npc_text": "I told you, I don't have it! Go away!",
+        "player_choices": [
+          { "text": "Listen, old man... pay up or else.", "next_node": "beryl_pay_intimidate", "req_skill_level": { "skill": "coercion", "level": 10 } },
+          { "text": "Leave.", "closes_dialogue": true }
+        ]
+      },
+      "beryl_pay_intimidate": {
+        "npc_text": "A-alright! Don't hurt me! Here's the money! Just go!",
+        "player_choices": [
+          { "text": "Smart choice.", "closes_dialogue": true, "action": "collect_debt_from:npc_beryl|add_xp:coercion:25|update_relationship:npc_beryl:-30|set_flag:beryl_intimidated:true" }
+        ]
+      },
+      "beryl_pay_intimidate_fail": {
+        "npc_text": "You... you don't scare me! Get out before I call the guards!",
+        "player_choices": [
+          { "text": "Hmph.", "closes_dialogue": true }
+        ]
+      },
+      "beryl_confrontation": {
+        "npc_text": "What? That letter... where did you get that?! Give it here!",
+        "player_choices": [
+          { "text": "I'll give it back if you pay 8 silvers.", "next_node": "beryl_pay_partial" },
+          { "text": "Pay 8 silvers AND throw in some goods, or I keep it.", "next_node": "beryl_pay_items" },
+          { "text": "Here. I won't force you.", "next_node": "beryl_forgive" }
+        ]
+      },
+      "beryl_pay_partial": {
+        "npc_text": "Fine! Here is 8 silvers. Now give me that letter!",
+        "player_choices": [
+          { "text": "Deal.", "closes_dialogue": true, "action": "add_money:8|remove_item:beryl_noble_letter:1|add_xp:coercion:10|update_relationship:npc_beryl:-5|set_flag:beryl_partial_pay:true" }
+        ]
+      },
+      "beryl_pay_items": {
+        "npc_text": "You greedy little... Fine! Take the silver and this... this cloth! Now give it to me!",
+        "player_choices": [
+          { "text": "Pleasure doing business.", "closes_dialogue": true, "action": "add_money:8|add_item:cloth:2|remove_item:beryl_noble_letter:1|add_xp:coercion:25|update_relationship:npc_beryl:-20|set_flag:beryl_forced_goods:true" }
+        ]
+      },
+      "beryl_forgive": {
+        "npc_text": "You... you're giving it back? Thank you... I won't forget this.",
+        "player_choices": [
+          { "text": "Keep your secret.", "closes_dialogue": true, "action": "remove_item:beryl_noble_letter:1|update_relationship:npc_beryl:10|set_flag:beryl_debt_forgiven:true|add_xp:charisma:20" }
         ]
       }
     }
@@ -286,14 +347,21 @@
         "player_choices": [
           { "text": "Let me see your stock.", "action": "open_shop:salty_mug" },
           { "text": "About the collection job.", "next_node": "job_progress", "condition": "world_flags.finn_debt_collection_active==true" },
-          { "text": "Leave.", "closes_dialogue": true, "condition": "world_flags.finn_debt_collection_active==true" }
+          { "text": "Leave.", "closes_dialogue": true }
         ]
       },
       "job_progress": {
         "npc_text": "Three names. Ten silvers each. Bring me thirty when you're done.",
         "player_choices": [
-          { "text": "Turn in 30 silvers.", "action": "turn_in_debt_or_rebuke:30:jd_rebuke", "next_node": "jd_rebuke" },
+          { "text": "Turn in 30 silvers.", "action": "turn_in_debt_or_rebuke:30:jd_rebuke" },
+          { "text": "I... I failed with Beryl. I forgave his debt.", "next_node": "finn_fail_beryl", "condition": "world_flags.beryl_debt_forgiven==true" },
           { "text": "I'll get back to it.", "closes_dialogue": true }
+        ]
+      },
+      "finn_fail_beryl": {
+        "npc_text": "You what? You let a mark cry you into submission? Pathetic. You're paying his share out of your own pocket then. Don't come back until you have the full thirty.",
+        "player_choices": [
+          { "text": "Understood.", "closes_dialogue": true }
         ]
       },
       "jd_rebuke": {
@@ -313,7 +381,7 @@
         ]
       },
       "math": {
-        "npc_text": "Three months at twenty copper a day. Eighteen silvers you owe, and you don't have it. Here's a job: make three pay for you: Ben at the farm, Beryl at General Goods, and Elara in her hovel. Ten silvers from each. Thirty days. Bring me thirty silvers.",
+        "npc_text": "Three months at twenty copper a day. Eighteen silvers you owe, and you don't have it. Here's the job, make three pay for you: Ben at the farm, Beryl at General Goods, and Elara in her hovel. Ten silvers from each. Thirty days. Bring me thirty silvers. And listen close: no violence. We're professionals, not thugs.",
         "player_choices": [
           { "text": "I accept.", "action": "start_quest:finn_debt_collection|start_debt_collection", "closes_dialogue": true },
           { "text": "No choice. I'll do it.", "action": "start_quest:finn_debt_collection|start_debt_collection", "closes_dialogue": true }
@@ -334,8 +402,8 @@
       "0": {
         "npc_text": "Herbs and potions, stranger.",
         "player_choices": [
-          { "text": "Goodbye, Elara.", "closes_dialogue": true },
-          { "text": "Finn sent me. Pay 10 silvers.", "action": "collect_debt_from:npc_elara", "closes_dialogue": true, "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_elara==false" }
+          { "text": "Finn sent me. Pay 10 silvers.", "action": "collect_debt_from:npc_elara", "closes_dialogue": true, "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_elara==false" },
+          { "text": "Goodbye, Elara.", "closes_dialogue": true }
         ]
       }
     }

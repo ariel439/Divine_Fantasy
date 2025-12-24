@@ -4,14 +4,12 @@ interface Relationship {
   friendship: { value: number; max: number; };
   love?: { value: number; max: number; };
   fear?: { value: number; max: number; };
-  obedience?: { value: number; max: number; };
 }
 
 interface RelationshipChanges {
   friendship?: number;
   love?: number;
   fear?: number;
-  obedience?: number;
 }
 
 interface DiaryState {
@@ -42,10 +40,6 @@ export const useDiaryStore = create<DiaryState>((set, get) => ({
         ? { ...(currentRelationships.fear || { value: 0, max: 100 }), value: clamp((currentRelationships.fear?.value || 0) + changes.fear) }
         : currentRelationships.fear;
 
-      const updatedObedience = changes.obedience !== undefined
-        ? { ...(currentRelationships.obedience || { value: 0, max: 100 }), value: clamp((currentRelationships.obedience?.value || 0) + changes.obedience) }
-        : currentRelationships.obedience;
-
       return {
         relationships: {
           ...state.relationships,
@@ -54,7 +48,6 @@ export const useDiaryStore = create<DiaryState>((set, get) => ({
             friendship: updatedFriendship,
             ...(updatedLove && { love: updatedLove }),
             ...(updatedFear && { fear: updatedFear }),
-            ...(updatedObedience && { obedience: updatedObedience }),
           },
         },
       };

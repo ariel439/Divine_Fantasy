@@ -25,7 +25,9 @@
       { "text": "Travel to Leo's Lighthouse", "type": "navigate", "target": "leo_lighthouse", "condition": "time.is_day==true" },
       { "text": "Travel to Beryl's General Goods", "type": "navigate", "target": "beryls_general_goods", "condition": "world_flags.intro_completed==true&&time.is_day==true" },
       { "text": "Travel to Kaelen's Forge", "type": "navigate", "target": "kaelens_forge", "condition": "world_flags.intro_completed==true&&time.is_day==true" },
-      { "text": "Travel to Hub", "type": "navigate", "target": "driftwatch", "condition": "world_flags.intro_completed==true" }
+      { "text": "Travel to Hub", "type": "navigate", "target": "driftwatch", "condition": "world_flags.intro_completed==true" },
+      { "text": "Investigate sobbing figure", "type": "trigger_event", "eventId": "beryl_secret_meeting", "condition": "time.is_night==true&&world_flags.beryl_refused_debt==true&&world_flags.beryl_letter_found==false&&world_flags.beryl_secret_meeting_seen==false" },
+      { "text": "Pick up crumpled letter", "type": "trigger_event", "eventId": "beryl_letter_pickup", "condition": "time.is_night==true&&world_flags.beryl_secret_meeting_seen==true&&world_flags.beryl_letter_found==false" }
     ]
   },
   "leo_lighthouse": {
@@ -38,7 +40,6 @@
     "actions": [
       { "text": "Talk to Old Leo", "type": "dialogue", "target": "npc_old_leo" },
       { "text": "Talk to Sarah", "type": "dialogue", "target": "npc_sarah" },
-      { "text": "Talk to Robert", "type": "dialogue", "target": "npc_robert" },
       { "text": "Talk to Kyle", "type": "dialogue", "target": "npc_kyle" },
       { "text": "Eat Breakfast", "type": "tutorial_breakfast", "target": "breakfast", "condition": "world_flags.intro_completed==false" },
       { "text": "Play Alone", "type": "tutorial_play_alone", "target": "alone", "condition": "world_flags.intro_completed==false" },

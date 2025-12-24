@@ -19,13 +19,12 @@ const DiaryScreen: FC = () => {
         return Object.entries(npcsData).map(([id, npc]) => ({
             id: id,
             name: npc.name,
-            title: (npc as any).title || npc.name, // Use npc.name as fallback for title
-            portrait: npc.portrait,
+            title: (npc as any).title || npc.name || 'Unknown',
+            portrait: npc.portrait || '',
             relationships: {
                 friendship: { value: 0, max: 100 },
                 love: { value: 0, max: 100 },
                 fear: { value: 0, max: 100 },
-                obedience: { value: 0, max: 100 },
             },
             history: [],
         }));
@@ -55,7 +54,6 @@ const DiaryScreen: FC = () => {
             friendship: { value: 0, max: 100 },
             love: { value: 0, max: 100 },
             fear: { value: 0, max: 100 },
-            obedience: { value: 0, max: 100 },
         };
         const npcHistory = interactionHistory.filter((entry) => entry.startsWith(`${selectedNpc.id}:`));
 
@@ -68,7 +66,6 @@ const DiaryScreen: FC = () => {
                 friendship: { value: npcRelationship.friendship?.value || 0, max: 100 },
                 love: { value: npcRelationship.love?.value || 0, max: 100 },
                 fear: { value: npcRelationship.fear?.value || 0, max: 100 },
-                obedience: { value: npcRelationship.obedience?.value || 0, max: 100 },
             },
             history: npcHistory,
         };
@@ -127,7 +124,6 @@ const DiaryScreen: FC = () => {
                                     <div className="space-y-3">
                                         <ProgressBar label="Friendship" value={displayNpc.relationships.friendship.value} max={displayNpc.relationships.friendship.max} colorClass="bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.7)]" negativeColorClass="bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]" />
                                         <ProgressBar label="Love" value={displayNpc.relationships.love.value} max={displayNpc.relationships.love.max} colorClass="bg-pink-500 shadow-[0_0_8px_rgba(236,72,153,0.7)]" />
-                                        <ProgressBar label="Obedience" value={displayNpc.relationships.obedience.value} max={displayNpc.relationships.obedience.max} colorClass="bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.7)]" />
                                         <ProgressBar label="Fear" value={displayNpc.relationships.fear.value} max={displayNpc.relationships.fear.max} colorClass="bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.7)]" />
                                     </div>
                                 </Section>

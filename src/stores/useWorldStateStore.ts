@@ -14,6 +14,7 @@ interface WorldState {
   setCooldown: (event: string, timestamp: number) => void;
   isOnCooldown: (event: string) => boolean;
   addKnownNpc: (npcId: string) => void;
+  removeKnownNpc: (npcId: string) => void;
   setIntroMode: (value: boolean) => void;
   setIntroCompleted: (value: boolean) => void;
   setTutorialStep: (step: number) => void;
@@ -74,6 +75,11 @@ export const useWorldStateStore = create<WorldState>((set, get) => ({
       }
       return {};
     });
+  },
+  removeKnownNpc: (npcId) => {
+    set((state) => ({
+      knownNpcs: state.knownNpcs.filter((id) => id !== npcId),
+    }));
   },
   setIntroMode: (value) => {
     set({ introMode: value });

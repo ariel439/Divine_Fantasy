@@ -116,7 +116,6 @@ export class GameManagerService {
       knownNpcs: [
         'npc_sarah',
         'npc_old_leo',
-        'npc_robert',
         'npc_kyle',
         'npc_finn',
       ],

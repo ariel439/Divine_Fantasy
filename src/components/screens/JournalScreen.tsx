@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import type { FC } from 'react';
-import { CheckSquare, Square, Search } from 'lucide-react';
+import { CheckSquare, Square, Search, XCircle } from 'lucide-react';
 import type { Quest } from '../../types';
 import { useJournalStore } from '../../stores/useJournalStore';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
@@ -121,8 +121,10 @@ const JournalScreen: FC = () => {
                                                                 'npc_elara': 'debt_paid_by_elara',
                                                             };
                                                             const flag = flagMap[s.target];
+                                                            const isBeryl = s.target === 'npc_beryl';
+                                                            const failed = isBeryl && world.getFlag('beryl_debt_forgiven');
                                                             const completed = flag ? world.getFlag(flag) : ((s.id ?? 0) < currentStage);
-                                                            return { ...s, __completed: completed };
+                                                            return { ...s, __completed: completed, __failed: failed };
                                                         }
                                                         const completed = (s.id ?? 0) < currentStage;
                                                         return { ...s, __completed: completed };
@@ -158,9 +160,15 @@ const JournalScreen: FC = () => {
                                                         ? s.__completed
                                                         : (stageId < currentStage || selectedQuest.status === 'completed');
                                                     return (
-                                                        <div key={`${stageId}-${index}`} className="flex items-start gap-3 p-2 rounded-md bg-black/20 border border-zinc-800">
-                                                            {completed ? <CheckSquare size={18} className="text-green-400 mt-0.5" /> : <Square size={18} className="text-zinc-500 mt-0.5" />}
-                                                            <p className={`text-sm ${completed ? 'text-zinc-400 line-through' : 'text-zinc-200'}`}>{s.text}</p>
+                                                        <div key={`${stageId}-${index}`} className={`flex items-start gap-3 p-2 rounded-md bg-black/20 border ${s.__failed ? 'border-red-900/30' : 'border-zinc-800'}`}>
+                                                            {s.__failed ? (
+                                                                <XCircle size={18} className="text-red-500 mt-0.5" />
+                                                            ) : completed ? (
+                                                                <CheckSquare size={18} className="text-green-400 mt-0.5" />
+                                                            ) : (
+                                                                <Square size={18} className="text-zinc-500 mt-0.5" />
+                                                            )}
+                                                            <p className={`text-sm ${s.__failed ? 'text-red-400/70 line-through' : completed ? 'text-zinc-400 line-through' : 'text-zinc-200'}`}>{s.text}</p>
                                                         </div>
                                                     );
                                                 })}

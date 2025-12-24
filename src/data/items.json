@@ -1,4 +1,13 @@
 {
+  "beryl_noble_letter": {
+    "name": "Crumpled Letter",
+    "description": "A tear-stained letter addressed to Beryl. The handwriting is childish.",
+    "type": "key_item",
+    "stackable": false,
+    "weight": 0.0,
+    "base_value": 0,
+    "image": "/assets/items/paper.png"
+  },
   "log": {
     "name": "Log",
     "description": "A rough log, needs to be processed.",
@@ -26,7 +35,8 @@
     "base_value": 4,
     "effects": {
       "hunger": -5
-    }
+    },
+    "image": "/assets/items/fish_sardine.png"
   },
   "fish_trout": {
     "name": "Raw Trout",
@@ -37,7 +47,8 @@
     "base_value": 7,
     "effects": {
       "hunger": -10
-    }
+    },
+    "image": "/assets/items/fish_trout.png"
   },
   "fish_pike": {
     "name": "Raw Pike",
@@ -48,7 +59,8 @@
     "base_value": 15,
     "effects": {
       "hunger": -20
-    }
+    },
+    "image": "/assets/items/fish_pike.png"
   },
   "food_sardine_grilled": {
     "name": "Grilled Sardine",
@@ -59,7 +71,8 @@
     "base_value": 10,
     "effects": {
       "hunger": -15
-    }
+    },
+    "image": "/assets/items/fish_sardine_cooked.png"
   },
   "food_trout_grilled": {
     "name": "Grilled Trout",
@@ -70,7 +83,8 @@
     "base_value": 18,
     "effects": {
       "hunger": -30
-    }
+    },
+    "image": "/assets/items/fish_trout_cooked.png"
   },
   "food_pike_grilled": {
     "name": "Grilled Pike",
@@ -81,7 +95,8 @@
     "base_value": 35,
     "effects": {
       "hunger": -60
-    }
+    },
+    "image": "/assets/items/fish_pike_cooked.png"
   },
   "wolf_pelt": {
     "name": "Wolf Pelt",
@@ -89,7 +104,8 @@
     "type": "resource",
     "stackable": true,
     "weight": 1.0,
-    "base_value": 15
+    "base_value": 15,
+    "image": "/assets/items/wolf_pelt.png"
   },
   "axe_basic": {
     "name": "Basic Axe",
@@ -149,7 +165,8 @@
     "base_value": 5,
     "effects": {
       "hunger": -20
-    }
+    },
+    "image": "/assets/items/bread.png"
   },
   "cheese": {
     "name": "Cheese",
@@ -160,7 +177,8 @@
     "base_value": 8,
     "effects": {
       "hunger": -15
-    }
+    },
+    "image": "/assets/items/cheese.png"
   },
   "cloth": {
     "name": "Cloth",
@@ -168,7 +186,8 @@
     "type": "resource",
     "stackable": true,
     "weight": 0.2,
-    "base_value": 10
+    "base_value": 10,
+    "image": "/assets/items/cloth.png"
   },
   "ale": {
     "name": "Ale",
@@ -179,7 +198,8 @@
     "base_value": 4,
     "effects": {
       "energy": 10
-    }
+    },
+    "image": "/assets/items/ale.png"
   },
   "beryl_noble_letter": {
     "name": "Noble's Letter",
@@ -188,7 +208,7 @@
     "stackable": false,
     "weight": 0.1,
     "base_value": 0,
-    "image": "/assets/items/letter.png"
+    "image": "/assets/items/crumpled_letter.png"
   },
   "deadly_nightshade": {
     "name": "Deadly Nightshade",

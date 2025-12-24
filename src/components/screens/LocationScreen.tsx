@@ -19,7 +19,7 @@ import ActionSummaryModal from '../modals/ActionSummaryModal';
 import { useInventoryStore } from '../../stores/useInventoryStore';
 import { useSkillStore } from '../../stores/useSkillStore';
 import { useJobStore } from '../../stores/useJobStore';
-import type { ActionSummary } from '../../types';
+import type { ActionSummary, Slide } from '../../types';
 import { DialogueService } from '../../services/DialogueService';
 import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, wakeupEventSlides, finnDebtIntroSlides, mockBooks } from '../../data';
 
@@ -109,6 +109,13 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
   const introMode = worldState.introMode;
   const tutorialStep = worldState.tutorialStep;
 
+  const berylSecretMeetingSlides: Slide[] = [
+    {
+      text: "The main street is quiet under the moonlight until you hear a sob from an alleyway. Peeking around, you spot Beryl receiving a crumpled letter from a ragged urchin. He reads it in despair, pays the child, then crushes the letter and throws it into a puddle before storming back inside.",
+      image: "/assets/events/beryl_secret_meeting.png"
+    }
+  ];
+
   useEffect(() => {
     if (!introMode) return;
     const loc = useLocationStore.getState().getCurrentLocation();
@@ -124,6 +131,18 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
         useUIStore.getState().setDialogueNpcId(action.target);
         setScreen('dialogue');
         break;
+      case 'trigger_event': {
+        const eventId = action.eventId;
+        if (eventId === 'beryl_secret_meeting') {
+          useUIStore.getState().setEventSlides(berylSecretMeetingSlides);
+          useUIStore.getState().setCurrentEventId('beryl_secret_meeting');
+          setScreen('event');
+        } else if (eventId === 'beryl_letter_pickup') {
+          useUIStore.getState().setCurrentEventId('beryl_letter_pickup');
+          setScreen('choiceEvent');
+        }
+        break;
+      }
       case 'craft': {
         useUIStore.getState().setCraftingSkill('Carpentry');
         setScreen('crafting');
@@ -244,7 +263,7 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
         break;
       }
       case 'tutorial_play_robert': {
-        useDiaryStore.getState().updateRelationship('npc_robert', { friendship: 10 });
+        useDiaryStore.getState().updateRelationship('npc_robert', { friendship: 0 });
         useWorldStateStore.getState().setTutorialStep(5);
         useUIStore.getState().setEventSlides(playEventSlidesRobert);
         useUIStore.getState().setCurrentEventId('play_robert');
@@ -305,6 +324,7 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
         useWorldStateStore.getState().setIntroCompleted(true);
         useWorldStateStore.getState().setFlag('intro_completed', true);
         useWorldStateStore.getState().setIntroMode(false);
+        useWorldStateStore.getState().removeKnownNpc('npc_robert');
         useWorldTimeStore.setState({ year: 780 });
         useLocationStore.getState().setLocation('salty_mug');
         useWorldStateStore.getState().setFlag('finn_debt_intro_pending', true);

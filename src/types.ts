@@ -168,7 +168,6 @@ export interface Npc {
   relationships: {
     friendship: NpcRelationship;
     love: NpcRelationship;
-    obedience: NpcRelationship;
     fear: NpcRelationship;
   };
   history: string[];

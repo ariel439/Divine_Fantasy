@@ -232,7 +232,7 @@ export class DialogueService {
     return { ...node, player_choices: filtered };
   }
 
-  static startDialogue(npcId: string): DialogueNode | null {
+  static startDialogue(npcId: string, overrideDialogueId?: string): DialogueNode | null {
     // Determine known state before updating, to support first-time greeting behavior
     const worldStateStore = useWorldStateStore.getState();
     const wasKnown = worldStateStore.knownNpcs.includes(npcId);
@@ -250,39 +250,41 @@ export class DialogueService {
       return null;
     }
 
-    let dialogueId = npcData.default_dialogue_id;
+    let dialogueId = overrideDialogueId || npcData.default_dialogue_id;
     const introMode = useWorldStateStore.getState().introMode;
-    if (introMode) {
+    if (!overrideDialogueId && introMode) {
       if (npcId === 'npc_old_leo') dialogueId = 'old_leo_intro';
       if (npcId === 'npc_sarah') dialogueId = 'sarah_intro';
       if (npcId === 'npc_robert') dialogueId = 'robert_intro';
       if (npcId === 'npc_kyle') dialogueId = 'kyle_intro';
     }
 
-    const currentEventId = useUIStore.getState().currentEventId;
-    if (npcId === 'npc_kyle' && currentEventId === 'kyle_smuggler_alert') {
-      dialogueId = 'kyle_smuggler_alert';
-    }
-
-    if (npcId === 'npc_finn' && useWorldStateStore.getState().getFlag('finn_debt_intro_pending')) {
-      dialogueId = 'finn_debt_intro';
-    }
-
-    // Check if Roberta's quest is active or completed
-    if (npcId === 'npc_roberta') {
-      const journalStore = useJournalStore.getState();
-      const robertaQuest = journalStore.quests['roberta_planks_for_the_past'];
-      if (robertaQuest && robertaQuest.active && !robertaQuest.completed) {
-        dialogueId = 'roberta_planks_active';
-      } else if (robertaQuest && robertaQuest.completed) {
-        dialogueId = 'roberta_planks_completed';
+    if (!overrideDialogueId) {
+      const currentEventId = useUIStore.getState().currentEventId;
+      if (npcId === 'npc_kyle' && currentEventId === 'kyle_smuggler_alert') {
+        dialogueId = 'kyle_smuggler_alert';
       }
-    }
 
-    if (npcId === 'npc_boric') {
-      const greetedFlagBoric = 'greeted_npc_boric';
-      if (!useWorldStateStore.getState().getFlag(greetedFlagBoric)) {
-        dialogueId = 'boric_intro';
+      if (npcId === 'npc_finn' && useWorldStateStore.getState().getFlag('finn_debt_intro_pending')) {
+        dialogueId = 'finn_debt_intro';
+      }
+
+      // Check if Roberta's quest is active or completed
+      if (npcId === 'npc_roberta') {
+        const journalStore = useJournalStore.getState();
+        const robertaQuest = journalStore.quests['roberta_planks_for_the_past'];
+        if (robertaQuest && robertaQuest.active && !robertaQuest.completed) {
+          dialogueId = 'roberta_planks_active';
+        } else if (robertaQuest && robertaQuest.completed) {
+          dialogueId = 'roberta_planks_completed';
+        }
+      }
+
+      if (npcId === 'npc_boric') {
+        const greetedFlagBoric = 'greeted_npc_boric';
+        if (!useWorldStateStore.getState().getFlag(greetedFlagBoric)) {
+          dialogueId = 'boric_intro';
+        }
       }
     }
 
@@ -330,13 +332,39 @@ export class DialogueService {
 
     const response = filteredNode.player_choices[responseIndex];
 
+    // Log player choice
+    this.dialogueHistory.push({ speaker: 'player', text: response.text });
+
+    // Handle Skill Check Logic
+    const anyChoice = response as any;
+    if (anyChoice.req_skill_level) {
+        const skill = anyChoice.req_skill_level.skill;
+        const reqLevel = anyChoice.req_skill_level.level || 0;
+        const playerLevel = useSkillStore.getState().getSkillLevel(skill);
+        
+        console.log(`Skill Check: ${skill} (Player: ${playerLevel} vs Req: ${reqLevel})`);
+        
+        if (playerLevel < reqLevel) {
+            // Skill Check Failed
+            const failNodeId = anyChoice.fail_node || anyChoice.next_node + '_fail';
+            
+            if (currentDialogue.nodes[failNodeId]) {
+                this.currentNodeId = failNodeId;
+                const nextNode = currentDialogue.nodes[failNodeId];
+                this.dialogueHistory.push({ speaker: 'npc', text: nextNode.npc_text });
+                return DialogueService.applyConditionsToNode(nextNode);
+            } else {
+                 this.dialogueHistory.push({ speaker: 'npc', text: "[Skill Check Failed] (You are not skilled enough to do that.)" });
+                 return this.getCurrentDialogue();
+            }
+        }
+    }
+
+    // Execute actions
     if (response.action) {
       const actionStr = response.action as string;
       this.executeAction(actionStr);
     }
-
-    // Add to history
-    this.dialogueHistory.push({ speaker: 'player', text: response.text });
 
     // Handle next dialogue
     if (response.next_node) {
@@ -489,7 +517,7 @@ export class DialogueService {
             if (currentDialogue && denyNodeId && currentDialogue.nodes[denyNodeId]) {
               const denyNode = currentDialogue.nodes[denyNodeId];
               this.currentNodeId = denyNodeId;
-              this.dialogueHistory.push(denyNode.npc_text);
+              this.dialogueHistory.push({ speaker: 'npc', text: denyNode.npc_text });
             }
             break;
           }
@@ -600,6 +628,7 @@ export class DialogueService {
       case 'collect_debt_from':
         {
           const targetNpcId = params[0];
+          const amount = Number(params[1] || '10');
           const flagMap: Record<string, string> = {
             'npc_ben': 'debt_paid_by_ben',
             'npc_beryl': 'debt_paid_by_beryl',
@@ -616,10 +645,10 @@ export class DialogueService {
             diaryStore.addInteraction('Debt collection is not active.');
             break;
           }
-          useCharacterStore.getState().addCurrency('silver', 10);
+          useCharacterStore.getState().addCurrency('silver', amount);
           world.setFlag(flag, true);
           try { useJournalStore.getState().advanceQuestStage('finn_debt_collection'); } catch {}
-          diaryStore.addInteraction('Collected 10 silvers from ' + (typedNpcsData[targetNpcId]?.name || targetNpcId) + '.');
+          diaryStore.addInteraction('Collected ' + amount + ' silvers from ' + (typedNpcsData[targetNpcId]?.name || targetNpcId) + '.');
         }
         break;
 
@@ -627,7 +656,7 @@ export class DialogueService {
         {
           const requiredSilvers = Number(params[0] || '30');
           const world = useWorldStateStore.getState();
-          const allCollected = world.getFlag('debt_paid_by_ben') && world.getFlag('debt_paid_by_beryl') && world.getFlag('debt_paid_by_elara');
+          const allCollected = world.getFlag('debt_paid_by_ben') && (world.getFlag('debt_paid_by_beryl') || world.getFlag('beryl_debt_forgiven')) && world.getFlag('debt_paid_by_elara');
           if (!allCollected) {
             diaryStore.addInteraction('npc_finn: You have not collected from all three yet.');
             break;
@@ -651,7 +680,7 @@ export class DialogueService {
           const requiredSilvers = Number(params[0] || '30');
           const rebukeNodeId = params[1];
           const world = useWorldStateStore.getState();
-          const allCollected = world.getFlag('debt_paid_by_ben') && world.getFlag('debt_paid_by_beryl') && world.getFlag('debt_paid_by_elara');
+          const allCollected = world.getFlag('debt_paid_by_ben') && (world.getFlag('debt_paid_by_beryl') || world.getFlag('beryl_debt_forgiven')) && world.getFlag('debt_paid_by_elara');
           const currentDialogue = this.currentDialogueId ? typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData] : null;
           const showRebuke = () => {
             if (currentDialogue && rebukeNodeId && currentDialogue.nodes[rebukeNodeId]) {
@@ -744,6 +773,15 @@ export class DialogueService {
           const level = Number(params[1] || '1');
           useSkillStore.getState().setSkillLevel(skillId, level);
           diaryStore.addInteraction('Gained skill level in ' + skillId);
+        }
+        break;
+
+      case 'add_xp':
+        {
+          const skillId = params[0];
+          const amount = Number(params[1] || '10');
+          useSkillStore.getState().addXp(skillId, amount);
+          diaryStore.addInteraction(`Gained ${amount} XP in ${skillId}`);
         }
         break;
 

@@ -19,7 +19,7 @@
     "starting_relationships": {
       "npc_old_leo": { "friendship": { "value": 50, "max": 100 } },
       "npc_sarah": { "friendship": { "value": 50, "max": 100 } },
-      "npc_robert": { "friendship": { "value": 50, "max": 100 } },
+      "npc_robert": { "friendship": { "value": 0, "max": 100 } },
       "npc_kyle": { "friendship": { "value": 50, "max": 100 } },
       "npc_finn": { "friendship": { "value": -20, "max": 100 } }
     },

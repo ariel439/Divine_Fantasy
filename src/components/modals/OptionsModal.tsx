@@ -16,7 +16,7 @@ type Tab = 'Audio' | 'Graphics' | 'Gameplay';
 
 const OptionsModal: FC<OptionsModalProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState<Tab>('Audio');
-  const { musicEnabled, sfxEnabled, musicVolume, sfxVolume, toggleMusic, toggleSFX, setMusicVolume, setSFXVolume } = useAudioStore();
+  const { musicEnabled, sfxEnabled, weatherEnabled, musicVolume, sfxVolume, weatherVolume, toggleMusic, toggleSFX, toggleWeather, setMusicVolume, setSFXVolume, setWeatherVolume } = useAudioStore();
   const [settings, setSettings] = useState({
     screenMode: 'Fullscreen',
     resolution: '1920x1080',
@@ -61,6 +61,16 @@ const OptionsModal: FC<OptionsModalProps> = ({ isOpen, onClose }) => {
               label="SFX Volume"
               value={Math.round(sfxVolume * 100)}
               onChange={(e) => setSFXVolume(parseInt(e.target.value, 10) / 100)}
+            />
+            <ToggleSwitch
+              label="Enable Weather SFX"
+              checked={weatherEnabled}
+              onChange={(e) => toggleWeather()}
+            />
+            <Slider
+              label="Weather Volume"
+              value={Math.round(weatherVolume * 100)}
+              onChange={(e) => setWeatherVolume(parseInt(e.target.value, 10) / 100)}
             />
           </div>
         );

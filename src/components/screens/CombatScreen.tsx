@@ -6,6 +6,7 @@ import { Swords, Shield, Footprints } from 'lucide-react';
 import type { Combatant } from '../../types';
 import CombatantCard from '../ui/CombatantCard';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
+import { useAudioStore } from '../../stores/useAudioStore';
 
 interface CombatScreenProps {
   party: Combatant[];
@@ -56,6 +57,15 @@ const CombatScreen: FC<CombatScreenProps> = ({
     const tutorialActive = useWorldStateStore.getState().getFlag('combat_tutorial_active');
     const prevEnemiesRef = useRef<Combatant[]>(JSON.parse(JSON.stringify(enemies)));
     const prevPartyRef = useRef<Combatant[]>(JSON.parse(JSON.stringify(party)));
+    const { sfxEnabled, sfxVolume } = useAudioStore();
+
+    const playSfx = (src: string) => {
+        if (sfxEnabled) {
+            const audio = new Audio(src);
+            audio.volume = sfxVolume;
+            audio.play().catch(() => {});
+        }
+    };
 
     useEffect(() => {
         logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -86,13 +96,19 @@ const CombatScreen: FC<CombatScreenProps> = ({
 
     useEffect(() => {
         const newDamageEvents: { targetId: string, damage: number, key: number }[] = [];
+        let tookDamage = false;
         party.forEach(currentMember => {
             const prevMember = prevPartyRef.current.find(e => e.id === currentMember.id);
             if (prevMember && prevMember.hp > currentMember.hp) {
                 const damage = prevMember.hp - currentMember.hp;
                 newDamageEvents.push({ targetId: currentMember.id, damage, key: Date.now() + Math.random() });
+                tookDamage = true;
             }
         });
+
+        if (tookDamage) {
+            playSfx('/assets/sfx/combat_sword_swing.mp3');
+        }
 
         if (newDamageEvents.length > 0) {
             setPartyDamageEvents(prev => [...prev, ...newDamageEvents]);
@@ -120,7 +136,10 @@ const CombatScreen: FC<CombatScreenProps> = ({
     
     const CombatActionButton: FC<{ icon: React.ReactNode; text: string; onClick: () => void; disabled?: boolean }> = ({ icon, text, onClick, disabled }) => (
         <button
-            onClick={onClick}
+            onClick={() => {
+                if (text === 'Attack' && !disabled) playSfx('/assets/sfx/combat_punch.mp3');
+                onClick();
+            }}
             disabled={disabled}
             className={`flex items-center justify-center gap-2 w-full max-w-[140px] px-4 py-3 bg-zinc-800/80 border ${text === 'Attack' && tutorialActive ? 'border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.6)]' : 'border-zinc-700'} rounded-lg transition-all duration-300 hover:enabled:bg-zinc-700/60 hover:enabled:${text === 'Attack' && tutorialActive ? 'border-yellow-300' : 'border-zinc-600'} disabled:opacity-50 disabled:cursor-not-allowed group`}
         >

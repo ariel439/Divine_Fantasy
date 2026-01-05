@@ -33,6 +33,7 @@ interface WorldTimeState {
   setClockPaused: (paused: boolean) => void;
   getSeason: () => Season;
   getWeather: () => Weather;
+  setWeather: (weather: Weather) => void;
   rollDailyEnvironment: () => void;
   applyHourlyEnvironment: () => void;
   enterTemporalInstance: (t: { year: number; month: number; dayOfMonth: number; day?: number; hour: number; minute: number }) => void;
@@ -74,22 +75,31 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
       let temperatureC = state.temperatureC;
       const totalMinutes = h * 60 + m;
       if (typeof state.nextWeatherChangeAt === 'number' && totalMinutes >= state.nextWeatherChangeAt) {
-        const w = get().getSeason();
-        const nextWeather = (() => {
-          if (w === 'Spring') {
-            const r = Math.random();
-            return r < 0.4 ? 'Sunny' : r < 0.75 ? 'Cloudy' : 'Rainy';
-          } else if (w === 'Summer') {
-            const r = Math.random();
-            return r < 0.6 ? 'Sunny' : r < 0.9 ? 'Cloudy' : 'Rainy';
-          } else if (w === 'Autumn') {
-            const r = Math.random();
-            return r < 0.35 ? 'Sunny' : r < 0.75 ? 'Cloudy' : 'Rainy';
-          } else {
-            const r = Math.random();
-            return r < 0.25 ? 'Sunny' : r < 0.6 ? 'Cloudy' : r < 0.95 ? 'Snowy' : 'Rainy';
-          }
-        })();
+        const introMode = useWorldStateStore.getState().introMode;
+        
+        let nextWeather: Weather;
+        
+        if (introMode) {
+            nextWeather = 'Rainy';
+        } else {
+            const w = get().getSeason();
+            nextWeather = (() => {
+              if (w === 'Spring') {
+                const r = Math.random();
+                return r < 0.4 ? 'Sunny' : r < 0.75 ? 'Cloudy' : 'Rainy';
+              } else if (w === 'Summer') {
+                const r = Math.random();
+                return r < 0.6 ? 'Sunny' : r < 0.9 ? 'Cloudy' : 'Rainy';
+              } else if (w === 'Autumn') {
+                const r = Math.random();
+                return r < 0.35 ? 'Sunny' : r < 0.75 ? 'Cloudy' : 'Rainy';
+              } else {
+                const r = Math.random();
+                return r < 0.25 ? 'Sunny' : r < 0.6 ? 'Cloudy' : r < 0.95 ? 'Snowy' : 'Rainy';
+              }
+            })();
+        }
+        
         const block = 120 + Math.floor(Math.random() * 241);
         set({ weather: nextWeather, nextWeatherChangeAt: (totalMinutes + block) % 1440 });
       }
@@ -141,6 +151,7 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
   getWeather: () => {
     return get().weather;
   },
+  setWeather: (weather) => set({ weather }),
   rollDailyEnvironment: () => {
     const { month } = get();
     const season = ((month >= 3 && month <= 5) ? 'Spring' : (month >= 6 && month <= 8) ? 'Summer' : (month >= 9 && month <= 11) ? 'Autumn' : 'Winter') as Season;

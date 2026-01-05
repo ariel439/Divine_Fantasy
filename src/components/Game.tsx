@@ -47,19 +47,21 @@ const Game: React.FC = () => {
   const { day, hour, minute, passTime } = useWorldTimeStore();
   const { getCurrentLocation, currentLocationId } = useLocationStore();
   const { loadShops } = useShopStore();
-  const { musicEnabled, sfxEnabled, musicVolume, sfxVolume } = useAudioStore();
+  const { musicEnabled, sfxEnabled, weatherEnabled, musicVolume, sfxVolume, weatherVolume } = useAudioStore();
 
   const [dialogueNode, setDialogueNode] = useState<any>(null);
   const [dialogueHistory, setDialogueHistory] = useState<any[]>([]);
 
   const musicRef = useRef<HTMLAudioElement | null>(null);
+  const currentTrackPathRef = useRef<string | null>(null);
   const sfxRef = useRef<HTMLAudioElement | null>(null);
+  const currentSfxPathRef = useRef<string | null>(null);
+  const weatherRef = useRef<HTMLAudioElement | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const sfxSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const filterNodeRef = useRef<BiquadFilterNode | null>(null);
   const shelfNodeRef = useRef<BiquadFilterNode | null>(null);
-  
-  
+  const weatherSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
 
   // Initialize GameManagerService on component mount
   useEffect(() => {
@@ -67,101 +69,216 @@ const Game: React.FC = () => {
     loadShops();
   }, [loadShops]);
 
+  // Force specific weather during Intro Mode
   useEffect(() => {
-    if (!musicRef.current) {
-      musicRef.current = new Audio('/assets/musics/Whisper of the Pines.mp3');
-      musicRef.current.loop = true;
-    }
-    if (musicRef.current) {
-      musicRef.current.volume = musicVolume;
-      if (musicEnabled) {
-        musicRef.current.play().catch(() => {});
-      } else {
-        musicRef.current.pause();
+    const handleIntroWeather = (introMode: boolean) => {
+      if (introMode) {
+        // FUTURE: If we have multiple characters with different intros, switch/case here
+        // const charId = useCharacterStore.getState().characterId;
+        // if (charId === 'fire_mage') setWeather('Sunny'); else ...
+        useWorldTimeStore.getState().setWeather('Rainy');
       }
-    }
-  }, [musicEnabled, musicVolume]);
+    };
 
+    const unsub = useWorldStateStore.subscribe((state) => {
+      handleIntroWeather(state.introMode);
+    });
+
+    // Initial check
+    handleIntroWeather(useWorldStateStore.getState().introMode);
+    
+    return unsub;
+  }, []);
+
+  // Music Logic
+  useEffect(() => {
+    let desiredMusicSrc = '/assets/musics/driftwatch_region.mp3'; // Default / Exploration
+
+    if (currentScreen === 'mainMenu' || currentScreen === 'characterSelection') {
+      desiredMusicSrc = '/assets/musics/Whisper of the Pines.mp3';
+    } else if (currentScreen === 'combat') {
+      desiredMusicSrc = '/assets/musics/combat_theme.mp3';
+    } else if ((currentScreen === 'dialogue' || currentScreen === 'event') && currentTrackPathRef.current) {
+      // Keep playing current music during dialogue/events
+      desiredMusicSrc = currentTrackPathRef.current;
+    }
+
+    if (!musicRef.current) {
+      musicRef.current = new Audio(desiredMusicSrc);
+      musicRef.current.loop = true;
+      currentTrackPathRef.current = desiredMusicSrc;
+    }
+
+    const audio = musicRef.current;
+    
+    // Change track if needed
+    if (currentTrackPathRef.current !== desiredMusicSrc) {
+        audio.src = desiredMusicSrc;
+        currentTrackPathRef.current = desiredMusicSrc;
+        if (musicEnabled) {
+            audio.play().catch(() => {});
+        }
+    }
+
+    // Apply a scaling factor to music volume so it's not too loud even at 100%
+    // User sees 50%, code uses 0.5 * 0.6 = 0.3 actual volume
+    audio.volume = musicVolume * 0.6; 
+    
+    if (musicEnabled) {
+      if (audio.paused) audio.play().catch(() => {});
+    } else {
+      audio.pause();
+    }
+  }, [musicEnabled, musicVolume, currentScreen]);
+
+  // Ambience (SFX) Logic
   useEffect(() => {
     const loc = getCurrentLocation();
     let desiredSrc: string | undefined;
     let applyMuffle = false;
-    if (currentScreen === 'inGame') {
-      if (loc.id === 'salty_mug') {
-        desiredSrc = '/assets/sfx/bar.mp3';
-      } else if (loc.is_indoor) {
-        desiredSrc = hour >= 6 && hour < 18 ? '/assets/sfx/coastal.mp3' : '/assets/sfx/waves.mp3';
-        applyMuffle = true;
-      } else if (new Set(['driftwatch', 'driftwatch_main_street', 'driftwatch_noble_quarter', 'driftwatch_docks', 'driftwatch_slums', 'mosswatch_keep']).has(loc.id)) {
-        desiredSrc = hour >= 6 && hour < 18 ? '/assets/sfx/coastal.mp3' : '/assets/sfx/waves.mp3';
-      }
+
+    const ruralLocations = ['the_crossroads', 'homestead_farm', 'driftwatch_woods', 'hunters_cabin', 'sawmill'];
+    const isRural = ruralLocations.includes(loc.id);
+
+    // Determine base ambience
+    if (currentScreen === 'inGame' || ['inventory', 'journal', 'diary', 'characterScreen', 'jobScreen', 'companion'].includes(currentScreen)) {
+        if (loc.id === 'salty_mug') {
+             desiredSrc = '/assets/sfx/bar.mp3';
+        } else if (isRural) {
+             desiredSrc = (hour >= 6 && hour < 18) ? '/assets/sfx/ambience_rural_day.mp3' : '/assets/sfx/ambience_rural_night.mp3';
+             if (loc.is_indoor) applyMuffle = true;
+        } else {
+             // Default / Coastal / City
+             desiredSrc = (hour >= 6 && hour < 18) ? '/assets/sfx/coastal.mp3' : '/assets/sfx/waves.mp3';
+             if (loc.is_indoor) applyMuffle = true;
+        }
     }
 
-    const src = desiredSrc || (hour >= 6 && hour < 18 ? '/assets/sfx/coastal.mp3' : '/assets/sfx/waves.mp3');
-
+    // Initialize SFX ref
     if (!sfxRef.current) {
-      sfxRef.current = new Audio(src || '/assets/sfx/coastal.mp3');
+      sfxRef.current = new Audio(desiredSrc || '/assets/sfx/coastal.mp3');
       sfxRef.current.loop = true;
+      currentSfxPathRef.current = desiredSrc || '/assets/sfx/coastal.mp3';
+      // Audio Context setup for muffling
       if (!audioCtxRef.current) {
         try {
           audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
         } catch {}
       }
-      if (audioCtxRef.current && sfxRef.current && !sfxSourceRef.current) {
+      if (audioCtxRef.current) {
+         if (!sfxSourceRef.current) {
+             try {
+                sfxSourceRef.current = audioCtxRef.current.createMediaElementSource(sfxRef.current);
+             } catch {}
+         }
+         // Initialize weather ref here too so we can connect it
+         if (!weatherRef.current) {
+            weatherRef.current = new Audio('/assets/sfx/weather_rain.mp3');
+            weatherRef.current.loop = true;
+         }
+         if (!weatherSourceRef.current && weatherRef.current) {
+             try {
+                 weatherSourceRef.current = audioCtxRef.current.createMediaElementSource(weatherRef.current);
+             } catch {}
+         }
+      }
+    }
+
+    const audio = sfxRef.current;
+
+    // Handle Muffling Logic (Web Audio API)
+    if (audioCtxRef.current) {
         try {
-          sfxSourceRef.current = audioCtxRef.current.createMediaElementSource(sfxRef.current);
-        } catch {}
-      }
+            // Setup Filter Nodes if needed
+            if (!filterNodeRef.current) {
+                filterNodeRef.current = audioCtxRef.current.createBiquadFilter();
+                filterNodeRef.current.type = 'lowpass';
+                filterNodeRef.current.frequency.value = 800;
+                filterNodeRef.current.Q.value = 0.7;
+            }
+            if (!shelfNodeRef.current) {
+                shelfNodeRef.current = audioCtxRef.current.createBiquadFilter();
+                shelfNodeRef.current.type = 'highshelf';
+                shelfNodeRef.current.frequency.value = 3000;
+                shelfNodeRef.current.gain.value = -12;
+            }
+
+             // Handle SFX Routing
+            if (sfxSourceRef.current) {
+                sfxSourceRef.current.disconnect();
+                if (filterNodeRef.current) filterNodeRef.current.disconnect();
+                if (shelfNodeRef.current) shelfNodeRef.current.disconnect();
+
+                if (applyMuffle) {
+                    sfxSourceRef.current.connect(filterNodeRef.current);
+                    // Filter chain connection happens below
+                } else {
+                    sfxSourceRef.current.connect(audioCtxRef.current.destination);
+                }
+            }
+            
+            // Handle Weather Routing
+            if (weatherSourceRef.current) {
+                 weatherSourceRef.current.disconnect();
+                 if (applyMuffle) {
+                     weatherSourceRef.current.connect(filterNodeRef.current);
+                 } else {
+                     weatherSourceRef.current.connect(audioCtxRef.current.destination);
+                 }
+            }
+
+            // Connect Filter Chain to Destination if used
+            if (applyMuffle && filterNodeRef.current && shelfNodeRef.current) {
+                 filterNodeRef.current.connect(shelfNodeRef.current);
+                 shelfNodeRef.current.connect(audioCtxRef.current.destination);
+            }
+
+            if (audioCtxRef.current.state === 'suspended') {
+                audioCtxRef.current.resume();
+            }
+        } catch (e) {
+            console.warn("Audio Context Error:", e);
+        }
     }
 
-    if (sfxRef.current) {
-      sfxRef.current.volume = applyMuffle ? Math.max(0, Math.min(1, sfxVolume * 0.8)) : sfxVolume;
-      if (desiredSrc && sfxEnabled) {
-        if (sfxRef.current.src.indexOf(src) === -1) {
-          sfxRef.current.src = src;
-        }
-
-        if (audioCtxRef.current && sfxSourceRef.current) {
-          try {
-            sfxSourceRef.current.disconnect();
-          } catch {}
-          if (applyMuffle) {
-            if (!filterNodeRef.current && audioCtxRef.current) {
-              filterNodeRef.current = audioCtxRef.current.createBiquadFilter();
-              filterNodeRef.current.type = 'lowpass';
-              filterNodeRef.current.frequency.value = 800;
-              filterNodeRef.current.Q.value = 0.7;
-            }
-            if (!shelfNodeRef.current && audioCtxRef.current) {
-              shelfNodeRef.current = audioCtxRef.current.createBiquadFilter();
-              shelfNodeRef.current.type = 'highshelf';
-              shelfNodeRef.current.frequency.value = 3000;
-              shelfNodeRef.current.gain.value = -12;
-            }
-            if (filterNodeRef.current) {
-              sfxSourceRef.current.connect(filterNodeRef.current);
-              if (shelfNodeRef.current) {
-                filterNodeRef.current.connect(shelfNodeRef.current);
-                shelfNodeRef.current.connect(audioCtxRef.current.destination);
-              } else {
-                filterNodeRef.current.connect(audioCtxRef.current.destination);
+    // Play/Update Track
+     if (audio) {
+         audio.volume = applyMuffle ? Math.max(0, Math.min(1, sfxVolume * 0.8)) : sfxVolume;
+         
+         if (desiredSrc && sfxEnabled) {
+              if (currentSfxPathRef.current !== desiredSrc) {
+                   audio.src = desiredSrc;
+                   currentSfxPathRef.current = desiredSrc;
+                   audio.play().catch(() => {});
+              } else if (audio.paused) {
+                  audio.play().catch(() => {});
               }
-            } else {
-              sfxSourceRef.current.connect(audioCtxRef.current.destination);
-            }
-          } else {
-            sfxSourceRef.current.connect(audioCtxRef.current.destination);
-          }
-          try {
-            audioCtxRef.current.resume();
-          } catch {}
-        }
-        sfxRef.current.play().catch(() => {});
-      } else {
-        sfxRef.current.pause();
-      }
-    }
+         } else {
+             audio.pause();
+         }
+     }
+
   }, [hour, sfxEnabled, sfxVolume, currentLocationId, currentScreen]);
+
+  // Weather SFX Logic (Rain)
+  useEffect(() => {
+      const weather = useWorldTimeStore.getState().weather;
+      
+      if (!weatherRef.current) {
+          weatherRef.current = new Audio('/assets/sfx/weather_rain.mp3');
+          weatherRef.current.loop = true;
+      }
+
+      const rainAudio = weatherRef.current;
+      rainAudio.volume = weatherVolume;
+
+      if (weatherEnabled && weather === 'Rainy' && (currentScreen === 'inGame' || ['inventory', 'journal', 'diary', 'characterScreen', 'jobScreen', 'companion', 'combat'].includes(currentScreen))) {
+           if (rainAudio.paused) rainAudio.play().catch(() => {});
+      } else {
+           if (!rainAudio.paused) rainAudio.pause();
+      }
+
+  }, [useWorldTimeStore.getState().weather, weatherEnabled, weatherVolume, currentScreen]);
 
   // Game clock logic
   useEffect(() => {

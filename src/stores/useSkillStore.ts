@@ -15,14 +15,7 @@ interface SkillState {
   setSkillLevel: (skill: string, level: number) => void;
 }
 
-// Attribute to skill links for XP bonuses
-const ATTRIBUTE_LINKS: Record<string, string[]> = {
-  strength: ['strength', 'mining', 'blacksmithing'],
-  agility: ['archery', 'thievery'],
-  intelligence: ['carpentry', 'management', 'crafting', 'cooking'],
-  wisdom: ['magic', 'fishing'],
-  charisma: ['persuasion', 'coercion', 'leadership']
-};
+// Attribute to skill links removed in favor of global Intelligence scaling
 
 export const useSkillStore = create<SkillState>((set, get) => ({
   skills: {},
@@ -30,16 +23,14 @@ export const useSkillStore = create<SkillState>((set, get) => ({
     set((state) => {
       const currentSkill = state.skills[skill] || { level: 1, xp: 0 };
 
-      // Calculate XP bonus from attributes
-      let bonusMultiplier = 1.0;
+      // Attributes provide passive bonuses to skills
       const attributes = useCharacterStore.getState().attributes;
-
-      for (const [attr, skills] of Object.entries(ATTRIBUTE_LINKS)) {
-        if (skills.includes(skill)) {
-          const attrValue = attributes[attr as keyof typeof attributes];
-          bonusMultiplier += (attrValue - 1) * 0.05; // 5% per point above 1
-        }
-      }
+      
+      // Example: Intelligence gives bonus XP
+      // Example: Dexterity gives bonus to thievery/stealth success chance (handled in usage)
+      // Example: Strength gives bonus to carry weight (handled in inventory)
+      const intelligence = attributes.intelligence;
+      const bonusMultiplier = 1.0 + (intelligence * 0.10);
 
       const adjustedAmount = Math.floor(amount * bonusMultiplier);
       const newXp = currentSkill.xp + adjustedAmount;

@@ -33,18 +33,19 @@ import ChoiceEventScreen from './screens/ChoiceEventScreen';
 import CombatScreen from './screens/CombatScreen';
 import VictoryScreen from './screens/VictoryScreen';
 import CompanionScreen from './screens/CompanionScreen';
+import DebugMenuScreen from './screens/DebugMenuScreen';
 import CombatManager from './CombatManager';
 import LocationNav from './LocationNav';
 import OptionsModal from './modals/OptionsModal';
 import TutorialModal from './modals/TutorialModal';
-import { lukePrologueSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesKyle, wakeupEventSlides, finnDebtIntroSlides, robertCaughtSlides, backToLighthouseSlides } from '../data';
+import { lukePrologueSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesKyle, wakeupEventSlides, finnDebtIntroSlides, robertCaughtSlides, choiceEvents } from '../data/events';
 import { useAudioStore } from '../stores/useAudioStore';
 import { useCompanionStore } from '../stores/useCompanionStore';
 
 const Game: React.FC = () => {
   const { currentScreen, setScreen, shopId, activeModal, openModal, closeModal, dialogueNpcId } = useUIStore();
   const ui = useUIStore();
-  const { day, hour, minute, passTime } = useWorldTimeStore();
+  const { day, hour, minute, passTime, weather } = useWorldTimeStore();
   const { getCurrentLocation, currentLocationId } = useLocationStore();
   const { loadShops } = useShopStore();
   const { musicEnabled, sfxEnabled, weatherEnabled, musicVolume, sfxVolume, weatherVolume } = useAudioStore();
@@ -73,10 +74,14 @@ const Game: React.FC = () => {
   useEffect(() => {
     const handleIntroWeather = (introMode: boolean) => {
       if (introMode) {
-        // FUTURE: If we have multiple characters with different intros, switch/case here
-        // const charId = useCharacterStore.getState().characterId;
-        // if (charId === 'fire_mage') setWeather('Sunny'); else ...
-        useWorldTimeStore.getState().setWeather('Rainy');
+        const charId = useCharacterStore.getState().characterId;
+        // Logic for character-specific intro weather
+        if (charId === 'fire_mage') {
+             useWorldTimeStore.getState().setWeather('Sunny');
+        } else {
+             // Default (Luke) is Rainy
+             useWorldTimeStore.getState().setWeather('Rainy');
+        }
       }
     };
 
@@ -121,8 +126,8 @@ const Game: React.FC = () => {
     }
 
     // Apply a scaling factor to music volume so it's not too loud even at 100%
-    // User sees 50%, code uses 0.5 * 0.6 = 0.3 actual volume
-    audio.volume = musicVolume * 0.6; 
+    // User sees 50%, code uses 0.5 * 0.4 = 0.2 actual volume
+    audio.volume = musicVolume * 0.4; 
     
     if (musicEnabled) {
       if (audio.paused) audio.play().catch(() => {});
@@ -131,154 +136,156 @@ const Game: React.FC = () => {
     }
   }, [musicEnabled, musicVolume, currentScreen]);
 
-  // Ambience (SFX) Logic
+  // Combined Audio Logic (Ambience & Weather & Muffling)
   useEffect(() => {
-    const loc = getCurrentLocation();
-    let desiredSrc: string | undefined;
-    let applyMuffle = false;
+    // 1. Initialize Audio Context
+    if (!audioCtxRef.current) {
+      try {
+        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      } catch (e) {
+        console.warn('AudioContext not supported');
+      }
+    }
 
+    const ctx = audioCtxRef.current;
+
+    // 2. Initialize Filters
+    if (ctx) {
+      if (!filterNodeRef.current) {
+        filterNodeRef.current = ctx.createBiquadFilter();
+        filterNodeRef.current.type = 'lowpass';
+        filterNodeRef.current.frequency.value = 800;
+        filterNodeRef.current.Q.value = 0.7;
+      }
+      if (!shelfNodeRef.current) {
+        shelfNodeRef.current = ctx.createBiquadFilter();
+        shelfNodeRef.current.type = 'highshelf';
+        shelfNodeRef.current.frequency.value = 3000;
+        shelfNodeRef.current.gain.value = -12;
+      }
+    }
+
+    // 3. Initialize Audio Elements
+    if (!sfxRef.current) {
+      sfxRef.current = new Audio();
+      sfxRef.current.loop = true;
+    }
+    if (!weatherRef.current) {
+      weatherRef.current = new Audio('/assets/sfx/weather_rain.mp3');
+      weatherRef.current.loop = true;
+    }
+
+    // 4. Initialize Sources
+    if (ctx) {
+      if (!sfxSourceRef.current && sfxRef.current) {
+        try { sfxSourceRef.current = ctx.createMediaElementSource(sfxRef.current); } catch {}
+      }
+      if (!weatherSourceRef.current && weatherRef.current) {
+        try { weatherSourceRef.current = ctx.createMediaElementSource(weatherRef.current); } catch {}
+      }
+    }
+
+    // 5. Determine Logic
+    // We use currentLocationId from store (via hook in component) to ensure reactivity
+    const loc = useLocationStore.getState().getLocation(currentLocationId) || useLocationStore.getState().getCurrentLocation();
+    
+    // Muffle Logic
+    // Indoor check: Use store property OR hardcoded list for fallback
+    const isIndoor = loc.is_indoor || ['leo_lighthouse', 'orphanage_room', 'beryls_general_goods', 'kaelens_forge', 'grand_library', 'tide_trade', 'salty_mug', 'salty_mug_rented_room', 'herbalists_hovel'].includes(loc.id);
+    
+    // Apply muffle if indoor AND NOT in Main Menu or Combat
+    // We want muffling in: inGame, dialogue, event, inventory, journal, diary, etc.
+    const applyMuffle = isIndoor && currentScreen !== 'mainMenu' && currentScreen !== 'combat' && currentScreen !== 'characterSelection' && currentScreen !== 'prologue';
+
+    // Debug Audio Logic
+        console.log('Audio Debug:', { locId: loc.id, isIndoor, currentScreen, applyMuffle, weather });
+
+    // 6. Routing
+    if (ctx && filterNodeRef.current && shelfNodeRef.current) {
+      const connectSource = (source: MediaElementAudioSourceNode | null) => {
+        if (!source) return;
+        try {
+            source.disconnect();
+        } catch {} // Ignore if not connected
+        
+        if (applyMuffle) {
+          try { source.connect(filterNodeRef.current!); } catch {}
+        } else {
+          try { source.connect(ctx.destination); } catch {}
+        }
+      };
+
+      connectSource(sfxSourceRef.current);
+      connectSource(weatherSourceRef.current);
+
+      // Connect filters chain
+      try { filterNodeRef.current.disconnect(); } catch {}
+      try { shelfNodeRef.current.disconnect(); } catch {}
+      
+      if (applyMuffle) {
+        try {
+            filterNodeRef.current.connect(shelfNodeRef.current);
+            shelfNodeRef.current.connect(ctx.destination);
+        } catch {}
+      }
+      
+      if (ctx.state === 'suspended') ctx.resume();
+    }
+
+    // 7. Update Ambience Track
+    let desiredSfxSrc: string | undefined;
     const ruralLocations = ['the_crossroads', 'homestead_farm', 'driftwatch_woods', 'hunters_cabin', 'sawmill'];
     const isRural = ruralLocations.includes(loc.id);
 
     // Determine base ambience
     if (currentScreen === 'inGame' || ['inventory', 'journal', 'diary', 'characterScreen', 'jobScreen', 'companion'].includes(currentScreen)) {
         if (loc.id === 'salty_mug') {
-             desiredSrc = '/assets/sfx/bar.mp3';
+             desiredSfxSrc = '/assets/sfx/bar.mp3';
         } else if (isRural) {
-             desiredSrc = (hour >= 6 && hour < 18) ? '/assets/sfx/ambience_rural_day.mp3' : '/assets/sfx/ambience_rural_night.mp3';
-             if (loc.is_indoor) applyMuffle = true;
+             desiredSfxSrc = (hour >= 6 && hour < 18) ? '/assets/sfx/ambience_rural_day.mp3' : '/assets/sfx/ambience_rural_night.mp3';
         } else {
-             // Default / Coastal / City
-             desiredSrc = (hour >= 6 && hour < 18) ? '/assets/sfx/coastal.mp3' : '/assets/sfx/waves.mp3';
-             if (loc.is_indoor) applyMuffle = true;
+             desiredSfxSrc = (hour >= 6 && hour < 18) ? '/assets/sfx/coastal.mp3' : '/assets/sfx/waves.mp3';
         }
-    }
-
-    // Initialize SFX ref
-    if (!sfxRef.current) {
-      sfxRef.current = new Audio(desiredSrc || '/assets/sfx/coastal.mp3');
-      sfxRef.current.loop = true;
-      currentSfxPathRef.current = desiredSrc || '/assets/sfx/coastal.mp3';
-      // Audio Context setup for muffling
-      if (!audioCtxRef.current) {
-        try {
-          audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-        } catch {}
-      }
-      if (audioCtxRef.current) {
-         if (!sfxSourceRef.current) {
-             try {
-                sfxSourceRef.current = audioCtxRef.current.createMediaElementSource(sfxRef.current);
-             } catch {}
-         }
-         // Initialize weather ref here too so we can connect it
-         if (!weatherRef.current) {
-            weatherRef.current = new Audio('/assets/sfx/weather_rain.mp3');
-            weatherRef.current.loop = true;
-         }
-         if (!weatherSourceRef.current && weatherRef.current) {
-             try {
-                 weatherSourceRef.current = audioCtxRef.current.createMediaElementSource(weatherRef.current);
-             } catch {}
-         }
-      }
-    }
-
-    const audio = sfxRef.current;
-
-    // Handle Muffling Logic (Web Audio API)
-    if (audioCtxRef.current) {
-        try {
-            // Setup Filter Nodes if needed
-            if (!filterNodeRef.current) {
-                filterNodeRef.current = audioCtxRef.current.createBiquadFilter();
-                filterNodeRef.current.type = 'lowpass';
-                filterNodeRef.current.frequency.value = 800;
-                filterNodeRef.current.Q.value = 0.7;
-            }
-            if (!shelfNodeRef.current) {
-                shelfNodeRef.current = audioCtxRef.current.createBiquadFilter();
-                shelfNodeRef.current.type = 'highshelf';
-                shelfNodeRef.current.frequency.value = 3000;
-                shelfNodeRef.current.gain.value = -12;
-            }
-
-             // Handle SFX Routing
-            if (sfxSourceRef.current) {
-                sfxSourceRef.current.disconnect();
-                if (filterNodeRef.current) filterNodeRef.current.disconnect();
-                if (shelfNodeRef.current) shelfNodeRef.current.disconnect();
-
-                if (applyMuffle) {
-                    sfxSourceRef.current.connect(filterNodeRef.current);
-                    // Filter chain connection happens below
-                } else {
-                    sfxSourceRef.current.connect(audioCtxRef.current.destination);
-                }
-            }
-            
-            // Handle Weather Routing
-            if (weatherSourceRef.current) {
-                 weatherSourceRef.current.disconnect();
-                 if (applyMuffle) {
-                     weatherSourceRef.current.connect(filterNodeRef.current);
-                 } else {
-                     weatherSourceRef.current.connect(audioCtxRef.current.destination);
-                 }
-            }
-
-            // Connect Filter Chain to Destination if used
-            if (applyMuffle && filterNodeRef.current && shelfNodeRef.current) {
-                 filterNodeRef.current.connect(shelfNodeRef.current);
-                 shelfNodeRef.current.connect(audioCtxRef.current.destination);
-            }
-
-            if (audioCtxRef.current.state === 'suspended') {
-                audioCtxRef.current.resume();
-            }
-        } catch (e) {
-            console.warn("Audio Context Error:", e);
-        }
-    }
-
-    // Play/Update Track
-     if (audio) {
-         audio.volume = applyMuffle ? Math.max(0, Math.min(1, sfxVolume * 0.8)) : sfxVolume;
-         
-         if (desiredSrc && sfxEnabled) {
-              if (currentSfxPathRef.current !== desiredSrc) {
-                   audio.src = desiredSrc;
-                   currentSfxPathRef.current = desiredSrc;
-                   audio.play().catch(() => {});
-              } else if (audio.paused) {
-                  audio.play().catch(() => {});
-              }
+    } else if (['dialogue', 'event', 'choiceEvent'].includes(currentScreen)) {
+         if (loc.id === 'salty_mug') {
+             desiredSfxSrc = '/assets/sfx/bar.mp3';
+         } else if (isRural) {
+             desiredSfxSrc = (hour >= 6 && hour < 18) ? '/assets/sfx/ambience_rural_day.mp3' : '/assets/sfx/ambience_rural_night.mp3';
          } else {
-             audio.pause();
+             desiredSfxSrc = (hour >= 6 && hour < 18) ? '/assets/sfx/coastal.mp3' : '/assets/sfx/waves.mp3';
          }
-     }
+    }
 
-  }, [hour, sfxEnabled, sfxVolume, currentLocationId, currentScreen]);
+    const sfxAudio = sfxRef.current;
+    if (sfxAudio) {
+       sfxAudio.volume = applyMuffle ? Math.max(0, Math.min(1, sfxVolume * 0.3)) : sfxVolume * 0.5;
+       
+       if (desiredSfxSrc && sfxEnabled) {
+          if (currentSfxPathRef.current !== desiredSfxSrc) {
+             sfxAudio.src = desiredSfxSrc;
+             currentSfxPathRef.current = desiredSfxSrc;
+             sfxAudio.play().catch(() => {});
+          } else if (sfxAudio.paused) {
+             sfxAudio.play().catch(() => {});
+          }
+       } else {
+          if (!sfxAudio.paused) sfxAudio.pause();
+       }
+    }
 
-  // Weather SFX Logic (Rain)
-  useEffect(() => {
-      const weather = useWorldTimeStore.getState().weather;
-      
-      if (!weatherRef.current) {
-          weatherRef.current = new Audio('/assets/sfx/weather_rain.mp3');
-          weatherRef.current.loop = true;
-      }
+    // 8. Update Weather Track
+    const weatherAudio = weatherRef.current;
+    if (weatherAudio) {
+        weatherAudio.volume = applyMuffle ? Math.max(0, Math.min(1, weatherVolume * 0.2)) : weatherVolume * 0.5;
+        
+        if (weatherEnabled && weather === 'Rainy') {
+            if (weatherAudio.paused) weatherAudio.play().catch(() => {});
+        } else {
+            if (!weatherAudio.paused) weatherAudio.pause();
+        }
+    }
 
-      const rainAudio = weatherRef.current;
-      rainAudio.volume = weatherVolume;
-
-      if (weatherEnabled && weather === 'Rainy' && (currentScreen === 'inGame' || ['inventory', 'journal', 'diary', 'characterScreen', 'jobScreen', 'companion', 'combat'].includes(currentScreen))) {
-           if (rainAudio.paused) rainAudio.play().catch(() => {});
-      } else {
-           if (!rainAudio.paused) rainAudio.pause();
-      }
-
-  }, [useWorldTimeStore.getState().weather, weatherEnabled, weatherVolume, currentScreen]);
+  }, [hour, sfxEnabled, sfxVolume, weatherEnabled, weatherVolume, weather, currentLocationId, currentScreen]);
 
   // Game clock logic
   useEffect(() => {
@@ -335,9 +342,12 @@ const Game: React.FC = () => {
         useWorldStateStore.getState().setFlag('finn_debt_intro_pending', false);
       }
       const loc = useLocationStore.getState().getCurrentLocation();
+      
+      // Intro: Roberta at Lighthouse (Step 2 -> 3)
       if (world.introMode && loc.id === 'leo_lighthouse' && world.tutorialStep <= 2 && npcId === 'npc_old_leo') {
         useWorldStateStore.getState().setTutorialStep(3);
         try { useJournalStore.getState().setQuestStage('luke_tutorial', 4); } catch {}
+        
         const spokeRoberta = world.getFlag('intro_spoke_roberta');
         if (spokeRoberta) {
           useWorldStateStore.getState().addKnownNpc('npc_roberta');
@@ -345,33 +355,52 @@ const Game: React.FC = () => {
           const delta = 20 - current;
           useDiaryStore.getState().updateRelationship('npc_roberta', { friendship: delta });
         }
-      } else if (world.introMode && loc.id === 'leo_lighthouse' && world.tutorialStep === 5 && (npcId === 'npc_sarah' || npcId === 'npc_kyle')) {
-        useWorldStateStore.getState().setTutorialStep(6);
-        try { useJournalStore.getState().setQuestStage('luke_tutorial', 6); } catch {}
-        const ui = useUIStore.getState();
-        if (npcId === 'npc_sarah') {
-          ui.setEventSlides(playEventSlidesSarah);
-          ui.setCurrentEventId('play_sarah');
-        } else {
-          ui.setEventSlides(playEventSlidesKyle);
-          ui.setCurrentEventId('play_kyle');
-        }
-        useUIStore.getState().setScreen('event');
-      } else if (useUIStore.getState().currentEventId === 'kyle_smuggler_alert' && npcId === 'npc_kyle') {
-        const uiState = useUIStore.getState();
-        uiState.setCurrentEventId(null);
-        useWorldTimeStore.setState({ hour: 22, minute: 0 });
-        useLocationStore.getState().setLocation('driftwatch_docks');
-        useCompanionStore.getState().setCompanion({
-          id: 'npc_robert_companion',
-          name: 'Robert',
-          type: 'human',
-          stats: { hp: 70, maxHp: 70, attack: 7, defence: 6, agility: 7 },
-          equippedItems: [],
-        });
-        useWorldStateStore.getState().setFlag('smuggler_help_available', true);
+      } 
+      // Intro: Sarah/Kyle at Lighthouse (Step 5 -> 6)
+      else if (world.introMode && loc.id === 'leo_lighthouse' && world.tutorialStep === 5 && (npcId === 'npc_sarah' || npcId === 'npc_kyle')) {
+        // Use setTimeout to avoid synchronous state conflicts
+        setTimeout(() => {
+            useWorldStateStore.getState().setTutorialStep(6);
+            try { useJournalStore.getState().setQuestStage('luke_tutorial', 6); } catch {}
+            
+            const ui = useUIStore.getState();
+            if (npcId === 'npc_sarah') {
+                ui.setEventSlides(playEventSlidesSarah);
+                ui.setCurrentEventId('play_sarah');
+            } else {
+                ui.setEventSlides(playEventSlidesKyle);
+                ui.setCurrentEventId('play_kyle');
+            }
+            ui.setScreen('event');
+        }, 50);
+        return;
       }
-    } catch {}
+      // Smuggler Event: Kyle Dialogue -> Help Robert
+      else if (useUIStore.getState().currentEventId === 'kyle_smuggler_alert' && npcId === 'npc_kyle') {
+        // Fix for "Help Robert" crash: Wrap in setTimeout
+        setTimeout(() => {
+            const uiState = useUIStore.getState();
+            uiState.setCurrentEventId(null);
+            useWorldTimeStore.setState({ hour: 22, minute: 0 });
+            useLocationStore.getState().setLocation('driftwatch_docks');
+            
+            useCompanionStore.getState().setCompanion({
+              id: 'npc_robert_companion',
+              name: 'Robert',
+              type: 'human',
+              stats: { hp: 70, maxHp: 70, attack: 7, defence: 6, dexterity: 7 },
+              equippedItems: [],
+            });
+            
+            useWorldStateStore.getState().setFlag('smuggler_help_available', true);
+            uiState.setScreen('inGame');
+        }, 50);
+        return;
+      }
+    } catch (e) {
+        console.error("Error in handleEndDialogue:", e);
+    }
+
     const uiState = useUIStore.getState();
     if (uiState.currentEventId) {
       setScreen('event');
@@ -530,41 +559,273 @@ const Game: React.FC = () => {
             }}
           />
         );
-      case 'choiceEvent':
-        const eventId = useUIStore.getState().currentEventId;
-        if (eventId === 'beryl_letter_pickup') {
-           return (
-             <ChoiceEventScreen
-               title="Crumpled Letter"
-               imageUrl="/assets/items/crumpled_letter.png"
-               eventText="A crumpled letter lies in the puddle. It's soaked but legible."
-               choices={[
-                 { 
-                   text: 'Take the letter', 
-                   onSelect: () => {
-                     useInventoryStore.getState().addItem('beryl_noble_letter', 1);
-                     useWorldStateStore.getState().setFlag('beryl_letter_found', true);
-                     useDiaryStore.getState().addInteraction('Picked up Crumpled Letter.');
-                     useUIStore.getState().setCurrentEventId(null);
-                     setScreen('inGame');
-                   } 
-                 }
-               ]}
-             />
-           );
+      case 'choiceEvent': {
+        const eventId = useUIStore.getState().currentEventId as keyof typeof choiceEvents | null;
+        if (!eventId || !(eventId in choiceEvents)) {
+          return (
+            <ChoiceEventScreen
+              eventText={"An event occurs."}
+              choices={[{ text: 'Continue', onSelect: () => setScreen('inGame') }]}
+            />
+          );
         }
+
+        const cfg = choiceEvents[eventId];
+
+        if (eventId === 'beryl_letter_pickup') {
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Take the letter',
+                  onSelect: () => {
+                    useInventoryStore.getState().addItem('beryl_noble_letter', 1);
+                    useWorldStateStore.getState().setFlag('beryl_letter_found', true);
+                    useDiaryStore.getState().addInteraction('Picked up Crumpled Letter.');
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'apple_tree_event') {
+          const inventory = useInventoryStore.getState();
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Pick some apples (1–3, small risk of injury)',
+                  onSelect: () => {
+                    const qty = Math.floor(Math.random() * 3) + 1;
+                    inventory.addItem('apple', qty);
+                    const takeDamage = Math.random() < 0.3;
+                    if (takeDamage) {
+                      useCharacterStore.setState((state) => ({
+                        hp: Math.max(0, state.hp - 5),
+                      }));
+                    }
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+                {
+                  text: 'Leave the tree alone',
+                  onSelect: () => {
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'rescue_wolf_choice') {
+          const world = useWorldStateStore.getState();
+          const companionStore = useCompanionStore.getState();
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Adopt the puppy',
+                  onSelect: () => {
+                    companionStore.setCompanion({
+                      id: 'wolf_puppy',
+                      name: 'Wolf Puppy',
+                      type: 'wolf',
+                      stats: { hp: 80, maxHp: 80, attack: 8, defence: 3, dexterity: 12 },
+                      equippedItems: [],
+                    });
+                    world.setFlag('wolf_puppy_resolved', true);
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+                {
+                  text: 'Kill the puppy',
+                  onSelect: () => {
+                    world.setFlag('wolf_puppy_resolved', true);
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+                {
+                  text: 'Leave it be',
+                  onSelect: () => {
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'fallen_log_event') {
+          const inventory = useInventoryStore.getState();
+          const hasAxe = inventory.getItemQuantity('axe_basic') > 0;
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Chop wood (Requires Axe)',
+                  disabled: !hasAxe,
+                  onSelect: () => {
+                    const qty = Math.floor(Math.random() * 3) + 1; // 1-3 logs
+                    inventory.addItem('log', qty);
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+                {
+                  text: 'Leave it be',
+                  onSelect: () => {
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'abandoned_campsite_event') {
+          const inventory = useInventoryStore.getState();
+          const character = useCharacterStore.getState();
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Search for supplies',
+                  onSelect: () => {
+                    // Random loot: Rope or Coins
+                    if (Math.random() > 0.5) {
+                         inventory.addItem('rope', 1);
+                    } else {
+                         character.addCurrency('copper', Math.floor(Math.random() * 10) + 5);
+                    }
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+                {
+                  text: 'Rest for a while (+20 Energy)',
+                  onSelect: () => {
+                    useCharacterStore.setState((state) => ({ energy: Math.min(100, state.energy + 20) }));
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+                {
+                  text: 'Leave',
+                  onSelect: () => {
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'hollow_stump_event') {
+          const character = useCharacterStore.getState();
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Reach inside',
+                  onSelect: () => {
+                    if (Math.random() > 0.5) {
+                        // Loot
+                        character.addCurrency('copper', Math.floor(Math.random() * 15) + 5);
+                    } else {
+                        // Damage
+                        useCharacterStore.setState((state) => ({ hp: Math.max(0, state.hp - 10) }));
+                    }
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+                {
+                  text: 'Leave it alone',
+                  onSelect: () => {
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'overgrown_path_event') {
+          const inventory = useInventoryStore.getState();
+          const world = useWorldStateStore.getState();
+          const hasAxe = inventory.getItemQuantity('axe_basic') > 0;
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Clear the path (Requires Axe)',
+                  disabled: !hasAxe,
+                  onSelect: () => {
+                    world.setFlag('loc_cabin_unlocked', true);
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+                {
+                  text: 'Turn back',
+                  onSelect: () => {
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+              ]}
+            />
+          );
+        }
+
         return (
           <ChoiceEventScreen
             eventText={"An event occurs."}
             choices={[{ text: 'Continue', onSelect: () => setScreen('inGame') }]}
           />
         );
+      }
       case 'combat':
         return <CombatManager />;
       case 'combatVictory':
         return <VictoryScreen rewards={{ items: [], copper: 0 }} onContinue={() => setScreen('inGame')} />;
       case 'companion':
         return <CompanionScreen hasPet={false} />;
+      case 'debugMenu':
+        return <DebugMenuScreen />;
       default:
         return <MainMenu />;
     }
@@ -675,8 +936,8 @@ const Game: React.FC = () => {
                   const currentLoc = useLocationStore.getState().getCurrentLocation();
                   if (ui.sleepWaitMode === 'sleep') {
                     const quality = ui.sleepQuality ?? 1.0;
-                    const restore = (fixedDuration ?? hours) * 10 * quality;
-                    useCharacterStore.setState((state) => ({ energy: Math.min(100, state.energy + Math.floor(restore)) }));
+                    const duration = fixedDuration ?? hours;
+                    useCharacterStore.getState().sleep(duration, quality);
                   }
                   if (useWorldStateStore.getState().getFlag('start_finn_debt_on_sleep')) {
                     useWorldStateStore.getState().setFlag('start_finn_debt_on_sleep', false);
@@ -722,6 +983,7 @@ const Game: React.FC = () => {
           const onConfirm = () => {
             if (isIntroSkip) {
               useWorldTimeStore.setState({ hour: 8, minute: 0 });
+              useCharacterStore.setState({ hunger: 100 });
               useWorldStateStore.getState().setIntroCompleted(true);
               useWorldStateStore.getState().setFlag('intro_completed', true);
               useWorldStateStore.getState().setIntroMode(false);
@@ -762,7 +1024,6 @@ const Game: React.FC = () => {
             message = 'Conversations present choices. Speak with Old Leo and select one starting path to begin your day.';
           } else if (currentScreen === 'combat' && !useWorldStateStore.getState().getFlag('combat_tutorial_seen')) {
             message = 'In combat, select a target on the right, then press Attack.';
-            useWorldStateStore.getState().setFlag('combat_tutorial_active', true);
           }
           const handleClose = () => {
             const world = useWorldStateStore.getState();
@@ -772,14 +1033,17 @@ const Game: React.FC = () => {
             if (currentScreen === 'dialogue' && useUIStore.getState().dialogueNpcId === 'npc_old_leo' && world.tutorialStep <= 2) {
               useWorldStateStore.getState().setSeenLeoTutorial(true);
             }
-            if (currentScreen === 'combat' && world.getFlag('combat_tutorial_active')) {
-              useWorldStateStore.getState().setFlag('combat_tutorial_active', false);
+            if (currentScreen === 'combat') {
+              // Mark tutorial as seen so it doesn't reopen
               useWorldStateStore.getState().setFlag('combat_tutorial_seen', true);
+              // Ensure active flag is false so we don't get stuck state
+              useWorldStateStore.getState().setFlag('combat_tutorial_active', false);
             }
             closeModal();
           };
           const handleSkipIntro = () => {
             useWorldTimeStore.setState({ hour: 8, minute: 0 });
+            useCharacterStore.setState({ hunger: 100 });
             useWorldStateStore.getState().setIntroCompleted(true);
             useWorldStateStore.getState().setFlag('intro_completed', true);
             useWorldStateStore.getState().setIntroMode(false);

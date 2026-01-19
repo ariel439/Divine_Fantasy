@@ -1,11 +1,12 @@
 
 import React from 'react';
+import { Shield } from 'lucide-react';
 import type { FC } from 'react';
-import type { Combatant } from '../../types';
+import type { CombatParticipant } from '../../types';
 import ProgressBar from './ProgressBar';
 
 interface CombatantCardProps {
-  combatant: Combatant;
+  combatant: CombatParticipant;
   isPartyMember: boolean;
   isActive?: boolean;
   isSelected?: boolean;
@@ -28,6 +29,11 @@ const CombatantCard: FC<CombatantCardProps> = ({ combatant, isPartyMember, isAct
     const cardContent = (
         <>
             <img src={combatant.portraitUrl} alt={combatant.name} className="w-full h-48 object-cover" />
+            {combatant.defending && (
+                <div className="absolute top-2 right-2 bg-zinc-900/80 p-1.5 rounded-full border border-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)] z-10 animate-pulse-slow">
+                    <Shield size={20} className="text-blue-400" />
+                </div>
+            )}
             <div className="p-4">
                 <h3 className="text-xl font-bold text-white truncate" style={{ fontFamily: 'Cinzel, serif' }}>
                     {combatant.name}

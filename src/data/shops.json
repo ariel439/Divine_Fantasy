@@ -41,5 +41,21 @@
       { "item_id": "ale", "quantity": 20 },
       { "item_id": "food_trout_grilled", "quantity": 5 }
     ]
+  },
+  {
+    "shop_id": "kaelens_forge",
+    "name": "Kaelen's Forge",
+    "location_id": "kaelens_forge",
+    "currency": 5000,
+    "buy_multiplier": 0.6,
+    "sell_multiplier": 1.4,
+    "inventory": [
+        { "item_id": "iron_helmet", "quantity": 2 },
+        { "item_id": "iron_chainmail", "quantity": 2 },
+        { "item_id": "iron_leggings", "quantity": 2 },
+        { "item_id": "axe_basic", "quantity": 3 },
+        { "item_id": "hammer", "quantity": 5 },
+        { "item_id": "crude_knife", "quantity": 5 }
+      ]
   }
 ]

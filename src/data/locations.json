@@ -81,6 +81,7 @@
     "is_indoor": true,
     "actions": [
       { "text": "Talk to Kaelen", "type": "dialogue", "target": "npc_kaelen" },
+      { "text": "Browse Shop", "type": "shop", "target": "kaelens_forge" },
       { "text": "Talk to Cyrus", "type": "dialogue", "target": "npc_cyrus" },
       { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
     ]
@@ -146,6 +147,7 @@
       { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.is_day==true&&time.weekday==Saturday" },
       { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.is_day==true&&time.weekday==Sunday" },
       { "text": "Talk to Boric", "type": "dialogue", "target": "npc_boric", "condition": "time.is_day==true" },
+      { "text": "Help Robert", "type": "trigger_event", "eventId": "smuggler_combat_start", "condition": "world_flags.smuggler_help_available==true" },
       { "text": "Fish", "type": "fish", "target": "fish_docks" },
       { "text": "Work", "type": "job", "target": "job_dockhand" },
       { "text": "Travel to Tide & Trade", "type": "navigate", "target": "tide_trade", "condition": "time.is_day==true" },
@@ -174,6 +176,7 @@
     "actions": [
       { "text": "Sleep on the Floor", "type": "sleep", "target": "sleep_floor" },
       { "text": "Cook on Firepit", "type": "cook", "target": "cook_firepit" },
+      { "text": "Use Workbench", "type": "craft", "target": "craft_basic" },
       { "text": "Travel to Salty Mug", "type": "navigate", "target": "salty_mug" },
       { "text": "Travel to Herbalist's Hovel", "type": "navigate", "target": "herbalists_hovel", "condition": "time.is_day==true" },
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" }
@@ -205,8 +208,9 @@
     "music_track": "GDD/assets/audio/music/room.mp3",
     "is_indoor": true,
     "actions": [
-      { "text": "Sleep in Bed", "type": "sleep", "target": "sleep_bed" },
-      { "text": "Travel to Salty Mug", "type": "navigate", "target": "salty_mug" }
+      { "text": "Sleep", "type": "sleep", "target": "sleep_bed" },
+      { "text": "Craft Items", "type": "craft", "target": "craft_basic" },
+      { "text": "Leave the Room", "type": "navigate", "target": "salty_mug" }
     ]
   },
   "hunters_cabin": {
@@ -215,10 +219,11 @@
     "night_description": "Lantern light spills softly through shuttered windows; the forest hums outside.",
     "day_background": "/assets/locations/hunters_cabin_day.png",
     "night_background": "/assets/locations/hunters_cabin_night.png",
-    "is_indoor": true,
+    "is_indoor": false,
     "music_track": "GDD/assets/audio/music/woods.mp3",
     "actions": [
       { "text": "Talk to Ronald", "type": "dialogue", "target": "npc_ronald", "condition": "time.is_day==true" },
+      { "text": "Use Workbench", "type": "craft", "target": "craft_basic", "condition": "world_flags.hunter_crafting_unlocked==true" },
       { "text": "Travel to Driftwatch Woods", "type": "navigate", "target": "driftwatch_woods" }
     ]
   },

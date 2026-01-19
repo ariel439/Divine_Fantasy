@@ -8,6 +8,18 @@
     "base_value": 0,
     "image": "/assets/items/paper.png"
   },
+  "raw_meat": {
+    "name": "Raw Meat",
+    "description": "A chunk of raw meat. Needs cooking.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.5,
+    "base_value": 3,
+    "effects": {
+      "hunger": 5
+    },
+    "image": "/assets/items/meat_raw.png"
+  },
   "log": {
     "name": "Log",
     "description": "A rough log, needs to be processed.",
@@ -16,6 +28,18 @@
     "weight": 5.0,
     "base_value": 2,
     "image": "/assets/items/wood.png"
+  },
+  "apple": {
+    "name": "Apple",
+    "description": "A fresh red apple. Crunchy and sweet.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.2,
+    "base_value": 3,
+    "effects": {
+      "hunger": 5
+    },
+    "image": "/assets/items/apple.png"
   },
   "wooden_plank": {
     "name": "Wooden Plank",
@@ -34,7 +58,7 @@
     "weight": 0.3,
     "base_value": 4,
     "effects": {
-      "hunger": -5
+      "hunger": 5
     },
     "image": "/assets/items/fish_sardine.png"
   },
@@ -46,7 +70,7 @@
     "weight": 0.6,
     "base_value": 7,
     "effects": {
-      "hunger": -10
+      "hunger": 6
     },
     "image": "/assets/items/fish_trout.png"
   },
@@ -58,7 +82,7 @@
     "weight": 1.2,
     "base_value": 15,
     "effects": {
-      "hunger": -20
+      "hunger": 10
     },
     "image": "/assets/items/fish_pike.png"
   },
@@ -70,7 +94,7 @@
     "weight": 0.3,
     "base_value": 10,
     "effects": {
-      "hunger": -15
+      "hunger": 12
     },
     "image": "/assets/items/fish_sardine_cooked.png"
   },
@@ -82,141 +106,178 @@
     "weight": 0.6,
     "base_value": 18,
     "effects": {
-      "hunger": -30
+      "hunger": 25
     },
     "image": "/assets/items/fish_trout_cooked.png"
   },
   "food_pike_grilled": {
     "name": "Grilled Pike",
-    "description": "A pike, grilled over an open flame. Restores a large amount of hunger.",
+    "description": "A pike, grilled over an open flame. A hearty meal.",
     "type": "consumable",
     "stackable": true,
     "weight": 1.2,
-    "base_value": 35,
+    "base_value": 30,
     "effects": {
-      "hunger": -60
+      "hunger": 40
     },
-    "image": "/assets/items/fish_pike_cooked.png"
-  },
-  "wolf_pelt": {
-    "name": "Wolf Pelt",
-    "description": "A pelt from a forest wolf.",
-    "type": "resource",
-    "stackable": true,
-    "weight": 1.0,
-    "base_value": 15,
-    "image": "/assets/items/wolf_pelt.png"
+    "image": "/assets/items/fish_trout_cooked.png"
   },
   "axe_basic": {
-    "name": "Basic Axe",
-    "description": "A simple axe for chopping wood.",
-    "type": "tool",
-    "stackable": false,
-    "weight": 3.0,
-    "base_value": 50,
-    "equip_slot": "main_hand",
-    "image": "/assets/items/old_axe.png"
-  },
-  "fishing_rod": {
-    "name": "Fishing Rod",
-    "description": "A basic rod for catching fish.",
-    "type": "tool",
-    "stackable": false,
-    "weight": 1.5,
-    "base_value": 40,
-    "equip_slot": "main_hand",
-    "image": "/assets/items/wooden_rod.png"
-  },
-  "hammer": {
-    "name": "Hammer",
-    "description": "Used for construction and repairs.",
+    "name": "Old Axe",
+    "description": "Old but reliable enough for chopping wood.",
     "type": "tool",
     "stackable": false,
     "weight": 2.0,
-    "base_value": 30,
-    "equip_slot": "main_hand",
-    "image": "/assets/items/hammer.png"
+    "base_value": 10,
+    "image": "/assets/items/old_axe.png"
   },
-  "spade": {
-    "name": "Spade",
-    "description": "A sturdy spade for digging and light earthwork.",
+  "fishing_rod": {
+    "name": "Wooden Fishing Rod",
+    "description": "A basic rod. It smells of fish.",
     "type": "tool",
     "stackable": false,
-    "weight": 2.5,
-    "base_value": 25,
-    "equip_slot": "main_hand",
-    "image": "/assets/items/spade.png"
+    "weight": 1.0,
+    "base_value": 15,
+    "image": "/assets/items/wooden_rod.png"
   },
-  "nails": {
-    "name": "Nails",
-    "description": "Essential for carpentry.",
-    "type": "resource",
+  "rope": {
+    "name": "Rope",
+    "description": "Strong hemp rope. Useful for climbing.",
+    "type": "utility",
     "stackable": true,
-    "weight": 0.1,
+    "weight": 1.0,
+    "base_value": 5,
+    "image": "/assets/items/rope.png"
+  },
+  "coins": {
+    "name": "Coins",
+    "description": "Standard currency.",
+    "type": "currency",
+    "stackable": true,
+    "weight": 0.0,
     "base_value": 1,
-    "image": "/assets/items/nails.png"
+    "image": "/assets/items/coins.png"
   },
-  "bread": {
-    "name": "Bread",
-    "description": "A loaf of fresh bread.",
-    "type": "consumable",
-    "stackable": true,
-    "weight": 0.5,
-    "base_value": 5,
-    "effects": {
-      "hunger": -20
-    },
-    "image": "/assets/items/bread.png"
-  },
-  "cheese": {
-    "name": "Cheese",
-    "description": "A wedge of cheese.",
-    "type": "consumable",
-    "stackable": true,
-    "weight": 0.3,
-    "base_value": 8,
-    "effects": {
-      "hunger": -15
-    },
-    "image": "/assets/items/cheese.png"
-  },
-  "cloth": {
-    "name": "Cloth",
-    "description": "A piece of cloth.",
+  "wolf_tooth": {
+    "name": "Wolf Tooth",
+    "description": "A sharp tooth from a wolf.",
     "type": "resource",
     "stackable": true,
-    "weight": 0.2,
-    "base_value": 10,
-    "image": "/assets/items/cloth.png"
-  },
-  "ale": {
-    "name": "Ale",
-    "description": "A mug of ale.",
-    "type": "consumable",
-    "stackable": true,
-    "weight": 0.5,
-    "base_value": 4,
-    "effects": {
-      "energy": 10
-    },
-    "image": "/assets/items/ale.png"
-  },
-  "beryl_noble_letter": {
-    "name": "Noble's Letter",
-    "description": "A letter revealing a dangerous romantic affair between Beryl and a noble woman.",
-    "type": "quest_item",
-    "stackable": false,
     "weight": 0.1,
-    "base_value": 0,
-    "image": "/assets/items/crumpled_letter.png"
+    "base_value": 2,
+    "image": "/assets/items/wolf_tooth.png"
   },
-  "deadly_nightshade": {
-    "name": "Deadly Nightshade",
-    "description": "A poisonous herb that looks similar to healing herbs.",
-    "type": "quest_item",
+  "wolf_pelt": {
+    "name": "Wolf Pelt",
+    "description": "The fur of a forest wolf. Can be used for crafting.",
+    "type": "resource",
     "stackable": true,
-    "weight": 0.1,
+    "weight": 1.0,
     "base_value": 5,
-    "image": "/assets/items/herb_poison.png"
+    "image": "/assets/items/wolf_pelt.png"
+  },
+  "wolf_leather_helmet": {
+    "name": "Wolf Leather Helmet",
+    "description": "A sturdy leather helmet made from wolf hide.",
+    "type": "armor",
+    "stackable": false,
+    "weight": 1.0,
+    "base_value": 15,
+    "image": "/assets/items/wolf_helm.png",
+    "equipmentSlot": "head",
+    "stats": {
+      "defence": 4
+    }
+  },
+  "wolf_leather_armor": {
+    "name": "Wolf Leather Armor",
+    "description": "Light armor crafted from cured wolf pelts.",
+    "type": "armor",
+    "stackable": false,
+    "weight": 3.0,
+    "base_value": 25,
+    "image": "/assets/items/wolf_body.png",
+    "equipmentSlot": "chest",
+    "stats": {
+      "defence": 9
+    }
+  },
+  "wolf_leather_legs": {
+    "name": "Wolf Leather Leggings",
+    "description": "Tough leather leggings for agility and protection.",
+    "type": "armor",
+    "stackable": false,
+    "weight": 1.5,
+    "base_value": 20,
+    "image": "/assets/items/wolf_legs.png",
+    "equipmentSlot": "legs",
+    "stats": {
+      "defence": 5
+    }
+  },
+  "wolf_tooth_amulet": {
+    "name": "Wolf Tooth Amulet",
+    "description": "A necklace made of wolf teeth. Looks fierce.",
+    "type": "accessory",
+    "stackable": false,
+    "weight": 0.2,
+    "base_value": 15,
+    "image": "/assets/items/wolf_amulet.png",
+    "equipmentSlot": "amulet",
+    "stats": {
+      "strength": 5
+    }
+  },
+  "iron_helmet": {
+    "name": "Iron Helmet",
+    "description": "A heavy iron helmet. Protects your noggin.",
+    "type": "armor",
+    "stackable": false,
+    "weight": 3.0,
+    "base_value": 80,
+    "image": "/assets/items/iron_helmet.png",
+    "equipmentSlot": "head",
+    "stats": {
+      "defence": 5
+    }
+  },
+  "iron_chainmail": {
+    "name": "Iron Chainmail",
+    "description": "Standard issue iron chainmail. Reliable protection.",
+    "type": "armor",
+    "stackable": false,
+    "weight": 10.0,
+    "base_value": 150,
+    "image": "/assets/items/iron_chainmail.png",
+    "equipmentSlot": "chest",
+    "stats": {
+      "defence": 10
+    }
+  },
+  "iron_leggings": {
+    "name": "Iron Leggings",
+    "description": "Chainmail leggings to protect your legs.",
+    "type": "armor",
+    "stackable": false,
+    "weight": 5.0,
+    "base_value": 100,
+    "image": "/assets/items/iron_chainlegs.png",
+    "equipmentSlot": "legs",
+    "stats": {
+      "defence": 5
+    }
+  },
+  "crude_knife": {
+    "name": "Crude Knife",
+    "description": "A crude, hand-forged knife with a chipped blade.",
+    "type": "tool",
+    "stackable": false,
+    "weight": 1.0,
+    "base_value": 5,
+    "image": "/assets/items/crude_knife.png",
+    "equipmentSlot": "weapon",
+    "stats": {
+      "attack": 6
+    }
   }
 }

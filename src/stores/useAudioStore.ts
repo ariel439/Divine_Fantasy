@@ -22,7 +22,7 @@ interface AudioState {
 export const useAudioStore = create<AudioState>((set, get) => ({
   musicEnabled: false,
   sfxEnabled: false,
-  weatherEnabled: true,
+  weatherEnabled: false,
   musicVolume: 0.5, // Default 0.5
   sfxVolume: 0.5, // Default 0.5
   weatherVolume: 0.5, // Default 0.5

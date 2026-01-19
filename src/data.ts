@@ -1,6 +1,6 @@
 
 import React from 'react';
-import type { Item, Npc, Quest, Slide, Recipe, Combatant, EquipmentSlot, DialogueOption, Book, BookContent } from './types';
+import type { Item, Npc, Quest, Slide, Recipe, CombatParticipant, EquipmentSlot, DialogueOption, Book, BookContent } from './types';
 // FIX: Replaced non-existent 'Ring' icon with 'Radio' as 'Ring' is not an exported member of 'lucide-react'.
 import { Sprout, Fish, Hammer, Scroll, Apple, Backpack, UtensilsCrossed, Armchair, CookingPot, Sword, Shirt, Footprints, Gem, Radio, Ribbon, Shield, SplitSquareHorizontal } from 'lucide-react';
 
@@ -19,7 +19,6 @@ export const attributeLabels: { [key: string]: string[] } = {
     wisdom: ['Foolish', 'Perceptive', 'Wise', 'Sage-like'],
     charisma: ['Repulsive', 'Personable', 'Charismatic', 'Magnetic'],
     defence: ['Fragile', 'Sturdy', 'Resilient', 'Indomitable'],
-    agility: ['Slow', 'Quick', 'Swift', 'Blazing'],
 };
 
 export const getDescriptiveAttributeLabel = (attribute: keyof typeof attributeLabels, value: number): string => {
@@ -79,84 +78,7 @@ export const characters = [
     }
 ];
 
-export const lukePrologueSlides: Slide[] = [
-  {
-    image: "https://i.imgur.com/tYATeUX.jpeg",
-    text: "The story of Luke begins, as many in the Whispers do, with the sea's cruel embrace. His mother, Elara, succumbed to childbirth's fevered grip, and his father, a fisherman named Gareth, was claimed by a sudden squall that showed no mercy. Orphaned before he could even speak his name, he was brought to Leo's Lighthouse, a beacon of hope standing defiant against the salt-sprayed cliffs of Driftwatch. Here, under the watchful eye of the kindly Old Leo, his life truly began."
-  },
-  {
-    image: "https://i.imgur.com/Hy0z6aZ.jpeg",
-    text: "In the orphanage's quiet halls, he forged a family not of blood, but of bond. There was Sarah, whose sweet nature made her the steadfast 'mother' of their small group; Robert, the strong, serious boy who dreamed of a life beyond the docks; and young Kyle, whose mischievous grin was a constant source of trouble and laughter. Surrounded by his only friends, Luke's tragic past became a foundation, not an anchor. His sharp mind, a gift from a life of observation, became his tool—a beacon of potential promising a future far grander than his humble beginnings."
-  }
-];
 
-export const wakeupEventSlides: Slide[] = [
-  {
-    image: "/assets/locations/salty_mug_rented_room.png",
-    text: "You wake in a cramped room at the Salty Mug. Old Man Finn bangs on the door: ‘Two months without rent, kid. Out.’ The lesson ends. The day begins."
-  },
-  {
-    image: "/assets/locations/driftwatch_slums_day.png",
-    text: "Kicked to the streets, you step into Driftwatch’s slums. The real world doesn’t wait—and neither should you."
-  }
-];
-
-export const finnDebtIntroSlides: Slide[] = [
-  {
-    image: "/assets/locations/salty_mug_rented_room.png",
-    text: "You wake to Old Man Finn staring down, a guard idling beside him—knife glinting."
-  }
-];
-
-export const breakfastEventSlides: Slide[] = [
-  {
-    image: "/assets/events/luke_breakfast.png",
-    text: "You share a simple breakfast at Leo’s Lighthouse—warm bread, salted fish, and a quiet moment before the day."
-  }
-];
-
-export const playEventSlidesSarah: Slide[] = [
-  {
-    image: "/assets/events/luke_play_together.png",
-    text: "You spend time with Sarah, helping tidy the common room and laughing at quiet memories. Her calm steadies you more than you'd admit."
-  }
-];
-
-export const playEventSlidesRobert: Slide[] = [
-  {
-    image: "/assets/events/luke_play_together.png",
-    text: "You trade jabs with Robert and talk dreams bigger than the docks. Work hard, aim higher, and don't let the wind decide your path."
-  }
-];
-
-export const playEventSlidesKyle: Slide[] = [
-  {
-    image: "/assets/events/luke_play_together.png",
-    text: "You chase Kyle through the lighthouse halls, laughing as he slips past your reach. Mischief fades, leaving the night a little lighter."
-  }
-];
-
-export const playEventSlidesAlone: Slide[] = [
-  {
-    image: "/assets/events/luke_play_alone.png",
-    text: "You spend a quiet hour by yourself. The lighthouse hums with distant voices, but your thoughts are your own—clear, steady, and sharp."
-  }
-];
-
-export const smugglerTrapSlides: Slide[] = [
-  {
-    image: "/assets/locations/leo_lighthouse_room.png",
-    text: "A frantic knock jolts you awake. Kyle whispers through the door: ‘Luke, get up—Robert’s slipped out. Something’s wrong.’"
-  },
-  {
-    image: "/assets/locations/driftwatch_docks_night.png",
-    text: "You and Kyle hurry to the docks. Lanterns sway in the wind; shadows move between stacked crates."
-  },
-  {
-    image: "/assets/locations/driftwatch_docks_night.png",
-    text: "Down by the water, Robert meets figures in the dark. You stay low—watching, listening—ready to act."
-  }
-];
 
 // FIX: Replaced JSX syntax with React.createElement to be valid in a .ts file.
 export const mockInventory: Item[] = [
@@ -182,23 +104,7 @@ export const mockEquippedItems: Partial<Record<EquipmentSlot, Item>> = {
   ring: { id: 'e5', name: 'Iron Ring', description: 'A simple, unadorned iron ring.', icon: React.createElement(Radio, { size: 24, className: "text-slate-500" }), category: 'Equipment', weight: 0.1, base_value: 10, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'ring', stats: {} },
 };
 
-export const robertCaughtSlides: Slide[] = [
-  {
-    image: "/assets/events/robert_caught.png",
-    text: "The smugglers overwhelm Robert, blades flashing in the dark. He takes blow after blow, but refuses to fall. With a desperate shout, he throws himself at the attackers. 'Run! Get Kyle out of here!' he screams, sacrificing himself. You grab Kyle and sprint into the night, the sounds of the struggle fading behind you."
-  },
-  {
-    image: "/assets/locations/leo_lighthouse_room.png",
-    text: "Breathless, you and Kyle burst back into Leo’s Lighthouse. The door closes on the whispering wind, shutting out the danger but not the grief. Robert is gone. There’s nothing to do tonight but try to sleep, the memory of his sacrifice burning in your mind."
-  }
-];
 
-export const backToLighthouseSlides: Slide[] = [
-  {
-    image: "/assets/locations/leo_lighthouse_room.png",
-    text: "Breathless, you and Kyle return to Leo’s Lighthouse. The door closes on the whispering wind. There’s nothing to do tonight but try to sleep."
-  }
-];
 
 
 export const mockNpcs: Npc[] = [
@@ -417,31 +323,94 @@ export const mockRecipes: Recipe[] = [
         timeCost: 5,
         energyCost: 15,
     },
+    {
+        id: 'recipe_wolf_helmet',
+        skill: 'Crafting',
+        levelRequired: 1,
+        result: {
+            id: 'wolf_leather_helmet', name: 'Wolf Leather Helmet', description: 'A sturdy leather helmet made from wolf hide.', icon: React.createElement(Shirt, { size: 24, className: "text-amber-700" }), category: 'Equipment', weight: 1.0, base_value: 15, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'head', stats: { 'defence': 3 }
+        },
+        ingredients: [
+            { itemId: 'wolf_pelt', quantity: 1 },
+        ],
+        timeCost: 30,
+        energyCost: 10,
+    },
+    {
+        id: 'recipe_wolf_armor',
+        skill: 'Crafting',
+        levelRequired: 1,
+        result: {
+            id: 'wolf_leather_armor', name: 'Wolf Leather Armor', description: 'Light armor crafted from cured wolf pelts.', icon: React.createElement(Shirt, { size: 24, className: "text-amber-700" }), category: 'Equipment', weight: 3.0, base_value: 25, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'chest', stats: { 'defence': 6 }
+        },
+        ingredients: [
+            { itemId: 'wolf_pelt', quantity: 3 },
+        ],
+        timeCost: 60,
+        energyCost: 20,
+    },
+    {
+        id: 'recipe_wolf_legs',
+        skill: 'Crafting',
+        levelRequired: 1,
+        result: {
+            id: 'wolf_leather_legs', name: 'Wolf Leather Leggings', description: 'Tough leather leggings for agility and protection.', icon: React.createElement(Shirt, { size: 24, className: "text-amber-700" }), category: 'Equipment', weight: 1.5, base_value: 20, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'legs', stats: { 'defence': 3 }
+        },
+        ingredients: [
+            { itemId: 'wolf_pelt', quantity: 2 },
+        ],
+        timeCost: 45,
+        energyCost: 15,
+    },
+    {
+        id: 'recipe_wolf_amulet',
+        skill: 'Crafting',
+        levelRequired: 1,
+        result: {
+            id: 'wolf_tooth_amulet', name: 'Wolf Tooth Amulet', description: 'A necklace made of wolf teeth.', icon: React.createElement(Gem, { size: 24, className: "text-zinc-400" }), category: 'Equipment', weight: 0.2, base_value: 15, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'amulet', stats: { 'strength': 2 }
+        },
+        ingredients: [
+            { itemId: 'wolf_tooth', quantity: 3 },
+        ],
+        timeCost: 15,
+        energyCost: 10,
+    }
 ];
 
-export const mockParty: Combatant[] = [
+export const mockParty: CombatParticipant[] = [
     {
         id: 'luke',
         name: 'Luke',
         hp: 85,
         maxHp: 100,
+        attack: 10,
+        defence: 5,
+        dexterity: 6,
         portraitUrl: 'https://i.imgur.com/gUNzyBA.jpeg',
+        isPlayer: true,
     },
     {
         id: 'wolf_puppy',
         name: 'Wolf Puppy',
-        hp: 80,
-        maxHp: 80,
+        hp: 25,
+        maxHp: 25,
+        attack: 4,
+        defence: 1,
+        dexterity: 6,
         portraitUrl: 'https://i.imgur.com/DS1LuU3.png',
+        isCompanion: true,
     }
 ];
 
-export const mockEnemies: Combatant[] = [
+export const mockEnemies: CombatParticipant[] = [
     {
         id: 'wolf1',
         name: 'Rabid Wolf',
         hp: 45,
         maxHp: 45,
+        attack: 12,
+        defence: 2,
+        dexterity: 10,
         portraitUrl: 'https://i.imgur.com/NXT2T8Q.png',
     },
     {
@@ -449,6 +418,9 @@ export const mockEnemies: Combatant[] = [
         name: 'Alpha Wolf',
         hp: 70,
         maxHp: 70,
+        attack: 15,
+        defence: 5,
+        dexterity: 12,
         portraitUrl: 'https://i.imgur.com/NXT2T8Q.png',
     },
     {
@@ -456,6 +428,9 @@ export const mockEnemies: Combatant[] = [
         name: 'Shadow Wolf',
         hp: 55,
         maxHp: 55,
+        attack: 14,
+        defence: 3,
+        dexterity: 14,
         portraitUrl: 'https://i.imgur.com/NXT2T8Q.png',
     },
     {
@@ -463,6 +438,9 @@ export const mockEnemies: Combatant[] = [
         name: 'Dire Wolf',
         hp: 60,
         maxHp: 60,
+        attack: 18,
+        defence: 4,
+        dexterity: 8,
         portraitUrl: 'https://i.imgur.com/NXT2T8Q.png',
     }
 ];
@@ -593,6 +571,43 @@ export const mockBooks: Book[] = [
             { type: 'p', content: "With Christian Odran's death, King Arthur carried out a final, ruthless decree. The members of House Odran were executed. Their ancestral seat, Embris, was razed, and their name stricken from the annals of The Whispers. This was known as Moon's Justice." },
             { type: 'p', content: "The weight of this victory altered the king. He withdrew from the public eye, spending his remaining days in solitude, writing, painting, and composing music — his artistry a stark contrast to the cold, calculated warrior the realm had come to know. His death marked the end of an era, a monarch who had shaped the fate of The Whispers with unparalleled foresight and unwavering resolve." },
             { type: 'p', content: "The legacy of Odran's Rebellion continues to influence The Whispers. The ruins of Murkwater remain abandoned, believed to be cursed, with local legends claiming that on foggy nights, the screams of the dying can still be heard echoing across the swamps." },
+        ]
+    },
+    {
+        id: 'pearl-war',
+        title: "The Pearl War",
+        author: "Maester Valerius",
+        coverUrl: "/assets/books/pearl_war_cover.png",
+        content: [
+            { type: 'h1', content: "The Pearl War (367 AW)" },
+            { type: 'p', content: "The Pearl War (367 AW) was a defining conflict in the history of the Pearl Islands—now known as the Mermaid Islands—that reshaped the very foundation of House Lirs and established a matriarchal rule that would influence the region's culture for centuries. Sparked by the untimely death of Lord Isandro Lirs, the patriarch of the house, the war saw a brutal struggle for power between his two children: Lady Barbara Lirs, a seasoned naval commander, and her younger brother, Lord Craster Lirs, a politically favored but inexperienced leader." },
+            { type: 'p', content: "At its core, the Pearl War was a conflict of identity, tradition, and ambition. The islands, named for their abundant pearl trade, had long balanced commerce and seafaring warfare. However, the death of Isandro, a respected yet aging leader, exposed a growing fracture in the islands' society—between those who sought to maintain the patriarchal customs of old and those who believed in the rising influence of women in warfare and leadership." },
+            { type: 'h2', content: "The Calm Before the Storm" },
+            { type: 'img', content: "/assets/books/pearl_war_calm_before_storm.png", caption: "The Calm Before the Storm" },
+            { type: 'p', content: "Lord Isandro Lirs was a figure of stability for House Lirs and the Pearl Islands. Known for his diplomatic approach and keen sense of commerce, he had fortified his family's position as the dominant force among the scattered islands. However, his later years were plagued by illness, and the once-feared mariner became a weakened ruler whose grasp on the islands' volatile politics began to slip." },
+            { type: 'p', content: "When Isandro died without clearly naming an heir, the islands fell into a state of uncertainty. By tradition, the eldest son would inherit the title, yet the tides of change were rising. The Pearl Islands had seen a steady increase in the influence of women, particularly among its fleets. Many of the most formidable captains were women, and their control over the islands' ships granted them significant power. As a result, the notion that a woman might take the helm of House Lirs was no longer a distant fantasy." },
+            { type: 'p', content: "Lady Barbara Lirs, at twenty-two, was already a veteran of the seas. She had led successful raids against pirates and commanded respect among the fleet. However, her brother Craster, at just seventeen, was seen as a proper heir in the eyes of the conservative merchants and minor nobles who feared change. While Craster lacked his sister's experience, his supporters believed that he could be molded into a ruler who would maintain the status quo." },
+            { type: 'p', content: "The Pearl Islands quickly became divided. Merchants, eager to protect their trade agreements and wary of a more militarized regime, stood behind Craster. House Carronvale, a growing power from Driftwatch with close economic ties to House Lirs, pledged their support to the young lord, seeing an opportunity to exert influence over the islands. Meanwhile, the captains and warriors—many of whom had sailed under Barbara's command—pledged their loyalty to the seasoned leader. They saw in her not just a capable ruler, but a symbol of change." },
+            { type: 'h2', content: "The War for the Throne of Pearls" },
+            { type: 'p', content: "With the realm divided and loyalties split, the struggle for the Pearl Throne swiftly escalated from tense negotiations to outright conflict. Lady Barbara Lirs, armed with her unparalleled naval expertise and the support of the growing matriarchal military class, established a base on three smaller islands off the coast of the Pearl Islands. These islands, scattered yet strategically significant, provided her with secure harbors and staging grounds for her fleet." },
+            { type: 'p', content: "Lord Craster Lirs, only seventeen but backed by the majority of the merchants, lesser nobles, and the neighboring House Carronvale of Driftwatch, struggled to consolidate power. Despite his attempts to rally the islands' aristocracy, his influence was limited on the seas — a crucial flaw in a region defined by its maritime prowess. House Carronvale, eager to expand its influence, committed their modest but evolving fleet to Craster's cause, yet it was evident they were outmatched by Barbara's seasoned sailors." },
+            { type: 'p', content: "Barbara's campaign began with a series of swift and calculated strikes. Her forces cut off trade routes, seized supply ships, and raided the coastal estates of those who supported her brother. The sea itself became her ally, the waves and winds carrying her vessels to victory after victory. In contrast, Craster's forces were often disorganized, lacking the naval experience necessary to contest her dominance. The political power he held on land began to erode as merchants saw their wealth sink beneath the waves, and nobles questioned the wisdom of standing by a leader incapable of controlling the waters." },
+            { type: 'h1', content: "Battle of the Shattered Tides" },
+            { type: 'img', content: "/assets/books/pearl_war_shattered_tides.png", caption: "Battle of the Shattered Tides" },
+            { type: 'p', content: "The defining moment of the war came in the Battle of the Shattered Tides, named for the wreckage that littered the waters for years to come. Craster, desperate to end the war and preserve his claim, launched a direct assault on Barbara's fleet. The Carronvale ships led the charge, attempting to outmaneuver the more experienced captains under Barbara's command. However, Barbara's knowledge of the tides and currents proved invaluable; she drew her brother's fleet into narrow straits where the winds faltered, and the waves broke chaotically. Her ships, prepared for the turbulence, surrounded and decimated the enemy fleet." },
+            { type: 'p', content: "Craster's defeat marked the beginning of the end. With his forces scattered or destroyed, his supporters began to abandon him, fearful of Barbara's wrath and the growing dominance of her fleet. The remaining loyalists withdrew to the Pearl Throne, the ancient seat of House Lirs, a fortress believed to be impregnable from the sea. Yet, Barbara, relentless and unyielding, began a siege. Cannons battered the walls for days, and the once-proud castle began to crumble under the unrelenting bombardment." },
+            { type: 'h2', content: "Fall of the Pearl Throne" },
+            { type: 'p', content: "On the final day of the siege, Barbara herself led the charge into the breached halls of the fortress. It is said that Craster, defiant until the end, faced his sister in the throne room. There, under the gazes of shattered ancestors carved in coral and stone, Barbara struck him down. When the sun set that day, she stood atop the crumbling battlements, the head of her brother impaled upon the ancestral trident, Tide Devil, a grim and unforgettable symbol of her victory." },
+            { type: 'p', content: "The war for the Throne of Pearls had ended, but the repercussions of the conflict would echo through the Pearl Islands for generations. Barbara's victory not only marked the rise of House Lirs as a matriarchal power but also reshaped the cultural and political landscape of the islands, inspiring other coastal powers to embrace women as warriors, captains, and leaders." },
+            { type: 'h1', content: "Aftermath" },
+            { type: 'img', content: "/assets/books/pearl_war_aftermath.png", caption: "The Aftermath" },
+            { type: 'p', content: "With the death of Craster Lirs and the fall of the Pearl Throne, the war for the Throne of Pearls reached a brutal and decisive conclusion. Lady Barbara Lirs emerged not only as the victor but as a symbol of a new era — a ruler forged by the tides, unyielding and unafraid. Her triumph was a signal that the islands had irrevocably changed." },
+            { type: 'p', content: "In the immediate wake of her victory, Barbara consolidated her power with calculated precision. The surviving nobles who had supported Craster were given a choice: swear fealty to her or face exile to the open sea, a punishment as harsh as death for those who relied on the islands for their livelihood. Some chose exile, their ships vanishing into the horizon, while others bent the knee, unwilling to lose their homes and trade. The merchants, once the cornerstone of Craster's support, recognized the futility of resistance and aligned themselves with the new order." },
+            { type: 'p', content: "House Carronvale of Driftwatch, left weakened and disgraced by their failure to defend Craster, faced repercussions. Barbara initially contemplated exacting vengeance upon them, but recognizing the value of their fleet and their knowledge of trade, she chose a different approach. Rather than dismantling House Carronvale, she demanded oaths of loyalty and a tithe of their maritime earnings. House Carronvale, realizing they could not withstand further conflict, accepted the terms. Over time, they adapted to the shifting power dynamics, their women joining their ships and guardhouses, integrating into the emerging matriarchal order." },
+            { type: 'h2', content: "Cultural Impact" },
+            { type: 'p', content: "The Pearl War fundamentally transformed the islands' society. The once patriarchal structure gave way to a matriarchal order where women not only held power but were expected to wield it. Barbara's leadership inspired generations of daughters raised to command ships and wield weapons. The name \"Mermaid Islands\" replaced \"Pearl Islands,\" reflecting this new identity." },
+            { type: 'p', content: "The Tide Devil trident became more than a symbol—it was the weapon that reshaped history. Each Lady of House Lirs swears an oath upon it, committing to protect the islands and maintain the matriarchal rule. The Pearl Throne was rebuilt as the Mermaid Throne, and the hall where Barbara killed her brother stands as both warning and testament to House Lirs' resolve." },
+            { type: 'p', content: "House Lirs flourished in subsequent decades, becoming a formidable maritime power. Though small, the Mermaid Islands grew into a crucial trade center known for skilled sailors and fearsome captains. The matriarchal order became intrinsic to their identity, shaping how they fought, traded, and lived—Barbara's legacy enduring as the woman who changed the tides of history forever." }
         ]
     }
 ];

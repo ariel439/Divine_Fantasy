@@ -21,7 +21,8 @@ export type GameState =
   | 'choiceEvent'
   | 'combat'
   | 'combatVictory'
-  | 'companion';
+  | 'companion'
+  | 'debugMenu';
 
 export type NavVariant = 'default' | 'compact' | 'floating';
 
@@ -70,7 +71,7 @@ export interface OfferItem {
 }
 
 // Crafting
-export type CraftingSkill = 'Carpentry' | 'Cooking';
+export type CraftingSkill = 'Carpentry' | 'Cooking' | 'Crafting';
 
 export interface Recipe {
   id: string;
@@ -83,12 +84,18 @@ export interface Recipe {
 }
 
 // Combat
-export interface Combatant {
+export interface CombatParticipant {
   id: string;
   name: string;
   hp: number;
   maxHp: number;
-  portraitUrl: string;
+  attack: number;
+  defence: number;
+  dexterity: number;
+  isPlayer?: boolean;
+  isCompanion?: boolean;
+  portraitUrl?: string;
+  defending?: boolean;
 }
 
 // Dialogue
@@ -217,8 +224,17 @@ export interface ActionSummaryReward {
 
 export interface ActionSummary {
   title: string;
+  image?: string;
+  description?: string;
   durationInMinutes: number;
   vitalsChanges: ActionSummaryVitalChange[];
   expended?: ActionSummaryResourceChange[];
   rewards: ActionSummaryReward[];
 }
+
+export const STAT_DESCRIPTIONS = {
+  strength: ['Weak', 'Average', 'Strong', 'Mighty'],
+  attack: ['Feeble', 'Average', 'Strong', 'Herculean'],
+  dexterity: ['Clumsy', 'Nimble', 'Graceful', 'Ethereal'],
+  intelligence: ['Dull', 'Clever', 'Brilliant', 'Genius'],
+};

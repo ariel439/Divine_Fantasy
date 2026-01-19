@@ -56,7 +56,7 @@ const CompanionScreen: FC<{ hasPet: boolean }> = ({ hasPet }) => {
         hp: { current: 80, max: 80 },
         energy: { current: 65, max: 100 },
     },
-    attributes: { attack: 5, defence: 3, agility: 8 },
+    attributes: { attack: 5, dexterity: 8 },
     info: "A young wolf you found, wounded and alone, in the forest. After nursing it back to health, it has become your loyal and steadfast companion."
   };
 
@@ -93,8 +93,7 @@ const CompanionScreen: FC<{ hasPet: boolean }> = ({ hasPet }) => {
                         <Section title="Attributes">
                             <div className="p-4 bg-black/20 rounded-lg border border-zinc-800 space-y-2">
                                 <Stat label="Attack" value={getDescriptiveAttributeLabel('attack', companion.attributes.attack)} />
-                                <Stat label="Defence" value={getDescriptiveAttributeLabel('defence', companion.attributes.defence)} />
-                                <Stat label="Agility" value={getDescriptiveAttributeLabel('agility', companion.attributes.agility)} />
+                                <Stat label="Dexterity" value={getDescriptiveAttributeLabel('dexterity', companion.attributes.dexterity)} />
                             </div>
                         </Section>
                         

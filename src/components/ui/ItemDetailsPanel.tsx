@@ -8,7 +8,7 @@ interface ItemDetailsPanelProps {
     selectedItem: Item | null;
     equippedItem: Item | null;
     onShowEquipment: () => void;
-    onAction: (action: 'Equip' | 'Unequip') => void;
+    onAction: (action: 'Equip' | 'Unequip' | 'Use' | 'Drop') => void;
     isEquipped: boolean;
 }
 
@@ -72,7 +72,11 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
                     </button>
                 )}
                 {actionsToShow.map(action => (
-                    <button key={action} className="w-full text-center p-2.5 bg-zinc-800/60 border border-zinc-700 rounded-lg transition-all hover:bg-zinc-700/80">
+                    <button 
+                        key={action} 
+                        onClick={() => onAction(action as 'Equip' | 'Unequip' | 'Use' | 'Drop')}
+                        className="w-full text-center p-2.5 bg-zinc-800/60 border border-zinc-700 rounded-lg transition-all hover:bg-zinc-700/80"
+                    >
                         {action}
                     </button>
                 ))}

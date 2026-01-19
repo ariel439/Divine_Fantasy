@@ -20,12 +20,13 @@ const CharacterPortrait: FC<{ characterData: any }> = ({ characterData }) => (
             <ProgressBar label="HP" value={characterData.hp} max={100} colorClass="bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]" variant="thick" showText={true} />
             <ProgressBar label="Energy" value={characterData.energy} max={100} colorClass="bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.7)]" variant="thick" showText={true} />
             <ProgressBar label="Hunger" value={characterData.hunger} max={100} colorClass="bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.7)]" variant="thick" showText={true} />
+            <ProgressBar label="Social" value={characterData.socialEnergy} max={characterData.maxSocialEnergy} colorClass="bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.7)]" variant="thick" showText={true} />
         </div>
     </>
 );
 
 const CharacterScreen: FC = () => {
-    const { attributes, hp, energy, hunger, bio } = useCharacterStore();
+    const { attributes, hp, energy, hunger, socialEnergy, maxSocialEnergy, bio } = useCharacterStore();
     const { skills, getSkillLevel } = useSkillStore();
 
     const characterData = {
@@ -40,21 +41,24 @@ const CharacterScreen: FC = () => {
         hp,
         energy,
         hunger,
+        socialEnergy,
+        maxSocialEnergy,
         attributes: {
             strength: attributes.strength,
-            dexterity: attributes.agility,
+            dexterity: attributes.dexterity,
             intelligence: attributes.intelligence,
             wisdom: attributes.wisdom,
             charisma: attributes.charisma
         },
         skills: [
             { name: 'Attack', level: getSkillLevel('attack'), icon: <Sword size={24} /> },
-            { name: 'Agility', level: getSkillLevel('agility'), icon: <Wind size={24} /> },
-            { name: 'Defence', level: getSkillLevel('defence'), icon: <Shield size={24} /> },
+            { name: 'Defense', level: getSkillLevel('defense'), icon: <Shield size={24} /> },
+            { name: 'Dexterity', level: getSkillLevel('dexterity'), icon: <Wind size={24} /> },
             { name: 'Woodcutting', level: getSkillLevel('woodcutting'), icon: <Axe size={24} /> },
             { name: 'Fishing', level: getSkillLevel('fishing'), icon: <Fish size={24} /> },
             { name: 'Cooking', level: getSkillLevel('cooking'), icon: <ChefHat size={24} /> },
             { name: 'Carpentry', level: getSkillLevel('carpentry'), icon: <Hammer size={24} /> },
+            { name: 'Crafting', level: getSkillLevel('crafting'), icon: <Hammer size={24} /> },
             { name: 'Persuasion', level: getSkillLevel('persuasion'), icon: <Smile size={24} /> },
             { name: 'Coercion', level: getSkillLevel('coercion'), icon: <Angry size={24} /> },
         ]

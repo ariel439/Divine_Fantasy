@@ -2,27 +2,26 @@
 
 import React, { useRef, useEffect, useMemo, useState } from 'react';
 import type { FC } from 'react';
-import { Swords, Shield, Footprints } from 'lucide-react';
-import type { Combatant } from '../../types';
+import { Swords, Footprints } from 'lucide-react';
+import type { CombatParticipant } from '../../types';
 import CombatantCard from '../ui/CombatantCard';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import { useAudioStore } from '../../stores/useAudioStore';
 
 interface CombatScreenProps {
-  party: Combatant[];
-  enemies: Combatant[];
-  turnOrder: Combatant[];
+  party: CombatParticipant[];
+  enemies: CombatParticipant[];
+  turnOrder: CombatParticipant[];
   activeCharacterId?: string;
   selectedTargetId?: string;
   isPlayerTurn: boolean;
   onSelectTarget: (enemyId: string) => void;
   onAttack: () => void;
-  onDefend: () => void;
   onFlee: () => void;
   combatLog: string[];
 }
 
-const TurnOrderTimeline: FC<{ combatants: Combatant[]; activeId?: string }> = ({ combatants, activeId }) => (
+const TurnOrderTimeline: FC<{ combatants: CombatParticipant[]; activeId?: string }> = ({ combatants, activeId }) => (
     <div className="w-full max-w-4xl p-2 flex justify-center items-center gap-3">
         {combatants.map((c, index) => (
             <div key={`${c.id}-${index}`} className="relative group">
@@ -47,7 +46,6 @@ const CombatScreen: FC<CombatScreenProps> = ({
   isPlayerTurn,
   onSelectTarget,
   onAttack,
-  onDefend,
   onFlee,
   combatLog
 }) => {
@@ -55,8 +53,8 @@ const CombatScreen: FC<CombatScreenProps> = ({
     const [enemyDamageEvents, setEnemyDamageEvents] = useState<{ targetId: string, damage: number, key: number }[]>([]);
     const [partyDamageEvents, setPartyDamageEvents] = useState<{ targetId: string, damage: number, key: number }[]>([]);
     const tutorialActive = useWorldStateStore.getState().getFlag('combat_tutorial_active');
-    const prevEnemiesRef = useRef<Combatant[]>(JSON.parse(JSON.stringify(enemies)));
-    const prevPartyRef = useRef<Combatant[]>(JSON.parse(JSON.stringify(party)));
+    const prevEnemiesRef = useRef<CombatParticipant[]>(JSON.parse(JSON.stringify(enemies)));
+    const prevPartyRef = useRef<CombatParticipant[]>(JSON.parse(JSON.stringify(party)));
     const { sfxEnabled, sfxVolume } = useAudioStore();
 
     const playSfx = (src: string) => {
@@ -217,7 +215,6 @@ const CombatScreen: FC<CombatScreenProps> = ({
                     {/* Action Buttons */}
                     <div className="md:col-span-1 flex justify-center md:justify-end gap-2 order-2 md:order-3">
                         <CombatActionButton icon={<Swords size={20} />} text="Attack" onClick={onAttack} disabled={!isPlayerTurn || !selectedTargetId} />
-                        <CombatActionButton icon={<Shield size={20} />} text="Defend" onClick={onDefend} disabled={!isPlayerTurn} />
                         <CombatActionButton icon={<Footprints size={20} />} text="Flee" onClick={onFlee} disabled={!isPlayerTurn} />
                     </div>
                 </div>

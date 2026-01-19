@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { useCombatStore, type CombatParticipant } from '../stores/useCombatStore';
+import { useCombatStore } from '../stores/useCombatStore';
+import type { CombatParticipant } from '../types';
 import { useCharacterStore } from '../stores/useCharacterStore';
 import { useCompanionStore } from '../stores/useCompanionStore';
 import { useUIStore } from '../stores/useUIStore';
@@ -8,7 +9,7 @@ import { useInventoryStore } from '../stores/useInventoryStore';
 import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import CombatScreen from './screens/CombatScreen';
-import { robertCaughtSlides } from '../data';
+import { robertCaughtSlides } from '../data/events';
 
 const CombatManager: React.FC = () => {
   const {
@@ -32,25 +33,26 @@ const CombatManager: React.FC = () => {
   const { setScreen } = useUIStore();
   const { passTime } = useWorldTimeStore();
   const { addItem } = useInventoryStore();
-  const { addXp: addSkillXp } = useSkillStore();
+  const { addXp: addSkillXp, getSkillLevel } = useSkillStore();
 
   const scriptedTurnCount = React.useRef(0);
 
   const [selectedTargetId, setSelectedTargetId] = React.useState<string>('');
 
+  const aliveEnemies = React.useMemo(() => getAliveEnemies(), [participants, getAliveEnemies]);
+  const aliveParty = React.useMemo(() => getAliveParty(), [participants, getAliveParty]);
+  const sortedTurnOrder = React.useMemo(() => turnOrder.map(id => participants.find(p => p.id === id)).filter(Boolean) as CombatParticipant[], [turnOrder, participants]);
+
   // Auto-select first enemy if none selected
   useEffect(() => {
-    if (!selectedTargetId) {
-      const firstEnemy = getAliveEnemies()[0];
+    if (!selectedTargetId && aliveEnemies.length > 0) {
+      const firstEnemy = aliveEnemies[0];
       if (firstEnemy) setSelectedTargetId(firstEnemy.id);
     }
-  }, [participants, selectedTargetId, getAliveEnemies]);
+  }, [aliveEnemies, selectedTargetId]);
 
   // Handle victory/defeat checks
   useEffect(() => {
-    const aliveEnemies = getAliveEnemies();
-    const aliveParty = getAliveParty();
-
     if (phase === 'setup') return;
 
     if (aliveEnemies.length === 0) {
@@ -68,13 +70,18 @@ const CombatManager: React.FC = () => {
       setTimeout(() => {
         endCombat();
         const ui = useUIStore.getState();
-        ui.setEventSlides(robertCaughtSlides);
-        ui.setCurrentEventId('robert_caught');
-        setScreen('event');
+        const isIntroMode = useWorldStateStore.getState().introMode;
+        if (isIntroMode) {
+          ui.setEventSlides(robertCaughtSlides);
+          ui.setCurrentEventId('robert_caught');
+          setScreen('event');
+        } else {
+          setScreen('mainMenu');
+        }
         passTime(5);
       }, 1500);
     }
-  }, [participants, phase, rewards, setPhase, endCombat, setScreen, passTime, addItem, getAliveEnemies, getAliveParty]);
+  }, [aliveEnemies.length, aliveParty.length, phase, rewards, setPhase, endCombat, setScreen, passTime, addItem]);
 
   const handleAttack = () => {
     if (!isPlayerTurn() || !selectedTargetId) return;
@@ -83,29 +90,35 @@ const CombatManager: React.FC = () => {
     const target = participants.find(p => p.id === selectedTargetId);
     if (!attacker || !target || target.hp <= 0) return;
 
-    // Simple damage calculation - reduced if target is defending
-    const defenceMultiplier = target.defending ? 1.5 : 1;
-    const damage = Math.max(1, attacker.attack - Math.floor(target.defence * defenceMultiplier) + Math.floor(Math.random() * 5) - 2);
+    const baseHitChance = attacker.isPlayer || attacker.isCompanion ? 0.8 : 0.7;
+    if (Math.random() > baseHitChance) {
+      addLogEntry(`${attacker.name} attacks ${target.name} but misses!`);
+      nextTurn();
+      return;
+    }
+
+    const attackPower = attacker.attack;
+    const defencePower = Math.max(0, target.defence);
+    let damage = Math.floor(attackPower * 1.4 - defencePower * 0.3);
+    damage = Math.max(3, damage);
+
     const newHp = Math.max(0, target.hp - damage);
-    
+
     updateParticipant(target.id, { hp: newHp });
     addLogEntry(`${attacker.name} attacks ${target.name} for ${damage} damage!`);
-    
-    // Award attack skill XP to attacker
+
     if (attacker.isPlayer || attacker.isCompanion) {
-      addSkillXp('attack', Math.floor(damage * 2)); // 2 XP per damage point
+      addSkillXp('attack', Math.floor(damage * 2));
     }
-    
-    // Award defence skill XP to target for taking damage
-    if ((target.isPlayer || target.isCompanion) && damage > 0) {
-      addSkillXp('defence', Math.floor(damage)); // 1 XP per damage point taken
+
+    if ((target.isPlayer || target.isCompanion) && newHp > 0) {
+      addSkillXp('defence', Math.floor(damage * 2));
     }
-    
+
     if (newHp <= 0) {
       addLogEntry(`${target.name} is defeated!`);
     }
-    
-    // End combat tutorial highlight after first attack
+
     if (useWorldStateStore.getState().getFlag('combat_tutorial_active')) {
       useWorldStateStore.getState().setFlag('combat_tutorial_active', false);
       useWorldStateStore.getState().setFlag('combat_tutorial_seen', true);
@@ -114,33 +127,20 @@ const CombatManager: React.FC = () => {
     nextTurn();
   };
 
-  const handleDefend = () => {
-    if (!isPlayerTurn()) return;
-    
-    const defender = getCurrentParticipant();
-    if (!defender) return;
-
-    // Simple defend action - reduces damage taken next turn
-    updateParticipant(defender.id, { defending: true });
-    addLogEntry(`${defender.name} takes a defensive stance!`);
-    
-    nextTurn();
-  };
-
   const handleFlee = () => {
     if (!isPlayerTurn()) return;
     
-    // Simple flee logic - 70% base chance modified by agility difference
-    const partyAgility = getAliveParty().reduce((sum, p) => sum + p.agility, 0) / getAliveParty().length;
-    const enemyAgility = getAliveEnemies().reduce((sum, e) => sum + e.agility, 0) / getAliveEnemies().length;
-    const fleeChance = Math.min(0.9, Math.max(0.1, 0.7 + (partyAgility - enemyAgility) * 0.05));
+    // Simple flee logic - 70% base chance modified by dexterity difference
+    const partyDexterity = getAliveParty().reduce((sum, p) => sum + p.dexterity, 0) / getAliveParty().length;
+    const enemyDexterity = getAliveEnemies().reduce((sum, e) => sum + e.dexterity, 0) / getAliveEnemies().length;
+    const fleeChance = Math.min(0.9, Math.max(0.1, 0.7 + (partyDexterity - enemyDexterity) * 0.05));
     
     if (Math.random() < fleeChance) {
       addLogEntry('Party successfully fled from combat!');
-      // Award agility skill XP for successful flee
+      // Award dexterity skill XP for successful flee
       getAliveParty().forEach(p => {
         if (p.isPlayer || p.isCompanion) {
-          addSkillXp('agility', 10); // 10 XP for successful flee
+          addSkillXp('dexterity', 10); // 10 XP for successful flee
         }
       });
       setPhase('fled');
@@ -155,8 +155,9 @@ const CombatManager: React.FC = () => {
     }
   };
 
-  // Auto-advance enemy turns
+  // Auto-advance enemy AND companion turns
   useEffect(() => {
+    // Enemy Turn Logic
     if (!isPlayerTurn() && phase === 'enemy-turn') {
       const timer = setTimeout(() => {
         const currentEnemy = getCurrentParticipant();
@@ -185,10 +186,19 @@ const CombatManager: React.FC = () => {
           damage = 15; // Fixed high damage for cinematic feel
           scriptedTurnCount.current += 1;
         } else {
-          // Normal AI - attack random party member
           target = aliveParty[Math.floor(Math.random() * aliveParty.length)];
-          const defenceMultiplier = target.defending ? 1.5 : 1;
-          damage = Math.max(1, currentEnemy.attack - Math.floor(target.defence * defenceMultiplier) + Math.floor(Math.random() * 3) - 1);
+
+          const baseHitChance = 0.75;
+          if (Math.random() > baseHitChance) {
+            addLogEntry(`${currentEnemy.name} attacks ${target.name} but misses!`);
+            nextTurn();
+            return;
+          }
+
+          const attackPower = currentEnemy.attack;
+          const defencePower = Math.max(0, target.defence);
+          damage = Math.floor(attackPower * 1.3 - defencePower * 0.3);
+          damage = Math.max(3, damage);
         }
         
         if (target) {
@@ -199,14 +209,14 @@ const CombatManager: React.FC = () => {
             
             // Award defence skill XP to target for taking damage
             if ((target.isPlayer || target.isCompanion) && damage > 0) {
-              addSkillXp('defence', Math.floor(damage)); // 1 XP per damage point taken
+              addSkillXp('defence', Math.floor(damage * 4)); // 4 XP per damage taken
             }
             
             if (newHp <= 0) {
               addLogEntry(`${target.name} is defeated!`);
             }
         }
-        
+
         // Scripted loss: End combat after 1 full round (4 enemy actions)
         if (isScriptedLoss && scriptedTurnCount.current >= 4) {
           getAliveParty().forEach(p => {
@@ -217,11 +227,48 @@ const CombatManager: React.FC = () => {
         }
 
         nextTurn();
-      }, 1500); // Enemy turn delay
-      
+      }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [isPlayerTurn, phase, getCurrentParticipant, getAliveParty, nextTurn, updateParticipant, addLogEntry, currentTurnIndex]);
+    
+    // Companion Turn Logic
+    const current = getCurrentParticipant();
+    if (phase === 'player-turn' && current?.isCompanion) {
+         const timer = setTimeout(() => {
+            const aliveEnemies = getAliveEnemies();
+            if (aliveEnemies.length === 0) {
+                nextTurn();
+                return;
+            }
+            
+            const target = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
+
+            const baseHitChance = 0.8;
+            if (Math.random() > baseHitChance) {
+              addLogEntry(`${current.name} attacks ${target.name} but misses!`);
+              nextTurn();
+              return;
+            }
+
+            const attackPower = current.attack;
+            const defencePower = Math.max(0, target.defence);
+            // FIX: Consistent defence multiplier
+            let damage = Math.floor(attackPower * 1.4 - defencePower * 0.75);
+            damage = Math.max(1, damage);
+            
+            const newHp = Math.max(0, target.hp - damage);
+            updateParticipant(target.id, { hp: newHp });
+            addLogEntry(`${current.name} attacks ${target.name} for ${damage} damage!`);
+            
+            if (newHp <= 0) {
+                addLogEntry(`${target.name} is defeated!`);
+            }
+            
+            nextTurn();
+         }, 1000);
+         return () => clearTimeout(timer);
+    }
+  }, [phase, currentTurnIndex, participants, isPlayerTurn, getCurrentParticipant, nextTurn, addLogEntry, getAliveEnemies, getAliveParty, addSkillXp, getSkillLevel, updateParticipant]);
 
   return (
     <CombatScreen
@@ -233,7 +280,6 @@ const CombatManager: React.FC = () => {
       isPlayerTurn={isPlayerTurn()}
       onSelectTarget={setSelectedTargetId}
       onAttack={handleAttack}
-      onDefend={handleDefend}
       onFlee={handleFlee}
       combatLog={log}
     />

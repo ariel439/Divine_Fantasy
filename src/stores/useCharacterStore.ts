@@ -1,21 +1,26 @@
 import { create } from 'zustand';
 import { useWorldTimeStore } from './useWorldTimeStore';
 import { useInventoryStore } from './useInventoryStore';
+import itemsData from '../data/items.json';
 import type { EquipmentSlot, Item } from '../types';
 
 interface CharacterState {
   // Core Attributes
   attributes: {
     strength: number;
-    agility: number;
+    dexterity: number;
     intelligence: number;
     wisdom: number;
     charisma: number;
   };
+  characterId?: string;
   // Core Vitals
   hp: number;
+  maxHp: number;
   energy: number;
   hunger: number;
+  socialEnergy: number;
+  maxSocialEnergy: number;
   // Currency
   currency: {
     copper: number;
@@ -38,26 +43,34 @@ interface CharacterState {
   equippedItems: Partial<Record<EquipmentSlot, Item>>;
   // Actions
   eat: (itemId: string) => void;
-  sleep: (bedType: string) => void;
+  sleep: (hours: number, quality?: number) => void;
   wait: (hours: number) => void;
   addCurrency: (type: 'copper' | 'silver' | 'gold', amount: number) => void;
   removeCurrency: (copper: number, silver?: number, gold?: number) => boolean;
   equipItem: (item: Item) => void;
   unequipItem: (item: Item) => void;
+  tickHunger: (minutes: number) => void;
+  recalculateStats: () => void;
+  getMaxEnergy: () => number;
 }
+
+import { useWorldStateStore } from './useWorldStateStore';
 
 export const useCharacterStore = create<CharacterState>((set, get) => ({
   // Initial state - will be set by GameManagerService on new game
   attributes: {
     strength: 1,
-    agility: 1,
+    dexterity: 1,
     intelligence: 1,
     wisdom: 1,
     charisma: 1,
   },
   hp: 100,
+  maxHp: 100,
   energy: 100,
-  hunger: 0,
+  hunger: 60,
+  socialEnergy: 1,
+  maxSocialEnergy: 1,
   currency: {
     copper: 0,
     silver: 0,
@@ -66,46 +79,44 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   maxWeight: 50,
   equippedItems: {},
   eat: (itemId) => {
-    // Load item data (simplified - in real implementation, load from items.json)
-    const itemEffects: Record<string, any> = {
-      'bread': { hunger: -20 },
-      'cheese': { hunger: -15 },
-      'fish_sardine': { hunger: -5 },
-      'fish_trout': { hunger: -10 },
-      'fish_pike': { hunger: -20 },
-      'food_sardine_grilled': { hunger: -15 },
-      'food_trout_grilled': { hunger: -30 },
-      'food_pike_grilled': { hunger: -60 },
-      'ale': { energy: 10 }
-    };
+    const itemData = itemsData[itemId as keyof typeof itemsData] as { effects?: { hunger?: number; energy?: number } } | undefined;
+    
+    if (itemData && itemData.effects) {
+      const hungerChange = itemData.effects.hunger || 0;
+      const energyChange = itemData.effects.energy || 0;
 
-    const effect = itemEffects[itemId];
-    if (effect) {
       set((state) => ({
-        hunger: Math.max(0, state.hunger + (effect.hunger || 0)),
-        energy: Math.min(100, state.energy + (effect.energy || 0))
+        hunger: Math.min(100, state.hunger + hungerChange),
+        energy: Math.min(100, state.energy + energyChange)
       }));
       // Pass 5 minutes eating
       useWorldTimeStore.getState().passTime(5);
     }
   },
-  sleep: (bedType) => {
-    const bedMultipliers: Record<string, number> = {
-      'free': 0.5, // Poor sleep quality
-      'inn': 1.0,  // Normal sleep
-      'home': 1.2  // Good sleep
-    };
+  sleep: (hours: number, quality: number = 1.0) => {
+    // Drain hunger while sleeping (1 per hour)
+    const hungerDrain = hours;
 
-    const multiplier = bedMultipliers[bedType] || 1.0;
-    const hours = bedType === 'free' ? 8 : 8; // All sleep is 8 hours for now
-
-    set((state) => ({
-      hp: Math.min(100, state.hp + (20 * multiplier)),
-      energy: Math.min(100, state.energy + (50 * multiplier))
-    }));
-
-    // Pass time for sleep
-    useWorldTimeStore.getState().passTime(hours * 60);
+    set((state) => {
+      // Calculate new hunger
+      let newHunger = Math.max(0, state.hunger - hungerDrain);
+      
+      // Calculate regen
+      const canHeal = state.hunger > 0;
+      
+      // 40 HP per 8 hours at quality 1.0 = 5 HP/hour
+      const hpPerEightHours = 40;
+      const hpRegen = canHeal ? (hpPerEightHours * quality * (hours / 8)) : 0;
+      
+      // Energy regen: 10 per hour * quality
+      const energyRegen = 10 * hours * quality;
+      
+      return {
+        hp: Math.min(100, state.hp + hpRegen),
+        energy: Math.min(100, state.energy + energyRegen),
+        hunger: newHunger
+      };
+    });
   },
   wait: (hours) => {
     useWorldTimeStore.getState().passTime(hours * 60);
@@ -176,4 +187,70 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
       return { equippedItems: newEquippedItems };
     });
   },
+  tickHunger: (minutes) => {
+    // Prevent drain during intro mode
+    if (useWorldStateStore.getState().introMode) return;
+
+    set((state) => {
+      // Passive drain: -1 per hour
+      const drain = minutes / 60;
+      let newHunger = state.hunger - drain;
+      let newHp = state.hp;
+      
+      // Starvation damage
+      if (newHunger <= 0) {
+        newHunger = 0;
+        // -1 HP per hour
+        newHp = Math.max(0, state.hp - drain);
+      }
+      
+      return { 
+        hunger: newHunger,
+        hp: newHp
+      };
+    });
+  },
+  recalculateStats: () => {
+    set((state) => {
+      const { strength, charisma } = state.attributes;
+      
+      // Calculate Max HP: Base 100 + (Strength * 5) + Item Bonuses
+      let bonusHp = 0;
+      Object.values(state.equippedItems).forEach((item: any) => {
+        if (item && item.stats) {
+           // Handle case-insensitive keys
+           const stats = Object.keys(item.stats).reduce((acc: any, key) => {
+             acc[key.toLowerCase()] = item.stats[key];
+             return acc;
+           }, {});
+           
+           if (typeof stats.hp === 'number') bonusHp += stats.hp;
+           if (typeof stats.health === 'number') bonusHp += stats.health;
+        }
+      });
+
+      const newMaxHp = 100 + (strength * 5) + bonusHp;
+
+      return {
+        maxWeight: 30 + (strength * 5),
+        maxSocialEnergy: charisma,
+        // Ensure social energy doesn't exceed new max
+        socialEnergy: Math.min(state.socialEnergy, charisma),
+        maxHp: newMaxHp,
+        // Cap current HP to new Max HP
+        hp: Math.min(state.hp, newMaxHp)
+      };
+    });
+  },
+  getMaxEnergy: () => {
+    const { hunger } = get();
+    // Full (80-100): +10%
+    if (hunger >= 80) return 110;
+    // Hungry (< 20): -20%
+    if (hunger < 20 && hunger > 0) return 80;
+    // Starving (0): -50%
+    if (hunger <= 0) return 50;
+    
+    return 100;
+  }
 }));

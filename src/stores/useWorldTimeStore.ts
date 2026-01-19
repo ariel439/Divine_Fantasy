@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { useWorldStateStore } from './useWorldStateStore';
 import { useJobStore } from './useJobStore';
+import { useCharacterStore } from './useCharacterStore';
 
 type Weather = 'Sunny' | 'Cloudy' | 'Rainy' | 'Snowy';
 type Season = 'Spring' | 'Summer' | 'Autumn' | 'Winter';
@@ -74,16 +75,24 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
 
       let temperatureC = state.temperatureC;
       const totalMinutes = h * 60 + m;
+      let weather = state.weather;
+      let nextWeatherChangeAt = state.nextWeatherChangeAt;
+
+      // Drain Hunger
+      try {
+        useCharacterStore.getState().tickHunger(minutes);
+      } catch (e) {
+        console.warn('Failed to tick hunger:', e);
+      }
+
       if (typeof state.nextWeatherChangeAt === 'number' && totalMinutes >= state.nextWeatherChangeAt) {
         const introMode = useWorldStateStore.getState().introMode;
         
-        let nextWeather: Weather;
-        
         if (introMode) {
-            nextWeather = 'Rainy';
+            weather = 'Rainy';
         } else {
-            const w = get().getSeason();
-            nextWeather = (() => {
+            const w = season;
+            weather = (() => {
               if (w === 'Spring') {
                 const r = Math.random();
                 return r < 0.4 ? 'Sunny' : r < 0.75 ? 'Cloudy' : 'Rainy';
@@ -101,7 +110,7 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
         }
         
         const block = 120 + Math.floor(Math.random() * 241);
-        set({ weather: nextWeather, nextWeatherChangeAt: (totalMinutes + block) % 1440 });
+        nextWeatherChangeAt = (totalMinutes + block) % 1440;
       }
 
       const dailyMin = state.dailyMinTemp ?? get().dailyMinTemp ?? 10;
@@ -109,13 +118,17 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
       const phi = ((h - 6 + (m / 60)) / 24) * Math.PI * 2;
       const factor = 0.5 - 0.5 * Math.cos(phi);
       temperatureC = dailyMin + (dailyMax - dailyMin) * factor;
-      const wMod = get().weather === 'Cloudy' ? -3 : get().weather === 'Rainy' ? -2 : get().weather === 'Snowy' ? -6 : 0;
+      const wMod = weather === 'Cloudy' ? -3 : weather === 'Rainy' ? -2 : weather === 'Snowy' ? -6 : 0;
       temperatureC = Math.round(temperatureC + wMod);
 
       // End-of-day processing: mark missed shifts if applicable (skip in temporal instances)
       if (!state.instanceMode && (prevDay !== dom || prevMonth !== mo || prevYear !== y)) {
         try {
           useJobStore.getState().ensureAttendanceForDay(prevYear, prevMonth, prevDay);
+        } catch {}
+        try {
+          const maxSocial = useCharacterStore.getState().maxSocialEnergy;
+          useCharacterStore.setState({ socialEnergy: maxSocial });
         } catch {}
       }
 
@@ -128,6 +141,8 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
         minute: m,
         season,
         temperatureC,
+        weather,
+        nextWeatherChangeAt,
       };
     });
     const s = get();

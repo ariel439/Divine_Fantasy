@@ -14,7 +14,7 @@ import { useCombatStore } from '../stores/useCombatStore';
 import { useUIStore } from '../stores/useUIStore';
 import characterTemplates from '../data/character_templates.json';
 import enemiesJson from '../data/enemies.json';
-import type { CombatParticipant } from '../stores/useCombatStore';
+import type { CombatParticipant } from '../types';
 import { DataValidator } from './DataValidator';
 
 export class GameManagerService {
@@ -55,16 +55,17 @@ export class GameManagerService {
 
     // Reset and initialize all stores
     useCharacterStore.setState({
+      characterId: templateId,
       attributes: {
         strength: template.starting_attributes.Strength,
-        agility: template.starting_attributes.Agility,
+        dexterity: template.starting_attributes.Dexterity,
         intelligence: template.starting_attributes.Intelligence,
         wisdom: template.starting_attributes.Wisdom,
         charisma: template.starting_attributes.Charisma,
       },
       hp: 100,
       energy: 100,
-      hunger: 0,
+      hunger: 60,
       currency: { ...template.starting_bonuses.currency },
       maxWeight: 50,
       bio: {
@@ -77,6 +78,11 @@ export class GameManagerService {
         born: '10th of July, 760', // TODO: Add to template
       },
     });
+    try {
+      useCharacterStore.getState().recalculateStats();
+      const maxSocial = useCharacterStore.getState().maxSocialEnergy;
+      useCharacterStore.setState({ socialEnergy: maxSocial });
+    } catch {}
 
     useDiaryStore.setState({
       relationships: { ...template.starting_relationships },
@@ -182,48 +188,45 @@ export class GameManagerService {
           name: wolfTemplate.name,
           hp: wolfTemplate.stats.hp,
           maxHp: wolfTemplate.stats.hp,
-
-
           attack: wolfTemplate.stats.attack,
           defence: wolfTemplate.stats.defence,
-          agility: wolfTemplate.stats.agility,
-          portraitUrl: 'https://i.imgur.com/gUNzyBA.jpeg', // TODO: Add wolf portrait
+          dexterity: wolfTemplate.stats.dexterity,
+          portraitUrl: '/assets/portraits/Wolf.png',
           isPlayer: false,
           isCompanion: false,
         });
       }
     }
 
-    // Create player combatant
+    const playerStats = GameManagerService.calculatePlayerStats(character);
+    const playerName = character.bio?.name || 'Adventurer';
+    const playerPortrait = character.bio?.image || 'https://i.imgur.com/gUNzyBA.jpeg';
+
     const player: CombatParticipant = {
       id: 'player',
-      name: character.bio.name,
+      name: playerName,
       hp: character.hp,
-      maxHp: 100,
-
-
-      attack: character.attributes.strength,
-      defence: character.attributes.strength,
-      agility: character.attributes.agility,
-      portraitUrl: character.bio.image,
+      maxHp: character.maxHp || 100,
+      attack: playerStats.attack,
+      defence: playerStats.defence,
+      dexterity: playerStats.dexterity,
+      portraitUrl: playerPortrait,
       isPlayer: true,
       isCompanion: false,
     };
 
-    // Create companion combatant if available
+    // Add companion if present
     let companionCombatant: CombatParticipant | null = null;
     if (companion) {
       companionCombatant = {
-        id: 'companion',
+        id: companion.id,
         name: companion.name,
         hp: companion.stats.hp,
         maxHp: companion.stats.maxHp,
         attack: companion.stats.attack,
         defence: companion.stats.defence,
-
-
-        agility: companion.stats.agility,
-        portraitUrl: '', // TODO: Add companion portrait URL
+        dexterity: companion.stats.dexterity,
+        portraitUrl: 'https://i.imgur.com/DS1LuU3.png', // TODO: Add companion portrait
         isPlayer: false,
         isCompanion: true,
       };
@@ -248,21 +251,23 @@ export class GameManagerService {
         maxHp: enemyTemplate?.stats.hp || 60,
         attack: enemyTemplate?.stats.attack || 7,
         defence: enemyTemplate?.stats.defence || 5,
-        agility: enemyTemplate?.stats.agility || 6,
+        dexterity: enemyTemplate?.stats.dexterity || 6,
         portraitUrl: '/assets/portraits/Smuggler.png',
         isPlayer: false,
         isCompanion: false,
       });
     }
 
+    const playerStats = GameManagerService.calculatePlayerStats(character);
+
     const player: CombatParticipant = {
       id: 'player',
       name: character.bio.name,
       hp: character.hp,
       maxHp: 100,
-      attack: character.attributes.strength,
-      defence: character.attributes.strength,
-      agility: character.attributes.agility,
+      attack: playerStats.attack,
+      defence: playerStats.defence,
+      dexterity: playerStats.dexterity,
       portraitUrl: character.bio.image,
       isPlayer: true,
       isCompanion: false,
@@ -277,7 +282,7 @@ export class GameManagerService {
         maxHp: companion.stats.maxHp,
         attack: companion.stats.attack,
         defence: companion.stats.defence,
-        agility: companion.stats.agility,
+        dexterity: companion.stats.dexterity,
         portraitUrl: '/assets/portraits/Robert.png',
         isPlayer: false,
         isCompanion: true,
@@ -286,7 +291,39 @@ export class GameManagerService {
 
     useCombatStore.getState().startCombat(player, companionCombatant, enemies);
     useWorldStateStore.getState().setFlag('smuggler_scripted_loss', true);
-    useWorldStateStore.getState().setFlag('combat_tutorial_active', true);
     useUIStore.getState().setScreen('combat');
+  }
+
+  private static calculatePlayerStats(character: any): { attack: number; defence: number; dexterity: number } {
+    let totalAttack = character.attributes.strength || 0;
+    let totalDefence = character.attributes.strength || 0; // Base defence on strength
+    let totalDexterity = character.attributes.dexterity || 0;
+
+    if (character.equippedItems) {
+      Object.values(character.equippedItems).forEach((item: any) => {
+        if (item && item.stats) {
+          // Normalize keys to lowercase to handle potential inconsistencies (Attack vs attack)
+          const stats = Object.keys(item.stats).reduce((acc: any, key) => {
+            acc[key.toLowerCase()] = item.stats[key];
+            return acc;
+          }, {});
+
+          if (typeof stats.attack === 'number') totalAttack += stats.attack;
+          if (typeof stats.strength === 'number') totalAttack += stats.strength; // Strength adds to attack power
+          if (typeof stats.defence === 'number') totalDefence += stats.defence;
+          if (typeof stats.dexterity === 'number') totalDexterity += stats.dexterity;
+        }
+      });
+    }
+
+    console.log('[GameManagerService] Calculated Player Stats:', {
+      baseStrength: character.attributes.strength,
+      baseDexterity: character.attributes.dexterity,
+      totalAttack,
+      totalDefence,
+      totalDexterity
+    });
+
+    return { attack: totalAttack, defence: totalDefence, dexterity: totalDexterity };
   }
 }

@@ -557,6 +557,7 @@ export class DialogueService {
         break;
 
       case 'grant_item':
+      case 'add_item':
         {
           const itemId = params[0];
           const qty = params[1] ? Number(params[1]) : 1;
@@ -767,10 +768,27 @@ export class DialogueService {
         }
         break;
 
+      case 'set_attribute':
+        {
+          const attr = params[0];
+          const val = Number(params[1] || '1');
+          const char = useCharacterStore.getState();
+          // Type-safe update if possible, or cast
+          const attributes = { ...char.attributes, [attr]: val };
+          useCharacterStore.setState({ attributes });
+          // Recalculate derived stats (maxWeight, socialEnergy)
+          useCharacterStore.getState().recalculateStats();
+          
+          diaryStore.addInteraction(`Set attribute ${attr} to ${val}`);
+          console.log(`[DialogueService] Set attribute ${attr} to ${val}. New attributes:`, attributes);
+        }
+        break;
+
       case 'grant_skill_level':
         {
           const skillId = params[0];
           const level = Number(params[1] || '1');
+          console.log(`[DialogueService] Granting skill level: ${skillId} -> ${level}`);
           useSkillStore.getState().setSkillLevel(skillId, level);
           diaryStore.addInteraction('Gained skill level in ' + skillId);
         }

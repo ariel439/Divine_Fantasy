@@ -28,7 +28,7 @@ const ProgressBar: FC<ProgressBarProps> = ({ label, value, max, colorClass, nega
       <div className="relative w-full bg-black/50 rounded-full h-5 shadow-inner border border-zinc-700">
         <div className={barClass} style={barStyle}></div>
         {showText && <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
-          {value} / {max}{unit ? ` ${unit}` : ''}
+          {Math.floor(value)} / {Math.floor(max)}{unit ? ` ${unit}` : ''}
         </div>}
       </div>
     );
@@ -39,7 +39,7 @@ const ProgressBar: FC<ProgressBarProps> = ({ label, value, max, colorClass, nega
         <div className="w-full">
             <div className="flex justify-between items-center mb-1 text-xs text-white/90">
                 {label && <div className="flex items-center gap-2 font-bold tracking-wide"><Weight size={16}/><span>{label}</span></div>}
-                <span>{value} / {max} kg</span>
+                <span>{Math.floor(value)} / {Math.floor(max)} kg</span>
             </div>
             <div className="w-full bg-black/50 rounded-full h-2 shadow-inner">
                 <div className={barClass} style={barStyle}></div>
@@ -53,7 +53,7 @@ const ProgressBar: FC<ProgressBarProps> = ({ label, value, max, colorClass, nega
     <div className="w-full">
       <div className="flex justify-between items-center mb-1 text-xs text-white/90">
         {label && <span className="font-bold tracking-wide">{label}</span>}
-        {showText && <span>{value} / {max}</span>}
+        {showText && <span>{Math.floor(value)} / {Math.floor(max)}</span>}
       </div>
       <div className="w-full bg-black/50 rounded-full h-2 shadow-inner">
         <div className={barClass} style={barStyle}></div>

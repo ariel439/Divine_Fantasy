@@ -7,9 +7,9 @@ interface Companion {
   stats: {
     hp: number;
     attack: number;
-    maxHp: number;
     defence: number;
-    agility: number;
+    maxHp: number;
+    dexterity: number;
   };
   equippedItems: string[]; // item IDs
 }

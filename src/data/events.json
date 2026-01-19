@@ -1,0 +1,82 @@
+{
+  "lukePrologueSlides": [
+    {
+      "image": "https://i.imgur.com/tYATeUX.jpeg",
+      "text": "The story of Luke begins, as many in the Whispers do, with the sea's cruel embrace. His mother, Elara, succumbed to childbirth's fevered grip, and his father, a fisherman named Gareth, was claimed by a sudden squall that showed no mercy. Orphaned before he could even speak his name, he was brought to Leo's Lighthouse, a beacon of hope standing defiant against the salt-sprayed cliffs of Driftwatch. Here, under the watchful eye of the kindly Old Leo, his life truly began."
+    },
+    {
+      "image": "https://i.imgur.com/Hy0z6aZ.jpeg",
+      "text": "In the orphanage's quiet halls, he forged a family not of blood, but of bond. There was Sarah, whose sweet nature made her the steadfast 'mother' of their small group; Robert, the strong, serious boy who dreamed of a life beyond the docks; and young Kyle, whose mischievous grin was a constant source of trouble and laughter. Surrounded by his only friends, Luke's tragic past became a foundation, not an anchor. His sharp mind, a gift from a life of observation, became his tool—a beacon of potential promising a future far grander than his humble beginnings."
+    }
+  ],
+  "wakeupEventSlides": [
+    {
+      "image": "/assets/locations/salty_mug_rented_room.png",
+      "text": "You wake in a cramped room at the Salty Mug. Old Man Finn bangs on the door: ‘Two months without rent, kid. Out.’ The lesson ends. The day begins."
+    },
+    {
+      "image": "/assets/locations/driftwatch_slums_day.png",
+      "text": "Kicked to the streets, you step into Driftwatch’s slums. The real world doesn’t wait—and neither should you."
+    }
+  ],
+  "finnDebtIntroSlides": [
+    {
+      "image": "/assets/locations/salty_mug_rented_room.png",
+      "text": "You wake to Old Man Finn staring down, a guard idling beside him—knife glinting."
+    }
+  ],
+  "breakfastEventSlides": [
+    {
+      "image": "/assets/events/luke_breakfast.png",
+      "text": "You share a simple breakfast at Leo’s Lighthouse—warm bread, salted fish, and a quiet moment before the day."
+    }
+  ],
+  "playEventSlidesSarah": [
+    {
+      "image": "/assets/events/luke_play_together.png",
+      "text": "You spend time with Sarah, helping tidy the common room and laughing at quiet memories. Her calm steadies you more than you'd admit."
+    }
+  ],
+  "playEventSlidesRobert": [
+    {
+      "image": "/assets/events/luke_play_together.png",
+      "text": "You trade jabs with Robert and talk dreams bigger than the docks. Work hard, aim higher, and don't let the wind decide your path."
+    }
+  ],
+  "playEventSlidesKyle": [
+    {
+      "image": "/assets/events/luke_play_together.png",
+      "text": "You chase Kyle through the lighthouse halls, laughing as he slips past your reach. Mischief fades, leaving the night a little lighter."
+    }
+  ],
+  "playEventSlidesAlone": [
+    {
+      "image": "/assets/events/luke_play_alone.png",
+      "text": "You spend a quiet hour by yourself. The lighthouse hums with distant voices, but your thoughts are your own—clear, steady, and sharp."
+    }
+  ],
+  "smugglerTrapSlides": [
+    {
+      "image": "/assets/locations/leo_lighthouse_room.png",
+      "text": "A frantic knock jolts you awake. Kyle whispers through the door: ‘Luke, get up—Robert’s slipped out. Something’s wrong.’"
+    },
+    {
+      "image": "/assets/locations/driftwatch_docks_night.png",
+      "text": "You and Kyle hurry to the docks. Lanterns sway in the wind; shadows move between stacked crates."
+    },
+    {
+      "image": "/assets/locations/driftwatch_docks_night.png",
+      "text": "Down by the water, Robert meets figures in the dark. You stay low—watching, listening—ready to act."
+    }
+  ],
+  "robertCaughtSlides": [
+    {
+      "image": "/assets/events/robert_caught.png",
+      "text": "The smugglers overwhelm Robert, blades flashing in the dark. He takes blow after blow, but refuses to fall. With a desperate shout, he throws himself at the attackers. 'Run! Get Kyle out of here!' he screams, sacrificing himself. You grab Kyle and sprint into the night, the sounds of the struggle fading behind you."
+    },
+    {
+      "image": "/assets/locations/leo_lighthouse_room.png",
+      "text": "Back in the safety of the lighthouse, you and Kyle collapse, gasping for air. The silence is heavy, broken only by Kyle's quiet sobs. Robert is gone."
+    }
+  ]
+}

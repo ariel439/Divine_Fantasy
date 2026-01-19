@@ -439,6 +439,21 @@
             "text": "About the wolves...",
             "next_node": "1",
             "closes_dialogue": true
+          },
+          {
+            "text": "I noticed your workbench. Mind if I use it?",
+            "next_node": "crafting_unlock",
+            "condition": "world_flags.hunter_crafting_unlocked==false"
+          }
+        ]
+      },
+      "crafting_unlock": {
+        "npc_text": "You know your way around tools? Fine. Just don't dull my blades.",
+        "player_choices": [
+          {
+            "text": "Thanks.",
+            "action": "set_flag:hunter_crafting_unlocked:true",
+            "next_node": "0"
           }
         ]
       },
@@ -566,9 +581,9 @@
       "0": {
         "npc_text": "Good morning, Luke. I waited at the door last night and you did not come until the lamps burned low. Tell me, what kept you so long?",
         "player_choices": [
-          { "text": "I lingered at the canals, practicing with the nets.", "next_node": "fish", "action": "grant_skill_level:fishing:5" },
-          { "text": "I stayed on the street speaking with Roberta.", "next_node": "roberta", "action": "grant_skill_level:persuasion:3|set_flag:intro_spoke_roberta:true|set_relationship:npc_roberta:20|add_known_npc:npc_roberta" },
-          { "text": "I was drawn into a fight with a noble boy.", "next_node": "fight" }
+          { "text": "I lingered at the canals, practicing with the nets.", "next_node": "fish", "action": "grant_skill_level:fishing:3|add_item:fishing_rod:1" },
+          { "text": "I stayed on the street speaking with Roberta.", "next_node": "roberta", "action": "grant_skill_level:persuasion:3|set_relationship:npc_roberta:20|set_flag:intro_spoke_roberta:true|add_known_npc:npc_roberta" },
+          { "text": "I was drawn into a fight with a noble boy.", "next_node": "fight", "action": "grant_skill_level:attack:3|add_item:crude_knife:1" }
         ]
       },
       "fish": {

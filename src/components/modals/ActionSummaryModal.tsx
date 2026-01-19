@@ -46,9 +46,23 @@ const ActionSummaryModal: FC<ActionSummaryModalProps> = ({
         style={{ animation: 'scaleIn 0.2s ease-out forwards' }}
       >
         <header className="text-center border-b border-zinc-700 pb-4 mb-6">
+            {summary.image && (
+              <div className="flex justify-center mb-4">
+                <img 
+                  src={summary.image} 
+                  alt={summary.title} 
+                  className="w-full max-w-sm h-48 object-cover rounded-lg border border-zinc-700 shadow-md"
+                />
+              </div>
+            )}
             <h2 className="text-3xl font-bold text-white" style={{ fontFamily: 'Cinzel, serif' }}>
                 {summary.title}
             </h2>
+            {summary.description && (
+                <p className="text-zinc-300 mt-2 italic px-4">
+                    {summary.description}
+                </p>
+            )}
             <div className="flex items-center justify-center gap-2 text-zinc-400 mt-2">
                 <Clock size={16} />
                 <span>{formatDuration(summary.durationInMinutes)} passed</span>

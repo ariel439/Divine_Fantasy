@@ -13,7 +13,6 @@ import ActionButton from '../ui/ActionButton';
 import LocationNav from '../LocationNav';
 import WeatherParticles from '../effects/WeatherParticles';
 import { ConfirmationModal } from '../modals/ConfirmationModal';
-import EncounterModal from '../modals/EncounterModal';
 import TimedActionModal from '../modals/TimedActionModal';
 import ActionSummaryModal from '../modals/ActionSummaryModal';
 import { useInventoryStore } from '../../stores/useInventoryStore';
@@ -21,9 +20,13 @@ import { useSkillStore } from '../../stores/useSkillStore';
 import { useJobStore } from '../../stores/useJobStore';
 import type { ActionSummary, Slide } from '../../types';
 import { DialogueService } from '../../services/DialogueService';
-import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, wakeupEventSlides, finnDebtIntroSlides, mockBooks } from '../../data';
+import { ExplorationService } from '../../services/ExplorationService';
+import { mockBooks } from '../../data';
+import { useShopStore } from '../../stores/useShopStore';
+import { useCompanionStore } from '../../stores/useCompanionStore';
+import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, wakeupEventSlides, finnDebtIntroSlides } from '../../data/events';
 
-  const LocationScreen: React.FC = () => {
+const LocationScreen: React.FC = () => {
   const { attributes, hp, energy, hunger, maxWeight } = useCharacterStore();
   const { month, dayOfMonth, hour, minute, getFormattedTime, getFormattedDate, getSeason, getWeather, temperatureC } = useWorldTimeStore();
   const { getCurrentLocation } = useLocationStore();
@@ -60,6 +63,8 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
   const [pendingEncounter, setPendingEncounter] = useState<any>(null);
   const [jobEnergyModalOpen, setJobEnergyModalOpen] = useState(false);
   const [jobEnergyMessage, setJobEnergyMessage] = useState<React.ReactNode>('');
+  const [exploreProgressModalOpen, setExploreProgressModalOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const seasonIcons = {
     Spring: Sprout,
@@ -140,21 +145,21 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
         } else if (eventId === 'beryl_letter_pickup') {
           useUIStore.getState().setCurrentEventId('beryl_letter_pickup');
           setScreen('choiceEvent');
+        } else if (eventId === 'smuggler_combat_start') {
+          GameManagerService.startSmugglerCombat();
         }
         break;
       }
       case 'craft': {
-        useUIStore.getState().setCraftingSkill('Carpentry');
+        const skill = action.target === 'craft_basic' ? 'Crafting' : 'Carpentry';
+        useUIStore.getState().setCraftingSkill(skill);
         setScreen('crafting');
         break;
       }
-      case 'shop':
-        useUIStore.getState().setShopId(action.shopId);
-        setScreen('trade');
-        break;
+
       case 'library': {
-        const odran = mockBooks.find(b => b.id === 'odrans-rebellion');
-        useUIStore.getState().setLibraryBooks(odran ? [odran] : []);
+        // Show all mock books for now so the user can see them
+        useUIStore.getState().setLibraryBooks(mockBooks);
         setScreen('library');
         break;
       }
@@ -171,22 +176,74 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
         setSkillModalOpen(true);
         break;
       case 'explore': {
-        // Woods exploration triggers combat
-        if (action.target === 'explore_woods') {
-          // Generate encounter description - match GameManagerService logic exactly
-          const wolfCount = Math.floor(Math.random() * 4) + 1; // 1 to 4 wolves
-          const encounterEnemies = [`${wolfCount}x Forest Wolf`];
-          
-          const encounter = {
-            type: 'combat' as const,
-            description: `As you venture deeper into the woods, you hear rustling in the underbrush. Suddenly, ${wolfCount === 1 ? 'a wolf' : `${wolfCount} wolves`} emerge${wolfCount === 1 ? 's' : ''} from the shadows!`,
-            enemies: encounterEnemies,
-            wolfCount: wolfCount // Store the exact count for GameManagerService to use
-          };
-          
-          setPendingEncounter(encounter);
-          setEncounterModalOpen(true);
+        const debugInfiniteEnergy = useWorldStateStore.getState().getFlag('debug_infinite_energy');
+        if (!debugInfiniteEnergy && useCharacterStore.getState().energy < 5) {
+          setJobEnergyMessage('You are too tired to explore.');
+          setJobEnergyModalOpen(true);
+          break;
         }
+
+        setIsProcessing(true);
+        setExploreProgressModalOpen(true);
+        setTimeout(() => {
+          setIsProcessing(false);
+          setExploreProgressModalOpen(false);
+          useWorldTimeStore.getState().passTime(30);
+          if (!debugInfiniteEnergy) {
+            useCharacterStore.setState(s => ({ 
+              energy: Math.max(0, s.energy - 5),
+              hunger: Math.max(0, s.hunger - 1)
+            }));
+          }
+
+          const result = ExplorationService.explore(currentLocation.id);
+          ExplorationService.processResult(result);
+
+          if (result.type === 'combat' && result.data && result.data.wolfCount) {
+            if (currentLocation.id === 'driftwatch_woods') {
+              const wolfCount = result.data.wolfCount;
+              const enemies = result.data.enemies && result.data.enemies.length > 0
+                ? result.data.enemies
+                : [`${wolfCount}x Forest Wolf`];
+
+              const encounter = {
+                type: 'combat' as const,
+                description: result.description,
+                enemies,
+                wolfCount
+              };
+
+              setPendingEncounter(encounter);
+              setEncounterModalOpen(true);
+            } else {
+              GameManagerService.startWoodsCombat(result.data.wolfCount);
+            }
+          } else if (result.type === 'unique' && result.data?.eventId) {
+            let eventId = result.data.eventId;
+            if (eventId === 'rescue_wolf') {
+              eventId = 'rescue_wolf_choice';
+            } else if (eventId === 'apple_tree') {
+              eventId = 'apple_tree_event';
+            }
+            useUIStore.getState().setCurrentEventId(eventId);
+            setSummaryModalOpen(false);
+            setSummaryData(null);
+            setScreen('choiceEvent');
+          } else {
+            const summary: ActionSummary = {
+              title: result.title,
+              description: result.description,
+              image: result.image,
+              durationInMinutes: 30,
+              vitalsChanges: debugInfiniteEnergy ? [] : [{ vital: 'Energy', change: -5, icon: <Zap size={20} className="text-blue-300"/> }],
+              rewards: (result.type === 'item' || result.type === 'resource') && result.data?.itemId
+                ? [{ name: result.data.itemId, quantity: result.data.quantity || 1 }] 
+                : []
+            };
+            setSummaryData(summary);
+            setSummaryModalOpen(true);
+          }
+        }, 1000);
         break;
       }
       case 'job': {
@@ -247,6 +304,7 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
       }
       case 'tutorial_breakfast': {
         useWorldTimeStore.getState().passTime(30);
+        useCharacterStore.setState({ hunger: 100 });
         useWorldStateStore.getState().setTutorialStep(5);
         try { useJournalStore.getState().setQuestStage('luke_tutorial', 5); } catch {}
         useUIStore.getState().setEventSlides(breakfastEventSlides);
@@ -313,13 +371,25 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
         useUIStore.getState().setSleepWaitMode('sleep');
         const target = String(action.target || '');
         let quality = 1.0;
-        if (target === 'sleep_floor') quality = 0.3;
+        if (target === 'sleep_floor') quality = 0.5;
         if (target === 'sleep_bed') quality = 1.0;
         useUIStore.getState().setSleepQuality(quality);
         useWorldTimeStore.getState().setClockPaused(true);
         useUIStore.getState().openModal('sleepWait');
         break;
       }
+      case 'shop': {
+        const shopId = action.target;
+        useUIStore.getState().setShopId(shopId);
+        useUIStore.getState().setScreen('trade');
+        break;
+      }
+      case 'rescue_wolf': {
+        useUIStore.getState().setCurrentEventId('rescue_wolf_choice');
+        setScreen('choiceEvent');
+        break;
+      }
+      // REMOVED DUPLICATE EXPLORE BLOCK HERE - IT WAS PREVIOUSLY CAUSING ISSUES
       case 'end_intro': {
         useWorldStateStore.getState().setIntroCompleted(true);
         useWorldStateStore.getState().setFlag('intro_completed', true);
@@ -549,6 +619,15 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
       expended!.push({ name: 'Energy', quantity: cost, icon: <Zap size={20} className="text-blue-300"/> });
     };
 
+    const applyHungerCost = (minutes: number) => {
+        // Active drain: -4/hr (on top of passive -1/hr from passTime)
+        const cost = Math.floor(4 * (minutes / 60));
+        if (cost > 0) {
+            useCharacterStore.setState((state) => ({ hunger: Math.max(0, state.hunger - cost) }));
+            vitalsChanges.push({ vital: 'Hunger', change: -cost, icon: <CookingPot size={20} className="text-orange-300"/> });
+        }
+    };
+
     const addReward = (name: string, quantity: number) => {
       rewards.push({ name, quantity, icon: <Award size={20} className="text-yellow-300"/> });
     };
@@ -575,6 +654,7 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
       const iterations = Math.floor(totalMinutes / 30);
       const energyCost = iterations * 10;
       applyEnergyCost(energyCost);
+      applyHungerCost(totalMinutes);
 
       // Award items and XP
       let logsAdded = 0;
@@ -604,6 +684,7 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
       const iterations = Math.floor(totalMinutes / 20);
       const energyCost = iterations * 5;
       applyEnergyCost(energyCost);
+      applyHungerCost(totalMinutes);
 
       let sardines = 0;
       let trout = 0;
@@ -675,9 +756,9 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
 
       {/* Top-Left: Stats */}
       <div className="absolute top-8 left-8 z-10 flex flex-col space-y-2 p-3 bg-zinc-950/85 backdrop-blur-xl rounded-lg border border-zinc-700/80 w-64">
-        <ProgressBar label="HP" value={hp} max={100} colorClass="bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]" />
-        <ProgressBar label="Energy" value={energy} max={100} colorClass="bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.7)]" />
-        <ProgressBar label="Hunger" value={hunger} max={100} colorClass="bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.7)]" />
+        <ProgressBar label="HP" value={Math.floor(hp)} max={100} colorClass="bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]" />
+        <ProgressBar label="Energy" value={Math.floor(energy)} max={100} colorClass="bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.7)]" />
+        <ProgressBar label="Hunger" value={Math.floor(hunger)} max={100} colorClass="bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.7)]" />
       </div>
 
       {/* Right-Side: Information & Actions Panel */}
@@ -861,13 +942,25 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
             <ActionButton
               key="help_robert_action"
               onClick={() => {
+                if (isProcessing) return;
+                setIsProcessing(true);
                 useWorldStateStore.getState().setFlag('smuggler_help_available', false);
-                GameManagerService.startSmugglerCombat();
+                // Use setTimeout to allow UI to update before heavy combat initialization
+                setTimeout(() => {
+                  try {
+                    GameManagerService.startSmugglerCombat();
+                  } catch (e) {
+                    console.error("Failed to start combat:", e);
+                    // Revert flag and processing state if combat fails
+                    useWorldStateStore.getState().setFlag('smuggler_help_available', true);
+                    setIsProcessing(false);
+                  }
+                }, 50);
               }}
               category="highlighted"
               icon={<Swords size={24} />}
-              text="Help Robert"
-              disabled={false}
+              text={isProcessing ? "Engaging..." : "Help Robert"}
+              disabled={isProcessing}
               highlight={true}
               tooltip="Rush to Robert's aid against the smugglers"
             />
@@ -955,20 +1048,77 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
         onClose={handleSkillClose}
       />
 
-      {/* Encounter Modal */}
-      <EncounterModal
-        isOpen={encounterModalOpen}
-        onClose={() => {
-          setEncounterModalOpen(false);
-          setPendingEncounter(null);
-        }}
-        onConfirm={() => {
-          setEncounterModalOpen(false);
-          GameManagerService.startWoodsCombat(pendingEncounter?.wolfCount);
-          setPendingEncounter(null);
-        }}
-        encounter={pendingEncounter}
-      />
+      {exploreProgressModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="w-full max-w-md bg-zinc-950 rounded-xl border border-zinc-700 shadow-2xl p-6"
+          >
+            <h2 className="text-2xl font-bold text-white mb-4" style={{ fontFamily: 'Cinzel, serif' }}>
+              Exploring...
+            </h2>
+            <p className="text-zinc-300 mb-4">
+              You venture deeper into the area, keeping an eye out for anything unusual.
+            </p>
+            <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
+              <div className="h-full bg-emerald-400 explore-progress-bar"></div>
+            </div>
+            <style>{`
+              @keyframes exploreProgress {
+                from { width: 0%; }
+                to { width: 100%; }
+              }
+              .explore-progress-bar {
+                width: 0%;
+                animation: exploreProgress 1s linear forwards;
+              }
+            `}</style>
+          </div>
+        </div>
+      )}
+
+      {encounterModalOpen && pendingEncounter && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="w-full max-w-md bg-zinc-950 rounded-xl border border-zinc-700 shadow-2xl p-6"
+          >
+            <h2 className="text-2xl font-bold text-white mb-4" style={{ fontFamily: 'Cinzel, serif' }}>
+              Encounter
+            </h2>
+            <div className="text-zinc-300 leading-relaxed mb-4">
+              <p className="mb-3">{pendingEncounter.description}</p>
+              {pendingEncounter.enemies && pendingEncounter.enemies.length > 0 && (
+                <div className="bg-zinc-800 rounded-lg p-3">
+                  <p className="text-sm text-zinc-400 mb-2">You will face:</p>
+                  <ul className="space-y-1">
+                    {pendingEncounter.enemies.map((enemy: string, index: number) => (
+                      <li key={index} className="text-red-400 flex items-center gap-2">
+                        <span className="w-2 h-2 bg-red-400 rounded-full" />
+                        {enemy}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={() => {
+                  setEncounterModalOpen(false);
+                  GameManagerService.startWoodsCombat(pendingEncounter?.wolfCount);
+                  setPendingEncounter(null);
+                }}
+                className="px-5 py-2 text-sm font-semibold tracking-wide text-white/90 bg-red-700 border border-red-500 rounded-md transition-all duration-300 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+              >
+                Enter Combat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Action Summary Modal */}
       {summaryData && (

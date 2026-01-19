@@ -47,7 +47,6 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
         
         const filtered = mockRecipes.filter(recipe => 
             recipe.skill === initialSkill &&
-            recipe.result.id === 'wooden_plank' &&
             recipe.result.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
 

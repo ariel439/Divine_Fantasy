@@ -25,7 +25,7 @@ const InventoryScreen: FC = () => {
         return inventoryItems.map(invItem => {
             const itemData = itemsData[invItem.id as keyof typeof itemsData];
             if (!itemData) return null;
-            const equipSlot = (itemData as any).equip_slot as any;
+            const equipSlot = (itemData as any).equipmentSlot as EquipmentSlot | undefined;
             const iconSrc = (itemData as any).image as string | undefined;
             return {
                 id: invItem.id,
@@ -38,9 +38,9 @@ const InventoryScreen: FC = () => {
                 quantity: invItem.quantity,
                 stackable: itemData.stackable,
                 effects: (itemData as any).effects,
-                actions: (('equip_slot' in itemData) && (itemData as any).equip_slot) ? ['Equip', 'Use', 'Drop'] : ['Use', 'Drop'],
-                equipmentSlot: equipSlot === 'main_hand' ? ('weapon' as EquipmentSlot) : equipSlot,
-                stats: {} // TODO: Add stats if applicable
+                actions: (('equipmentSlot' in itemData) && (itemData as any).equipmentSlot) ? ['Equip', 'Use', 'Drop'] : ['Use', 'Drop'],
+                equipmentSlot: equipSlot,
+                stats: (itemData as any).stats || {}
             } as Item;
         }).filter(Boolean) as Item[];
     }, [inventoryItems]);

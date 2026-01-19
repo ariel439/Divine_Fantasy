@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import type { FC } from 'react';
 import type { DialogueOption, ConversationEntry } from '../../types';
 
+import { useCharacterStore } from '../../stores/useCharacterStore';
+import { Zap } from 'lucide-react';
+
 interface DialogueScreenProps {
   npcName: string;
   npcPortraitUrl: string;
@@ -56,12 +59,34 @@ const DialogueScreen: FC<DialogueScreenProps> = ({
     }, [transitioningPortrait]);
 
     const handleOptionSelect = (option: DialogueOption, index: number) => {
+        // Check social energy
+        const socialCost = 1;
+        const currentSocial = useCharacterStore.getState().socialEnergy;
+        
+        // If option requires social energy (you might want to add a flag to DialogueOption later)
+        // For now, assume all options cost 1 social energy
+        if (currentSocial < socialCost) {
+            // Shake effect or feedback could be added here
+            // For now, we allow it but maybe with a penalty or just block it?
+            // User requirement: "Limited by Charisma stat"
+            // Let's block it if 0
+            if (currentSocial <= 0) {
+                 // Optionally show feedback
+                 return;
+            }
+        }
+        
+        useCharacterStore.setState({ socialEnergy: currentSocial - socialCost });
+
         if (option.nextPortraitUrl && option.nextPortraitUrl !== currentPortrait) {
             setTransitioningPortrait(currentPortrait);
             setCurrentPortrait(option.nextPortraitUrl);
         }
         onOptionSelect(option, index);
     };
+
+    const socialEnergy = useCharacterStore((state) => state.socialEnergy);
+    const maxSocialEnergy = useCharacterStore((state) => state.maxSocialEnergy);
 
     return (
         <div className="relative w-full h-full bg-zinc-950/85 backdrop-blur-lg flex flex-col lg:flex-row">
@@ -80,6 +105,10 @@ const DialogueScreen: FC<DialogueScreenProps> = ({
             
             {/* Left Panel: NPC Portrait */}
             <div className="w-full lg:w-2/5 h-2/5 lg:h-full flex flex-col items-center justify-center p-4 animate-panel-left">
+                <div className="absolute top-4 left-4 flex items-center space-x-2 bg-black/40 px-3 py-1.5 rounded-full border border-purple-500/30">
+                    <Zap size={16} className="text-purple-400" />
+                    <span className="text-purple-200 font-mono text-sm">{socialEnergy} / {maxSocialEnergy} Social</span>
+                </div>
                 <h2 className="text-4xl font-bold text-white tracking-wider mb-6" style={{ fontFamily: 'Cinzel, serif' }}>
                     {npcName}
                 </h2>
@@ -137,22 +166,29 @@ const DialogueScreen: FC<DialogueScreenProps> = ({
 
                     {/* Options */}
                     <div className="flex-shrink-0 mt-auto space-y-4">
-                        {options.map((opt, index) => (
-                            <button 
-                                key={index} 
-                                onClick={() => handleOptionSelect(opt, index)} 
-                                className="w-full text-left p-3 sm:p-4 bg-zinc-800/80 border border-zinc-700 rounded-lg transition-all duration-300 hover:bg-zinc-700/60 hover:border-zinc-600 hover:border-l-4 hover:border-l-zinc-500 group"
-                            >
-                                <span className="font-semibold text-white/90">
-                                    {opt.skillCheck && (
-                                        <span className="mr-2 text-yellow-400 font-bold capitalize">
-                                            [{opt.skillCheck.skill}]
+                        {options.map((option, index) => {
+                            const isUnavailable = (option.disabled ?? false) || socialEnergy <= 0;
+                            return (
+                                <button
+                                    key={index}
+                                    onClick={() => !isUnavailable && handleOptionSelect(option, index)}
+                                    disabled={isUnavailable}
+                                    className={`w-full text-left p-4 rounded-lg border transition-all duration-300 group relative overflow-hidden ${
+                                        isUnavailable
+                                            ? 'bg-zinc-900/50 border-zinc-800 text-zinc-600 cursor-not-allowed'
+                                            : 'bg-black/40 border-zinc-700/50 hover:bg-zinc-800/60 hover:border-zinc-500 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] text-zinc-300 hover:text-white'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between relative z-10">
+                                        <span className="text-lg font-medium tracking-wide group-hover:translate-x-1 transition-transform duration-300">
+                                            {option.text}
                                         </span>
-                                    )}
-                                    {opt.text}
-                                </span>
-                            </button>
-                        ))}
+                                        {!isUnavailable && <span className="text-purple-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity">-1 Social</span>}
+                                    </div>
+                                    {!isUnavailable && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-shimmer" />}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

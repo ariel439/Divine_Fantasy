@@ -3,6 +3,7 @@ import type { FC, ReactNode } from 'react';
 import { useUIStore } from '../../stores/useUIStore';
 import { GameManagerService } from '../../services/GameManagerService';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
+import { useCharacterStore } from '../../stores/useCharacterStore';
 import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
 import { useLocationStore } from '../../stores/useLocationStore';
 import { useJournalStore } from '../../stores/useJournalStore';
@@ -37,16 +38,7 @@ const MainMenu: FC = () => {
                 </h2>
                 <div className="mt-12 flex flex-col items-center space-y-4 animate-fade-in-up delay-500">
                     <MenuButton onClick={() => setScreen('characterSelection')}>New Game</MenuButton>
-                    <MenuButton onClick={() => {
-                        GameManagerService.startNewGame('luke_orphan');
-                        useWorldStateStore.getState().setIntroMode(false);
-                        useWorldStateStore.getState().setIntroCompleted(true);
-                        useWorldStateStore.getState().setFlag('intro_completed', true);
-                        useWorldTimeStore.setState({ hour: 8, minute: 0 });
-                        useLocationStore.getState().setLocation('driftwatch_slums');
-                        try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
-                        setScreen('inGame');
-                    }}>Continue</MenuButton>
+                    <MenuButton onClick={() => setScreen('debugMenu')}>Debug</MenuButton>
                     <MenuButton>Load Game</MenuButton>
                     <MenuButton onClick={() => useUIStore.getState().openModal('options')}>Settings</MenuButton>
                     <MenuButton>Quit</MenuButton>
@@ -59,13 +51,14 @@ const MainMenu: FC = () => {
                 v0.1.0-alpha
             </div>
             {(() => {
-                const { musicEnabled, sfxEnabled, setMusicEnabled, setSFXEnabled } = useAudioStore.getState();
-                const allEnabled = musicEnabled && sfxEnabled;
+                const { musicEnabled, sfxEnabled, weatherEnabled, setMusicEnabled, setSFXEnabled, setWeatherEnabled } = useAudioStore();
+                const allEnabled = musicEnabled && sfxEnabled && weatherEnabled;
                 const Icon = allEnabled ? Volume2 : VolumeX;
                 const toggleAll = () => {
                     const next = !allEnabled;
                     setMusicEnabled(next);
                     setSFXEnabled(next);
+                    setWeatherEnabled(next);
                 };
                 return (
                     <button

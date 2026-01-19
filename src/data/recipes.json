@@ -34,5 +34,41 @@
     "output": { "item_id": "wooden_plank", "quantity": 1 },
     "ingredients": [{ "item_id": "log", "quantity": 1 }],
     "time_cost_minutes": 15
+  },
+  "recipe_wolf_helmet": {
+    "name": "Wolf Leather Helmet",
+    "skill": "crafting",
+    "level_required": 1,
+    "xp_granted": 50,
+    "output": { "item_id": "wolf_leather_helmet", "quantity": 1 },
+    "ingredients": [{ "item_id": "wolf_pelt", "quantity": 2 }],
+    "time_cost_minutes": 30
+  },
+  "recipe_wolf_armor": {
+    "name": "Wolf Leather Armor",
+    "skill": "crafting",
+    "level_required": 2,
+    "xp_granted": 100,
+    "output": { "item_id": "wolf_leather_armor", "quantity": 1 },
+    "ingredients": [{ "item_id": "wolf_pelt", "quantity": 5 }],
+    "time_cost_minutes": 60
+  },
+  "recipe_wolf_legs": {
+    "name": "Wolf Leather Leggings",
+    "skill": "crafting",
+    "level_required": 1,
+    "xp_granted": 60,
+    "output": { "item_id": "wolf_leather_legs", "quantity": 1 },
+    "ingredients": [{ "item_id": "wolf_pelt", "quantity": 3 }],
+    "time_cost_minutes": 45
+  },
+  "recipe_wolf_amulet": {
+    "name": "Wolf Tooth Amulet",
+    "skill": "crafting",
+    "level_required": 3,
+    "xp_granted": 80,
+    "output": { "item_id": "wolf_tooth_amulet", "quantity": 1 },
+    "ingredients": [{ "item_id": "wolf_tooth", "quantity": 5 }, { "item_id": "rope", "quantity": 1 }],
+    "time_cost_minutes": 30
   }
 }

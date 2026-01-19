@@ -1,16 +1,7 @@
 import { create } from 'zustand';
-import type { Combatant } from '../types';
+import type { CombatParticipant } from '../types';
 
 export type CombatPhase = 'setup' | 'player-turn' | 'enemy-turn' | 'victory' | 'defeat' | 'fled';
-
-export interface CombatParticipant extends Combatant {
-  isPlayer: boolean;
-  isCompanion: boolean;
-  attack: number;
-  defence: number;
-  agility: number;
-  defending?: boolean;
-}
 
 export interface CombatReward {
   xp: number;
@@ -69,17 +60,17 @@ export const useCombatStore = create<CombatStore>((set, get) => ({
     const participants: CombatParticipant[] = [player, ...enemies];
     if (companion) participants.push(companion);
 
-    // Sort by agility descending for initial turn order, but ensure player party goes first
-    // This prevents early game frustration where enemies always go first due to higher agility
+    // Sort by dexterity descending for initial turn order, but ensure player party goes first
+    // This prevents early game frustration where enemies always go first due to higher dexterity
     const sorted = participants.sort((a, b) => {
-      // Player and companion always get priority regardless of agility
+      // Player and companion always get priority regardless of dexterity
       if (a.isPlayer && !b.isPlayer) return -1;
       if (!a.isPlayer && b.isPlayer) return 1;
       if (a.isCompanion && !b.isCompanion && !b.isPlayer) return -1;
       if (!a.isCompanion && b.isCompanion && !a.isPlayer) return 1;
       
-      // Among same faction (player/enemy), sort by agility
-      return b.agility - a.agility;
+      // Among same faction (player/enemy), sort by dexterity
+      return b.dexterity - a.dexterity;
     });
     const turnOrder = sorted.map(p => p.id);
 
@@ -104,11 +95,38 @@ export const useCombatStore = create<CombatStore>((set, get) => ({
 
   nextTurn() {
     const { turnOrder, currentTurnIndex, participants } = get();
-    const nextIndex = (currentTurnIndex + 1) % turnOrder.length;
-    const nextRound = nextIndex === 0 ? get().round + 1 : get().round;
+    
+    // Find next alive participant
+    let tempIndex = currentTurnIndex;
+    let roundIncrement = 0;
+    let found = false;
+    let safety = 0;
+
+    // Loop through participants to find the next alive one
+    // Max iterations: turnOrder.length + 1 to prevent infinite loops if everyone is dead
+    while (!found && safety <= turnOrder.length) {
+        tempIndex = (tempIndex + 1) % turnOrder.length;
+        if (tempIndex === 0) roundIncrement++;
+        
+        const pId = turnOrder[tempIndex];
+        const p = participants.find(x => x.id === pId);
+        if (p && p.hp > 0) {
+            found = true;
+        }
+        safety++;
+    }
+    
+    // If everyone is dead (safety triggered), fallback to simple increment to avoid crash
+    if (!found) {
+        tempIndex = (currentTurnIndex + 1) % turnOrder.length;
+        if (tempIndex === 0) roundIncrement++;
+    }
+    
+    const nextIndex = tempIndex;
+    const nextRound = get().round + roundIncrement;
     
     // Reset defending state for all participants at start of new round
-    if (nextIndex === 0) {
+    if (roundIncrement > 0) {
       set(state => ({
         participants: state.participants.map(p => ({ ...p, defending: false })),
         currentTurnIndex: nextIndex,

@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import type { FC } from 'react';
 import { X, Bed, Clock, Zap, Sun } from 'lucide-react';
 import ProgressBar from '../ui/ProgressBar';
+import { useCharacterStore } from '../../stores/useCharacterStore';
 
 interface SleepWaitModalProps {
   isOpen: boolean;
@@ -40,6 +41,20 @@ const SleepWaitModal: FC<SleepWaitModalProps> = ({
   const completedRef = useRef<boolean>(false);
   
   const MOCK_ENERGY_RESTORE_PER_HOUR = 10;
+  const HP_RESTORE_PER_HOUR_BASE = 5; // 40 HP / 8 hours
+  const hunger = useCharacterStore(state => state.hunger);
+
+  const getEffectsText = () => {
+    if (mode !== 'sleep') return "Time will pass.";
+    const energyRestore = Math.floor(duration * MOCK_ENERGY_RESTORE_PER_HOUR * sleepQuality);
+    const hpRestore = hunger > 0 ? Math.floor(HP_RESTORE_PER_HOUR_BASE * sleepQuality * duration) : 0;
+    
+    let text = `+${energyRestore} Energy`;
+    if (hpRestore > 0) text += `, +${hpRestore} HP`;
+    else if (hunger <= 0) text += `, 0 HP (Starving)`;
+    
+    return text;
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -111,10 +126,7 @@ const SleepWaitModal: FC<SleepWaitModalProps> = ({
                 {mode === 'sleep' ? <Zap size={16}/> : <Clock size={16}/>} Effects:
             </span>
             <span className="font-semibold text-white text-right">
-                {mode === 'sleep' 
-                    ? `Restore ~${Math.floor(duration * MOCK_ENERGY_RESTORE_PER_HOUR * sleepQuality)} Energy`
-                    : "Time will pass."
-                }
+                {getEffectsText()}
             </span>
         </div>
       </div>

@@ -53,6 +53,7 @@
         { "item_id": "iron_helmet", "quantity": 2 },
         { "item_id": "iron_chainmail", "quantity": 2 },
         { "item_id": "iron_leggings", "quantity": 2 },
+        { "item_id": "iron_sword", "quantity": 2 },
         { "item_id": "axe_basic", "quantity": 3 },
         { "item_id": "hammer", "quantity": 5 },
         { "item_id": "crude_knife", "quantity": 5 }

@@ -553,6 +553,33 @@ export class DialogueService {
         {
           const minutes = Number(params[0] || '0');
           useWorldTimeStore.getState().passTime(minutes);
+          
+          // Check for Finn's Deadline
+          const world = useWorldStateStore.getState();
+          if (world.getFlag('finn_debt_collection_active')) {
+            const deadlineRaw = world.getData('finn_debt_deadline_day');
+            const deadline = deadlineRaw ? Number(deadlineRaw) : 0;
+            const currentDay = useWorldTimeStore.getState().day;
+            if (deadline > 0 && currentDay > deadline) {
+               // Trigger Game Over Dialogue
+               // We force start the dialogue next time they interact or immediately?
+               // Since we are in a "pass_time" (usually sleep or wait), we can't easily pop dialogue immediately unless we are in a scene.
+               // Better approach: Set a flag "finn_deadline_missed" and check it on every move? 
+               // Or force it here if we can.
+               // Let's force it by overriding the current screen if possible, or just setting a flag that triggers an event.
+               // For simplicity in this codebase, let's set a flag and handle it in the "Wake Up" or "Wait" logic, OR just launch it now.
+               // Launching dialogue requires being in a view that supports it.
+               DialogueService.startDialogue('npc_finn', 'finn_timeout_event');
+               useUIStore.getState().setScreen('dialogue');
+            }
+          }
+        }
+        break;
+
+      case 'trigger_game_over':
+        {
+            // Simple reload for now as a "Hard Reset"
+            window.location.reload();
         }
         break;
 
@@ -621,7 +648,8 @@ export class DialogueService {
           try { useJournalStore.getState().setQuestStage('finn_debt_collection', 1); } catch {}
           const day = useWorldTimeStore.getState().day;
           try {
-            useWorldStateStore.getState().setCooldown('finn_debt_deadline_start', day);
+            // Set deadline to 7 days from now
+            useWorldStateStore.getState().setData('finn_debt_deadline_day', String(day + 7));
           } catch {}
         }
         break;

@@ -177,7 +177,7 @@ const LocationScreen: React.FC = () => {
         break;
       case 'explore': {
         const debugInfiniteEnergy = useWorldStateStore.getState().getFlag('debug_infinite_energy');
-        if (!debugInfiniteEnergy && useCharacterStore.getState().energy < 5) {
+        if (!debugInfiniteEnergy && useCharacterStore.getState().energy < 20) {
           setJobEnergyMessage('You are too tired to explore.');
           setJobEnergyModalOpen(true);
           break;
@@ -191,7 +191,7 @@ const LocationScreen: React.FC = () => {
           useWorldTimeStore.getState().passTime(30);
           if (!debugInfiniteEnergy) {
             useCharacterStore.setState(s => ({ 
-              energy: Math.max(0, s.energy - 5),
+              energy: Math.max(0, s.energy - 20),
               hunger: Math.max(0, s.hunger - 1)
             }));
           }
@@ -1135,7 +1135,7 @@ const LocationScreen: React.FC = () => {
         onConfirm={() => setJobEnergyModalOpen(false)}
         onCancel={() => setJobEnergyModalOpen(false)}
         confirmText="OK"
-        cancelText="Close"
+        singleButton={true}
       />
     </>
   );

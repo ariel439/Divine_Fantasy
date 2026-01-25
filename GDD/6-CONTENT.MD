@@ -305,9 +305,7 @@ This section details the characters the player will meet in v1.0.
     *   **Location:** Sawmill
     *   **Role:** Sawmill operator.
 
-*   **Ronald** (`npc_id: "npc_ronald"`)
-    *   **Location:** Driftwatch Woods (Hunter's Cabin)
-    *   **Role:** Hunter, Quest Giver. Can be recruited as a temporary companion for "The Wolf Pack" quest.
+
 
 *   **Ben** (`npc_id: "npc_ben"`)
     *   **Location:** Homestead Farm
@@ -401,23 +399,7 @@ This section defines the initial quests for the v1.0 release.
             *   Sets `world_flags.tide_trade_wall_repaired` to `true`.
             *   **Reward:** +25 Friendship with Roberta.
 
-### 2. "The Wolf Pack"
 
-*   **Quest ID:** `rodrick_wolf_pack`
-*   **Giver:** Sergeant Rodrick (`npc_rodrick`), after being directed by Corporal Matthias.
-*   **Description:** Sergeant Rodrick is concerned about a growing wolf pack that has been attacking travelers on the roads near the woods. He needs someone to deal with the pack's leader, a large, scarred alpha wolf.
-*   **Status:** Deferred for a full remake in a future update. Current outline is placeholder and not part of the v1.0 core scope.
-*   **Objectives & Player Choices:**
-    1.  **Get the Lead:** Talk to Corporal Matthias at Mosswatch Keep, who will point you towards Sergeant Rodrick for any real work.
-    2.  **Receive the Task:** Speak with Sergeant Rodrick in the Tidehunter Quarter. He'll explain the problem and suggest you talk to the hunter in the woods for more information.
-    3.  **Consult the Expert:** Travel to the `driftwatch_woods` and speak with Ronald the hunter. He knows the pack and their leader.
-    4.  **Make a Choice:** Ronald offers to help you hunt the pack, but he wants half of the reward.
-        *   **Path 1: Go it Alone:** Decline Ronald's offer. You must face the wolf pack by yourself.
-            *   **Reward:** 10 Silver.
-        *   **Path 2: Partner Up:** Accept Ronald's offer. He will join you as a temporary companion for the fight. The game must check if you have an active companion first. If you accept, an event screen with slides depicts you and the hunter preparing for the hunt.
-            *   **Reward:** 5 Silver, +15 Friendship with Ronald.
-    5.  **The Hunt:** Go to the designated area in the woods and trigger the combat encounter.
-    6.  **Report Success:** Return to Sergeant Rodrick to claim your reward.
 
 ---
 
@@ -455,17 +437,7 @@ This section details specific combat scenarios for v1.0.
 *   **Rewards:**
     *   **Loot:** 4x Wolf Pelt.
 
-### 2. The Wolf Pack (Quest)
 
-*   **Encounter ID:** `quest_wolf_pack`
-*   **Location:** `driftwatch_woods` (specific quest area)
-*   **Trigger:** Triggered during "The Wolf Pack" quest.
-*   **Enemies:**
-    *   3x Forest Wolf (`enemy_id: "wolf_forest"`)
-    *   1x Alpha Wolf (`enemy_id: "wolf_alpha"`)
-*   **Note:** This encounter is balanced to be very difficult for a solo player at low levels.
-*   **Rewards:**
-    *   **Loot:** 3x Wolf Pelt, 1x Alpha Wolf Pelt.
 
 ---
 
@@ -473,17 +445,7 @@ This section details specific combat scenarios for v1.0.
 
 This section details companions available to the player in v1.0. The player may only have one active companion at a time.
 
-### 1. Ronald (Temporary)
-*   **Companion ID:** `companion_ronald`
-*   **Role:** Combat Companion (Hunter)
-*   **Recruitment:** Can be temporarily recruited during the "The Wolf Pack" quest if the player agrees to split the reward. He will leave the party after the quest is completed.
-*   **Abilities:** A skilled archer who adds significant damage in combat.
 
-### 2. Wolf Puppy
-*   **Companion ID:** `companion_wolf_puppy`
-*   **Role:** Combat Pet (Weaker than Ronald)
-*   **Recruitment:** Can be found and adopted after dealing with the wolf pack, even if the quest is not completed.
-*   **Abilities:** Follows the player around and can participate in combat, though much weaker than Ronald.
 
 ---
 

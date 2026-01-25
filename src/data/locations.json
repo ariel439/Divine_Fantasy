@@ -27,7 +27,7 @@
       { "text": "Travel to Kaelen's Forge", "type": "navigate", "target": "kaelens_forge", "condition": "world_flags.intro_completed==true&&time.is_day==true" },
       { "text": "Travel to Hub", "type": "navigate", "target": "driftwatch", "condition": "world_flags.intro_completed==true" },
       { "text": "Investigate sobbing figure", "type": "trigger_event", "eventId": "beryl_secret_meeting", "condition": "time.is_night==true&&world_flags.beryl_refused_debt==true&&world_flags.beryl_letter_found==false&&world_flags.beryl_secret_meeting_seen==false" },
-      { "text": "Pick up crumpled letter", "type": "trigger_event", "eventId": "beryl_letter_pickup", "condition": "time.is_night==true&&world_flags.beryl_secret_meeting_seen==true&&world_flags.beryl_letter_found==false" }
+      { "text": "Pick up crumpled letter", "type": "trigger_event", "eventId": "beryl_letter_pickup", "condition": "world_flags.beryl_secret_meeting_seen==true&&world_flags.beryl_letter_found==false" }
     ]
   },
   "leo_lighthouse": {
@@ -176,7 +176,6 @@
     "actions": [
       { "text": "Sleep on the Floor", "type": "sleep", "target": "sleep_floor" },
       { "text": "Cook on Firepit", "type": "cook", "target": "cook_firepit" },
-      { "text": "Use Workbench", "type": "craft", "target": "craft_basic" },
       { "text": "Travel to Salty Mug", "type": "navigate", "target": "salty_mug" },
       { "text": "Travel to Herbalist's Hovel", "type": "navigate", "target": "herbalists_hovel", "condition": "time.is_day==true" },
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" }
@@ -266,7 +265,21 @@
       { "text": "Fish", "type": "fish", "target": "fish_river" },
       { "text": "Travel to Hunter's Cabin", "type": "navigate", "target": "hunters_cabin" },
       { "text": "Travel to Sawmill", "type": "navigate", "target": "sawmill" },
-      { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 }
+      { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 },
+      { "text": "Travel to Secret Cabin", "type": "navigate", "target": "player_cabin", "condition": "world_flags.loc_cabin_unlocked==true" }
+    ]
+  },
+  "player_cabin": {
+    "name": "Secret Cabin",
+    "day_description": "The cozy interior of your secret cabin. A fire crackles in the hearth, keeping the damp forest air at bay.",
+    "night_description": "The cabin is warm and safe. The fire casts dancing shadows on the log walls.",
+    "day_background": "/assets/locations/secret_cabin_interior.png",
+    "night_background": "/assets/locations/secret_cabin_interior.png",
+    "is_indoor": true,
+    "music_track": "GDD/assets/audio/music/room.mp3",
+    "actions": [
+      { "text": "Sleep", "type": "sleep", "target": "sleep_bed" },
+      { "text": "Travel to Driftwatch Woods", "type": "navigate", "target": "driftwatch_woods" }
     ]
   },
   "sandy_shore": {

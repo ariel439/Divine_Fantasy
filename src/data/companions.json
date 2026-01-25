@@ -1,14 +1,2 @@
 {
-  "companion_ronald": {
-    "name": "Ronald",
-    "role": "Hunter",
-    "stats": { "hp": 300, "attack": 40, "dexterity": 15 },
-    "abilities": ["ability_aimed_shot"]
-  },
-  "companion_wolf_puppy": {
-    "name": "Wolf Puppy",
-    "role": "Pet",
-    "stats": { "hp": 80, "attack": 15, "defence": 5, "dexterity": 6 },
-    "abilities": []
-  }
 }

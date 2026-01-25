@@ -14,11 +14,11 @@ export const playEventSlidesKyle: Slide[] = events.playEventSlidesKyle;
 export const playEventSlidesAlone: Slide[] = events.playEventSlidesAlone;
 export const smugglerTrapSlides: Slide[] = events.smugglerTrapSlides;
 export const robertCaughtSlides: Slide[] = events.robertCaughtSlides;
+export const gameOverSlides: Slide[] = events.gameOverSlides;
 
 type ChoiceEventId =
   | 'beryl_letter_pickup'
   | 'apple_tree_event'
-  | 'rescue_wolf_choice'
   | 'fallen_log_event'
   | 'abandoned_campsite_event'
   | 'hollow_stump_event'
@@ -44,13 +44,6 @@ export const choiceEvents: Record<ChoiceEventId, ChoiceEventConfig> = {
     imageUrl: '/assets/events/event_apple_tree.png',
     text:
       'You come across a wild apple tree, its branches heavy with ripe fruit. The apples look tempting, but the bark is rough and the ground uneven beneath your feet.',
-  },
-  rescue_wolf_choice: {
-    id: 'rescue_wolf_choice',
-    title: 'Whimpering Sound',
-    imageUrl: '/assets/events/rescue_wolf.png',
-    text:
-      'Following the soft whimpers, you find a small wolf puppy huddled beneath a fallen tree. Its fur is matted from mud and rain, and it watches you with wide, uncertain eyes.',
   },
   fallen_log_event: {
     id: 'fallen_log_event',

@@ -9,6 +9,8 @@ import Stat from '../ui/Stat';
 import ActionButton from '../ui/ActionButton';
 import { getDescriptiveAttributeLabel } from '../../data';
 
+import { useCompanionStore } from '../../stores/useCompanionStore';
+
 // Companion Portrait Component, similar to CharacterScreen for consistency
 const CompanionPortrait: FC<{ companionData: any }> = ({ companionData }) => (
     <>
@@ -37,7 +39,9 @@ const EquipmentSlot: FC<{ icon: ReactNode; name: string; }> = ({ icon, name }) =
 
 
 const CompanionScreen: FC<{ hasPet: boolean }> = ({ hasPet }) => {
-    if (!hasPet) {
+    const activeCompanion = useCompanionStore((state) => state.activeCompanion);
+    
+    if (!hasPet || !activeCompanion) {
         return (
             <div className="w-full h-full flex flex-col items-center justify-center text-center p-8">
                 <PawPrint size={64} className="text-zinc-600 mb-4" />
@@ -47,17 +51,20 @@ const CompanionScreen: FC<{ hasPet: boolean }> = ({ hasPet }) => {
         );
     }
 
-  // Mock data for the companion
+  // Real data from store
   const companion = {
-    name: "Wolf Puppy",
-    title: "Loyal Wolf Puppy",
-    portraitUrl: "https://i.imgur.com/DS1LuU3.png",
+    name: activeCompanion.name,
+    title: "Loyal Companion",
+    portraitUrl: "/assets/portraits/CompanionPlaceholder.png", // TODO: Store this in companion data
     vitals: {
-        hp: { current: 80, max: 80 },
-        energy: { current: 65, max: 100 },
+        hp: { current: activeCompanion.stats.hp, max: activeCompanion.stats.maxHp || activeCompanion.stats.hp },
+        energy: { current: 100, max: 100 }, // TODO: Implement companion energy
     },
-    attributes: { attack: 5, dexterity: 8 },
-    info: "A young wolf you found, wounded and alone, in the forest. After nursing it back to health, it has become your loyal and steadfast companion."
+    attributes: { 
+        attack: activeCompanion.stats.attack, 
+        dexterity: activeCompanion.stats.dexterity 
+    },
+    info: "Your loyal companion who fights by your side."
   };
 
   return (

@@ -5,11 +5,12 @@ import { useCharacterStore } from '../stores/useCharacterStore';
 import { useCompanionStore } from '../stores/useCompanionStore';
 import { useUIStore } from '../stores/useUIStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
+import { useAudioStore } from '../stores/useAudioStore';
 import { useInventoryStore } from '../stores/useInventoryStore';
 import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import CombatScreen from './screens/CombatScreen';
-import { robertCaughtSlides } from '../data/events';
+import { robertCaughtSlides, gameOverSlides } from '../data/events';
 
 const CombatManager: React.FC = () => {
   const {
@@ -34,6 +35,40 @@ const CombatManager: React.FC = () => {
   const { passTime } = useWorldTimeStore();
   const { addItem } = useInventoryStore();
   const { addXp: addSkillXp, getSkillLevel } = useSkillStore();
+  const { sfxEnabled, sfxVolume } = useAudioStore();
+
+  const playSfx = (src: string) => {
+    if (sfxEnabled) {
+        const audio = new Audio(src);
+        audio.volume = sfxVolume;
+        audio.play().catch(() => {});
+    }
+  };
+
+  const getAttackSound = (attacker: CombatParticipant) => {
+      if (attacker.isPlayer) {
+          const weapon = useCharacterStore.getState().equippedItems.weapon;
+          if (!weapon) return '/assets/sfx/combat_punch.mp3';
+          
+          const id = weapon.id.toLowerCase();
+          if (id.includes('sword') || id.includes('blade') || id.includes('knife') || id.includes('dagger') || id.includes('axe')) {
+              return '/assets/sfx/combat_sword_swing.mp3';
+          }
+          return '/assets/sfx/combat_punch.mp3';
+      }
+      
+      const name = attacker.name.toLowerCase();
+
+      if (name.includes('wolf')) {
+          return '/assets/sfx/wolf_bite.mp3';
+      }
+      
+      if (name.includes('bandit') || name.includes('smuggler') || name.includes('guard')) {
+           return '/assets/sfx/combat_sword_swing.mp3';
+      }
+
+      return '/assets/sfx/combat_punch.mp3';
+  };
 
   const scriptedTurnCount = React.useRef(0);
 
@@ -55,29 +90,35 @@ const CombatManager: React.FC = () => {
   useEffect(() => {
     if (phase === 'setup') return;
 
-    if (aliveEnemies.length === 0) {
+    if (aliveEnemies.length === 0 && phase !== 'victory' && phase !== 'defeat' && phase !== 'fled') {
       setPhase('victory');
+      addLogEntry('Victory!');
+      
       // Grant rewards - XP goes to skills, handled elsewhere
-      rewards.loot.forEach(loot => addItem(loot.itemId, loot.quantity));
-      // Return to location after short delay
+      // Loot is now handled by the LootScreen, not auto-added
+      
+      // Show victory screen after short delay
       setTimeout(() => {
-        endCombat();
-        setScreen('inGame');
-        passTime(5); // Combat takes 5 minutes
-      }, 2000);
+        setScreen('combatVictory');
+      }, 1000);
     } else if (aliveParty.length === 0) {
       setPhase('defeat');
       setTimeout(() => {
-        endCombat();
         const ui = useUIStore.getState();
         const isIntroMode = useWorldStateStore.getState().introMode;
+        
         if (isIntroMode) {
           ui.setEventSlides(robertCaughtSlides);
           ui.setCurrentEventId('robert_caught');
           setScreen('event');
         } else {
-          setScreen('mainMenu');
+          ui.setEventSlides(gameOverSlides);
+          ui.setCurrentEventId('game_over');
+          setScreen('event');
         }
+        
+        // End combat after setting screen to avoid empty combat screen flash
+        endCombat();
         passTime(5);
       }, 1500);
     }
@@ -111,6 +152,8 @@ const CombatManager: React.FC = () => {
       addSkillXp('attack', Math.floor(damage * 2));
     }
 
+    playSfx(getAttackSound(attacker));
+
     if ((target.isPlayer || target.isCompanion) && newHp > 0) {
       addSkillXp('defence', Math.floor(damage * 2));
     }
@@ -140,7 +183,7 @@ const CombatManager: React.FC = () => {
       // Award dexterity skill XP for successful flee
       getAliveParty().forEach(p => {
         if (p.isPlayer || p.isCompanion) {
-          addSkillXp('dexterity', 10); // 10 XP for successful flee
+          addSkillXp('agility', 10); // 10 XP for successful flee
         }
       });
       setPhase('fled');
@@ -191,14 +234,18 @@ const CombatManager: React.FC = () => {
           const baseHitChance = 0.75;
           if (Math.random() > baseHitChance) {
             addLogEntry(`${currentEnemy.name} attacks ${target.name} but misses!`);
+            playSfx(getAttackSound(currentEnemy));
             nextTurn();
             return;
           }
 
           const attackPower = currentEnemy.attack;
           const defencePower = Math.max(0, target.defence);
-          damage = Math.floor(attackPower * 1.3 - defencePower * 0.3);
+          // Enemies deal slightly less multiplier damage, armor is more effective
+          damage = Math.floor(attackPower * 1.2 - defencePower * 0.5);
           damage = Math.max(3, damage);
+          
+          playSfx(getAttackSound(currentEnemy));
         }
         
         if (target) {
@@ -232,6 +279,8 @@ const CombatManager: React.FC = () => {
     }
     
     // Companion Turn Logic
+    // DISABLED for manual control
+    /*
     const current = getCurrentParticipant();
     if (phase === 'player-turn' && current?.isCompanion) {
          const timer = setTimeout(() => {
@@ -246,6 +295,7 @@ const CombatManager: React.FC = () => {
             const baseHitChance = 0.8;
             if (Math.random() > baseHitChance) {
               addLogEntry(`${current.name} attacks ${target.name} but misses!`);
+              playSfx(getAttackSound(current));
               nextTurn();
               return;
             }
@@ -255,6 +305,8 @@ const CombatManager: React.FC = () => {
             // FIX: Consistent defence multiplier
             let damage = Math.floor(attackPower * 1.4 - defencePower * 0.75);
             damage = Math.max(1, damage);
+            
+            playSfx(getAttackSound(current));
             
             const newHp = Math.max(0, target.hp - damage);
             updateParticipant(target.id, { hp: newHp });
@@ -268,12 +320,13 @@ const CombatManager: React.FC = () => {
          }, 1000);
          return () => clearTimeout(timer);
     }
+    */
   }, [phase, currentTurnIndex, participants, isPlayerTurn, getCurrentParticipant, nextTurn, addLogEntry, getAliveEnemies, getAliveParty, addSkillXp, getSkillLevel, updateParticipant]);
 
   return (
     <CombatScreen
       party={participants.filter(p => p.isPlayer || p.isCompanion)}
-      enemies={getAliveEnemies()}
+      enemies={participants.filter(p => !p.isPlayer && !p.isCompanion)}
       turnOrder={turnOrder.map(id => participants.find(p => p.id === id)).filter(Boolean) as CombatParticipant[]}
       activeCharacterId={getCurrentParticipant()?.id}
       selectedTargetId={selectedTargetId}

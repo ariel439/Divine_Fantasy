@@ -74,7 +74,7 @@ export const characters = [
         title: 'The Driftwatch Orphan',
         image: 'https://i.imgur.com/gUNzyBA.jpeg',
         description: "Born to a tragic fate, Luke's mother died in childbirth and his fisherman father was lost to the unforgiving sea. He was raised in Leo's Lighthouse, an orphanage in the salt-sprayed city of Driftwatch, alongside his only friends, Sarah, Robert, and Kyle. His past is a tapestry of loss, but his sharp mind is a beacon of potential, promising a future far grander than his humble beginnings in the Whispers region.",
-        attributes: { strength: 4, dexterity: 6, intelligence: 8, wisdom: 5, charisma: 3 }
+        attributes: { strength: 5, dexterity: 6, intelligence: 8, wisdom: 5, charisma: 3 }
     }
 ];
 
@@ -389,17 +389,7 @@ export const mockParty: CombatParticipant[] = [
         portraitUrl: 'https://i.imgur.com/gUNzyBA.jpeg',
         isPlayer: true,
     },
-    {
-        id: 'wolf_puppy',
-        name: 'Wolf Puppy',
-        hp: 25,
-        maxHp: 25,
-        attack: 4,
-        defence: 1,
-        dexterity: 6,
-        portraitUrl: 'https://i.imgur.com/DS1LuU3.png',
-        isCompanion: true,
-    }
+
 ];
 
 export const mockEnemies: CombatParticipant[] = [
@@ -413,16 +403,7 @@ export const mockEnemies: CombatParticipant[] = [
         dexterity: 10,
         portraitUrl: 'https://i.imgur.com/NXT2T8Q.png',
     },
-    {
-        id: 'wolf2',
-        name: 'Alpha Wolf',
-        hp: 70,
-        maxHp: 70,
-        attack: 15,
-        defence: 5,
-        dexterity: 12,
-        portraitUrl: 'https://i.imgur.com/NXT2T8Q.png',
-    },
+
     {
         id: 'wolf3',
         name: 'Shadow Wolf',

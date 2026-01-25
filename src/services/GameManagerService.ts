@@ -63,7 +63,7 @@ export class GameManagerService {
         wisdom: template.starting_attributes.Wisdom,
         charisma: template.starting_attributes.Charisma,
       },
-      hp: 100,
+      hp: 50 + (template.starting_attributes.Strength * 10),
       energy: 100,
       hunger: 60,
       currency: { ...template.starting_bonuses.currency },
@@ -226,7 +226,7 @@ export class GameManagerService {
         attack: companion.stats.attack,
         defence: companion.stats.defence,
         dexterity: companion.stats.dexterity,
-        portraitUrl: 'https://i.imgur.com/DS1LuU3.png', // TODO: Add companion portrait
+        portraitUrl: '/assets/portraits/WolfPuppy.png', // TODO: Add companion portrait
         isPlayer: false,
         isCompanion: true,
       };
@@ -296,7 +296,8 @@ export class GameManagerService {
 
   private static calculatePlayerStats(character: any): { attack: number; defence: number; dexterity: number } {
     let totalAttack = character.attributes.strength || 0;
-    let totalDefence = character.attributes.strength || 0; // Base defence on strength
+    // Base defence is average of strength and dexterity
+    let totalDefence = Math.floor(((character.attributes.strength || 0) + (character.attributes.dexterity || 0)) / 2);
     let totalDexterity = character.attributes.dexterity || 0;
 
     if (character.equippedItems) {

@@ -3,9 +3,11 @@ import type { FC } from 'react';
 import { useUIStore } from '../../stores/useUIStore';
 import { useInventoryStore } from '../../stores/useInventoryStore';
 import { useCharacterStore } from '../../stores/useCharacterStore';
+import { useSkillStore } from '../../stores/useSkillStore';
 import { GameManagerService } from '../../services/GameManagerService';
 import itemsJson from '../../data/items.json';
 import type { Item, EquipmentSlot } from '../../types';
+import { useCompanionStore } from '../../stores/useCompanionStore';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
 
 const DebugMenuScreen: FC = () => {
@@ -14,7 +16,7 @@ const DebugMenuScreen: FC = () => {
   const characterStore = useCharacterStore();
   const worldStateStore = useWorldStateStore();
 
-  const [playerSetup, setPlayerSetup] = useState<'naked' | 'naked_dagger' | 'wolf_dagger' | 'iron_dagger'>('naked');
+  const [playerSetup, setPlayerSetup] = useState<'naked' | 'naked_dagger' | 'wolf_dagger' | 'iron_sword' | 'iron_sword_wolf'>('naked');
   const [wolfCount, setWolfCount] = useState<number>(1);
 
   const handleBackToMenu = () => {
@@ -68,6 +70,12 @@ const DebugMenuScreen: FC = () => {
       }
     };
 
+    // Reset skills to 1 by default
+    const skillStore = useSkillStore.getState();
+    skillStore.setSkillLevel('attack', 1);
+    skillStore.setSkillLevel('defense', 1);
+    skillStore.setSkillLevel('agility', 1);
+
     switch (playerSetup) {
       case 'naked':
         // Already unequipped
@@ -82,11 +90,25 @@ const DebugMenuScreen: FC = () => {
         equip('wolf_tooth_amulet');
         equip('crude_knife');
         break;
-      case 'iron_dagger':
+      case 'iron_sword':
         equip('iron_helmet');
         equip('iron_chainmail');
         equip('iron_leggings');
-        equip('crude_knife');
+        equip('iron_sword');
+        break;
+      case 'iron_sword_wolf':
+        equip('iron_helmet');
+        equip('iron_chainmail');
+        equip('iron_leggings');
+        equip('iron_sword');
+        // Add wolf companion
+        useCompanionStore.getState().setCompanion({
+          id: 'wolf_puppy',
+          name: 'Wolf Puppy',
+          type: 'wolf',
+          stats: { hp: 40, maxHp: 40, attack: 5, defence: 2, dexterity: 12 },
+          equippedItems: [],
+        });
         break;
     }
 
@@ -123,7 +145,8 @@ const DebugMenuScreen: FC = () => {
                   <option value="naked">Luke Naked</option>
                   <option value="naked_dagger">Luke Naked + Dagger</option>
                   <option value="wolf_dagger">Wolf Set + Dagger</option>
-                  <option value="iron_dagger">Iron Set + Dagger</option>
+                  <option value="iron_sword">Iron Set + Sword</option>
+                  <option value="iron_sword_wolf">Iron Set + Sword + Wolf</option>
                 </select>
               </div>
               <div className="flex flex-col gap-2">

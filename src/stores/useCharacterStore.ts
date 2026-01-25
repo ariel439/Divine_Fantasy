@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { useWorldTimeStore } from './useWorldTimeStore';
 import { useInventoryStore } from './useInventoryStore';
+import { useAudioStore } from './useAudioStore';
 import itemsData from '../data/items.json';
 import type { EquipmentSlot, Item } from '../types';
 
@@ -89,6 +90,15 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
         hunger: Math.min(100, state.hunger + hungerChange),
         energy: Math.min(100, state.energy + energyChange)
       }));
+      
+      // Play eat sound
+      const { sfxEnabled, sfxVolume } = useAudioStore.getState();
+      if (sfxEnabled) {
+          const audio = new Audio('/assets/sfx/eat.mp3');
+          audio.volume = sfxVolume;
+          audio.play().catch(() => {});
+      }
+
       // Pass 5 minutes eating
       useWorldTimeStore.getState().passTime(5);
     }
@@ -214,7 +224,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     set((state) => {
       const { strength, charisma } = state.attributes;
       
-      // Calculate Max HP: Base 100 + (Strength * 5) + Item Bonuses
+      // Calculate Max HP: Base 50 + (Strength * 10) + Item Bonuses
       let bonusHp = 0;
       Object.values(state.equippedItems).forEach((item: any) => {
         if (item && item.stats) {
@@ -229,7 +239,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
         }
       });
 
-      const newMaxHp = 100 + (strength * 5) + bonusHp;
+      const newMaxHp = 50 + (strength * 10) + bonusHp;
 
       return {
         maxWeight: 30 + (strength * 5),

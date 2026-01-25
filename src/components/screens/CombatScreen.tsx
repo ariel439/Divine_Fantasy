@@ -23,16 +23,19 @@ interface CombatScreenProps {
 
 const TurnOrderTimeline: FC<{ combatants: CombatParticipant[]; activeId?: string }> = ({ combatants, activeId }) => (
     <div className="w-full max-w-4xl p-2 flex justify-center items-center gap-3">
-        {combatants.map((c, index) => (
-            <div key={`${c.id}-${index}`} className="relative group">
-                <div className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-all duration-300 ${activeId === c.id ? 'border-yellow-400 scale-110 shadow-[0_0_15px_rgba(250,204,21,0.6)]' : 'border-zinc-600'}`}>
-                    <img src={c.portraitUrl} alt={c.name} className="w-full h-full object-cover" />
+        {combatants.map((c, index) => {
+            const isDead = c.hp <= 0;
+            return (
+                <div key={`${c.id}-${index}`} className={`relative group transition-all duration-1000 ${isDead ? 'opacity-0 grayscale' : 'opacity-100'}`}>
+                    <div className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-all duration-300 ${activeId === c.id ? 'border-yellow-400 scale-110 shadow-[0_0_15px_rgba(250,204,21,0.6)]' : 'border-zinc-600'}`}>
+                        <img src={c.portraitUrl} alt={c.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs font-semibold text-white bg-zinc-900/90 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap backdrop-blur-sm z-20">
+                        {c.name}
+                    </div>
                 </div>
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs font-semibold text-white bg-zinc-900/90 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap backdrop-blur-sm z-20">
-                    {c.name}
-                </div>
-            </div>
-        ))}
+            );
+        })}
     </div>
 );
 
@@ -105,7 +108,7 @@ const CombatScreen: FC<CombatScreenProps> = ({
         });
 
         if (tookDamage) {
-            playSfx('/assets/sfx/combat_sword_swing.mp3');
+            // SFX handled by CombatManager
         }
 
         if (newDamageEvents.length > 0) {
@@ -135,7 +138,6 @@ const CombatScreen: FC<CombatScreenProps> = ({
     const CombatActionButton: FC<{ icon: React.ReactNode; text: string; onClick: () => void; disabled?: boolean }> = ({ icon, text, onClick, disabled }) => (
         <button
             onClick={() => {
-                if (text === 'Attack' && !disabled) playSfx('/assets/sfx/combat_punch.mp3');
                 onClick();
             }}
             disabled={disabled}
@@ -146,6 +148,9 @@ const CombatScreen: FC<CombatScreenProps> = ({
         </button>
     );
     
+    const activeParticipant = party.find(p => p.id === activeCharacterId);
+    const isCompanionTurn = activeParticipant?.isCompanion;
+
   return (
     <div className="w-full h-full flex flex-col relative">
             {/* Main Combat Area */}

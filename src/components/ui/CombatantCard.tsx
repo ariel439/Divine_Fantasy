@@ -15,13 +15,16 @@ interface CombatantCardProps {
 }
 
 const CombatantCard: FC<CombatantCardProps> = ({ combatant, isPartyMember, isActive = false, isSelected = false, wasJustHit = false, onClick }) => {
+    const isDead = combatant.hp <= 0;
+
     const cardClasses = `
-        relative w-full bg-zinc-950/80 backdrop-blur-sm rounded-xl border-2 shadow-2xl overflow-hidden transition-all duration-300
+        relative w-full bg-zinc-950/80 backdrop-blur-sm rounded-xl border-2 shadow-2xl overflow-hidden transition-all duration-1000
         ${isActive && !isPartyMember ? 'border-yellow-400' : ''}
         ${isActive && isPartyMember ? 'border-yellow-400 animate-pulse-active' : 'border-zinc-700/80'}
         ${isSelected ? 'border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]' : ''}
         ${onClick ? 'cursor-pointer hover:border-zinc-500' : ''}
         ${wasJustHit ? 'animate-shake' : ''}
+        ${isDead ? 'opacity-0 grayscale pointer-events-none' : 'opacity-100'}
     `;
 
     const hpColor = isPartyMember ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.7)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]";

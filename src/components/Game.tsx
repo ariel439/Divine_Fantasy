@@ -31,14 +31,15 @@ import TradeConfirmationScreen from './screens/TradeConfirmationScreen';
 import CraftingScreen from './screens/CraftingScreen';
 import ChoiceEventScreen from './screens/ChoiceEventScreen';
 import CombatScreen from './screens/CombatScreen';
-import VictoryScreen from './screens/VictoryScreen';
+import { LootScreen } from './screens/LootScreen';
+import { useCombatStore } from '../stores/useCombatStore';
 import CompanionScreen from './screens/CompanionScreen';
 import DebugMenuScreen from './screens/DebugMenuScreen';
 import CombatManager from './CombatManager';
 import LocationNav from './LocationNav';
 import OptionsModal from './modals/OptionsModal';
 import TutorialModal from './modals/TutorialModal';
-import { lukePrologueSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesKyle, wakeupEventSlides, finnDebtIntroSlides, robertCaughtSlides, choiceEvents } from '../data/events';
+import { lukePrologueSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesKyle, wakeupEventSlides, finnDebtIntroSlides, robertCaughtSlides, gameOverSlides, choiceEvents } from '../data/events';
 import { useAudioStore } from '../stores/useAudioStore';
 import { useCompanionStore } from '../stores/useCompanionStore';
 
@@ -48,6 +49,16 @@ const Game: React.FC = () => {
   const { day, hour, minute, passTime, weather } = useWorldTimeStore();
   const { getCurrentLocation, currentLocationId } = useLocationStore();
   const { loadShops } = useShopStore();
+  
+  // New State for Event Results
+  const [eventResult, setEventResult] = useState<{ text: string, choices: any[] } | null>(null);
+
+  // Clear event result when screen changes or eventId changes
+  useEffect(() => {
+    if (currentScreen !== 'choiceEvent') {
+        setEventResult(null);
+    }
+  }, [currentScreen, ui.currentEventId]);
   const { musicEnabled, sfxEnabled, weatherEnabled, musicVolume, sfxVolume, weatherVolume } = useAudioStore();
 
   const [dialogueNode, setDialogueNode] = useState<any>(null);
@@ -93,6 +104,21 @@ const Game: React.FC = () => {
     handleIntroWeather(useWorldStateStore.getState().introMode);
     
     return unsub;
+  }, []);
+
+  // Hotfix: Nerf existing wolf puppy if stats are old OP values
+  useEffect(() => {
+    const companion = useCompanionStore.getState().activeCompanion;
+    if (companion && companion.id === 'wolf_puppy' && companion.stats.attack > 5) {
+        console.log('Nerfing Wolf Puppy stats...');
+        useCompanionStore.getState().updateCompanionStats({ 
+            hp: 40, 
+            maxHp: 40, 
+            attack: 5, 
+            defence: 2,
+            dexterity: 12 
+        });
+    }
   }, []);
 
   // Music Logic
@@ -477,6 +503,12 @@ const Game: React.FC = () => {
             setScreen('inGame');
             return;
           }
+          if (id === 'game_over') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            setScreen('mainMenu');
+            return;
+          }
           ui.setEventSlides(null);
           ui.setCurrentEventId(null);
           setScreen('inGame');
@@ -572,6 +604,18 @@ const Game: React.FC = () => {
 
         const cfg = choiceEvents[eventId];
 
+        // RENDER EVENT RESULT IF EXISTS
+        if (eventResult) {
+            return (
+                <ChoiceEventScreen
+                    title={cfg.title}
+                    imageUrl={cfg.imageUrl}
+                    eventText={eventResult.text}
+                    choices={eventResult.choices}
+                />
+            );
+        }
+
         if (eventId === 'beryl_letter_pickup') {
           return (
             <ChoiceEventScreen
@@ -585,8 +629,16 @@ const Game: React.FC = () => {
                     useInventoryStore.getState().addItem('beryl_noble_letter', 1);
                     useWorldStateStore.getState().setFlag('beryl_letter_found', true);
                     useDiaryStore.getState().addInteraction('Picked up Crumpled Letter.');
-                    useUIStore.getState().setCurrentEventId(null);
-                    setScreen('inGame');
+                    setEventResult({
+                        text: 'You picked up the crumpled letter. It seems to be from a noble house.',
+                        choices: [{
+                            text: 'Continue',
+                            onSelect: () => {
+                                useUIStore.getState().setCurrentEventId(null);
+                                setScreen('inGame');
+                            }
+                        }]
+                    });
                   },
                 },
               ]}
@@ -603,18 +655,57 @@ const Game: React.FC = () => {
               eventText={cfg.text}
               choices={[
                 {
-                  text: 'Pick some apples (1–3, small risk of injury)',
+                  text: 'Pick some apples',
                   onSelect: () => {
                     const qty = Math.floor(Math.random() * 3) + 1;
                     inventory.addItem('apple', qty);
                     const takeDamage = Math.random() < 0.3;
                     if (takeDamage) {
-                      useCharacterStore.setState((state) => ({
-                        hp: Math.max(0, state.hp - 5),
-                      }));
+                       const damage = 5;
+                       useCharacterStore.setState((state) => {
+                           const newHp = Math.max(0, state.hp - damage);
+                           if (newHp === 0) {
+                                // If dead, show death message and trigger game over on continue
+                                setEventResult({
+                                    text: `You picked ${qty} apples, but fell from the tree! You took ${damage} damage and died.`,
+                                    choices: [{
+                                        text: 'End',
+                                        onSelect: () => {
+                                            useUIStore.getState().setEventSlides(gameOverSlides);
+                                            useUIStore.getState().setCurrentEventId('game_over');
+                                            setScreen('event');
+                                        }
+                                    }]
+                                });
+                           } else {
+                                // If alive, show result and continue
+                                setEventResult({
+                                    text: `You picked ${qty} apples, but scratched yourself on a branch. You took ${damage} damage.`,
+                                    choices: [{
+                                        text: 'Continue',
+                                        onSelect: () => {
+                                            useUIStore.getState().setCurrentEventId(null);
+                                            setScreen('inGame');
+                                        }
+                                    }]
+                                });
+                           }
+                           return { hp: newHp };
+                       });
+                       useDiaryStore.getState().addInteraction(`Picked ${qty} apples but got scratched (-5 HP).`);
+                    } else {
+                      useDiaryStore.getState().addInteraction(`Picked ${qty} apples.`);
+                      setEventResult({
+                          text: `Success! You managed to pick ${qty} apples without any trouble.`,
+                          choices: [{
+                              text: 'Continue',
+                              onSelect: () => {
+                                  useUIStore.getState().setCurrentEventId(null);
+                                  setScreen('inGame');
+                              }
+                          }]
+                      });
                     }
-                    useUIStore.getState().setCurrentEventId(null);
-                    setScreen('inGame');
                   },
                 },
                 {
@@ -629,49 +720,7 @@ const Game: React.FC = () => {
           );
         }
 
-        if (eventId === 'rescue_wolf_choice') {
-          const world = useWorldStateStore.getState();
-          const companionStore = useCompanionStore.getState();
-          return (
-            <ChoiceEventScreen
-              title={cfg.title}
-              imageUrl={cfg.imageUrl}
-              eventText={cfg.text}
-              choices={[
-                {
-                  text: 'Adopt the puppy',
-                  onSelect: () => {
-                    companionStore.setCompanion({
-                      id: 'wolf_puppy',
-                      name: 'Wolf Puppy',
-                      type: 'wolf',
-                      stats: { hp: 80, maxHp: 80, attack: 8, defence: 3, dexterity: 12 },
-                      equippedItems: [],
-                    });
-                    world.setFlag('wolf_puppy_resolved', true);
-                    useUIStore.getState().setCurrentEventId(null);
-                    setScreen('inGame');
-                  },
-                },
-                {
-                  text: 'Kill the puppy',
-                  onSelect: () => {
-                    world.setFlag('wolf_puppy_resolved', true);
-                    useUIStore.getState().setCurrentEventId(null);
-                    setScreen('inGame');
-                  },
-                },
-                {
-                  text: 'Leave it be',
-                  onSelect: () => {
-                    useUIStore.getState().setCurrentEventId(null);
-                    setScreen('inGame');
-                  },
-                },
-              ]}
-            />
-          );
-        }
+
 
         if (eventId === 'fallen_log_event') {
           const inventory = useInventoryStore.getState();
@@ -688,8 +737,17 @@ const Game: React.FC = () => {
                   onSelect: () => {
                     const qty = Math.floor(Math.random() * 3) + 1; // 1-3 logs
                     inventory.addItem('log', qty);
-                    useUIStore.getState().setCurrentEventId(null);
-                    setScreen('inGame');
+                    useDiaryStore.getState().addInteraction(`Chopped ${qty} logs.`);
+                    setEventResult({
+                        text: `You used your axe to chop the fallen log. You gathered ${qty} logs.`,
+                        choices: [{
+                            text: 'Continue',
+                            onSelect: () => {
+                                useUIStore.getState().setCurrentEventId(null);
+                                setScreen('inGame');
+                            }
+                        }]
+                    });
                   },
                 },
                 {
@@ -719,19 +777,49 @@ const Game: React.FC = () => {
                     // Random loot: Rope or Coins
                     if (Math.random() > 0.5) {
                          inventory.addItem('rope', 1);
+                         useDiaryStore.getState().addInteraction('Found a rope at the campsite.');
+                         setEventResult({
+                             text: 'You searched the campsite and found a sturdy rope.',
+                             choices: [{
+                                 text: 'Continue',
+                                 onSelect: () => {
+                                     useUIStore.getState().setCurrentEventId(null);
+                                     setScreen('inGame');
+                                 }
+                             }]
+                         });
                     } else {
-                         character.addCurrency('copper', Math.floor(Math.random() * 10) + 5);
+                         const coins = Math.floor(Math.random() * 10) + 5;
+                         character.addCurrency('copper', coins);
+                         useDiaryStore.getState().addInteraction(`Found ${coins} copper coins.`);
+                         setEventResult({
+                             text: `You searched the campsite and found ${coins} copper coins hidden in a pouch.`,
+                             choices: [{
+                                 text: 'Continue',
+                                 onSelect: () => {
+                                     useUIStore.getState().setCurrentEventId(null);
+                                     setScreen('inGame');
+                                 }
+                             }]
+                         });
                     }
-                    useUIStore.getState().setCurrentEventId(null);
-                    setScreen('inGame');
                   },
                 },
                 {
                   text: 'Rest for a while (+20 Energy)',
                   onSelect: () => {
                     useCharacterStore.setState((state) => ({ energy: Math.min(100, state.energy + 20) }));
-                    useUIStore.getState().setCurrentEventId(null);
-                    setScreen('inGame');
+                    useDiaryStore.getState().addInteraction('Rested at the campsite (+20 Energy).');
+                    setEventResult({
+                        text: 'You took a short rest by the old fire pit. You feel refreshed (+20 Energy).',
+                        choices: [{
+                            text: 'Continue',
+                            onSelect: () => {
+                                useUIStore.getState().setCurrentEventId(null);
+                                setScreen('inGame');
+                            }
+                        }]
+                    });
                   },
                 },
                 {
@@ -759,13 +847,52 @@ const Game: React.FC = () => {
                   onSelect: () => {
                     if (Math.random() > 0.5) {
                         // Loot
-                        character.addCurrency('copper', Math.floor(Math.random() * 15) + 5);
+                        const coins = Math.floor(Math.random() * 15) + 5;
+                        character.addCurrency('copper', coins);
+                        useDiaryStore.getState().addInteraction(`Found ${coins} copper coins inside the stump.`);
+                        setEventResult({
+                            text: `You carefully reached inside and found a stash of ${coins} copper coins!`,
+                            choices: [{
+                                text: 'Continue',
+                                onSelect: () => {
+                                    useUIStore.getState().setCurrentEventId(null);
+                                    setScreen('inGame');
+                                }
+                            }]
+                        });
                     } else {
                         // Damage
-                        useCharacterStore.setState((state) => ({ hp: Math.max(0, state.hp - 10) }));
+                        const damage = 10;
+                        useCharacterStore.setState((state) => {
+                             const newHp = Math.max(0, state.hp - damage);
+                             if (newHp === 0) {
+                                  setEventResult({
+                                      text: `You reached inside, but something bit you! You took ${damage} damage and died from the venom.`,
+                                      choices: [{
+                                          text: 'End',
+                                          onSelect: () => {
+                                              useUIStore.getState().setEventSlides(gameOverSlides);
+                                              useUIStore.getState().setCurrentEventId('game_over');
+                                              setScreen('event');
+                                          }
+                                      }]
+                                  });
+                             } else {
+                                  setEventResult({
+                                      text: `Ouch! You reached inside and something bit your hand. You took ${damage} damage.`,
+                                      choices: [{
+                                          text: 'Continue',
+                                          onSelect: () => {
+                                              useUIStore.getState().setCurrentEventId(null);
+                                              setScreen('inGame');
+                                          }
+                                      }]
+                                  });
+                             }
+                             return { hp: newHp };
+                        });
+                        useDiaryStore.getState().addInteraction('Got bitten by something inside the stump (-10 HP).');
                     }
-                    useUIStore.getState().setCurrentEventId(null);
-                    setScreen('inGame');
                   },
                 },
                 {
@@ -795,15 +922,31 @@ const Game: React.FC = () => {
                   disabled: !hasAxe,
                   onSelect: () => {
                     world.setFlag('loc_cabin_unlocked', true);
-                    useUIStore.getState().setCurrentEventId(null);
-                    setScreen('inGame');
+                    setEventResult({
+                        text: 'You used your axe to clear the thick vines. The path ahead is now open.',
+                        choices: [{
+                            text: 'Continue',
+                            onSelect: () => {
+                                useUIStore.getState().setCurrentEventId(null);
+                                setScreen('inGame');
+                            }
+                        }]
+                    });
                   },
                 },
                 {
                   text: 'Turn back',
                   onSelect: () => {
-                    useUIStore.getState().setCurrentEventId(null);
-                    setScreen('inGame');
+                    setEventResult({
+                        text: 'You decided not to risk clearing the path for now.',
+                        choices: [{
+                            text: 'Continue',
+                            onSelect: () => {
+                                useUIStore.getState().setCurrentEventId(null);
+                                setScreen('inGame');
+                            }
+                        }]
+                    });
                   },
                 },
               ]}
@@ -821,7 +964,17 @@ const Game: React.FC = () => {
       case 'combat':
         return <CombatManager />;
       case 'combatVictory':
-        return <VictoryScreen rewards={{ items: [], copper: 0 }} onContinue={() => setScreen('inGame')} />;
+        const combatRewards = useCombatStore.getState().rewards;
+        return (
+          <LootScreen 
+            loot={combatRewards.loot} 
+            onClose={() => {
+              useCombatStore.getState().endCombat();
+              setScreen('inGame');
+              useWorldTimeStore.getState().passTime(5);
+            }} 
+          />
+        );
       case 'companion':
         return <CompanionScreen hasPet={false} />;
       case 'debugMenu':

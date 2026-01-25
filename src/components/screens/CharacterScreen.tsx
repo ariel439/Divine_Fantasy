@@ -53,7 +53,7 @@ const CharacterScreen: FC = () => {
         skills: [
             { name: 'Attack', level: getSkillLevel('attack'), icon: <Sword size={24} /> },
             { name: 'Defense', level: getSkillLevel('defense'), icon: <Shield size={24} /> },
-            { name: 'Dexterity', level: getSkillLevel('dexterity'), icon: <Wind size={24} /> },
+            { name: 'Agility', level: getSkillLevel('agility'), icon: <Wind size={24} /> },
             { name: 'Woodcutting', level: getSkillLevel('woodcutting'), icon: <Axe size={24} /> },
             { name: 'Fishing', level: getSkillLevel('fishing'), icon: <Fish size={24} /> },
             { name: 'Cooking', level: getSkillLevel('cooking'), icon: <ChefHat size={24} /> },

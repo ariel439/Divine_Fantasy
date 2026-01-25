@@ -8,6 +8,27 @@
     "base_value": 0,
     "image": "/assets/items/paper.png"
   },
+  "grain_sack": {
+    "name": "Sack of Grain",
+    "description": "A heavy sack of grain. Worth about 10 silvers.",
+    "type": "resource",
+    "stackable": true,
+    "weight": 10.0,
+    "base_value": 1000,
+    "image": "/assets/items/sack.png"
+  },
+  "healing_potion": {
+    "name": "Healing Potion",
+    "description": "Restores health.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.5,
+    "base_value": 500,
+    "effects": {
+      "health": 20
+    },
+    "image": "/assets/items/potion_red.png"
+  },
   "raw_meat": {
     "name": "Raw Meat",
     "description": "A chunk of raw meat. Needs cooking.",
@@ -275,6 +296,19 @@
     "weight": 1.0,
     "base_value": 5,
     "image": "/assets/items/crude_knife.png",
+    "equipmentSlot": "weapon",
+    "stats": {
+      "attack": 4
+    }
+  },
+  "iron_sword": {
+    "name": "Iron Sword",
+    "description": "A well-crafted iron sword. Sharp and reliable.",
+    "type": "tool",
+    "stackable": false,
+    "weight": 2.5,
+    "base_value": 50,
+    "image": "/assets/items/iron_sword.png",
     "equipmentSlot": "weapon",
     "stats": {
       "attack": 6

@@ -1,18 +1,11 @@
 {
   "wolf_forest": {
     "name": "Forest Wolf",
-    "stats": { "hp": 80, "attack": 18, "defence": 0, "dexterity": 4 },
+    "stats": { "hp": 60, "attack": 10, "defence": 0, "dexterity": 4 },
     "loot_table": [
       { "item_id": "wolf_pelt", "quantity": 1, "chance": 1 },
       { "item_id": "wolf_tooth", "quantity": 1, "chance": 0.5 },
       { "item_id": "raw_meat", "quantity": 1, "chance": 0.8 }
-    ]
-  },
-  "wolf_alpha": {
-    "name": "Alpha Wolf",
-    "stats": { "hp": 250, "attack": 35, "defence": 15, "dexterity": 10 },
-    "loot_table": [
-      { "item_id": "wolf_pelt", "quantity": 2, "chance": 1 }
     ]
   },
   "smuggler_dockhand": {

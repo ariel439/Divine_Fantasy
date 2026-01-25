@@ -89,12 +89,7 @@
     "default_dialogue_id": "crawler_default",
     "portrait": "/assets/portraits/Crawler.png"
   },
-  "npc_ronald": {
-    "name": "Ronald",
-    "home_location": "hunters_cabin",
-    "default_dialogue_id": "ronald_default",
-    "portrait": "/assets/portraits/Ronald.png"
-  },
+
   "npc_ben": {
     "name": "Ben",
     "home_location": "homestead_farm",

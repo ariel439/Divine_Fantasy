@@ -10,6 +10,7 @@ interface ConfirmationModalProps {
   onCancel: () => void;
   confirmText?: string;
   cancelText?: string;
+  singleButton?: boolean;
 }
 
 export const ConfirmationModal: FC<ConfirmationModalProps> = ({
@@ -20,6 +21,7 @@ export const ConfirmationModal: FC<ConfirmationModalProps> = ({
   onCancel,
   confirmText = 'Confirm',
   cancelText = 'Cancel',
+  singleButton = false,
 }) => {
   if (!isOpen) {
     return null;
@@ -46,12 +48,14 @@ export const ConfirmationModal: FC<ConfirmationModalProps> = ({
         )}
         <div id="confirmation-message" className="text-zinc-300 leading-relaxed">{message}</div>
         <div className="flex justify-end items-center gap-4 mt-6">
-          <button 
-            onClick={onCancel}
-            className="px-5 py-2 text-sm font-semibold tracking-wide text-white/90 bg-zinc-700/80 border border-zinc-600 rounded-md transition-all duration-300 hover:bg-zinc-600/80 focus:outline-none focus:ring-2 focus:ring-zinc-500"
-          >
-            {cancelText}
-          </button>
+          {!singleButton && (
+            <button 
+              onClick={onCancel}
+              className="px-5 py-2 text-sm font-semibold tracking-wide text-white/90 bg-zinc-700/80 border border-zinc-600 rounded-md transition-all duration-300 hover:bg-zinc-600/80 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+            >
+              {cancelText}
+            </button>
+          )}
           <button 
             onClick={onConfirm}
             className="px-5 py-2 text-sm font-semibold tracking-wide text-white/90 bg-zinc-800 border border-zinc-700 rounded-md transition-all duration-300 hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-600"

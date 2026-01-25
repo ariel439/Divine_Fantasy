@@ -59,25 +59,6 @@ const DialogueScreen: FC<DialogueScreenProps> = ({
     }, [transitioningPortrait]);
 
     const handleOptionSelect = (option: DialogueOption, index: number) => {
-        // Check social energy
-        const socialCost = 1;
-        const currentSocial = useCharacterStore.getState().socialEnergy;
-        
-        // If option requires social energy (you might want to add a flag to DialogueOption later)
-        // For now, assume all options cost 1 social energy
-        if (currentSocial < socialCost) {
-            // Shake effect or feedback could be added here
-            // For now, we allow it but maybe with a penalty or just block it?
-            // User requirement: "Limited by Charisma stat"
-            // Let's block it if 0
-            if (currentSocial <= 0) {
-                 // Optionally show feedback
-                 return;
-            }
-        }
-        
-        useCharacterStore.setState({ socialEnergy: currentSocial - socialCost });
-
         if (option.nextPortraitUrl && option.nextPortraitUrl !== currentPortrait) {
             setTransitioningPortrait(currentPortrait);
             setCurrentPortrait(option.nextPortraitUrl);
@@ -167,7 +148,7 @@ const DialogueScreen: FC<DialogueScreenProps> = ({
                     {/* Options */}
                     <div className="flex-shrink-0 mt-auto space-y-4">
                         {options.map((option, index) => {
-                            const isUnavailable = (option.disabled ?? false) || socialEnergy <= 0;
+                            const isUnavailable = option.disabled ?? false;
                             return (
                                 <button
                                     key={index}
@@ -183,7 +164,9 @@ const DialogueScreen: FC<DialogueScreenProps> = ({
                                         <span className="text-lg font-medium tracking-wide group-hover:translate-x-1 transition-transform duration-300">
                                             {option.text}
                                         </span>
+                                        {/* Social cost indicator - DISABLED
                                         {!isUnavailable && <span className="text-purple-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity">-1 Social</span>}
+                                        */}
                                     </div>
                                     {!isUnavailable && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-shimmer" />}
                                 </button>

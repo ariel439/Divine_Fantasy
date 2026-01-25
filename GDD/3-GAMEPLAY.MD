@@ -169,7 +169,7 @@ Companions are NPCs who join the player on their journey, assisting in combat an
 -   **Active Companion Limit:** The player can only have **one active companion** at a time.
 -   **Recruitment Check:** Before a new companion can be recruited (e.g., through a quest dialogue), the game will check if the player already has an active companion. If they do, they will not be able to recruit the new one until the current one is dismissed.
 -   **Companion Types:**
-    -   **Temporary Companions:** These companions join the player for a specific quest or a limited duration. Once the quest is complete or the duration expires, they will automatically leave the player's party. (e.g., Ronald for "The Wolf Pack" quest).
+    -   **Temporary Companions:** These companions join the player for a specific quest or a limited duration. Once the quest is complete or the duration expires, they will automatically leave the player's party.
     -   **Permanent Companions:** These companions join the player indefinitely until they are dismissed. (No permanent companions are available in v1.0, but the system will support them).
 -   **Combat Participation:**
     -   If the player has an active companion when combat begins, that companion will automatically join the fight alongside the player.

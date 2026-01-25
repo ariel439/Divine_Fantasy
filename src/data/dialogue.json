@@ -161,17 +161,8 @@
       "0": {
         "npc_text": "What do you want, kid?",
         "player_choices": [
-          {
-            "text": "I heard about a wolf problem.",
-            "next_node": "1",
-            "action": "start_quest:rodrick_wolf_pack",
-            "closes_dialogue": true
-          }
+          { "text": "Nothing, sir.", "closes_dialogue": true }
         ]
-      },
-      "1": {
-        "npc_text": "Talk to the hunter in the woods.",
-        "player_choices": [ { "text": "Back", "next_node": "0" } ]
       }
     }
   },
@@ -402,8 +393,43 @@
       "0": {
         "npc_text": "Herbs and potions, stranger.",
         "player_choices": [
-          { "text": "Finn sent me. Pay 10 silvers.", "action": "collect_debt_from:npc_elara", "closes_dialogue": true, "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_elara==false" },
+          { "text": "Finn sent me. Pay 10 silvers.", "next_node": "debt_collection", "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_elara==false" },
           { "text": "Goodbye, Elara.", "closes_dialogue": true }
+        ]
+      },
+      "debt_collection": {
+        "npc_text": "Ten silvers? I haven't sold a potion in weeks. People rely on prayer more than medicine these days.",
+        "player_choices": [
+          { "text": "I can't leave empty-handed.", "next_node": "offer_goods" }
+        ]
+      },
+      "offer_goods": {
+        "npc_text": "Take these Healing Potions then. They sell for five silvers each at the market. Two of them should cover my debt.",
+        "player_choices": [
+          { "text": "I'll take them.", "action": "add_item:healing_potion:2|set_flag:debt_paid_by_elara:true|advance_quest_stage:finn_debt_collection", "closes_dialogue": true }
+        ]
+      }
+    }
+  },
+  "finn_timeout_event": {
+    "nodes": {
+      "0": {
+        "npc_text": "Time's up, kid. I gave you seven days.",
+        "player_choices": [
+          { "text": "Wait, I can explain!", "next_node": "1" }
+        ]
+      },
+      "1": {
+        "npc_text": "Save it. Boys, teach him a lesson about deadlines.",
+        "player_choices": [
+          { "text": "[Fight] You can't take me!", "next_node": "game_over" },
+          { "text": "[Submit] No, please!", "next_node": "game_over" }
+        ]
+      },
+      "game_over": {
+        "npc_text": "[GAME OVER] The beating is severe. You fade into darkness... (Refresh to restart)",
+        "player_choices": [
+          { "text": "...", "closes_dialogue": true, "action": "trigger_game_over" }
         ]
       }
     }
@@ -436,14 +462,13 @@
         "npc_text": "The woods are dangerous. What brings you?",
         "player_choices": [
           {
-            "text": "About the wolves...",
-            "next_node": "1",
-            "closes_dialogue": true
-          },
-          {
             "text": "I noticed your workbench. Mind if I use it?",
             "next_node": "crafting_unlock",
             "condition": "world_flags.hunter_crafting_unlocked==false"
+          },
+          {
+            "text": "Goodbye, Ronald.",
+            "closes_dialogue": true
           }
         ]
       },
@@ -453,33 +478,9 @@
           {
             "text": "Thanks.",
             "action": "set_flag:hunter_crafting_unlocked:true",
-            "next_node": "0"
-          }
-        ]
-      },
-      "1": {
-        "npc_text": "I can help hunt them, but I want half the reward.",
-        "player_choices": [
-          {
-            "text": "Deal.",
-            "next_node": "2",
-            "action": "recruit_companion:companion_ronald",
-            "closes_dialogue": true
-          },
-          {
-            "text": "No thanks.",
-            "next_node": "3",
             "closes_dialogue": true
           }
         ]
-      },
-      "2": {
-        "npc_text": "Let's go.",
-        "player_choices": []
-      },
-      "3": {
-        "npc_text": "Your loss.",
-        "player_choices": []
       }
     }
   },
@@ -489,7 +490,19 @@
         "npc_text": "Hard work on the farm. What can I do for you?",
         "player_choices": [
           { "text": "Goodbye, Ben.", "closes_dialogue": true },
-          { "text": "Finn sent me. Pay 10 silvers.", "action": "collect_debt_from:npc_ben", "closes_dialogue": true, "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_ben==false" }
+          { "text": "Finn sent me. Pay 10 silvers.", "next_node": "debt_collection", "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_ben==false" }
+        ]
+      },
+      "debt_collection": {
+        "npc_text": "Finn? Look, I barely have copper for seeds, let alone silver for rent. I can't pay.",
+        "player_choices": [
+          { "text": "I need something, Ben. Or Finn will have my head.", "next_node": "offer_goods" }
+        ]
+      },
+      "offer_goods": {
+        "npc_text": "Alright, alright. I have a sack of grain ready for market. It's worth ten silvers if you haul it to the merchant yourself. Take it.",
+        "player_choices": [
+          { "text": "Fine. Hand it over.", "action": "add_item:grain_sack:1|set_flag:debt_paid_by_ben:true|advance_quest_stage:finn_debt_collection", "closes_dialogue": true }
         ]
       }
     }

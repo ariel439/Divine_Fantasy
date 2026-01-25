@@ -78,5 +78,11 @@
       "image": "/assets/locations/leo_lighthouse_room.png",
       "text": "Back in the safety of the lighthouse, you and Kyle collapse, gasping for air. The silence is heavy, broken only by Kyle's quiet sobs. Robert is gone."
     }
+  ],
+  "gameOverSlides": [
+    {
+      "image": "/assets/events/game_over.png",
+      "text": "Luke has fallen in battle. His journey ends here."
+    }
   ]
 }

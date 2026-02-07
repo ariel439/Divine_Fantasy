@@ -39,7 +39,7 @@ import CombatManager from './CombatManager';
 import LocationNav from './LocationNav';
 import OptionsModal from './modals/OptionsModal';
 import TutorialModal from './modals/TutorialModal';
-import { lukePrologueSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesKyle, wakeupEventSlides, finnDebtIntroSlides, robertCaughtSlides, gameOverSlides, choiceEvents } from '../data/events';
+import { lukePrologueSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesKyle, wakeupEventSlides, finnDebtIntroSlides, robertCaughtSlides, gameOverSlides, choiceEvents, benCheatEventSlides, rebelVictorySlides, raidSaltyMugIntroSlides } from '../data/events';
 import { useAudioStore } from '../stores/useAudioStore';
 import { useCompanionStore } from '../stores/useCompanionStore';
 
@@ -503,12 +503,68 @@ const Game: React.FC = () => {
             setScreen('inGame');
             return;
           }
+          if (id === 'sell_locket_event') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            useInventoryStore.getState().removeItem('antique_locket', 1);
+            useCharacterStore.getState().addCurrency('silver', 10);
+            useWorldStateStore.getState().setFlag('debt_paid_by_noble', true);
+            useJournalStore.getState().advanceQuestStage('finn_debt_collection');
+            useDiaryStore.getState().addInteraction('Sold the antique locket to a noble for 10 silver.');
+            setScreen('inGame');
+            return;
+          }
+          if (id === 'ben_cheat_event') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            useWorldStateStore.getState().setFlag('ben_cheat_done', true);
+            useWorldTimeStore.getState().passTime(120);
+            useCharacterStore.getState().updateStats({ energy: -15 });
+            
+            // Transition directly to Ben's dialogue to collect reward
+            ui.setDialogueNpcId('npc_ben');
+            setScreen('dialogue');
+            return;
+        }
+          if (id === 'raid_salty_mug_intro') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            GameManagerService.startRaidCombat();
+            return;
+          }
+          if (id === 'raid_victory') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            setScreen('mainMenu');
+            return;
+          }
           if (id === 'game_over') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             setScreen('mainMenu');
             return;
           }
+          if (id === 'elara_delivery_event') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            useWorldStateStore.getState().setFlag('elara_delivery_done', true);
+            useInventoryStore.getState().removeItem('elara_medicine_parcel', 1);
+            useWorldTimeStore.getState().passTime(60);
+            useCharacterStore.getState().updateStats({ energy: -10 });
+            setScreen('inGame');
+            return;
+          }
+          if (id === 'beryl_delivery_event') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            useWorldStateStore.getState().setFlag('beryl_delivery_done', true);
+            useInventoryStore.getState().removeItem('beryl_noble_parcel', 1);
+            useWorldTimeStore.getState().passTime(60);
+            useCharacterStore.getState().updateStats({ energy: -10 });
+            setScreen('inGame');
+            return;
+          }
+
           ui.setEventSlides(null);
           ui.setCurrentEventId(null);
           setScreen('inGame');
@@ -639,6 +695,13 @@ const Game: React.FC = () => {
                             }
                         }]
                     });
+                  },
+                },
+                {
+                  text: 'Leave it',
+                  onSelect: () => {
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
                   },
                 },
               ]}
@@ -964,14 +1027,24 @@ const Game: React.FC = () => {
       case 'combat':
         return <CombatManager />;
       case 'combatVictory':
-        const combatRewards = useCombatStore.getState().rewards;
+        const combatStore = useCombatStore.getState();
+        const combatRewards = combatStore.rewards;
+        const participants = combatStore.participants;
+        const finnDefeated = participants.some(p => p.id.startsWith('finn_') && p.hp <= 0);
+
         return (
           <LootScreen 
             loot={combatRewards.loot} 
             onClose={() => {
-              useCombatStore.getState().endCombat();
-              setScreen('inGame');
-              useWorldTimeStore.getState().passTime(5);
+              combatStore.endCombat();
+              if (finnDefeated) {
+                 useUIStore.getState().setEventSlides(rebelVictorySlides);
+                 useUIStore.getState().setCurrentEventId('rebel_victory');
+                 setScreen('event');
+              } else {
+                 setScreen('inGame');
+                 useWorldTimeStore.getState().passTime(5);
+              }
             }} 
           />
         );
@@ -1125,7 +1198,10 @@ const Game: React.FC = () => {
           const loc = getCurrentLocation();
           const { tutorialStep, introMode } = useWorldStateStore.getState();
           const isIntroSkip = introMode && loc.id === 'orphanage_room' && tutorialStep === 0;
-          const message = isIntroSkip ? (
+          const confirmationType = ui.confirmationType;
+
+          let title = isIntroSkip ? 'Skip Intro' : undefined;
+          let message: React.ReactNode = isIntroSkip ? (
             <div>
               <p className="mb-2">Are you sure you want to skip the intro?</p>
               <p className="text-zinc-400 text-sm">You will start at the Salty Mug without receiving any intro rewards.</p>
@@ -1133,8 +1209,26 @@ const Game: React.FC = () => {
           ) : (
             <p>Are you sure?</p>
           );
+          let confirmText = isIntroSkip ? 'Skip Intro' : 'Confirm';
+
+          if (confirmationType === 'raid_start') {
+            title = 'Start Raid';
+            message = (
+                <div>
+                   <p className="mb-2">Are you sure you want to start the raid on the Salty Mug?</p>
+                   <p className="text-zinc-400 text-sm">Make sure you are prepared. There is no turning back.</p>
+                </div>
+            );
+            confirmText = "Let's Go";
+          }
+
           const onConfirm = () => {
-            if (isIntroSkip) {
+            if (confirmationType === 'raid_start') {
+                useUIStore.getState().setEventSlides(raidSaltyMugIntroSlides);
+                useUIStore.getState().setCurrentEventId('raid_salty_mug_intro');
+                setScreen('event');
+                useUIStore.getState().setDialogueNpcId(null);
+            } else if (isIntroSkip) {
               useWorldTimeStore.setState({ hour: 8, minute: 0 });
               useCharacterStore.setState({ hunger: 100 });
               useWorldStateStore.getState().setIntroCompleted(true);
@@ -1158,11 +1252,11 @@ const Game: React.FC = () => {
           return (
             <ConfirmationModal
               isOpen={true}
-              title={isIntroSkip ? 'Skip Intro' : undefined}
+              title={title}
               message={message}
               onConfirm={onConfirm}
               onCancel={onCancel}
-              confirmText={isIntroSkip ? 'Skip Intro' : 'Confirm'}
+              confirmText={confirmText}
               cancelText={'Cancel'}
             />
           );

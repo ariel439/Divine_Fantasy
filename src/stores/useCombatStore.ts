@@ -27,7 +27,7 @@ export interface CombatState {
 
 export interface CombatStore extends CombatState {
   // Actions
-  startCombat: (player: CombatParticipant, companion: CombatParticipant | null, enemies: CombatParticipant[]) => void;
+  startCombat: (player: CombatParticipant, companion: CombatParticipant | CombatParticipant[] | null | undefined, enemies: CombatParticipant[]) => void;
   endCombat: () => void;
   nextTurn: () => void;
   setPhase: (phase: CombatPhase) => void;
@@ -58,7 +58,13 @@ export const useCombatStore = create<CombatStore>((set, get) => ({
 
   startCombat(player, companion, enemies) {
     const participants: CombatParticipant[] = [player, ...enemies];
-    if (companion) participants.push(companion);
+    if (companion) {
+      if (Array.isArray(companion)) {
+        participants.push(...companion);
+      } else {
+        participants.push(companion);
+      }
+    }
 
     // Sort by dexterity descending for initial turn order, but ensure player party goes first
     // This prevents early game frustration where enemies always go first due to higher dexterity

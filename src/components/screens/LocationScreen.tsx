@@ -24,7 +24,7 @@ import { ExplorationService } from '../../services/ExplorationService';
 import { mockBooks } from '../../data';
 import { useShopStore } from '../../stores/useShopStore';
 import { useCompanionStore } from '../../stores/useCompanionStore';
-import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, wakeupEventSlides, finnDebtIntroSlides } from '../../data/events';
+import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, wakeupEventSlides, finnDebtIntroSlides, rebelRaidIntroSlides, sellLocketSlides } from '../../data/events';
 
 const LocationScreen: React.FC = () => {
   const { attributes, hp, energy, hunger, maxWeight } = useCharacterStore();
@@ -147,6 +147,14 @@ const LocationScreen: React.FC = () => {
           setScreen('choiceEvent');
         } else if (eventId === 'smuggler_combat_start') {
           GameManagerService.startSmugglerCombat();
+        } else if (eventId === 'raid_salty_mug') {
+          useUIStore.getState().setEventSlides(rebelRaidIntroSlides);
+          useUIStore.getState().setCurrentEventId('raid_salty_mug_intro');
+          setScreen('event');
+        } else if (eventId === 'sell_locket_event') {
+          useUIStore.getState().setEventSlides(sellLocketSlides);
+          useUIStore.getState().setCurrentEventId('sell_locket_event');
+          setScreen('event');
         }
         break;
       }
@@ -828,47 +836,97 @@ const LocationScreen: React.FC = () => {
               const journal = useJournalStore.getState();
               const world = useWorldStateStore.getState();
               const timeStore = useWorldTimeStore.getState();
+              const inventory = useInventoryStore.getState();
+
               for (const expr of parts) {
-                const [lhs, rhsRaw] = expr.split('==').map(s => s.trim());
+                let operator = '==';
+                let lhs = expr;
+                let rhsRaw = 'true';
+
+                if (expr.includes('==')) {
+                  [lhs, rhsRaw] = expr.split('==');
+                } else if (expr.includes('!=')) {
+                  [lhs, rhsRaw] = expr.split('!=');
+                  operator = '!=';
+                } else if (expr.includes('>=')) {
+                  [lhs, rhsRaw] = expr.split('>=');
+                  operator = '>=';
+                } else if (expr.includes('<=')) {
+                  [lhs, rhsRaw] = expr.split('<=');
+                  operator = '<=';
+                } else if (expr.includes('>')) {
+                  [lhs, rhsRaw] = expr.split('>');
+                  operator = '>';
+                } else if (expr.includes('<')) {
+                  [lhs, rhsRaw] = expr.split('<');
+                  operator = '<';
+                }
+
+                lhs = lhs.trim();
+                rhsRaw = rhsRaw ? rhsRaw.trim() : 'true';
+
                 const rhsBool = rhsRaw === 'true' ? true : rhsRaw === 'false' ? false : undefined;
                 const rhsNum = rhsBool === undefined ? Number(rhsRaw) : undefined;
+
+                let actualValue: any = undefined;
+                let targetValue: any = rhsBool !== undefined ? rhsBool : rhsNum;
+
                 if (lhs.startsWith('quest.')) {
                   const [, questId, field] = lhs.split('.');
                   const q = journal.quests[questId];
-                  if (field === 'active') {
-                    if ((q?.active || false) !== (rhsBool as boolean)) return false;
-                  } else if (field === 'completed') {
-                    if ((q?.completed || false) !== (rhsBool as boolean)) return false;
-                  } else if (field === 'stage') {
-                    const stage = q?.currentStage ?? 0;
-                    if (stage !== (rhsNum as number)) return false;
-                  }
+                  if (field === 'active') actualValue = q?.active || false;
+                  else if (field === 'completed') actualValue = q?.completed || false;
+                  else if (field === 'stage') actualValue = q?.currentStage ?? 0;
                 } else if (lhs.startsWith('world_flags.')) {
                   const flag = lhs.replace('world_flags.', '');
-                  const val = world.getFlag(flag);
-                  const target = rhsBool !== undefined ? rhsBool : rhsNum;
-                  if (val !== target) return false;
+                  actualValue = world.getFlag(flag);
+                } else if (lhs.startsWith('inventory.')) {
+                  const itemId = lhs.split('.')[1];
+                  actualValue = inventory.getItemQuantity(itemId);
+                } else if (lhs.startsWith('has_item:')) {
+                  const itemId = lhs.split(':')[1];
+                  actualValue = inventory.getItemQuantity(itemId) > 0;
+                  if (operator === '==' && rhsRaw === 'true') targetValue = true; // Default for "has_item:x"
                 } else if (lhs === 'time.is_day') {
                   const hour = timeStore.hour;
-                  const isDay = hour >= 6 && hour < 18;
-                  if (isDay !== (rhsBool as boolean)) return false;
+                  actualValue = hour >= 6 && hour < 18;
                 } else if (lhs === 'time.is_night') {
                   const hour = timeStore.hour;
-                  const isNight = hour < 6 || hour >= 18;
-                  if (isNight !== (rhsBool as boolean)) return false;
+                  actualValue = hour < 6 || hour >= 18;
                 } else if (lhs === 'time.hour_lt') {
-                  const hour = timeStore.hour;
-                  if (!(hour < (rhsNum as number))) return false;
+                   // Legacy support, map to simple hour check if used with ==
+                   actualValue = timeStore.hour;
+                   operator = '<'; // Force operator
                 } else if (lhs === 'time.hour_gte') {
-                  const hour = timeStore.hour;
-                  if (!(hour >= (rhsNum as number))) return false;
+                   actualValue = timeStore.hour;
+                   operator = '>='; // Force operator
+                } else if (lhs === 'time.hour') {
+                    actualValue = timeStore.hour;
                 } else if (lhs === 'time.weekday') {
                   const names = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-                  const firstDow = ((timeStore.month - 1) * 30) % 7; // 0=Sunday
-                  const weekday = (firstDow + timeStore.dayOfMonth - 1) % 7; // 0..6
-                  const current = names[weekday];
-                  if (current !== rhsRaw) return false;
+                  const firstDow = ((timeStore.month - 1) * 30) % 7; 
+                  const weekday = (firstDow + timeStore.dayOfMonth - 1) % 7;
+                  actualValue = names[weekday];
+                  targetValue = rhsRaw; // String comparison
+                } else if (lhs.startsWith('relationship.')) {
+                    const npcId = lhs.split('.')[1];
+                    const rel = useDiaryStore.getState().relationships[npcId];
+                    actualValue = rel?.friendship?.value || 0;
                 }
+
+                if (actualValue === undefined) continue; // Unknown condition, ignore or fail? Original ignored.
+
+                let result = false;
+                switch (operator) {
+                    case '==': result = actualValue === targetValue; break;
+                    case '!=': result = actualValue !== targetValue; break;
+                    case '>': result = actualValue > targetValue; break;
+                    case '<': result = actualValue < targetValue; break;
+                    case '>=': result = actualValue >= targetValue; break;
+                    case '<=': result = actualValue <= targetValue; break;
+                }
+                
+                if (!result) return false;
               }
               return true;
             })

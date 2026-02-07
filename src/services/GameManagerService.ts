@@ -14,7 +14,8 @@ import { useCombatStore } from '../stores/useCombatStore';
 import { useUIStore } from '../stores/useUIStore';
 import characterTemplates from '../data/character_templates.json';
 import enemiesJson from '../data/enemies.json';
-import type { CombatParticipant } from '../types';
+import itemsJson from '../data/items.json';
+import type { CombatParticipant, Item } from '../types';
 import { DataValidator } from './DataValidator';
 
 export class GameManagerService {
@@ -291,6 +292,120 @@ export class GameManagerService {
 
     useCombatStore.getState().startCombat(player, companionCombatant, enemies);
     useWorldStateStore.getState().setFlag('smuggler_scripted_loss', true);
+    useUIStore.getState().setScreen('combat');
+  }
+
+  static startRaidCombat(): void {
+    const character = useCharacterStore.getState();
+    const inventory = useInventoryStore.getState();
+
+    // 1. Equip Iron Set
+    const itemsToEquip = ['iron_helmet', 'iron_chainmail', 'iron_leggings', 'iron_sword'];
+    
+    itemsToEquip.forEach(itemId => {
+      // Add to inventory first (simulating "given" items)
+      inventory.addItem(itemId, 1);
+      
+      // Get full item data
+      const itemData = itemsJson[itemId as keyof typeof itemsJson] as any;
+      if (itemData) {
+        // Cast to unknown first then to Item to satisfy TS
+        character.equipItem({ ...itemData, id: itemId } as unknown as Item);
+      }
+    });
+
+    // 2. Setup Enemies (Finn + 3 Thugs)
+    const finnTemplate = enemiesJson['finn_boss'];
+    const thugTemplate = enemiesJson['thug_generic'];
+
+    const enemies: CombatParticipant[] = [];
+    
+    // Add Finn
+    enemies.push({
+      id: `finn_${Date.now()}`,
+      name: finnTemplate?.name || 'Finn',
+      hp: finnTemplate?.stats.hp || 200,
+      maxHp: finnTemplate?.stats.hp || 200,
+      attack: finnTemplate?.stats.attack || 25,
+      defence: finnTemplate?.stats.defence || 10,
+      dexterity: finnTemplate?.stats.dexterity || 8,
+      portraitUrl: finnTemplate?.image || '/assets/portraits/OldManFinn.png',
+      isPlayer: false,
+      isCompanion: false,
+    });
+
+    // Add 3 Thugs (Weaker as requested)
+    for (let i = 0; i < 3; i++) {
+      enemies.push({
+        id: `thug_${i}_${Date.now()}`,
+        name: thugTemplate?.name || 'Thug',
+        hp: (thugTemplate?.stats.hp || 80) * 0.8, // 20% weaker
+        maxHp: (thugTemplate?.stats.hp || 80) * 0.8,
+        attack: (thugTemplate?.stats.attack || 12) * 0.8,
+        defence: (thugTemplate?.stats.defence || 4) * 0.8,
+        dexterity: thugTemplate?.stats.dexterity || 5,
+        portraitUrl: thugTemplate?.image || '/assets/portraits/Thug.png',
+        isPlayer: false,
+        isCompanion: false,
+      });
+    }
+
+    // 3. Setup Player
+    const playerStats = GameManagerService.calculatePlayerStats(character);
+    const player: CombatParticipant = {
+      id: 'player',
+      name: character.bio?.name || 'Adventurer',
+      hp: character.hp,
+      maxHp: character.maxHp || 100,
+      attack: playerStats.attack,
+      defence: playerStats.defence,
+      dexterity: playerStats.dexterity,
+      portraitUrl: character.bio?.image || 'https://i.imgur.com/gUNzyBA.jpeg',
+      isPlayer: true,
+      isCompanion: false,
+    };
+
+    // 4. Setup Companions (Rodrick, Matthias, Stan)
+    const companions: CombatParticipant[] = [
+      {
+        id: 'rodrick_companion',
+        name: 'Sergeant Rodrick',
+        hp: 300,
+        maxHp: 300,
+        attack: 30,
+        defence: 15,
+        dexterity: 10,
+        portraitUrl: '/assets/portraits/Rodrick.png',
+        isPlayer: false,
+        isCompanion: true,
+      },
+      {
+        id: 'matthias_companion',
+        name: 'Matthias',
+        hp: 250,
+        maxHp: 250,
+        attack: 25,
+        defence: 12,
+        dexterity: 12,
+        portraitUrl: '/assets/portraits/Matthias.png', // Placeholder
+        isPlayer: false,
+        isCompanion: true,
+      },
+      {
+        id: 'stan_companion',
+        name: 'Private Stan',
+        hp: 200,
+        maxHp: 200,
+        attack: 20,
+        defence: 10,
+        dexterity: 9,
+        portraitUrl: '/assets/portraits/Guard_Generic.png',
+        isPlayer: false,
+        isCompanion: true,
+      }
+    ];
+
+    useCombatStore.getState().startCombat(player, companions, enemies);
     useUIStore.getState().setScreen('combat');
   }
 

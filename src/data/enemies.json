@@ -15,5 +15,27 @@
     "loot_table": [
       { "item_id": "coins", "quantity": 5, "chance": 0.5 }
     ]
+  },
+  "elite_guard": {
+    "name": "Elite Guard",
+    "image": "/assets/portraits/Guard_Generic.png",
+    "stats": { "hp": 500, "attack": 50, "defence": 20, "dexterity": 15 },
+    "loot_table": []
+  },
+  "thug_generic": {
+    "name": "Thug",
+    "image": "/assets/portraits/Thug.png",
+    "stats": { "hp": 80, "attack": 12, "defence": 4, "dexterity": 5 },
+    "loot_table": [
+      { "item_id": "coins", "quantity": 10, "chance": 0.5 }
+    ]
+  },
+  "finn_boss": {
+    "name": "Finn",
+    "image": "/assets/portraits/OldManFinn.png",
+    "stats": { "hp": 200, "attack": 25, "defence": 10, "dexterity": 8 },
+    "loot_table": [
+      { "item_id": "coins", "quantity": 100, "chance": 1 }
+    ]
   }
 }

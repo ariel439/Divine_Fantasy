@@ -10,7 +10,7 @@ import { useInventoryStore } from '../stores/useInventoryStore';
 import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import CombatScreen from './screens/CombatScreen';
-import { robertCaughtSlides, gameOverSlides } from '../data/events';
+import { robertCaughtSlides, gameOverSlides, raidVictorySlides } from '../data/events';
 
 const CombatManager: React.FC = () => {
   const {
@@ -94,13 +94,26 @@ const CombatManager: React.FC = () => {
       setPhase('victory');
       addLogEntry('Victory!');
       
-      // Grant rewards - XP goes to skills, handled elsewhere
-      // Loot is now handled by the LootScreen, not auto-added
-      
-      // Show victory screen after short delay
-      setTimeout(() => {
-        setScreen('combatVictory');
-      }, 1000);
+      // Check if this was the Finn Raid
+      const finnWasPresent = participants.some(p => p.name === 'Finn' || p.id.startsWith('finn_'));
+
+      if (finnWasPresent) {
+          setTimeout(() => {
+            const ui = useUIStore.getState();
+            ui.setEventSlides(raidVictorySlides);
+            ui.setCurrentEventId('raid_victory');
+            setScreen('event');
+            endCombat();
+          }, 1500);
+      } else {
+        // Grant rewards - XP goes to skills, handled elsewhere
+        // Loot is now handled by the LootScreen, not auto-added
+        
+        // Show victory screen after short delay
+        setTimeout(() => {
+          setScreen('combatVictory');
+        }, 1000);
+      }
     } else if (aliveParty.length === 0) {
       setPhase('defeat');
       setTimeout(() => {
@@ -279,8 +292,6 @@ const CombatManager: React.FC = () => {
     }
     
     // Companion Turn Logic
-    // DISABLED for manual control
-    /*
     const current = getCurrentParticipant();
     if (phase === 'player-turn' && current?.isCompanion) {
          const timer = setTimeout(() => {
@@ -302,9 +313,9 @@ const CombatManager: React.FC = () => {
 
             const attackPower = current.attack;
             const defencePower = Math.max(0, target.defence);
-            // FIX: Consistent defence multiplier
-            let damage = Math.floor(attackPower * 1.4 - defencePower * 0.75);
-            damage = Math.max(1, damage);
+            // Balanced companion damage
+            let damage = Math.floor(attackPower * 1.3 - defencePower * 0.4);
+            damage = Math.max(2, damage);
             
             playSfx(getAttackSound(current));
             
@@ -320,7 +331,6 @@ const CombatManager: React.FC = () => {
          }, 1000);
          return () => clearTimeout(timer);
     }
-    */
   }, [phase, currentTurnIndex, participants, isPlayerTurn, getCurrentParticipant, nextTurn, addLogEntry, getAliveEnemies, getAliveParty, addSkillXp, getSkillLevel, updateParticipant]);
 
   return (

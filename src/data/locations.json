@@ -23,11 +23,11 @@
     "music_track": "GDD/assets/audio/music/driftwatch_main.mp3",
     "actions": [
       { "text": "Travel to Leo's Lighthouse", "type": "navigate", "target": "leo_lighthouse", "condition": "time.is_day==true" },
-      { "text": "Travel to Beryl's General Goods", "type": "navigate", "target": "beryls_general_goods", "condition": "world_flags.intro_completed==true&&time.is_day==true" },
+      { "text": "Travel to Beryl's General Goods", "type": "navigate", "target": "beryls_general_goods", "condition": "time.is_day==true" },
+      { "text": "Investigate Noise", "type": "trigger_event", "eventId": "beryl_secret_meeting", "condition": "time.is_night==true&&world_flags.finn_debt_collection_active==true&&world_flags.debt_paid_by_beryl==false&&world_flags.beryl_secret_meeting_seen==false" },
+      { "text": "Inspect Crumpled Letter", "type": "trigger_event", "eventId": "beryl_letter_pickup", "condition": "world_flags.beryl_secret_meeting_seen==true&&world_flags.beryl_letter_found==false" },
       { "text": "Travel to Kaelen's Forge", "type": "navigate", "target": "kaelens_forge", "condition": "world_flags.intro_completed==true&&time.is_day==true" },
-      { "text": "Travel to Hub", "type": "navigate", "target": "driftwatch", "condition": "world_flags.intro_completed==true" },
-      { "text": "Investigate sobbing figure", "type": "trigger_event", "eventId": "beryl_secret_meeting", "condition": "time.is_night==true&&world_flags.beryl_refused_debt==true&&world_flags.beryl_letter_found==false&&world_flags.beryl_secret_meeting_seen==false" },
-      { "text": "Pick up crumpled letter", "type": "trigger_event", "eventId": "beryl_letter_pickup", "condition": "world_flags.beryl_secret_meeting_seen==true&&world_flags.beryl_letter_found==false" }
+      { "text": "Travel to Hub", "type": "navigate", "target": "driftwatch", "condition": "world_flags.intro_completed==true" }
     ]
   },
   "leo_lighthouse": {
@@ -68,7 +68,7 @@
     "music_track": "GDD/assets/audio/music/shops.mp3",
     "is_indoor": true,
     "actions": [
-      { "text": "Talk to Beryl", "type": "dialogue", "target": "npc_beryl" },
+      { "text": "Talk to Beryl", "type": "dialogue", "target": "npc_beryl", "condition": "time.is_day==true" },
       { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
     ]
   },
@@ -80,9 +80,9 @@
     "music_track": "GDD/assets/audio/music/forge.mp3",
     "is_indoor": true,
     "actions": [
-      { "text": "Talk to Kaelen", "type": "dialogue", "target": "npc_kaelen" },
-      { "text": "Browse Shop", "type": "shop", "target": "kaelens_forge" },
-      { "text": "Talk to Cyrus", "type": "dialogue", "target": "npc_cyrus" },
+      { "text": "Talk to Kaelen", "type": "dialogue", "target": "npc_kaelen", "condition": "time.is_day==true" },
+      { "text": "Browse Shop", "type": "shop", "target": "kaelens_forge", "condition": "time.is_day==true" },
+      { "text": "Talk to Cyrus", "type": "dialogue", "target": "npc_cyrus", "condition": "time.is_day==true" },
       { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
     ]
   },
@@ -95,7 +95,9 @@
     "music_track": "GDD/assets/audio/music/noble_quarter.mp3",
     "actions": [
       { "text": "Travel to Mosswatch Keep", "type": "navigate", "target": "mosswatch_keep" },
+      { "text": "Sell Antique Locket", "type": "trigger_event", "eventId": "sell_locket_event", "condition": "has_item:antique_locket && time.is_day==true" },
       { "text": "Travel to The Grand Library", "type": "navigate", "target": "grand_library", "condition": "time.is_day==true" },
+      { "text": "Deliver Parcel", "type": "trigger_event", "eventId": "beryl_delivery_event", "condition": "inventory.beryl_noble_parcel>0" },
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" }
     ]
   },
@@ -108,7 +110,7 @@
     "music_track": "GDD/assets/audio/music/driftwatch_main.mp3",
     "actions": [
       { "text": "Talk to Corporal Matthias", "type": "dialogue", "target": "npc_matthias" },
-      { "text": "Travel to Tidehunter Quarter", "type": "navigate", "target": "tidehunter_quarter" },
+      { "text": "Travel to Tidehunter Quarter", "type": "navigate", "target": "tidehunter_quarter", "condition": "quest.rebel_path.stage>=3" },
       { "text": "Travel to Noble Quarter", "type": "navigate", "target": "driftwatch_noble_quarter" }
     ]
   },
@@ -176,6 +178,9 @@
     "actions": [
       { "text": "Sleep on the Floor", "type": "sleep", "target": "sleep_floor" },
       { "text": "Cook on Firepit", "type": "cook", "target": "cook_firepit" },
+      { "text": "Raid Salty Mug", "type": "trigger_event", "eventId": "raid_salty_mug_intro", "condition": "world_flags.raid_ready==true" },
+      { "text": "Talk to Shaky Jace", "type": "dialogue", "target": "npc_shaky_jace" },
+      { "text": "Deliver Medicine", "type": "trigger_event", "eventId": "elara_delivery_event", "condition": "inventory.elara_medicine_parcel>0 && world_flags.debt_paid_by_elara==false" },
       { "text": "Travel to Salty Mug", "type": "navigate", "target": "salty_mug" },
       { "text": "Travel to Herbalist's Hovel", "type": "navigate", "target": "herbalists_hovel", "condition": "time.is_day==true" },
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" }
@@ -189,13 +194,16 @@
     "music_track": "GDD/assets/audio/music/tavern.mp3",
     "is_indoor": true,
     "actions": [
-      { "text": "Talk to Finn", "type": "dialogue", "target": "npc_finn" },
+      { "text": "Talk to Finn", "type": "dialogue", "target": "npc_finn", "condition": "time.is_day==true" },
+      { "text": "Talk to Barkip", "type": "dialogue", "target": "npc_barkip", "condition": "time.is_night==true" },
+      { "text": "Talk to Barkip", "type": "dialogue", "target": "npc_barkip", "condition": "time.is_day==true" },
       { "text": "Talk to Old Crank", "type": "dialogue", "target": "npc_old_crank" },
-      { "text": "Talk to Beryl", "type": "dialogue", "target": "npc_beryl_tavern", "condition": "time.is_night==true" },
+      { "text": "Talk to Beryl", "type": "dialogue", "target": "npc_beryl_tavern", "condition": "time.hour_gte==20&&time.hour_lt==24" },
+      { "text": "Talk to Ben", "type": "dialogue", "target": "npc_ben", "condition": "time.hour_gte==19&&time.hour_lt==23" },
       { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.is_night==true&&time.weekday==Saturday" },
       { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.is_night==true&&time.weekday==Sunday" },
       { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.weekday==Monday&&time.hour_lt==6" },
-      { "text": "Talk to Ben", "type": "dialogue", "target": "npc_ben", "condition": "time.is_night==true" },
+      { "text": "Raid the Salty Mug", "type": "trigger_event", "eventId": "raid_salty_mug_intro", "condition": "world_flags.raid_ready==true" },
       { "text": "Travel to Driftwatch Slums", "type": "navigate", "target": "driftwatch_slums" }
     ]
   },
@@ -248,7 +256,7 @@
     "actions": [
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" },
       { "text": "Travel to Driftwatch Woods", "type": "navigate", "target": "driftwatch_woods", "time_cost": 60 },
-      { "text": "Travel to Sandy Shore", "type": "navigate", "target": "sandy_shore", "time_cost": 60 },
+
       { "text": "Travel to Homestead Farm", "type": "navigate", "target": "homestead_farm" }
     ]
   },
@@ -282,19 +290,7 @@
       { "text": "Travel to Driftwatch Woods", "type": "navigate", "target": "driftwatch_woods" }
     ]
   },
-  "sandy_shore": {
-    "name": "Sandy Shore",
-    "day_description": "An open stretch of beach where the desert meets the sea. Winds whip across the dunes.",
-    "night_description": "Under the moonlight, the shore is quiet and the dunes cast long shadows.",
-    "day_background": "/assets/locations/sandy_shore_day.png",
-    "night_background": "/assets/locations/sandy_shore_night.png",
-    "music_track": "GDD/assets/audio/music/coast.mp3",
-    "actions": [
-      { "text": "Talk to Crazy Pete", "type": "dialogue", "target": "npc_crazy_pete" },
-      { "text": "Explore", "type": "explore", "target": "explore_beach" },
-      { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 }
-    ]
-  },
+
   "sawmill": {
     "name": "Sawmill",
     "day_description": "A loud, industrious sawmill where logs are processed into planks.",
@@ -316,9 +312,9 @@
     "night_background": "/assets/locations/homestead_farm_night.png",
     "music_track": "GDD/assets/audio/music/farm.mp3",
     "actions": [
-      { "text": "Talk to Ben", "type": "dialogue", "target": "npc_ben", "condition": "time.is_day==true" },
-      { "text": "Talk to Elisa", "type": "dialogue", "target": "npc_elisa", "condition": "time.is_day==true" },
-      { "text": "Talk to Rowan", "type": "dialogue", "target": "npc_rowan", "condition": "time.is_day==true" },
+      { "text": "Talk to Ben", "type": "dialogue", "target": "npc_ben", "condition": "time.hour_gte==6 && time.hour_lt==19" },
+      { "text": "Talk to Elisa", "type": "dialogue", "target": "npc_elisa", "condition": "time.hour_gte==6 && time.hour_lt==23" },
+      { "text": "Talk to Rowan", "type": "dialogue", "target": "npc_rowan", "condition": "time.hour_gte==8 && time.hour_lt==20" },
       { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads" }
     ]
   }

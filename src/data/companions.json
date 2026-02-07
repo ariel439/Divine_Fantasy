@@ -1,2 +1,10 @@
 {
+  "npc_kyle": {
+    "name": "Kyle",
+    "image": "/assets/portraits/Kyle.png",
+    "stats": { "hp": 80, "attack": 8, "defence": 2, "dexterity": 12 },
+    "abilities": [
+      { "name": "Distract", "description": "Lowers enemy accuracy." }
+    ]
+  }
 }

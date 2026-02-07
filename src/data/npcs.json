@@ -1,10 +1,5 @@
 {
-  "npc_crazy_pete": {
-    "name": "Crazy Pete",
-    "home_location": "sandy_shore",
-    "default_dialogue_id": "crazy_pete_intro",
-    "portrait": "/assets/portraits/OldManFinn.png"
-  },
+
   "npc_beryl": {
     "name": "Beryl",
     "home_location": "beryls_general_goods",
@@ -131,5 +126,23 @@
     "home_location": "leo_lighthouse",
     "default_dialogue_id": "kyle_default",
     "portrait": "/assets/portraits/Kyle.png"
+  },
+  "npc_barkip": {
+    "name": "Barkip",
+    "home_location": "salty_mug",
+    "default_dialogue_id": "barkip_default",
+    "portrait": "/assets/portraits/Barkip.png"
+  },
+  "npc_stan": {
+    "name": "Private Stan",
+    "home_location": "mosswatch_keep",
+    "default_dialogue_id": "stan_default",
+    "portrait": "/assets/portraits/Guard_Generic.png"
+  },
+  "npc_shaky_jace": {
+    "name": "Shaky Jace",
+    "home_location": "driftwatch_slums",
+    "default_dialogue_id": "shaky_jace_default",
+    "portrait": "/assets/portraits/ShakyJace.png"
   }
 }

@@ -15,6 +15,7 @@ import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useJobStore } from '../stores/useJobStore';
 import { useLocationStore } from '../stores/useLocationStore';
+import { benCheatEventSlides, rebelRaidIntroSlides, evilEndingSlides } from '../data/events';
 import type { ConversationEntry } from '../types';
 
 interface DialogueNode {
@@ -175,6 +176,25 @@ export class DialogueService {
         } else if (lhs === 'time.hour_gte') {
           const hour = timeStore.hour;
           if (!(hour >= (rhsNum as number))) result = false;
+        } else if (lhs === 'time.window') {
+           // Format: time.window:start_hour:end_hour (inclusive start, exclusive end)
+           // logic: start <= hour < end
+           const parts = rhsRaw.split(':'); // Using rhsRaw because the parser might not handle 19:23 as a single number
+           // The parser splits by operator. If we use '==' it expects a value. 
+           // Let's assume the syntax in json is "time.window==19:23"
+           // But wait, the parser extracts RHS based on operator.
+           // If JSON has "time.window==19:23", op is ==, rhsRaw is "19:23".
+           
+           if (rhsRaw.includes(':')) {
+             const [startStr, endStr] = rhsRaw.split(':');
+             const start = parseInt(startStr, 10);
+             const end = parseInt(endStr, 10);
+             const hour = timeStore.hour;
+             const inWindow = hour >= start && hour < end;
+             
+             if (op === '==') { if (inWindow !== true) result = false; } // We only support checking if it IS in window for now
+             if (op === '!=') { if (inWindow !== false) result = false; }
+           }
         } else if (lhs === 'time.weekday') {
           const names = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
           const firstDow = ((timeStore.month - 1) * 30) % 7;
@@ -213,6 +233,26 @@ export class DialogueService {
           if (op === '<') { if (!(qty < (rhsNum as number))) result = false; }
           if (op === '>=') { if (!(qty >= (rhsNum as number))) result = false; }
           if (op === '<=') { if (!(qty <= (rhsNum as number))) result = false; }
+        } else if (lhs.startsWith('has_item:')) {
+          const itemId = lhs.split(':')[1];
+          const qty = inventory.getItemQuantity(itemId);
+          if (qty < 1) result = false;
+        } else if (lhs.startsWith('currency.')) {
+          const type = lhs.replace('currency.', '') as 'copper' | 'silver' | 'gold';
+          const val = useCharacterStore.getState().currency[type] || 0;
+          if (op === '==') { if (val !== (rhsNum as number)) result = false; }
+          if (op === '>') { if (!(val > (rhsNum as number))) result = false; }
+          if (op === '<') { if (!(val < (rhsNum as number))) result = false; }
+          if (op === '>=') { if (!(val >= (rhsNum as number))) result = false; }
+          if (op === '<=') { if (!(val <= (rhsNum as number))) result = false; }
+        } else if (lhs === 'money') {
+             // Alias for currency.silver for backward compatibility with existing json
+             const val = useCharacterStore.getState().currency.silver;
+             if (op === '==') { if (val !== (rhsNum as number)) result = false; }
+             if (op === '>') { if (!(val > (rhsNum as number))) result = false; }
+             if (op === '<') { if (!(val < (rhsNum as number))) result = false; }
+             if (op === '>=') { if (!(val >= (rhsNum as number))) result = false; }
+             if (op === '<=') { if (!(val <= (rhsNum as number))) result = false; }
         } else {
            console.warn(`[DialogueService] Unrecognized condition part: "${lhs}"`);
            // Fail closed for unknown conditions to prevent "ghost buttons"
@@ -421,6 +461,24 @@ export class DialogueService {
     const [actionType, ...params] = action.split(':');
 
     switch (actionType) {
+      case 'trigger_confirmation': {
+        const type = params[0];
+        useUIStore.getState().setConfirmationType(type);
+        useUIStore.getState().openModal('confirmation');
+        break;
+      }
+      case 'trigger_event': {
+        const eventId = params[0];
+        if (eventId === 'raid_salty_mug_intro') {
+           useUIStore.getState().setEventSlides(rebelRaidIntroSlides);
+           useUIStore.getState().setCurrentEventId('raid_salty_mug_intro');
+           useUIStore.getState().setScreen('event');
+           // End dialogue immediately
+           this.endDialogue();
+           useUIStore.getState().setDialogueNpcId(null);
+        }
+        break;
+      }
       case 'set_flag':
         {
           const flag = params[0];
@@ -429,6 +487,32 @@ export class DialogueService {
           useWorldStateStore.getState().setFlag(flag, val);
         }
         break;
+      case 'add_money':
+        {
+          const amount = Number(params[0] || '0');
+          const type = (params[1] || 'silver') as 'copper' | 'silver' | 'gold';
+          useCharacterStore.getState().addCurrency(type, amount);
+          diaryStore.addInteraction(`Received ${amount} ${type}.`);
+        }
+        break;
+
+      case 'remove_money':
+        {
+          const amount = Number(params[0] || '0');
+          const type = params[1] || 'silver';
+          let paid = false;
+          if (type === 'copper') paid = useCharacterStore.getState().removeCurrency(amount, 0, 0);
+          else if (type === 'gold') paid = useCharacterStore.getState().removeCurrency(0, 0, amount);
+          else paid = useCharacterStore.getState().removeCurrency(0, amount, 0); // Default silver
+          
+          if (paid) {
+            diaryStore.addInteraction(`Paid ${amount} ${type}.`);
+          } else {
+            diaryStore.addInteraction(`Not enough money (${amount} ${type} required).`);
+          }
+        }
+        break;
+
       case 'start_quest':
         {
           const questId = params[0];
@@ -477,7 +561,7 @@ export class DialogueService {
             useJournalStore.getState().setQuestsList([...currentList, uiQuest]);
           }
           // For intro quest, keep all objectives visible without auto-completing the first stage
-          if (questId !== 'luke_tutorial') {
+          if (questId !== 'luke_tutorial' && questId !== 'rebel_path') {
             // Move to stage 1 after acceptance (talk stage completed)
             useJournalStore.getState().setQuestStage(questId, 1);
           }
@@ -541,6 +625,15 @@ export class DialogueService {
         }
         break;
 
+      case 'set_quest_stage':
+        {
+          const questId = params[0];
+          const stage = Number(params[1] || '0');
+          useJournalStore.getState().setQuestStage(questId, stage);
+          console.log('Set quest stage:', questId, stage);
+        }
+        break;
+
       case 'complete_quest':
         {
           const questId = params[0];
@@ -590,6 +683,15 @@ export class DialogueService {
           const qty = params[1] ? Number(params[1]) : 1;
           useInventoryStore.getState().addItem(itemId, qty);
           diaryStore.addInteraction('Received item: ' + itemId);
+        }
+        break;
+
+      case 'remove_item':
+        {
+          const itemId = params[0];
+          const qty = params[1] ? Number(params[1]) : 1;
+          useInventoryStore.getState().removeItem(itemId, qty);
+          diaryStore.addInteraction('Removed item: ' + itemId);
         }
         break;
 
@@ -854,6 +956,25 @@ export class DialogueService {
           const id = params[0];
           useWorldStateStore.getState().addKnownNpc(id);
           diaryStore.addInteraction('Now know NPC: ' + (typedNpcsData[id]?.name || id));
+        }
+        break;
+
+      case 'trigger_event':
+        {
+          const eventId = params[0];
+          useUIStore.getState().setCurrentEventId(eventId);
+          
+          if (eventId === 'ben_cheat_event') {
+            useUIStore.getState().setEventSlides(benCheatEventSlides);
+            useUIStore.getState().setScreen('event');
+            this.endDialogue();
+          } else if (eventId === 'evil_path_end') {
+            useUIStore.getState().setEventSlides(evilEndingSlides);
+            useUIStore.getState().setScreen('event');
+            this.endDialogue();
+          } else {
+             console.warn(`[DialogueService] trigger_event: No slides mapped for ${eventId}`);
+          }
         }
         break;
 

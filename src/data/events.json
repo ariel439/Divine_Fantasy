@@ -1,4 +1,18 @@
 {
+  "raidVictorySlides": [
+    {
+      "image": "/assets/locations/salty_mug_rented_room.png",
+      "text": "The battle is won! Finn lies defeated, his reign of terror ended. Rodrick claps you on the shoulder. 'Not bad, kid. Not bad at all.'"
+    },
+    {
+      "image": "/assets/events/raid_victory_barracks.png",
+      "text": "Back at the barracks, Matthias offers you a seat. 'You've got the makings of a Tidehunter,' he says. 'We could use someone like you. Think about it.'"
+    },
+    {
+      "image": "/assets/events/demo_end_screen.png",
+      "text": "This marks the end of the Divine Fantasy Classic Demo. Thank you for playing! Keep an eye out for future updates."
+    }
+  ],
   "lukePrologueSlides": [
     {
       "image": "https://i.imgur.com/tYATeUX.jpeg",
@@ -83,6 +97,82 @@
     {
       "image": "/assets/events/game_over.png",
       "text": "Luke has fallen in battle. His journey ends here."
+    }
+  ],
+  "raid_salty_mug_intro": [
+    {
+      "image": "/assets/events/raid_gear_handoff.png",
+      "text": "You gather with Rodrick, Matthias, and Stan at the Tidehunter Quarter. 'Suit up, kid,' Rodrick grunts, tossing you a bundle of iron gear. 'You'll need this where we're going.' You equip the heavy iron armor and grip the sword, feeling the weight of the coming battle."
+    },
+    {
+      "image": "/assets/events/raid_siege_salty_mug.png",
+      "text": "The four of you approach the Salty Mug under the cover of darkness. The tavern's lights spill out onto the street, but inside, trouble is brewing. Matthias signals the advance. It's time to end this."
+    },
+    {
+      "image": "/assets/events/raid_confront_finn.png",
+      "text": "You burst through the doors! Finn stands up, knocking over his chair. 'You?! And the Guard?!' He sneers, snapping his fingers. Three thugs step out from the shadows. 'Kill them all!'"
+    }
+  ],
+  "rebelRaidIntroSlides": [
+    {
+      "image": "/assets/locations/tidehunter_quarter.png",
+      "text": "You gather with Rodrick, Matthias, and Stan at the Tidehunter Quarter. 'Suit up, kid,' Rodrick grunts, tossing you a bundle of iron gear. 'You'll need this where we're going.' You equip the heavy iron armor and grip the sword, feeling the weight of the coming battle."
+    },
+    {
+      "image": "/assets/locations/salty_mug.png",
+      "text": "The squad moves in on the Salty Mug. Customers scatter as you siege the tavern, clearing the main floor. The path to Finn is open."
+    },
+    {
+      "image": "/assets/locations/salty_mug_rented_room.png",
+      "text": "You corner Finn in the back room! He sneers, snapping his fingers. 'You?! And the Guard?! Kill them all!' Three thugs step out from the shadows."
+    }
+  ],
+  "rebelVictorySlides": [
+    {
+      "image": "/assets/locations/salty_mug_night.png",
+      "text": "Finn falls, his reign over the slums ended. Rodrick nods at you. 'You've got guts, kid. Maybe the Guard could use someone like you.' The Shadow Hand retreats... for now."
+    }
+  ],
+  "elaraDeliverySlides": [
+    {
+      "image": "/assets/locations/driftwatch_slums_day.png",
+      "text": "You navigate the twisting alleys of the slums until you find the recipient—a twitchy man in the shadows. He grabs the package, checks the contents, and nods. The 'medicine' has been delivered."
+    }
+  ],
+  "berylDeliverySlides": [
+    {
+      "image": "/assets/locations/driftwatch_noble_quarter_day.png",
+      "text": "You approach the servant's entrance of a grand estate. The steward takes the package with a sneer, but signs the receipt. The delivery is complete."
+    }
+  ],
+  "benCheatEventSlides": [
+    {
+      "image": "/assets/locations/salty_mug_night.png",
+      "text": "The cards fly. Ben sweats. You signal from the side—a cough, a tap. He catches on. Slowly, the pile of silvers in front of him grows. He cashes out before they catch on."
+    }
+  ],
+  "sellLocketSlides": [
+    {
+      "image": "/assets/locations/driftwatch_noble_quarter_day.png",
+      "text": "You present the antique locket to the noble collector. His eyes widen as he inspects the craftsmanship. 'Remarkable,' he murmurs. 'A rare find indeed.'"
+    },
+    {
+      "image": "/assets/locations/driftwatch_noble_quarter_day.png",
+      "text": "Without hesitation, he counts out ten silver coins and places them in your hand. 'A fair price for such history,' he says, pocketing the locket. The debt payment is secured."
+    }
+  ],
+  "evilEndingSlides": [
+    {
+      "image": "/assets/locations/driftwatch_slums_night.png",
+      "text": "You take the key and head deep into the slums, finding the hidden grate Finn mentioned. The air is thick with rot as you descend into the darkness."
+    },
+    {
+      "image": "/assets/items/vanessa_charm.png",
+      "text": "Deep in the tunnels, you find a strange, sealed door. The charm pulses with a faint light. You place it in the recess, and the stone grinds open..."
+    },
+    {
+      "image": "/assets/events/demo_end_screen.png",
+      "text": "This marks the end of the Divine Fantasy Classic Demo (Evil Path). You have chosen power over morals. Thank you for playing!"
     }
   ]
 }

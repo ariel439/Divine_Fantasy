@@ -54,5 +54,23 @@
       "currency": 100,
       "relationship": [{ "npc_id": "npc_finn", "change": 25 }]
     }
+  },
+  "rebel_path": {
+    "title": "The Rot in the Mug",
+    "giver_id": "npc_old_crank",
+    "description": "Old Crank at the Salty Mug hints that Finn is involved in something darker than just racketeering. He claims to have seen weapons being moved at night.",
+    "stages": [
+      { "id": 0, "text": "Old Crank is drinking at the tavern. He might know something if I keep his mug full.", "type": "talk", "target": "npc_old_crank" },
+      { "id": 1, "text": "Investigate Old Crank's lead: A 'kid with weapons' was seen sneaking from the Salty Mug to the Forge. Confront Cyrus the Apprentice.", "type": "talk", "target": "npc_cyrus" },
+      { "id": 2, "text": "I found a strange blade. Maybe I should show this to a guard.", "type": "talk", "target": "npc_matthias" },
+      { "id": 3, "text": "Prepare for the raid. Speak to Sergeant Rodrick in the Tidehunter Quarter when you are ready to storm the Salty Mug.", "type": "talk", "target": "npc_rodrick" },
+      { "id": 4, "text": "Defeat Finn and his thugs.", "type": "event", "target": "raid_salty_mug" }
+    ],
+    "rewards": {
+      "xp": [{ "skill": "combat", "amount": 200 }],
+      "items": [],
+      "currency": 50,
+      "relationship": [{ "npc_id": "npc_matthias", "change": 40 }]
+    }
   }
 }

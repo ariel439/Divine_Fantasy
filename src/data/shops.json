@@ -38,7 +38,7 @@
     "inventory": [
       { "item_id": "bread", "quantity": 12 },
       { "item_id": "cheese", "quantity": 8 },
-      { "item_id": "ale", "quantity": 20 },
+      { "item_id": "beer", "quantity": 20 },
       { "item_id": "food_trout_grilled", "quantity": 5 }
     ]
   },

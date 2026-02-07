@@ -137,7 +137,7 @@ export const useJournalStore = create<JournalState>((set, get) => ({
         if (q.id !== questId) return q;
         const updatedObjectives = q.objectives.map((obj, idx) => ({
           ...obj,
-          completed: idx < nextStage,
+          completed: idx < nextStage || (idx === nextStage && nextStage >= stageCount),
         }));
         const status = nextStage >= stageCount ? 'completed' : 'active';
         // Only show rewards on completion

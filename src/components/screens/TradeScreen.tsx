@@ -216,7 +216,9 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
                             <div className="flex-grow min-h-0 mt-1">
                                  <ItemSelectionPanel 
                                     title="Your Items" 
-                                    items={playerInventory.map(invItem => ({ ...itemsMap[invItem.id], quantity: invItem.quantity, uuid: invItem.uuid }))} 
+                                    items={playerInventory
+                                        .filter(invItem => itemsMap[invItem.id]) // Filter out items not in database
+                                        .map(invItem => ({ ...itemsMap[invItem.id], quantity: invItem.quantity, uuid: invItem.uuid }))} 
                                     onItemSelect={(item) => handleItemSelect(item, 'player')}
                                     selectedItemId={selectedPlayerItemId}
                                     highlightedItemIds={playerOfferIds}
@@ -254,7 +256,9 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
                             <div className="flex-grow min-h-0 mt-1">
                                  <ItemSelectionPanel 
                                     title="Merchant's Wares" 
-                                    items={shop.inventory.map(shopItem => ({ ...shopItem.item, quantity: shopItem.quantity, uuid: shopItem.item.uuid }))} 
+                                    items={shop.inventory
+                                        .filter(shopItem => shopItem.item) // Filter out items that failed to load
+                                        .map(shopItem => ({ ...shopItem.item, quantity: shopItem.quantity, uuid: shopItem.item.uuid }))} 
                                     onItemSelect={(item) => handleItemSelect(item, 'merchant')}
                                     selectedItemId={selectedMerchantItemId}
                                     highlightedItemIds={merchantOfferIds}

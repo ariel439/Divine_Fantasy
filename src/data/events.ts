@@ -15,6 +15,15 @@ export const playEventSlidesAlone: Slide[] = events.playEventSlidesAlone;
 export const smugglerTrapSlides: Slide[] = events.smugglerTrapSlides;
 export const robertCaughtSlides: Slide[] = events.robertCaughtSlides;
 export const gameOverSlides: Slide[] = events.gameOverSlides;
+export const rebelRaidIntroSlides: Slide[] = events.rebelRaidIntroSlides;
+export const rebelVictorySlides: Slide[] = events.rebelVictorySlides;
+export const raidVictorySlides: Slide[] = events.raidVictorySlides;
+export const raidSaltyMugIntroSlides: Slide[] = events.raid_salty_mug_intro;
+export const elaraDeliverySlides: Slide[] = events.elaraDeliverySlides;
+export const berylDeliverySlides: Slide[] = events.berylDeliverySlides;
+export const benCheatEventSlides: Slide[] = events.benCheatEventSlides;
+export const sellLocketSlides: Slide[] = events.sellLocketSlides;
+export const evilEndingSlides: Slide[] = events.evilEndingSlides;
 
 type ChoiceEventId =
   | 'beryl_letter_pickup'

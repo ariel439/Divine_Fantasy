@@ -16,6 +16,7 @@ interface UIState {
   currentEventId: string | null;
   libraryBooks: import('../types').Book[] | null;
   craftingSkill: CraftingSkill | null;
+  confirmationType: string | null;
   // Actions
   setScreen: (screen: Screen) => void;
   openModal: (modal: Modal) => void;
@@ -28,6 +29,7 @@ interface UIState {
   setCurrentEventId: (id: string | null) => void;
   setLibraryBooks: (books: import('../types').Book[] | null) => void;
   setCraftingSkill: (skill: CraftingSkill | null) => void;
+  setConfirmationType: (type: string | null) => void;
 }
 
 export const useUIStore = create<UIState>((set, get) => ({
@@ -41,6 +43,7 @@ export const useUIStore = create<UIState>((set, get) => ({
   currentEventId: null,
   libraryBooks: null,
   craftingSkill: null,
+  confirmationType: null,
   setScreen: (screen) => {
     set({ currentScreen: screen });
   },
@@ -48,7 +51,7 @@ export const useUIStore = create<UIState>((set, get) => ({
     set({ activeModal: modal });
   },
   closeModal: () => {
-    set({ activeModal: null });
+    set({ activeModal: null, confirmationType: null });
   },
   setDialogueNpcId: (npcId) => {
     set({ dialogueNpcId: npcId });
@@ -73,5 +76,8 @@ export const useUIStore = create<UIState>((set, get) => ({
   },
   setCraftingSkill: (skill) => {
     set({ craftingSkill: skill });
+  },
+  setConfirmationType: (type) => {
+    set({ confirmationType: type });
   },
 }));

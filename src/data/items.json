@@ -8,26 +8,23 @@
     "base_value": 0,
     "image": "/assets/items/paper.png"
   },
-  "grain_sack": {
-    "name": "Sack of Grain",
-    "description": "A heavy sack of grain. Worth about 10 silvers.",
-    "type": "resource",
-    "stackable": true,
-    "weight": 10.0,
-    "base_value": 1000,
+  "elara_medicine_parcel": {
+    "name": "Medicine Parcel",
+    "description": "A package from Elara. Smells faintly of herbs... and something sweeter.",
+    "type": "key_item",
+    "stackable": false,
+    "weight": 1.0,
+    "base_value": 0,
     "image": "/assets/items/sack.png"
   },
-  "healing_potion": {
-    "name": "Healing Potion",
-    "description": "Restores health.",
-    "type": "consumable",
-    "stackable": true,
-    "weight": 0.5,
-    "base_value": 500,
-    "effects": {
-      "health": 20
-    },
-    "image": "/assets/items/potion_red.png"
+  "beryl_noble_parcel": {
+    "name": "Noble's Parcel",
+    "description": "A finely wrapped package addressed to a noble in the upper quarter.",
+    "type": "key_item",
+    "stackable": false,
+    "weight": 1.0,
+    "base_value": 0,
+    "image": "/assets/items/sack.png"
   },
   "raw_meat": {
     "name": "Raw Meat",
@@ -179,6 +176,15 @@
     "base_value": 1,
     "image": "/assets/items/coins.png"
   },
+  "beer": {
+    "name": "Beer",
+    "description": "A mug of frothy beer. Refreshing.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.5,
+    "base_value": 5,
+    "image": "/assets/items/ale.png"
+  },
   "wolf_tooth": {
     "name": "Wolf Tooth",
     "description": "A sharp tooth from a wolf.",
@@ -313,5 +319,88 @@
     "stats": {
       "attack": 6
     }
+  },
+  "vanessas_charm": {
+    "name": "Vanessa's Charm",
+    "description": "A silver charm shaped like a fox. It feels warm to the touch.",
+    "type": "key_item",
+    "stackable": false,
+    "weight": 0.1,
+    "base_value": 0,
+    "image": "/assets/items/vanessa_charm.png"
+  },
+  "antique_locket": {
+    "name": "Antique Locket",
+    "description": "An old, tarnished locket containing a faded portrait. Elisa's most prized possession.",
+    "type": "key_item",
+    "stackable": false,
+    "weight": 0.2,
+    "base_value": 100,
+    "image": "/assets/items/locket.png"
+  },
+  "prototype_blade": {
+    "name": "Prototype Shadow Blade",
+    "description": "A wicked, dark-steel dagger with a hollow hilt. Evidence of illegal weapons manufacturing.",
+    "type": "key_item",
+    "stackable": false,
+    "weight": 1.0,
+    "base_value": 0,
+    "image": "/assets/items/shadow_blade.png"
+  },
+  "nails": {
+    "name": "Iron Nails",
+    "description": "A bag of iron nails.",
+    "type": "resource",
+    "stackable": true,
+    "weight": 0.5,
+    "base_value": 2,
+    "image": "/assets/items/nails.png"
+  },
+  "cloth": {
+    "name": "Cloth",
+    "description": "Simple cloth for crafting.",
+    "type": "resource",
+    "stackable": true,
+    "weight": 0.2,
+    "base_value": 3,
+    "image": "/assets/items/cloth.png"
+  },
+  "hammer": {
+    "name": "Hammer",
+    "description": "A sturdy hammer.",
+    "type": "tool",
+    "stackable": false,
+    "weight": 2.0,
+    "base_value": 8,
+    "image": "/assets/items/hammer.png"
+  },
+  "spade": {
+    "name": "Spade",
+    "description": "Good for digging.",
+    "type": "tool",
+    "stackable": false,
+    "weight": 2.5,
+    "base_value": 8,
+    "image": "/assets/items/spade.png"
+  },
+  "bread": {
+    "name": "Bread",
+    "description": "A loaf of fresh bread.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.5,
+    "base_value": 3,
+    "effects": { "hunger": 10 },
+    "image": "/assets/items/bread.png"
+  },
+  "cheese": {
+    "name": "Cheese",
+    "description": "A wedge of cheese.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.3,
+    "base_value": 5,
+    "effects": { "hunger": 8 },
+    "image": "/assets/items/cheese.png"
   }
 }

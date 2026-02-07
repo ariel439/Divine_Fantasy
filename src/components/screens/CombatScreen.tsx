@@ -211,16 +211,16 @@ const CombatScreen: FC<CombatScreenProps> = ({
                     
                     {/* Turn Indicator & Timeline */}
                     <div className="md:col-span-1 text-center font-bold tracking-wider order-1 md:order-2 flex flex-col items-center">
-                        <h3 className={`text-xl transition-opacity duration-300 mb-2 ${isPlayerTurn ? 'text-blue-400' : 'text-red-400'}`}>
-                            {isPlayerTurn ? "PLAYER'S TURN" : "ENEMY'S TURN"}
+                        <h3 className={`text-xl transition-opacity duration-300 mb-2 ${isCompanionTurn ? 'text-yellow-400' : (isPlayerTurn ? 'text-blue-400' : 'text-red-400')}`}>
+                            {isCompanionTurn ? "COMPANION'S TURN" : (isPlayerTurn ? "PLAYER'S TURN" : "ENEMY'S TURN")}
                         </h3>
                         <TurnOrderTimeline combatants={turnOrder} activeId={activeCharacterId} />
                     </div>
 
                     {/* Action Buttons */}
                     <div className="md:col-span-1 flex justify-center md:justify-end gap-2 order-2 md:order-3">
-                        <CombatActionButton icon={<Swords size={20} />} text="Attack" onClick={onAttack} disabled={!isPlayerTurn || !selectedTargetId} />
-                        <CombatActionButton icon={<Footprints size={20} />} text="Flee" onClick={onFlee} disabled={!isPlayerTurn} />
+                        <CombatActionButton icon={<Swords size={20} />} text="Attack" onClick={onAttack} disabled={!isPlayerTurn || isCompanionTurn || !selectedTargetId} />
+                        <CombatActionButton icon={<Footprints size={20} />} text="Flee" onClick={onFlee} disabled={!isPlayerTurn || isCompanionTurn} />
                     </div>
                 </div>
             </footer>

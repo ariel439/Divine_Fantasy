@@ -52,6 +52,7 @@ interface CharacterState {
   unequipItem: (item: Item) => void;
   tickHunger: (minutes: number) => void;
   recalculateStats: () => void;
+  updateStats: (changes: Partial<{ hp: number; energy: number; hunger: number; socialEnergy: number }>) => void;
   getMaxEnergy: () => number;
 }
 
@@ -102,6 +103,16 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
       // Pass 5 minutes eating
       useWorldTimeStore.getState().passTime(5);
     }
+  },
+  updateStats: (changes) => {
+    set((state) => {
+      const newState = { ...state };
+      if (changes.hp !== undefined) newState.hp = Math.min(state.maxHp, Math.max(0, state.hp + changes.hp));
+      if (changes.energy !== undefined) newState.energy = Math.min(100, Math.max(0, state.energy + changes.energy));
+      if (changes.hunger !== undefined) newState.hunger = Math.min(100, Math.max(0, state.hunger + changes.hunger));
+      if (changes.socialEnergy !== undefined) newState.socialEnergy = Math.min(state.maxSocialEnergy, Math.max(0, state.socialEnergy + changes.socialEnergy));
+      return newState;
+    });
   },
   sleep: (hours: number, quality: number = 1.0) => {
     // Drain hunger while sleeping (1 per hour)

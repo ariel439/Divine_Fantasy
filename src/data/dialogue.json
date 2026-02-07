@@ -48,27 +48,20 @@
       "beryl_confrontation": {
         "npc_text": "What? That letter... where did you get that?! Give it here!",
         "player_choices": [
-          { "text": "I'll give it back if you pay 8 silvers.", "next_node": "beryl_pay_partial" },
-          { "text": "Pay 8 silvers AND throw in some goods, or I keep it.", "next_node": "beryl_pay_items" },
-          { "text": "Here. I won't force you.", "next_node": "beryl_forgive" }
+          { "text": "Pay the debt (10 Silvers).", "next_node": "beryl_pay_debt" },
+          { "text": "Pay the debt + 50 Coppers for my trouble.", "next_node": "beryl_pay_extra" }
         ]
       },
-      "beryl_pay_partial": {
-        "npc_text": "Fine! Here is 8 silvers. Now give me that letter!",
+      "beryl_pay_debt": {
+        "npc_text": "Fine! Here is the money for Finn. Now give me that letter!",
         "player_choices": [
-          { "text": "Deal.", "closes_dialogue": true, "action": "add_money:8|remove_item:beryl_noble_letter:1|add_xp:coercion:10|update_relationship:npc_beryl:-5|set_flag:beryl_partial_pay:true" }
+          { "text": "Pleasure doing business.", "closes_dialogue": true, "action": "collect_debt_from:npc_beryl|remove_item:beryl_noble_letter:1|add_xp:coercion:20|update_relationship:npc_beryl:-10" }
         ]
       },
-      "beryl_pay_items": {
-        "npc_text": "You greedy little... Fine! Take the silver and this... this cloth! Now give it to me!",
+      "beryl_pay_extra": {
+        "npc_text": "You greedy little... Fine! Take it! And never come back!",
         "player_choices": [
-          { "text": "Pleasure doing business.", "closes_dialogue": true, "action": "add_money:8|add_item:cloth:2|remove_item:beryl_noble_letter:1|add_xp:coercion:25|update_relationship:npc_beryl:-20|set_flag:beryl_forced_goods:true" }
-        ]
-      },
-      "beryl_forgive": {
-        "npc_text": "You... you're giving it back? Thank you... I won't forget this.",
-        "player_choices": [
-          { "text": "Keep your secret.", "closes_dialogue": true, "action": "remove_item:beryl_noble_letter:1|update_relationship:npc_beryl:10|set_flag:beryl_debt_forgiven:true|add_xp:charisma:20" }
+          { "text": "Pleasure doing business.", "closes_dialogue": true, "action": "collect_debt_from:npc_beryl|add_money:50|remove_item:beryl_noble_letter:1|add_xp:coercion:40|update_relationship:npc_beryl:-20" }
         ]
       }
     }
@@ -411,13 +404,7 @@
       "job_complete_loyalist": {
         "npc_text": "Heh. You actually did it. You have potential, kid. Ruthless. Efficient. Just like... well, nevermind. Here. Take this. It's a key... of sorts. Show it to the wall in the cellar. You might find new friends.",
         "player_choices": [
-          { "text": "What is this?", "next_node": "job_complete_loyalist_2", "action": "add_item:vanessas_charm:1|trigger_event:evil_path_end" }
-        ]
-      },
-      "job_complete_loyalist_2": {
-        "npc_text": "Don't ask questions. Just go.",
-        "player_choices": [
-          { "text": "Understood.", "closes_dialogue": true }
+          { "text": "What is this?", "closes_dialogue": true, "action": "add_item:vanessas_charm:1|trigger_event:evil_path_end" }
         ]
       },
       "finn_fail_beryl": {
@@ -577,33 +564,13 @@
         "npc_text": "Hard work on the farm. What can I do for you?",
         "player_choices": [
           { "text": "Goodbye, Ben.", "closes_dialogue": true },
-          { "text": "Finn sent me. Pay 10 silvers.", "next_node": "debt_collection", "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_ben==false && time.is_night==false" },
-          { "text": "*(Hic)* Elisa...", "next_node": "ben_night_drunk", "condition": "time.is_night==true" }
+          { "text": "Finn sent me. Pay 10 silvers.", "next_node": "debt_collection", "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_ben==false" }
         ]
       },
       "debt_collection": {
-        "npc_text": "Finn? Look, I barely have copper for seeds, let alone silver for rent. I can't pay.",
+        "npc_text": "Finn? Look, I barely have copper for seeds, let alone silver for rent. I can't pay. Now get off my land.",
         "player_choices": [
-          { "text": "I need something, Ben. Or Finn will have my head.", "next_node": "offer_goods" }
-        ]
-      },
-      "offer_goods": {
-        "npc_text": "Alright, alright. I have a sack of grain ready for market. It's worth ten silvers if you haul it to the merchant yourself. Take it.",
-        "player_choices": [
-          { "text": "Fine. Hand it over.", "action": "add_item:grain_sack:1|set_flag:debt_paid_by_ben:true|advance_quest_stage:finn_debt_collection", "closes_dialogue": true }
-        ]
-      },
-      "ben_night_drunk": {
-        "npc_text": "*(Hic)* El...Elisa... she's got that fancy locket... hidden away... won't let me sell it... *(Hic)* We could be rich...",
-        "player_choices": [
-          { "text": "A locket? Tell me more.", "next_node": "ben_locket_info" },
-          { "text": "You're drunk, Ben.", "closes_dialogue": true }
-        ]
-      },
-      "ben_locket_info": {
-        "npc_text": "She keeps it... under the loose floorboard... in the bedroom... thinks I don't know... *(Burp)*",
-        "player_choices": [
-          { "text": "Interesting. (Leave)", "closes_dialogue": true, "action": "set_flag:ben_at_tavern:true" }
+          { "text": "...", "closes_dialogue": true }
         ]
       }
     }
@@ -614,14 +581,20 @@
         "npc_text": "Welcome to the farm.",
         "player_choices": [
           { "text": "Goodbye, Elisa.", "closes_dialogue": true },
-          { "text": "Where is Ben?", "next_node": "elisa_night_raid", "condition": "time.is_night==true && world_flags.ben_at_tavern==true" }
+          { "text": "I need to talk to you.", "next_node": "elisa_night_raid", "condition": "time.is_night==true" }
         ]
       },
       "elisa_night_raid": {
         "npc_text": "He's... out. Drinking away our savings again. What do you want at this hour?",
         "player_choices": [
-          { "text": "I know about the locket, Elisa.", "next_node": "elisa_locket_confrontation" },
+          { "text": "Ben refuses to pay. You're going to cover his debt. Open your pockets.", "next_node": "elisa_scared" },
           { "text": "Nothing.", "closes_dialogue": true }
+        ]
+      },
+      "elisa_scared": {
+        "npc_text": "I... I don't have any money! Please!",
+        "player_choices": [
+          { "text": "That locket looks valuable. Hand it over.", "next_node": "elisa_give_locket" }
         ]
       },
       "elisa_locket_confrontation": {
@@ -632,9 +605,9 @@
         ]
       },
       "elisa_give_locket": {
-        "npc_text": "Fine! Take it! Just leave us alone! (She throws the locket at you)",
+        "npc_text": "No! It's my grandmother's! ... Okay! Take it! Just don't hurt me!",
         "player_choices": [
-          { "text": "Pleasure doing business.", "closes_dialogue": true, "action": "add_item:antique_locket:1|set_flag:debt_paid_by_ben:true|update_relationship:npc_elisa:-50|advance_quest_stage:finn_debt_collection" }
+          { "text": "Pleasure doing business.", "closes_dialogue": true, "action": "add_item:antique_locket:1|update_relationship:npc_elisa:-50" }
         ]
       },
       "elisa_give_locket_force": {
@@ -838,7 +811,6 @@
       "debt_confrontation": {
         "npc_text": "Ten silvers? I'm just a simple herbalist. Perhaps we can work something out?",
         "player_choices": [
-          { "text": "I can't leave empty-handed.", "next_node": "offer_goods" },
           { "text": "No, you pay now.", "next_node": "elara_angry_refusal" }
         ]
       },
@@ -846,12 +818,6 @@
         "npc_text": "Get out of my hovel you piece of garbage!",
         "player_choices": [
           { "text": "Leave.", "closes_dialogue": true }
-        ]
-      },
-      "offer_goods": {
-        "npc_text": "Take these Healing Potions then. They sell for five silvers each at the market. Two of them should cover my debt.",
-        "player_choices": [
-          { "text": "I'll take them.", "action": "add_item:healing_potion:2|set_flag:debt_paid_by_elara:true|advance_quest_stage:finn_debt_collection", "closes_dialogue": true }
         ]
       },
       "drug_confrontation": {
@@ -904,7 +870,7 @@
       "0": {
         "npc_text": "Spare a coin? Just one coin... I need my fix...",
         "player_choices": [
-          { "text": "Here's a silver.", "action": "remove_money:1", "next_node": "jace_talk", "condition": "money>=1" },
+          { "text": "Here's 3 coppers.", "action": "remove_money:3:copper", "next_node": "jace_talk", "condition": "currency.copper>=3" },
           { "text": "Get lost.", "closes_dialogue": true }
         ]
       },
@@ -918,36 +884,6 @@
         "npc_text": "Yes, yes! She sells to us... keeps us warm... don't tell the guards! She'll stop selling!",
         "player_choices": [
           { "text": "Interesting. (Leave)", "closes_dialogue": true, "action": "set_flag:elara_secret_known:true" }
-        ]
-      }
-    }
-  },
-  "urchin_default": {
-    "nodes": {
-      "0": {
-        "npc_text": "Eek! Don't hurt me! I didn't steal nothing! (He clutches a crumpled letter behind his back)",
-        "player_choices": [
-          { "text": "What's that in your hand?", "next_node": "urchin_letter" },
-          { "text": "Get out of here.", "closes_dialogue": true }
-        ]
-      },
-      "urchin_letter": {
-        "npc_text": "It... it's just trash! I found it!",
-        "player_choices": [
-          { "text": "Give it here. (Intimidate)", "next_node": "urchin_give", "req_skill_level": { "skill": "coercion", "level": 5 } },
-          { "text": "I'll give you a silver for it.", "next_node": "urchin_bribe", "condition": "money>=1" }
-        ]
-      },
-      "urchin_give": {
-        "npc_text": "Okay, okay! Take it! Just don't tell the guards! (He drops the letter and runs)",
-        "player_choices": [
-          { "text": "Too easy.", "closes_dialogue": true, "action": "add_item:beryl_noble_letter:1|set_flag:beryl_letter_found:true" }
-        ]
-      },
-      "urchin_bribe": {
-        "npc_text": "A silver?! Deal! (He swaps the letter for the coin and scampers off)",
-        "player_choices": [
-          { "text": "Good trade.", "closes_dialogue": true, "action": "remove_money:1|add_item:beryl_noble_letter:1|set_flag:beryl_letter_found:true" }
         ]
       }
     }

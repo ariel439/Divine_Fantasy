@@ -6,7 +6,7 @@
     "stackable": false,
     "weight": 0.0,
     "base_value": 0,
-    "image": "/assets/items/paper.png"
+    "image": "/assets/items/crumpled_letter.png"
   },
   "elara_medicine_parcel": {
     "name": "Medicine Parcel",

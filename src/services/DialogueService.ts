@@ -469,13 +469,23 @@ export class DialogueService {
       }
       case 'trigger_event': {
         const eventId = params[0];
+        useUIStore.getState().setCurrentEventId(eventId);
+
         if (eventId === 'raid_salty_mug_intro') {
            useUIStore.getState().setEventSlides(rebelRaidIntroSlides);
-           useUIStore.getState().setCurrentEventId('raid_salty_mug_intro');
            useUIStore.getState().setScreen('event');
-           // End dialogue immediately
            this.endDialogue();
            useUIStore.getState().setDialogueNpcId(null);
+        } else if (eventId === 'ben_cheat_event') {
+            useUIStore.getState().setEventSlides(benCheatEventSlides);
+            useUIStore.getState().setScreen('event');
+            this.endDialogue();
+        } else if (eventId === 'evil_path_end') {
+            useUIStore.getState().setEventSlides(evilEndingSlides);
+            useUIStore.getState().setScreen('event');
+            this.endDialogue();
+        } else {
+             console.warn(`[DialogueService] trigger_event: No slides mapped for ${eventId}`);
         }
         break;
       }
@@ -778,7 +788,13 @@ export class DialogueService {
           }
           useCharacterStore.getState().addCurrency('silver', amount);
           world.setFlag(flag, true);
-          try { useJournalStore.getState().advanceQuestStage('finn_debt_collection'); } catch {}
+          try { 
+            const q = useJournalStore.getState().quests['finn_debt_collection'];
+            // Prevent auto-completion (stage 5) by only advancing if < 4 (Bring 30 silvers is stage 4)
+            if (q && (q.currentStage || 0) < 4) {
+              useJournalStore.getState().advanceQuestStage('finn_debt_collection'); 
+            }
+          } catch {}
           diaryStore.addInteraction('Collected ' + amount + ' silvers from ' + (typedNpcsData[targetNpcId]?.name || targetNpcId) + '.');
         }
         break;
@@ -956,25 +972,6 @@ export class DialogueService {
           const id = params[0];
           useWorldStateStore.getState().addKnownNpc(id);
           diaryStore.addInteraction('Now know NPC: ' + (typedNpcsData[id]?.name || id));
-        }
-        break;
-
-      case 'trigger_event':
-        {
-          const eventId = params[0];
-          useUIStore.getState().setCurrentEventId(eventId);
-          
-          if (eventId === 'ben_cheat_event') {
-            useUIStore.getState().setEventSlides(benCheatEventSlides);
-            useUIStore.getState().setScreen('event');
-            this.endDialogue();
-          } else if (eventId === 'evil_path_end') {
-            useUIStore.getState().setEventSlides(evilEndingSlides);
-            useUIStore.getState().setScreen('event');
-            this.endDialogue();
-          } else {
-             console.warn(`[DialogueService] trigger_event: No slides mapped for ${eventId}`);
-          }
         }
         break;
 

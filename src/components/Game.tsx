@@ -508,7 +508,7 @@ const Game: React.FC = () => {
             ui.setCurrentEventId(null);
             useInventoryStore.getState().removeItem('antique_locket', 1);
             useCharacterStore.getState().addCurrency('silver', 10);
-            useWorldStateStore.getState().setFlag('debt_paid_by_noble', true);
+            useWorldStateStore.getState().setFlag('debt_paid_by_ben', true);
             useJournalStore.getState().advanceQuestStage('finn_debt_collection');
             useDiaryStore.getState().addInteraction('Sold the antique locket to a noble for 10 silver.');
             setScreen('inGame');
@@ -539,6 +539,12 @@ const Game: React.FC = () => {
             return;
           }
           if (id === 'game_over') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            setScreen('mainMenu');
+            return;
+          }
+          if (id === 'evil_path_end') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             setScreen('mainMenu');

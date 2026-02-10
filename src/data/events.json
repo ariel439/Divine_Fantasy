@@ -115,15 +115,15 @@
   ],
   "rebelRaidIntroSlides": [
     {
-      "image": "/assets/locations/tidehunter_quarter.png",
+      "image": "/assets/events/raid_gear_handoff.png",
       "text": "You gather with Rodrick, Matthias, and Stan at the Tidehunter Quarter. 'Suit up, kid,' Rodrick grunts, tossing you a bundle of iron gear. 'You'll need this where we're going.' You equip the heavy iron armor and grip the sword, feeling the weight of the coming battle."
     },
     {
-      "image": "/assets/locations/salty_mug.png",
+      "image": "/assets/events/raid_siege_salty_mug.png",
       "text": "The squad moves in on the Salty Mug. Customers scatter as you siege the tavern, clearing the main floor. The path to Finn is open."
     },
     {
-      "image": "/assets/locations/salty_mug_rented_room.png",
+      "image": "/assets/events/raid_confront_finn.png",
       "text": "You corner Finn in the back room! He sneers, snapping his fingers. 'You?! And the Guard?! Kill them all!' Three thugs step out from the shadows."
     }
   ],

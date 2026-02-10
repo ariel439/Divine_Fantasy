@@ -183,7 +183,7 @@
     "stackable": true,
     "weight": 0.5,
     "base_value": 5,
-    "image": "/assets/items/ale.png"
+    "image": "/assets/items/beer.png"
   },
   "wolf_tooth": {
     "name": "Wolf Tooth",

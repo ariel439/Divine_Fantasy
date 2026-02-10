@@ -109,7 +109,8 @@
     "night_background": "/assets/locations/mosswatch_keep_night.png",
     "music_track": "GDD/assets/audio/music/driftwatch_main.mp3",
     "actions": [
-      { "text": "Talk to Corporal Matthias", "type": "dialogue", "target": "npc_matthias" },
+      { "text": "Talk to Corporal Matthias", "type": "dialogue", "target": "npc_matthias", "condition": "time.is_day==true" },
+      { "text": "Talk to Private Stan", "type": "dialogue", "target": "npc_stan", "condition": "time.is_day==false" },
       { "text": "Travel to Tidehunter Quarter", "type": "navigate", "target": "tidehunter_quarter", "condition": "quest.rebel_path.stage>=3" },
       { "text": "Travel to Noble Quarter", "type": "navigate", "target": "driftwatch_noble_quarter" }
     ]

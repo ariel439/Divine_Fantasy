@@ -1,0 +1,34 @@
+{
+  "barkip_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "What'll it be? Ale's 1 silver.",
+        "player_choices": [
+          {
+            "text": "Ale, please.",
+            "action": "remove_money:1|add_item:ale:1",
+            "closes_dialogue": true,
+            "condition": "money>=1"
+          },
+          {
+            "text": "Hear any rumors?",
+            "next_node": "rumors"
+          },
+          {
+            "text": "Nothing.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "rumors": {
+        "npc_text": "They say the Tidehunters are recruiting. And Old Man Finn is in a foul mood lately. Watch yourself.",
+        "player_choices": [
+          {
+            "text": "Thanks.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

@@ -409,6 +409,60 @@ export class GameManagerService {
     useUIStore.getState().setScreen('combat');
   }
 
+  static startFinnBetrayalCombat(): void {
+    const character = useCharacterStore.getState();
+
+    const finnTemplate = enemiesJson['finn_boss'];
+    const thugTemplate = enemiesJson['thug_generic'];
+
+    const enemies: CombatParticipant[] = [];
+
+    enemies.push({
+      id: `finn_${Date.now()}`,
+      name: finnTemplate?.name || 'Finn',
+      hp: finnTemplate?.stats.hp || 200,
+      maxHp: finnTemplate?.stats.hp || 200,
+      attack: finnTemplate?.stats.attack || 25,
+      defence: finnTemplate?.stats.defence || 10,
+      dexterity: finnTemplate?.stats.dexterity || 8,
+      portraitUrl: finnTemplate?.image || '/assets/portraits/OldManFinn.png',
+      isPlayer: false,
+      isCompanion: false,
+    });
+
+    for (let i = 0; i < 3; i++) {
+      enemies.push({
+        id: `thug_${i}_${Date.now()}`,
+        name: thugTemplate?.name || 'Thug',
+        hp: (thugTemplate?.stats.hp || 80) * 0.8,
+        maxHp: (thugTemplate?.stats.hp || 80) * 0.8,
+        attack: (thugTemplate?.stats.attack || 12) * 0.8,
+        defence: (thugTemplate?.stats.defence || 4) * 0.8,
+        dexterity: thugTemplate?.stats.dexterity || 5,
+        portraitUrl: thugTemplate?.image || '/assets/portraits/Thug.png',
+        isPlayer: false,
+        isCompanion: false,
+      });
+    }
+
+    const playerStats = GameManagerService.calculatePlayerStats(character);
+    const player: CombatParticipant = {
+      id: 'player',
+      name: character.bio?.name || 'Adventurer',
+      hp: character.hp,
+      maxHp: character.maxHp || 100,
+      attack: playerStats.attack,
+      defence: playerStats.defence,
+      dexterity: playerStats.dexterity,
+      portraitUrl: character.bio?.image || 'https://i.imgur.com/gUNzyBA.jpeg',
+      isPlayer: true,
+      isCompanion: false,
+    };
+
+    useCombatStore.getState().startCombat(player, null, enemies);
+    useUIStore.getState().setScreen('combat');
+  }
+
   private static calculatePlayerStats(character: any): { attack: number; defence: number; dexterity: number } {
     let totalAttack = character.attributes.strength || 0;
     // Base defence is average of strength and dexterity

@@ -1,6 +1,6 @@
 import locations from '../data/locations.json';
 import npcs from '../data/npcs.json';
-import dialogue from '../data/dialogue.json';
+import dialogue from '../data/dialogues/index';
 import shops from '../data/shops.json';
 import quests from '../data/quests.json';
 import items from '../data/items.json';
@@ -64,7 +64,7 @@ export class DataValidator {
         choices.forEach((c: any, idx: number) => {
           const next = String(c.next_node || '');
           if (next && !Object.prototype.hasOwnProperty.call(nodes, next)) {
-            issues.push(`dialogue.json:${dlgId}.nodes[${nodeId}].choices[${idx}] next_node '${next}' missing`);
+            issues.push(`dialogue:${dlgId}.nodes[${nodeId}].choices[${idx}] next_node '${next}' missing`);
           }
           const cond = String(c.condition || '');
           if (cond) {
@@ -81,12 +81,12 @@ export class DataValidator {
               if (lhs.startsWith('quest.')) {
                 const [, qid] = lhs.split('.');
                 if (!Object.prototype.hasOwnProperty.call((quests as any), qid)) {
-                  issues.push(`dialogue.json:${dlgId}.nodes[${nodeId}].choices[${idx}] condition quest '${qid}' missing`);
+                  issues.push(`dialogue:${dlgId}.nodes[${nodeId}].choices[${idx}] condition quest '${qid}' missing`);
                 }
               } else if (lhs.startsWith('world_flags.') || lhs.startsWith('time.') || lhs.startsWith('job.') || lhs.startsWith('relationship.') || lhs.startsWith('inventory.')) {
                 // Known valid prefixes
               } else {
-                issues.push(`dialogue.json:${dlgId}.nodes[${nodeId}].choices[${idx}] condition lhs '${lhs}' unknown`);
+                issues.push(`dialogue:${dlgId}.nodes[${nodeId}].choices[${idx}] condition lhs '${lhs}' unknown`);
               }
             });
           }

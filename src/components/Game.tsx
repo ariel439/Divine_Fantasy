@@ -12,7 +12,7 @@ import SleepWaitModal from './modals/SleepWaitModal';
 import ConfirmationModal from './modals/ConfirmationModal';
 import LocationScreen from './screens/LocationScreen';
 import DialogueScreen from './screens/DialogueScreen';
-import dialogueData from '../data/dialogue.json';
+import dialogueData from '../data/dialogues/index';
 import npcsData from '../data/npcs.json';
 import { DialogueService } from '../services/DialogueService';
 import { useJournalStore } from '../stores/useJournalStore';
@@ -39,7 +39,7 @@ import CombatManager from './CombatManager';
 import LocationNav from './LocationNav';
 import OptionsModal from './modals/OptionsModal';
 import TutorialModal from './modals/TutorialModal';
-import { lukePrologueSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesKyle, wakeupEventSlides, finnDebtIntroSlides, robertCaughtSlides, gameOverSlides, choiceEvents, benCheatEventSlides, rebelVictorySlides, raidSaltyMugIntroSlides } from '../data/events';
+import { lukePrologueSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesKyle, wakeupEventSlides, finnDebtIntroSlides, robertCaughtSlides, gameOverSlides, choiceEvents, benCheatEventSlides, elaraDeliverySlides, berylDeliverySlides, rebelVictorySlides, raidSaltyMugIntroSlides } from '../data/events';
 import { useAudioStore } from '../stores/useAudioStore';
 import { useCompanionStore } from '../stores/useCompanionStore';
 
@@ -361,6 +361,14 @@ const Game: React.FC = () => {
     const npcId = useUIStore.getState().dialogueNpcId;
     DialogueService.endDialogue();
     useUIStore.getState().setDialogueNpcId(null);
+    // If a combat was started by a dialogue action, prioritize entering combat screen
+    try {
+      const activeCombat = useCombatStore.getState().participants.length > 0;
+      if (activeCombat) {
+        setScreen('combat');
+        return;
+      }
+    } catch {}
     try {
       const world = useWorldStateStore.getState();
       const lastNpcId = npcId;
@@ -503,6 +511,16 @@ const Game: React.FC = () => {
             setScreen('inGame');
             return;
           }
+          if (id === 'ben_cheat_slides') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            useWorldStateStore.getState().setFlag('ben_cheat_done', true);
+            useWorldTimeStore.getState().passTime(120);
+            useCharacterStore.getState().updateStats({ energy: -15 });
+            useUIStore.getState().setDialogueNpcId('npc_ben');
+            setScreen('dialogue');
+            return;
+          }
           if (id === 'sell_locket_event') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
@@ -515,17 +533,11 @@ const Game: React.FC = () => {
             return;
           }
           if (id === 'ben_cheat_event') {
-            ui.setEventSlides(null);
-            ui.setCurrentEventId(null);
-            useWorldStateStore.getState().setFlag('ben_cheat_done', true);
-            useWorldTimeStore.getState().passTime(120);
-            useCharacterStore.getState().updateStats({ energy: -15 });
-            
-            // Transition directly to Ben's dialogue to collect reward
-            ui.setDialogueNpcId('npc_ben');
-            setScreen('dialogue');
+            ui.setEventSlides(benCheatEventSlides);
+            ui.setCurrentEventId('ben_cheat_slides');
+            setScreen('event');
             return;
-        }
+          }
           if (id === 'raid_salty_mug_intro') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
@@ -550,23 +562,45 @@ const Game: React.FC = () => {
             setScreen('mainMenu');
             return;
           }
+          if (id === 'finn_hybrid_end') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            setScreen('mainMenu');
+            return;
+          }
           if (id === 'elara_delivery_event') {
+            ui.setEventSlides(elaraDeliverySlides);
+            ui.setCurrentEventId('elara_delivery_slides');
+            setScreen('event');
+            return;
+          }
+          if (id === 'elara_delivery_slides') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             useWorldStateStore.getState().setFlag('elara_delivery_done', true);
+            useWorldStateStore.getState().setFlag('elara_helped_drug', true);
             useInventoryStore.getState().removeItem('elara_medicine_parcel', 1);
-            useWorldTimeStore.getState().passTime(60);
+            useWorldTimeStore.getState().passTime(120);
             useCharacterStore.getState().updateStats({ energy: -10 });
+            useDiaryStore.getState().addInteraction('Delivered the medicine parcel to the sewers.');
             setScreen('inGame');
             return;
           }
           if (id === 'beryl_delivery_event') {
+            ui.setEventSlides(berylDeliverySlides);
+            ui.setCurrentEventId('beryl_delivery_slides');
+            setScreen('event');
+            return;
+          }
+          if (id === 'beryl_delivery_slides') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             useWorldStateStore.getState().setFlag('beryl_delivery_done', true);
+            useWorldStateStore.getState().setFlag('beryl_helped_pimp', true);
             useInventoryStore.getState().removeItem('beryl_noble_parcel', 1);
-            useWorldTimeStore.getState().passTime(60);
+            useWorldTimeStore.getState().passTime(120);
             useCharacterStore.getState().updateStats({ energy: -10 });
+            useDiaryStore.getState().addInteraction('Delivered the discreet package to the Noble Quarter.');
             setScreen('inGame');
             return;
           }

@@ -1,0 +1,48 @@
+{
+  "cyrus_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "I'm Cyrus, apprentice to Kaelen. Need something forged?",
+        "player_choices": [
+          {
+            "text": "Old Crank says you know about Finn's crates.",
+            "next_node": "cyrus_scared",
+            "condition": "quest.rebel_path.stage==1"
+          },
+          {
+            "text": "Goodbye, Cyrus.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "cyrus_scared": {
+        "npc_text": "Shh! Not so loud! Kaelen doesn't know... I... I just did what they told me!",
+        "player_choices": [
+          {
+            "text": "What did you do?",
+            "next_node": "cyrus_confess"
+          }
+        ]
+      },
+      "cyrus_confess": {
+        "npc_text": "They made me forge these... odd blades. They call them 'Shadow Blades'. I kept one... a prototype. I was going to show the guards, but I was too scared.",
+        "player_choices": [
+          {
+            "text": "Give it to me. I'll take it to the guards.",
+            "next_node": "cyrus_give",
+            "action": "add_item:prototype_blade:1|advance_quest_stage:rebel_path"
+          }
+        ]
+      },
+      "cyrus_give": {
+        "npc_text": "Here. Please, don't tell Finn I gave it to you.",
+        "player_choices": [
+          {
+            "text": "You're safe now.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

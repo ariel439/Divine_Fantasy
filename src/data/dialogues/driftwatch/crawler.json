@@ -1,0 +1,39 @@
+{
+  "crawler_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Logs to planks? 2 copper per plank.",
+        "player_choices": [
+          {
+            "text": "Can I use your sawmill?",
+            "next_node": "unlock",
+            "condition": "world_flags.sawmill_unlocked==false"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "unlock": {
+        "npc_text": "You can. Two copper per plank. Use the sawmill outside.",
+        "player_choices": [
+          {
+            "text": "Thanks.",
+            "closes_dialogue": true,
+            "action": "set_flag:sawmill_unlocked:true"
+          }
+        ]
+      },
+      "thanks": {
+        "npc_text": "Right.",
+        "player_choices": [
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

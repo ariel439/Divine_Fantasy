@@ -1,0 +1,20 @@
+{
+  "rodrick_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "What do you want, kid?",
+        "player_choices": [
+          {
+            "text": "Matthias sent me. We're ready to raid the Salty Mug.",
+            "action": "trigger_event:raid_salty_mug_intro",
+            "condition": "quest.rebel_path.stage==3"
+          },
+          {
+            "text": "Nothing, sir.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

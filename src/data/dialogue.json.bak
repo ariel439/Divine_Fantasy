@@ -16,7 +16,15 @@
         "npc_text": "I... I can't! Business has been slow... please, tell Finn I need more time!",
         "player_choices": [
           { "text": "He wants it now.", "next_node": "beryl_refusal_2" },
+          { "text": "Is there any other way?", "next_node": "beryl_help_offer" },
           { "text": "I'll see what I can do.", "closes_dialogue": true, "action": "set_flag:beryl_refused_debt:true" }
+        ]
+      },
+      "beryl_help_offer": {
+        "npc_text": "Well... there is one thing. I have a discreet package that needs to go to a client in the Noble Quarter. Deliver it, and I'll consider the debt paid.",
+        "player_choices": [
+          { "text": "I'll do it.", "action": "add_item:beryl_noble_parcel:1|set_flag:beryl_help_agreed:true", "closes_dialogue": true },
+          { "text": "No.", "closes_dialogue": true }
         ]
       },
       "beryl_refusal_2": {
@@ -117,11 +125,17 @@
   "beryl_tavern": {
     "nodes": {
       "0": {
-        "npc_text": "Off the clock tonight."
-        ,
+        "npc_text": "Off the clock tonight.",
         "player_choices": [
-          { "text": "Finn sent me. Pay 10 silvers.", "action": "collect_debt_from:npc_beryl", "closes_dialogue": true, "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_beryl==false" },
+          { "text": "I delivered the package.", "next_node": "delivery_reward", "condition": "world_flags.beryl_delivery_done==true && world_flags.debt_paid_by_beryl==false" },
+          { "text": "Finn sent me. Pay 10 silvers.", "action": "collect_debt_from:npc_beryl", "closes_dialogue": true, "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_beryl==false && world_flags.beryl_help_agreed==false && inventory.beryl_noble_parcel==0" },
           { "text": "Goodbye, Beryl.", "closes_dialogue": true }
+        ]
+      },
+      "delivery_reward": {
+        "npc_text": "Excellent work. The client was satisfied? Good. Here is the coin for Finn.",
+        "player_choices": [
+          { "text": "Take the money.", "action": "collect_debt_from:npc_beryl", "closes_dialogue": true }
         ]
       }
     }
@@ -400,9 +414,45 @@
       "job_progress": {
         "npc_text": "Three names. Ten silvers each. Bring me thirty when you're done.",
         "player_choices": [
-          { "text": "Here is the 30 silvers.", "next_node": "job_complete_loyalist", "action": "remove_money:30|complete_quest:finn_debt_collection|add_xp:charisma:100", "condition": "money>=30 && world_flags.debt_paid_by_ben==true && world_flags.debt_paid_by_elara==true && world_flags.debt_paid_by_beryl==true" },
+          { "text": "Here is the 30 silvers.", "next_node": "job_complete_loyalist", "action": "remove_money:30|complete_quest:finn_debt_collection|add_xp:charisma:100", "condition": "money>=30 && world_flags.debt_paid_by_ben==true && world_flags.debt_paid_by_elara==true && world_flags.debt_paid_by_beryl==true && world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==false" },
+          { "text": "Here is the 30 silvers.", "next_node": "finn_weakness_reveal", "action": "remove_money:30|complete_quest:finn_debt_collection", "condition": "money>=30 && world_flags.debt_paid_by_ben==true && world_flags.debt_paid_by_elara==true && world_flags.debt_paid_by_beryl==true && (world_flags.ben_cheat_done==true || world_flags.elara_helped_drug==true || world_flags.beryl_helped_pimp==true)" },
           { "text": "I collected most of it... but I forgave Beryl.", "next_node": "finn_fail_beryl", "condition": "world_flags.beryl_debt_forgiven==true" },
           { "text": "I'll get back to it.", "closes_dialogue": true }
+        ]
+      },
+      "finn_weakness_reveal": {
+        "npc_text": "Thirty silvers. You got it. But I hear things, kid. I hear how you got it.",
+        "player_choices": [
+          { "text": "What do you mean?", "next_node": "finn_mockery_ben", "condition": "world_flags.ben_cheat_done==true" },
+          { "text": "What do you mean?", "next_node": "finn_mockery_elara", "condition": "world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==true" },
+          { "text": "What do you mean?", "next_node": "finn_mockery_beryl", "condition": "world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==true" }
+        ]
+      },
+      "finn_mockery_ben": {
+        "npc_text": "Oh, you helped Ben stealing.",
+        "player_choices": [
+          { "text": "...", "next_node": "finn_mockery_elara", "condition": "world_flags.elara_helped_drug==true" },
+          { "text": "...", "next_node": "finn_mockery_beryl", "condition": "world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==true" },
+          { "text": "...", "next_node": "finn_attack", "condition": "world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==false" }
+        ]
+      },
+      "finn_mockery_elara": {
+        "npc_text": "Oh, you was a drug mule for the woman.",
+        "player_choices": [
+          { "text": "...", "next_node": "finn_mockery_beryl", "condition": "world_flags.beryl_helped_pimp==true" },
+          { "text": "...", "next_node": "finn_attack", "condition": "world_flags.beryl_helped_pimp==false" }
+        ]
+      },
+      "finn_mockery_beryl": {
+        "npc_text": "You were a pimp for Beryl.",
+        "player_choices": [
+          { "text": "...", "next_node": "finn_attack" }
+        ]
+      },
+      "finn_attack": {
+        "npc_text": "That is weakness. And the Guild has no room for weakness.",
+        "player_choices": [
+          { "text": "Wait!", "action": "trigger_game_over", "closes_dialogue": true }
         ]
       },
       "job_complete_loyalist": {
@@ -553,14 +603,28 @@
       "0": {
         "npc_text": "Hard work on the farm. What can I do for you?",
         "player_choices": [
-          { "text": "Goodbye, Ben.", "closes_dialogue": true },
-          { "text": "Finn sent me. Pay 10 silvers.", "next_node": "debt_collection", "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_ben==false" }
+          { "text": "[Collect Share] We won! Pay up.", "next_node": "ben_pay_cheat", "condition": "world_flags.ben_cheat_done==true && world_flags.debt_paid_by_ben==false" },
+          { "text": "Finn sent me. Pay 10 silvers.", "next_node": "debt_collection", "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_ben==false && world_flags.ben_cheat_agreed==false" },
+          { "text": "Goodbye, Ben.", "closes_dialogue": true }
         ]
       },
       "debt_collection": {
-        "npc_text": "Finn? Look, I barely have copper for seeds, let alone silver for rent. I can't pay. Now get off my land.",
+        "npc_text": "Finn? Look, I barely have copper for seeds, let alone silver for rent. I can't pay... wait. I have a plan. The tables at the Salty Mug are busy tonight. I know a way to win, but I need a partner. Help me cheat, and I'll have the silver.",
         "player_choices": [
-          { "text": "...", "closes_dialogue": true }
+          { "text": "Fine. I'll help you cheat.", "next_node": "ben_cheat_agree", "condition": "world_flags.ben_cheat_agreed==false" },
+          { "text": "No. Pay now.", "closes_dialogue": true }
+        ]
+      },
+      "ben_cheat_agree": {
+        "npc_text": "Good. Meet me at the Salty Mug tonight. Just follow my lead, and don't get caught.",
+        "player_choices": [
+          { "text": "See you tonight.", "closes_dialogue": true, "action": "set_flag:ben_cheat_agreed:true" }
+        ]
+      },
+      "ben_pay_cheat": {
+        "npc_text": "Whoa, that was close... *hic* Thanks for the help, partner! Here's your 10 silver... don't tell Elisa I'm sloshed.",
+        "player_choices": [
+          { "text": "Pleasure doing business.", "action": "collect_debt_from:npc_ben", "closes_dialogue": true }
         ]
       }
     }
@@ -752,7 +816,8 @@
         "npc_text": "Welcome to Beryl's General Goods!",
         "player_choices": [
           { "text": "Show me your goods.", "closes_dialogue": true, "action": "open_shop:beryls_general_goods" },
-          { "text": "Finn sent me. Pay 10 silvers.", "next_node": "debt_confrontation", "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_beryl==false" },
+          { "text": "I delivered the package.", "next_node": "delivery_reward", "condition": "world_flags.beryl_delivery_done==true && world_flags.debt_paid_by_beryl==false" },
+          { "text": "Finn sent me. Pay 10 silvers.", "next_node": "debt_confrontation", "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_beryl==false && world_flags.beryl_help_agreed==false && inventory.beryl_noble_parcel==0" },
           { "text": "Goodbye, Beryl.", "closes_dialogue": true }
         ]
       },
@@ -766,9 +831,9 @@
         ]
       },
       "soft_approach": {
-        "npc_text": "Chores, eh? Well, I could use some help organizing the storeroom. It's been a mess for weeks.",
+        "npc_text": "Chores? No... but I do have a delicate matter. I need a package delivered to a customer in the Noble Quarter. A... discreet package.",
         "player_choices": [
-          { "text": "I'll help organize your storeroom.", "action": "set_flag:beryl_soft_approach_started:true|update_relationship:npc_beryl:5", "closes_dialogue": true },
+          { "text": "I'll deliver it.", "action": "add_item:beryl_noble_parcel:1|set_flag:beryl_help_agreed:true", "closes_dialogue": true, "condition": "inventory.beryl_noble_parcel==0" },
           { "text": "Actually, let me think about it.", "closes_dialogue": true }
         ]
       },
@@ -784,6 +849,12 @@
         "player_choices": [
           { "text": "Pleasure doing business.", "action": "collect_debt_from:npc_beryl", "closes_dialogue": true }
         ]
+      },
+      "delivery_reward": {
+        "npc_text": "Excellent work. The client was satisfied? Good. Here is the coin for Finn.",
+        "player_choices": [
+          { "text": "Take the money.", "action": "collect_debt_from:npc_beryl", "closes_dialogue": true }
+        ]
       }
     }
   },
@@ -793,7 +864,8 @@
         "npc_text": "Herbs, potions, salves... I have everything a healer needs.",
         "player_choices": [
           { "text": "Show me your wares.", "action": "open_shop:herbalists_hovel" },
-          { "text": "Finn sent me. Pay 10 silvers.", "next_node": "debt_confrontation", "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_elara==false" },
+          { "text": "Finn sent me. Pay 10 silvers.", "next_node": "debt_confrontation", "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_elara==false && world_flags.elara_help_agreed==false && inventory.elara_medicine_parcel==0" },
+          { "text": "I delivered the medicine.", "next_node": "delivery_reward", "condition": "world_flags.elara_delivery_done==true && world_flags.debt_paid_by_elara==false" },
           { "text": "I know about your 'nighttime business', Elara.", "next_node": "drug_confrontation", "condition": "world_flags.elara_secret_known==true && world_flags.debt_paid_by_elara==false" },
           { "text": "Goodbye, Elara.", "closes_dialogue": true }
         ]
@@ -801,13 +873,27 @@
       "debt_confrontation": {
         "npc_text": "Ten silvers? I'm just a simple herbalist. Perhaps we can work something out?",
         "player_choices": [
+          { "text": "Is there any other way you could pay?", "next_node": "elara_help_offer" },
           { "text": "No, you pay now.", "next_node": "elara_angry_refusal" }
+        ]
+      },
+      "elara_help_offer": {
+        "npc_text": "Well... I have a package that needs to go to the sewers. It's just... medicine. For the poor. But the guards are strict. Deliver it, and I'll pay you.",
+        "player_choices": [
+          { "text": "I'll do it.", "action": "add_item:elara_medicine_parcel:1|set_flag:elara_help_agreed:true", "closes_dialogue": true, "condition": "inventory.elara_medicine_parcel==0" },
+          { "text": "No.", "closes_dialogue": true }
         ]
       },
       "elara_angry_refusal": {
         "npc_text": "Get out of my hovel you piece of garbage!",
         "player_choices": [
           { "text": "Leave.", "closes_dialogue": true }
+        ]
+      },
+      "delivery_reward": {
+        "npc_text": "You did? Good. Here is the 10 silvers for Finn. And thank you... for being discreet.",
+        "player_choices": [
+          { "text": "Take the money.", "action": "collect_debt_from:npc_elara", "closes_dialogue": true }
         ]
       },
       "drug_confrontation": {
@@ -899,30 +985,6 @@
         "npc_text": "Yes, yes! She sells to us... keeps us warm... don't tell the guards! She'll stop selling!",
         "player_choices": [
           { "text": "Interesting. (Leave)", "closes_dialogue": true, "action": "set_flag:elara_secret_known:true" }
-        ]
-      }
-    }
-  },
-  "vanessa_default": {
-    "nodes": {
-      "0": {
-        "npc_text": "So, Finn's new errand boy found the door. Impressive.",
-        "player_choices": [
-          { "text": "Who are you?", "next_node": "intro" },
-          { "text": "Finn sent me.", "next_node": "intro" }
-        ]
-      },
-      "intro": {
-        "npc_text": "I am Vanessa. And this... is the Guild. You've shown you can collect debts. But can you steal? Can you silence? We shall see.",
-        "player_choices": [
-          { "text": "I'm ready for anything.", "next_node": "end_demo" },
-          { "text": "I just want money.", "next_node": "end_demo" }
-        ]
-      },
-      "end_demo": {
-        "npc_text": "[DEMO END] You have successfully unlocked the Thieves Guild path! Thank you for playing the Divine Fantasy 7-Day Demo.",
-        "player_choices": [
-          { "text": "Finish.", "closes_dialogue": true, "action": "trigger_game_over" }
         ]
       }
     }

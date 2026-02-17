@@ -1,0 +1,70 @@
+{
+  "matthias_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Halt! What business do you have at Mosswatch Keep?",
+        "player_choices": [
+          {
+            "text": "I have something to report.",
+            "next_node": "matthias_report"
+          },
+          {
+            "text": "Just passing through.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Try Sergeant Rodrick in the Tidehunter Quarter.",
+        "player_choices": [
+          {
+            "text": "Back",
+            "next_node": "0"
+          }
+        ]
+      },
+      "matthias_report": {
+        "npc_text": "I don't have time for drunk talk. Make it quick.",
+        "player_choices": [
+          {
+            "text": "[Show Blade] I found this prototype.",
+            "next_node": "matthias_evidence",
+            "condition": "inventory.prototype_blade>=1"
+          },
+          {
+            "text": "Never mind.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "matthias_evidence": {
+        "npc_text": "Let me see that. ... This alloy... this is contraband. Shadow steel. Finn has been smuggling this under our noses?",
+        "player_choices": [
+          {
+            "text": "There's more where that came from.",
+            "next_node": "matthias_plan"
+          }
+        ]
+      },
+      "matthias_plan": {
+        "npc_text": "This is enough for a warrant. Go to Sergeant Rodrick in the Tidehunter Quarter. He will organize the raid.",
+        "player_choices": [
+          {
+            "text": "I'll go now.",
+            "closes_dialogue": true,
+            "action": "advance_quest_stage:rebel_path|remove_item:prototype_blade:1"
+          }
+        ]
+      },
+      "matthias_raid_ready": {
+        "npc_text": "My men are on standby. Go to the Salty Mug. The option to Raid will be available.",
+        "player_choices": [
+          {
+            "text": "Understood.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

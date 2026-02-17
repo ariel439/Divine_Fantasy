@@ -1,0 +1,40 @@
+{
+  "shaky_jace_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Spare a coin? Just one coin... I need my fix...",
+        "player_choices": [
+          {
+            "text": "Here's 3 coppers.",
+            "action": "remove_money:3:copper",
+            "next_node": "jace_talk",
+            "condition": "currency.copper>=3"
+          },
+          {
+            "text": "Get lost.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "jace_talk": {
+        "npc_text": "Bless you! Bless you! The lady at the Hovel... she has the good stuff. The BEST stuff. But only at night... shhh.",
+        "player_choices": [
+          {
+            "text": "The Herbalist? Elara?",
+            "next_node": "jace_secret"
+          }
+        ]
+      },
+      "jace_secret": {
+        "npc_text": "Yes, yes! She sells to us... keeps us warm... don't tell the guards! She'll stop selling!",
+        "player_choices": [
+          {
+            "text": "Interesting. (Leave)",
+            "closes_dialogue": true,
+            "action": "set_flag:elara_secret_known:true"
+          }
+        ]
+      }
+    }
+  }
+}

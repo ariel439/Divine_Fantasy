@@ -1,0 +1,85 @@
+{
+  "urchin_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "!!! You saw nothing! I wasn't here!",
+        "player_choices": [
+          {
+            "text": "Hold it! What are you doing sneaking out of Beryl's?",
+            "next_node": "urchin_caught"
+          }
+        ]
+      },
+      "urchin_caught": {
+        "npc_text": "I... I was just... checking the locks! Yeah! Checking the locks for Mr. Beryl!",
+        "player_choices": [
+          {
+            "text": "At night? With a bag?",
+            "next_node": "urchin_lie"
+          }
+        ]
+      },
+      "urchin_lie": {
+        "npc_text": "Okay, okay! I took some food! Don't tell the guards! Please!",
+        "player_choices": [
+          {
+            "text": "What's that paper in your pocket?",
+            "next_node": "urchin_letter"
+          }
+        ]
+      },
+      "urchin_letter": {
+        "npc_text": "This? It's nothing! Just some trash I found!",
+        "player_choices": [
+          {
+            "text": "Give it to me, or I call the guards.",
+            "next_node": "urchin_intimidate",
+            "req_skill_level": {
+              "skill": "coercion",
+              "level": 5
+            }
+          },
+          {
+            "text": "I'll buy it off you. 5 silvers.",
+            "next_node": "urchin_bribe",
+            "condition": "money>=5"
+          },
+          {
+            "text": "Hand it over, kid. Now.",
+            "next_node": "urchin_force"
+          }
+        ]
+      },
+      "urchin_intimidate": {
+        "npc_text": "Eep! Okay! Take it! Just don't hurt me!",
+        "player_choices": [
+          {
+            "text": "Scram.",
+            "action": "add_item:beryl_noble_letter:1|set_flag:beryl_letter_found:true|add_xp:coercion:20",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "urchin_bribe": {
+        "npc_text": "Five silvers? Deal! Here!",
+        "player_choices": [
+          {
+            "text": "Pleasure doing business.",
+            "action": "add_item:beryl_noble_letter:1|set_flag:beryl_letter_found:true|remove_money:5|add_xp:charisma:20",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "urchin_force": {
+        "npc_text": "Make me! ... Ow! Okay, okay! Take it!",
+        "player_choices": [
+          {
+            "text": "That's better.",
+            "action": "add_item:beryl_noble_letter:1|set_flag:beryl_letter_found:true",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

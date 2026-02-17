@@ -174,5 +174,19 @@
       "image": "/assets/events/demo_end_screen.png",
       "text": "This marks the end of the Divine Fantasy Classic Demo!"
     }
+  ],
+  "hybridEndingSlides": [
+    {
+      "image": "/assets/locations/salty_mug_slums_outside.png",
+      "text": "You step out of the Salty Mug with thirty silvers lighter in your pouch and Finn's words heavier in your head. You were hard when you had to be, soft when you chose to be, and Driftwatch is still standing either way."
+    },
+    {
+      "image": "/assets/locations/driftwatch_slums_day.png",
+      "text": "The slums swallow you back up. Debtors, guards, smugglers, saints in rags – none of them know what kind of man you are yet. Maybe you don't either. But for now, you're alive, and the city is wide open."
+    },
+    {
+      "image": "/assets/events/demo_end_screen.png",
+      "text": "This marks the end of the Divine Fantasy Classic Demo. Thank you for playing!"
+    }
   ]
 }

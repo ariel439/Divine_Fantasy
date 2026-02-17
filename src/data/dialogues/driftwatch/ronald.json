@@ -1,0 +1,30 @@
+{
+  "ronald_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "The woods are dangerous. What brings you?",
+        "player_choices": [
+          {
+            "text": "I noticed your workbench. Mind if I use it?",
+            "next_node": "crafting_unlock",
+            "condition": "world_flags.hunter_crafting_unlocked==false"
+          },
+          {
+            "text": "Goodbye, Ronald.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "crafting_unlock": {
+        "npc_text": "You know your way around tools? Fine. Just don't dull my blades.",
+        "player_choices": [
+          {
+            "text": "Thanks.",
+            "action": "set_flag:hunter_crafting_unlocked:true",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

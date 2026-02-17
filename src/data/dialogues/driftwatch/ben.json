@@ -1,0 +1,59 @@
+{
+  "ben_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Hard work on the farm. What can I do for you?",
+        "player_choices": [
+          {
+            "text": "[Collect Share] We won! Pay up.",
+            "next_node": "ben_pay_cheat",
+            "condition": "world_flags.ben_cheat_done==true && world_flags.debt_paid_by_ben==false"
+          },
+          {
+            "text": "Finn sent me. Pay 10 silvers.",
+            "next_node": "debt_collection",
+            "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_ben==false && world_flags.ben_cheat_agreed==false"
+          },
+          {
+            "text": "Goodbye, Ben.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "debt_collection": {
+        "npc_text": "Finn? Look, I barely have copper for seeds, let alone silver for rent. I can't pay... wait. I have a plan. The tables at the Salty Mug are busy tonight. I know a way to win, but I need a partner. Help me cheat, and I'll have the silver.",
+        "player_choices": [
+          {
+            "text": "Fine. I'll help you cheat.",
+            "next_node": "ben_cheat_agree",
+            "condition": "world_flags.ben_cheat_agreed==false"
+          },
+          {
+            "text": "No. Pay now.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "ben_cheat_agree": {
+        "npc_text": "Good. Meet me at the Salty Mug tonight. Just follow my lead, and don't get caught.",
+        "player_choices": [
+          {
+            "text": "See you tonight.",
+            "closes_dialogue": true,
+            "action": "set_flag:ben_cheat_agreed:true"
+          }
+        ]
+      },
+      "ben_pay_cheat": {
+        "npc_text": "Whoa, that was close... *hic* Thanks for the help, partner! Here's your 10 silver... don't tell Elisa I'm sloshed.",
+        "player_choices": [
+          {
+            "text": "Pleasure doing business.",
+            "action": "collect_debt_from:npc_ben",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "elias_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Ahoy! Captain Elias at your service. What tales do you bring?",
+        "player_choices": [
+          {
+            "text": "Goodbye, Captain Elias.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

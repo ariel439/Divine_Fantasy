@@ -1,7 +1,7 @@
 // DialogueService.ts
 // Handles NPC dialogue interactions and conversation flow
 
-import dialogueData from '../data/dialogue.json';
+import dialogueData from '../data/dialogues/index';
 import npcsData from '../data/npcs.json';
 import questsData from '../data/quests.json';
 import { useDiaryStore } from '../stores/useDiaryStore';
@@ -15,8 +15,9 @@ import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useJobStore } from '../stores/useJobStore';
 import { useLocationStore } from '../stores/useLocationStore';
-import { benCheatEventSlides, rebelRaidIntroSlides, evilEndingSlides } from '../data/events';
+import { benCheatEventSlides, rebelRaidIntroSlides, evilEndingSlides, hybridEndingSlides } from '../data/events';
 import type { ConversationEntry } from '../types';
+import { GameManagerService } from './GameManagerService';
 
 interface DialogueNode {
   npc_text: string;
@@ -309,6 +310,13 @@ export class DialogueService {
         dialogueId = 'finn_debt_intro';
       }
 
+      if (npcId === 'npc_beryl') {
+        const world = useWorldStateStore.getState();
+        if (world.getFlag('finn_debt_collection_active')) {
+          dialogueId = 'beryl_debt_approach';
+        }
+      }
+
       // Check if Roberta's quest is active or completed
       if (npcId === 'npc_roberta') {
         const journalStore = useJournalStore.getState();
@@ -472,20 +480,24 @@ export class DialogueService {
         useUIStore.getState().setCurrentEventId(eventId);
 
         if (eventId === 'raid_salty_mug_intro') {
-           useUIStore.getState().setEventSlides(rebelRaidIntroSlides);
-           useUIStore.getState().setScreen('event');
-           this.endDialogue();
-           useUIStore.getState().setDialogueNpcId(null);
+          useUIStore.getState().setEventSlides(rebelRaidIntroSlides);
+          useUIStore.getState().setScreen('event');
+          this.endDialogue();
+          useUIStore.getState().setDialogueNpcId(null);
         } else if (eventId === 'ben_cheat_event') {
-            useUIStore.getState().setEventSlides(benCheatEventSlides);
-            useUIStore.getState().setScreen('event');
-            this.endDialogue();
+          useUIStore.getState().setEventSlides(benCheatEventSlides);
+          useUIStore.getState().setScreen('event');
+          this.endDialogue();
         } else if (eventId === 'evil_path_end') {
-            useUIStore.getState().setEventSlides(evilEndingSlides);
-            useUIStore.getState().setScreen('event');
-            this.endDialogue();
+          useUIStore.getState().setEventSlides(evilEndingSlides);
+          useUIStore.getState().setScreen('event');
+          this.endDialogue();
+        } else if (eventId === 'finn_hybrid_end') {
+          useUIStore.getState().setEventSlides(hybridEndingSlides);
+          useUIStore.getState().setScreen('event');
+          this.endDialogue();
         } else {
-             console.warn(`[DialogueService] trigger_event: No slides mapped for ${eventId}`);
+          console.warn(`[DialogueService] trigger_event: No slides mapped for ${eventId}`);
         }
         break;
       }
@@ -683,6 +695,12 @@ export class DialogueService {
         {
             // Simple reload for now as a "Hard Reset"
             window.location.reload();
+        }
+        break;
+
+      case 'start_finn_betrayal_combat':
+        {
+          GameManagerService.startFinnBetrayalCombat();
         }
         break;
 

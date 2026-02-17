@@ -181,7 +181,7 @@
       { "text": "Cook on Firepit", "type": "cook", "target": "cook_firepit" },
       { "text": "Raid Salty Mug", "type": "trigger_event", "eventId": "raid_salty_mug_intro", "condition": "world_flags.raid_ready==true" },
       { "text": "Talk to Shaky Jace", "type": "dialogue", "target": "npc_shaky_jace" },
-      { "text": "Deliver Medicine", "type": "trigger_event", "eventId": "elara_delivery_event", "condition": "inventory.elara_medicine_parcel>0 && world_flags.debt_paid_by_elara==false" },
+      { "text": "Deliver Medicine", "type": "trigger_event", "eventId": "elara_delivery_event", "condition": "inventory.elara_medicine_parcel>0 && world_flags.debt_paid_by_elara==false && time.is_day==true" },
       { "text": "Travel to Salty Mug", "type": "navigate", "target": "salty_mug" },
       { "text": "Travel to Herbalist's Hovel", "type": "navigate", "target": "herbalists_hovel", "condition": "time.is_day==true" },
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" }
@@ -204,6 +204,7 @@
       { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.is_night==true&&time.weekday==Saturday" },
       { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.is_night==true&&time.weekday==Sunday" },
       { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.weekday==Monday&&time.hour_lt==6" },
+      { "text": "Help Ben Cheat", "type": "trigger_event", "eventId": "ben_cheat_event", "condition": "time.is_night==true && world_flags.ben_cheat_agreed==true && world_flags.debt_paid_by_ben==false" },
       { "text": "Raid the Salty Mug", "type": "trigger_event", "eventId": "raid_salty_mug_intro", "condition": "world_flags.raid_ready==true" },
       { "text": "Travel to Driftwatch Slums", "type": "navigate", "target": "driftwatch_slums" }
     ]

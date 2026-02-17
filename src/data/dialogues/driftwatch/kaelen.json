@@ -1,0 +1,15 @@
+{
+  "kaelen_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "The forge is hot today. What brings you here?",
+        "player_choices": [
+          {
+            "text": "Goodbye, Kaelen.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

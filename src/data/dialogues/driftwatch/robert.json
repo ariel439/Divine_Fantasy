@@ -1,0 +1,33 @@
+{
+  "robert_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Hey Luke.",
+        "player_choices": [
+          {
+            "text": "See you soon, Robert.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  },
+  "robert_intro": {
+    "nodes": {
+      "0": {
+        "npc_text": "Luke, think we can team up sometime?",
+        "player_choices": [
+          {
+            "text": "Let's play.",
+            "closes_dialogue": true,
+            "action": "set_flag:played_midday:true|update_relationship:npc_robert:10"
+          },
+          {
+            "text": "Talk to you later.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

@@ -24,7 +24,7 @@ import { ExplorationService } from '../../services/ExplorationService';
 import { mockBooks } from '../../data';
 import { useShopStore } from '../../stores/useShopStore';
 import { useCompanionStore } from '../../stores/useCompanionStore';
-import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, wakeupEventSlides, finnDebtIntroSlides, rebelRaidIntroSlides, sellLocketSlides } from '../../data/events';
+import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, wakeupEventSlides, finnDebtIntroSlides, rebelRaidIntroSlides, sellLocketSlides, elaraDeliverySlides, berylDeliverySlides, benCheatEventSlides } from '../../data/events';
 
 const LocationScreen: React.FC = () => {
   const { attributes, hp, energy, hunger, maxWeight } = useCharacterStore();
@@ -150,6 +150,23 @@ const LocationScreen: React.FC = () => {
         } else if (eventId === 'raid_salty_mug') {
           useUIStore.getState().setEventSlides(rebelRaidIntroSlides);
           useUIStore.getState().setCurrentEventId('raid_salty_mug_intro');
+          setScreen('event');
+        } else if (eventId === 'elara_delivery_event') {
+          useInventoryStore.getState().removeItem('elara_medicine_parcel', 1);
+          useWorldStateStore.getState().setFlag('elara_delivery_done', true);
+          useUIStore.getState().setEventSlides(elaraDeliverySlides);
+          useUIStore.getState().setCurrentEventId('elara_delivery_slides');
+          setScreen('event');
+        } else if (eventId === 'beryl_delivery_event') {
+          useInventoryStore.getState().removeItem('beryl_noble_parcel', 1);
+          useWorldStateStore.getState().setFlag('beryl_delivery_done', true);
+          useUIStore.getState().setEventSlides(berylDeliverySlides);
+          useUIStore.getState().setCurrentEventId('beryl_delivery_slides');
+          setScreen('event');
+        } else if (eventId === 'ben_cheat_event') {
+          useWorldStateStore.getState().setFlag('ben_cheat_done', true);
+          useUIStore.getState().setEventSlides(benCheatEventSlides);
+          useUIStore.getState().setCurrentEventId('ben_cheat_slides');
           setScreen('event');
         } else if (eventId === 'sell_locket_event') {
           useUIStore.getState().setEventSlides(sellLocketSlides);

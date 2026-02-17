@@ -1,0 +1,46 @@
+{
+  "kyle_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Luke!",
+        "player_choices": [
+          {
+            "text": "See you soon, Kyle.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  },
+  "kyle_smuggler_alert": {
+    "nodes": {
+      "0": {
+        "npc_text": "Luke—wake up. Robert slipped out before dawn. I saw him heading toward the docks with some rough-looking men.",
+        "player_choices": [
+          {
+            "text": "We go now.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  },
+  "kyle_intro": {
+    "nodes": {
+      "0": {
+        "npc_text": "Luke! Want to run around a bit?",
+        "player_choices": [
+          {
+            "text": "Let's play.",
+            "closes_dialogue": true,
+            "action": "set_flag:played_midday:true|update_relationship:npc_kyle:10"
+          },
+          {
+            "text": "Talk to you later.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

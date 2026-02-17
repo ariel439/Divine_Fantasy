@@ -24,6 +24,7 @@ export const berylDeliverySlides: Slide[] = events.berylDeliverySlides;
 export const benCheatEventSlides: Slide[] = events.benCheatEventSlides;
 export const sellLocketSlides: Slide[] = events.sellLocketSlides;
 export const evilEndingSlides: Slide[] = events.evilEndingSlides;
+export const hybridEndingSlides: Slide[] = events.hybridEndingSlides;
 
 type ChoiceEventId =
   | 'beryl_letter_pickup'

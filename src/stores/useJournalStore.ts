@@ -4,7 +4,7 @@ import { useInventoryStore } from './useInventoryStore';
 import { useCharacterStore } from './useCharacterStore';
 import { useDiaryStore } from './useDiaryStore';
 import questsData from '../data/quests.json';
-import dialogueData from '../data/dialogue.json';
+import dialogueData from '../data/dialogues/index';
 import type { Quest as UiQuest } from '../types';
 import npcsData from '../data/npcs.json';
 

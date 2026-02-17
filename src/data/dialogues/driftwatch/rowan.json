@@ -1,0 +1,15 @@
+{
+  "rowan_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "I'm Rowan. What?",
+        "player_choices": [
+          {
+            "text": "Goodbye, Rowan.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

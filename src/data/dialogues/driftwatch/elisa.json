@@ -1,0 +1,83 @@
+{
+  "elisa_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Welcome to the farm.",
+        "player_choices": [
+          {
+            "text": "Goodbye, Elisa.",
+            "closes_dialogue": true
+          },
+          {
+            "text": "I need to talk to you.",
+            "next_node": "elisa_night_raid",
+            "condition": "time.is_night==true"
+          }
+        ]
+      },
+      "elisa_night_raid": {
+        "npc_text": "He's... out. Drinking away our savings again. What do you want at this hour?",
+        "player_choices": [
+          {
+            "text": "Ben refuses to pay. You're going to cover his debt. Open your pockets.",
+            "next_node": "elisa_scared"
+          },
+          {
+            "text": "Nothing.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "elisa_scared": {
+        "npc_text": "I... I don't have any money! Please!",
+        "player_choices": [
+          {
+            "text": "That locket looks valuable. Hand it over.",
+            "next_node": "elisa_give_locket"
+          }
+        ]
+      },
+      "elisa_locket_confrontation": {
+        "npc_text": "The... the locket? That was my grandmother's! You can't have it!",
+        "player_choices": [
+          {
+            "text": "Give it to me, or I'll tell Finn you're holding out.",
+            "next_node": "elisa_give_locket",
+            "req_skill_level": {
+              "skill": "coercion",
+              "level": 10
+            }
+          },
+          {
+            "text": "It's for the debt. Hand it over.",
+            "next_node": "elisa_give_locket_force"
+          }
+        ]
+      },
+      "elisa_give_locket": {
+        "npc_text": "No! It's my grandmother's! ... Okay! Take it! Just don't hurt me!",
+        "player_choices": [
+          {
+            "text": "Pleasure doing business.",
+            "closes_dialogue": true,
+            "action": "add_item:antique_locket:1|update_relationship:npc_elisa:-50"
+          }
+        ]
+      },
+      "elisa_give_locket_force": {
+        "npc_text": "No! Get out! (She grabs a pitchfork)",
+        "player_choices": [
+          {
+            "text": "Bad move. (Attack)",
+            "action": "start_combat:elisa_combat",
+            "closes_dialogue": true
+          },
+          {
+            "text": "Relax, I'm going.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

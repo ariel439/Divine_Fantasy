@@ -1,0 +1,100 @@
+{
+  "elara_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Herbs, potions, salves... I have everything a healer needs.",
+        "player_choices": [
+          {
+            "text": "Show me your wares.",
+            "action": "open_shop:herbalists_hovel"
+          },
+          {
+            "text": "Finn sent me. Pay 10 silvers.",
+            "next_node": "debt_confrontation",
+            "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_elara==false && world_flags.elara_help_agreed==false && inventory.elara_medicine_parcel==0"
+          },
+          {
+            "text": "I delivered the medicine.",
+            "next_node": "delivery_reward",
+            "condition": "world_flags.elara_delivery_done==true && world_flags.debt_paid_by_elara==false"
+          },
+          {
+            "text": "I know about your 'nighttime business', Elara.",
+            "next_node": "drug_confrontation",
+            "condition": "world_flags.elara_secret_known==true && world_flags.debt_paid_by_elara==false"
+          },
+          {
+            "text": "Goodbye, Elara.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "debt_confrontation": {
+        "npc_text": "Ten silvers? I'm just a simple herbalist. Perhaps we can work something out?",
+        "player_choices": [
+          {
+            "text": "Is there any other way you could pay?",
+            "next_node": "elara_help_offer"
+          },
+          {
+            "text": "No, you pay now.",
+            "next_node": "elara_angry_refusal"
+          }
+        ]
+      },
+      "elara_help_offer": {
+        "npc_text": "Well... I have a package that needs to go to the sewers. It's just... medicine. For the poor. But the guards are strict. Deliver it, and I'll pay you.",
+        "player_choices": [
+          {
+            "text": "I'll do it.",
+            "action": "add_item:elara_medicine_parcel:1|set_flag:elara_help_agreed:true",
+            "closes_dialogue": true,
+            "condition": "inventory.elara_medicine_parcel==0"
+          },
+          {
+            "text": "No.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "elara_angry_refusal": {
+        "npc_text": "Get out of my hovel you piece of garbage!",
+        "player_choices": [
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "delivery_reward": {
+        "npc_text": "You did? Good. Here is the 10 silvers for Finn. And thank you... for being discreet.",
+        "player_choices": [
+          {
+            "text": "Take the money.",
+            "action": "collect_debt_from:npc_elara",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "drug_confrontation": {
+        "npc_text": "Shh! Keep your voice down! Who told you?!",
+        "player_choices": [
+          {
+            "text": "Doesn't matter. Pay the 10 silvers, or the guards find out.",
+            "next_node": "drug_blackmail"
+          }
+        ]
+      },
+      "drug_blackmail": {
+        "npc_text": "Fine! Fine! Here! Just take it and keep your mouth shut!",
+        "player_choices": [
+          {
+            "text": "Pleasure doing business.",
+            "action": "collect_debt_from:npc_elara|add_xp:coercion:50|update_relationship:npc_elara:-40|set_flag:elara_blackmailed:true",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "old_crank_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Bah! Another whelp in the tavern. (He eyes your drink).",
+        "player_choices": [
+          {
+            "text": "Give Beer (Gossip)",
+            "next_node": "crank_gossip_1",
+            "action": "remove_item:beer:1|set_flag:crank_beer_1:true",
+            "condition": "inventory.beer>=1 && world_flags.crank_beer_1==false"
+          },
+          {
+            "text": "Give Beer (Gossip)",
+            "next_node": "crank_gossip_2",
+            "action": "remove_item:beer:1|set_flag:crank_beer_2:true",
+            "condition": "inventory.beer>=1 && world_flags.crank_beer_1==true && world_flags.crank_beer_2==false"
+          },
+          {
+            "text": "Give Beer (Gossip)",
+            "next_node": "crank_gossip_3",
+            "action": "remove_item:beer:1|set_flag:crank_beer_3:true|start_quest:rebel_path|advance_quest_stage:rebel_path",
+            "condition": "inventory.beer>=1 && world_flags.crank_beer_2==true && world_flags.crank_beer_3==false"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "crank_gossip_1": {
+        "npc_text": "Ah... that hits the spot. Did you know Roberta at Tide & Trade has been skimming off the top? Her 'fresh' fish ain't always fresh.",
+        "player_choices": [
+          {
+            "text": "Interesting.",
+            "next_node": "0"
+          }
+        ]
+      },
+      "crank_gossip_2": {
+        "npc_text": "More? You're alright, kid. Captain Elias... he keeps a bottle of rum in his desk. Drinks on the job, he does.",
+        "player_choices": [
+          {
+            "text": "Is that so?",
+            "next_node": "0"
+          }
+        ]
+      },
+      "crank_gossip_3": {
+        "npc_text": "Listen close. Finn... he's dealing in illegal weapons. I saw his boys moving crates to the Forge. Talk to Cyrus, the apprentice. He knows.",
+        "player_choices": [
+          {
+            "text": "I'll investigate.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  },
+  "old_leo_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Welcome home, child.",
+        "player_choices": [
+          {
+            "text": "Hey Leo, can you remind me of the story of the lighthouse?",
+            "next_node": "lighthouse_lore",
+            "condition": "world_flags.leo_lighthouse_history_seen==false"
+          },
+          {
+            "text": "Goodbye, Leo.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Stay safe.",
+        "player_choices": [
+          {
+            "text": "Back",
+            "next_node": "0"
+          }
+        ]
+      },
+      "lighthouse_lore": {
+        "npc_text": "Years ago, a great fire swept Driftwatch, burning nearly forty percent of the town. The orphanage, our lighthouse, was among the places caught in the blaze. A man named Leo carried sixteen children to safety, giving his own life to save them. That is why he is remembered as a Son of the Moon.",
+        "player_choices": [
+          {
+            "text": "Who are the Sons of the Moon?",
+            "next_node": "sons_moon"
+          },
+          {
+            "text": "Thank you, Leo.",
+            "closes_dialogue": true,
+            "action": "set_flag:leo_lighthouse_history_seen:true"
+          }
+        ]
+      },
+      "sons_moon": {
+        "npc_text": "They are heroes the Moon speaks to called in hard times to guide and protect, so people can endure and pass through their trials.",
+        "player_choices": [
+          {
+            "text": "Thank you.",
+            "closes_dialogue": true,
+            "action": "set_flag:leo_sons_of_the_moon_seen:true"
+          }
+        ]
+      }
+    }
+  },
+  "old_leo_intro": {
+    "nodes": {
+      "0": {
+        "npc_text": "Good morning, Luke. I waited at the door last night and you did not come until the lamps burned low. Tell me, what kept you so long?",
+        "player_choices": [
+          {
+            "text": "I lingered at the canals, practicing with the nets.",
+            "next_node": "fish",
+            "action": "grant_skill_level:fishing:3|add_item:fishing_rod:1"
+          },
+          {
+            "text": "I stayed on the street speaking with Roberta.",
+            "next_node": "roberta",
+            "action": "grant_skill_level:persuasion:3|set_relationship:npc_roberta:20|set_flag:intro_spoke_roberta:true|add_known_npc:npc_roberta"
+          },
+          {
+            "text": "I was drawn into a fight with a noble boy.",
+            "next_node": "fight",
+            "action": "grant_skill_level:attack:3|add_item:crude_knife:1"
+          }
+        ]
+      },
+      "fish": {
+        "npc_text": "Diligence at the water is an honest answer. The canals can teach a careful hand. Still, do not keep the orphanage waiting again. Go and take your breakfast, and return with a steadier habit.",
+        "player_choices": [
+          {
+            "text": "Yes, Leo.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "roberta": {
+        "npc_text": "Words well placed can mend more than boards. Roberta is a good sort; keep good company, and mind your hours. Go now and eat before the day runs ahead of you.",
+        "player_choices": [
+          {
+            "text": "Yes, Leo.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "fight": {
+        "npc_text": "No more brawling, Luke. Pride is a poor meal and trouble is quick to follow it. If you wish to stand tall, do so in your work. Go and take your breakfast, and do not be late again.",
+        "player_choices": [
+          {
+            "text": "Yes, Leo.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

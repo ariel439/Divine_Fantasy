@@ -1,0 +1,291 @@
+{
+  "finn_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Welcome to the Salty Mug.",
+        "player_choices": [
+          {
+            "text": "Let me see your stock.",
+            "action": "open_shop:salty_mug"
+          },
+          {
+            "text": "About the collection job.",
+            "next_node": "job_progress",
+            "condition": "world_flags.finn_debt_collection_active==true"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "job_progress": {
+        "npc_text": "Three names. Ten silvers each. Bring me thirty when you're done.",
+        "player_choices": [
+          {
+            "text": "Here is the 30 silvers.",
+            "next_node": "job_complete_loyalist",
+            "action": "remove_money:30|complete_quest:finn_debt_collection|add_xp:charisma:100",
+            "condition": "money>=30 && world_flags.debt_paid_by_ben==true && world_flags.debt_paid_by_elara==true && world_flags.debt_paid_by_beryl==true && world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==false"
+          },
+          {
+            "text": "Here is the 30 silvers.",
+            "next_node": "finn_weakness_reveal",
+            "action": "remove_money:30|complete_quest:finn_debt_collection",
+            "condition": "money>=30 && world_flags.ben_cheat_done==true"
+          },
+          {
+            "text": "Here is the 30 silvers.",
+            "next_node": "finn_weakness_reveal",
+            "action": "remove_money:30|complete_quest:finn_debt_collection",
+            "condition": "money>=30 && world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==true"
+          },
+          {
+            "text": "Here is the 30 silvers.",
+            "next_node": "finn_weakness_reveal",
+            "action": "remove_money:30|complete_quest:finn_debt_collection",
+            "condition": "money>=30 && world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==true"
+          },
+          {
+            "text": "I collected most of it... but I forgave Beryl.",
+            "next_node": "finn_fail_beryl",
+            "condition": "world_flags.beryl_debt_forgiven==true"
+          },
+          {
+            "text": "I'll get back to it.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "finn_weakness_reveal": {
+        "npc_text": "Thirty silvers. You got it. But I hear things, kid. I hear how you got it.",
+        "player_choices": [
+          {
+            "text": "What do you mean?",
+            "next_node": "finn_mockery_ben",
+            "condition": "world_flags.ben_cheat_done==true"
+          },
+          {
+            "text": "What do you mean?",
+            "next_node": "finn_mockery_elara",
+            "condition": "world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==true"
+          },
+          {
+            "text": "What do you mean?",
+            "next_node": "finn_mockery_beryl",
+            "condition": "world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==true"
+          }
+        ]
+      },
+      "finn_mockery_ben": {
+        "npc_text": "Oh, you helped Ben stealing.",
+        "player_choices": [
+          {
+            "text": "...",
+            "next_node": "finn_mockery_elara",
+            "condition": "world_flags.elara_helped_drug==true"
+          },
+          {
+            "text": "...",
+            "next_node": "finn_mockery_beryl",
+            "condition": "world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==true"
+          },
+          {
+            "text": "...",
+            "next_node": "finn_attack",
+            "condition": "world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==false"
+          }
+        ]
+      },
+      "finn_mockery_elara": {
+        "npc_text": "Oh, you was a drug mule for the woman.",
+        "player_choices": [
+          {
+            "text": "...",
+            "next_node": "finn_mockery_beryl",
+            "condition": "world_flags.beryl_helped_pimp==true"
+          },
+          {
+            "text": "...",
+            "next_node": "finn_attack",
+            "condition": "world_flags.beryl_helped_pimp==false"
+          }
+        ]
+      },
+      "finn_mockery_beryl": {
+        "npc_text": "You were a pimp for Beryl.",
+        "player_choices": [
+          {
+            "text": "...",
+            "next_node": "finn_attack"
+          }
+        ]
+      },
+      "finn_attack": {
+        "npc_text": "That is weakness. And the Guild has no room for weakness.",
+        "player_choices": [
+          {
+            "text": "Wait!",
+            "action": "start_finn_betrayal_combat",
+            "closes_dialogue": true,
+            "condition": "world_flags.ben_cheat_done==true && world_flags.elara_helped_drug==true && world_flags.beryl_helped_pimp==true"
+          },
+          {
+            "text": "Wait!",
+            "action": "trigger_event:finn_hybrid_end",
+            "closes_dialogue": true,
+            "condition": "world_flags.ben_cheat_done==true && world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==false"
+          },
+          {
+            "text": "Wait!",
+            "action": "trigger_event:finn_hybrid_end",
+            "closes_dialogue": true,
+            "condition": "world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==true && world_flags.beryl_helped_pimp==false"
+          },
+          {
+            "text": "Wait!",
+            "action": "trigger_event:finn_hybrid_end",
+            "closes_dialogue": true,
+            "condition": "world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==true"
+          },
+          {
+            "text": "Wait!",
+            "action": "trigger_event:finn_hybrid_end",
+            "closes_dialogue": true,
+            "condition": "world_flags.ben_cheat_done==true && world_flags.elara_helped_drug==true && world_flags.beryl_helped_pimp==false"
+          },
+          {
+            "text": "Wait!",
+            "action": "trigger_event:finn_hybrid_end",
+            "closes_dialogue": true,
+            "condition": "world_flags.ben_cheat_done==true && world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==true"
+          },
+          {
+            "text": "Wait!",
+            "action": "trigger_event:finn_hybrid_end",
+            "closes_dialogue": true,
+            "condition": "world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==true && world_flags.beryl_helped_pimp==true"
+          }
+        ]
+      },
+      "job_complete_loyalist": {
+        "npc_text": "Heh. You actually did it. You have potential, kid. Ruthless. Efficient. Just like... well, nevermind. Here. Take this. It's a key... of sorts. Show it to the wall in the cellar. You might find new friends.",
+        "player_choices": [
+          {
+            "text": "What is this?",
+            "closes_dialogue": true,
+            "action": "add_item:vanessas_charm:1|trigger_event:evil_path_end"
+          }
+        ]
+      },
+      "finn_fail_beryl": {
+        "npc_text": "You what? You let a mark cry you into submission? Pathetic. You're paying his share out of your own pocket then. Do you have the 30 silvers?",
+        "player_choices": [
+          {
+            "text": "Yes. Here.",
+            "next_node": "finn_fail_beryl_pay",
+            "condition": "money>=30"
+          },
+          {
+            "text": "Not yet.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "finn_fail_beryl_pay": {
+        "npc_text": "Good. Next time, don't be so soft. Now get out of my sight.",
+        "player_choices": [
+          {
+            "text": "...",
+            "closes_dialogue": true,
+            "action": "remove_money:30|complete_quest:finn_debt_collection"
+          }
+        ]
+      },
+      "jd_rebuke": {
+        "npc_text": "Come back when you have the silver, kid.",
+        "player_choices": [
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  },
+  "finn_debt_intro": {
+    "nodes": {
+      "0": {
+        "npc_text": "Pay up.",
+        "player_choices": [
+          {
+            "text": "I'll pay up.",
+            "next_node": "math",
+            "action": "set_flag:finn_debt_intro_pending:false"
+          },
+          {
+            "text": "I don't have the money.",
+            "next_node": "math",
+            "action": "set_flag:finn_debt_intro_pending:false"
+          },
+          {
+            "text": "Please, give me a chance.",
+            "next_node": "math",
+            "action": "set_flag:finn_debt_intro_pending:false"
+          }
+        ]
+      },
+      "math": {
+        "npc_text": "Three months at twenty copper a day. Eighteen silvers you owe, and you don't have it. Here's the job, make three pay for you: Ben at the farm, Beryl at General Goods, and Elara in her hovel. Ten silvers from each. Thirty days. Bring me thirty silvers. And listen close: no violence. We're professionals, not thugs.",
+        "player_choices": [
+          {
+            "text": "I accept.",
+            "action": "start_quest:finn_debt_collection|start_debt_collection",
+            "closes_dialogue": true
+          },
+          {
+            "text": "No choice. I'll do it.",
+            "action": "start_quest:finn_debt_collection|start_debt_collection",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  },
+  "finn_timeout_event": {
+    "nodes": {
+      "0": {
+        "npc_text": "Time's up, kid. I gave you seven days.",
+        "player_choices": [
+          {
+            "text": "Wait, I can explain!",
+            "next_node": "1"
+          }
+        ]
+      },
+      "1": {
+        "npc_text": "Save it. Boys, teach him a lesson about deadlines.",
+        "player_choices": [
+          {
+            "text": "[Fight] You can't take me!",
+            "next_node": "game_over"
+          },
+          {
+            "text": "[Submit] No, please!",
+            "next_node": "game_over"
+          }
+        ]
+      },
+      "game_over": {
+        "npc_text": "[GAME OVER] The beating is severe. You fade into darkness... (Refresh to restart)",
+        "player_choices": [
+          {
+            "text": "...",
+            "closes_dialogue": true,
+            "action": "trigger_game_over"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,174 @@
+{
+  "boric_intro": {
+    "nodes": {
+      "0": {
+        "npc_text": "Oh, a new face. I haven’t seen you on the docks yet, I know everyone that comes through. Name’s Boric, by the way.",
+        "player_choices": [
+          {
+            "text": "I’m looking for work.",
+            "next_node": "bi_work",
+            "condition": "relationship.npc_boric>=-50 && job.job_dockhand.active==false && job.job_dockhand.fired==false"
+          },
+          {
+            "text": "Can I have my job back?",
+            "next_node": "bi_rehiring",
+            "condition": "job.job_dockhand.fired==true"
+          },
+          {
+            "text": "I’m looking for work.",
+            "next_node": "bi_refuse",
+            "condition": "relationship.npc_boric<-50"
+          },
+          {
+            "text": "About the job...",
+            "next_node": "bi_work",
+            "condition": "job.job_dockhand.active==true"
+          },
+          {
+            "text": "Goodbye, Boric.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "bi_work": {
+        "npc_text": "Dockhands haul crates, lash lines, and mind the tide. Twenty copper a shift. Hours are eight to four, weekdays. Be here before the horn, and don’t make me regret putting your name in the ledger.",
+        "player_choices": [
+          {
+            "text": "Hire me.",
+            "action": "hire_job:job_dockhand",
+            "next_node": "0",
+            "condition": "job.job_dockhand.active==false"
+          },
+          {
+            "text": "Understood. (Back)",
+            "next_node": "0",
+            "condition": "job.job_dockhand.active==true"
+          },
+          {
+            "text": "Not now. (Back)",
+            "next_node": "0",
+            "condition": "job.job_dockhand.active==false"
+          }
+        ]
+      },
+      "bi_refuse": {
+        "npc_text": "Get off my pier. I don’t hire dead weight.",
+        "player_choices": [
+          {
+            "text": "I’ll leave you to it.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "bi_rehiring": {
+        "npc_text": "We tried you. Missed days or didn’t cut it. You’re off the roster.",
+        "player_choices": [
+          {
+            "text": "Please, give me another chance.",
+            "action": "try_hire_or_deny:job_dockhand:bi_deny",
+            "next_node": "0"
+          },
+          {
+            "text": "I understand. (Back)",
+            "next_node": "0"
+          }
+        ]
+      },
+      "bi_deny": {
+        "npc_text": "No.",
+        "player_choices": [
+          {
+            "text": "Understood. (Back)",
+            "next_node": "0"
+          }
+        ]
+      }
+    }
+  },
+  "boric_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Harbor’s loud today. What do you need?",
+        "player_choices": [
+          {
+            "text": "I’m looking for work.",
+            "next_node": "bd_work",
+            "condition": "relationship.npc_boric>=-50 && job.job_dockhand.active==false && job.job_dockhand.fired==false"
+          },
+          {
+            "text": "Can I have my job back?",
+            "next_node": "bd_rehiring",
+            "condition": "job.job_dockhand.fired==true"
+          },
+          {
+            "text": "I’m looking for work.",
+            "next_node": "bd_refuse",
+            "condition": "relationship.npc_boric<-50"
+          },
+          {
+            "text": "About the job...",
+            "next_node": "bd_work",
+            "condition": "job.job_dockhand.active==true"
+          },
+          {
+            "text": "Goodbye, Boric.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "bd_work": {
+        "npc_text": "Twenty copper a shift, eight to four, weekdays. Show up before the horn.",
+        "player_choices": [
+          {
+            "text": "Hire me.",
+            "action": "hire_job:job_dockhand",
+            "next_node": "0",
+            "condition": "job.job_dockhand.active==false"
+          },
+          {
+            "text": "Understood. (Back)",
+            "next_node": "0",
+            "condition": "job.job_dockhand.active==true"
+          },
+          {
+            "text": "Not now. (Back)",
+            "next_node": "0",
+            "condition": "job.job_dockhand.active==false"
+          }
+        ]
+      },
+      "bd_refuse": {
+        "npc_text": "Get off my pier. I don’t hire dead weight.",
+        "player_choices": [
+          {
+            "text": "I’ll leave you to it.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "bd_rehiring": {
+        "npc_text": "We tried you. Missed days or didn’t cut it. You’re off the roster.",
+        "player_choices": [
+          {
+            "text": "Please, give me another chance.",
+            "action": "try_hire_or_deny:job_dockhand:bd_deny",
+            "next_node": "0"
+          },
+          {
+            "text": "I understand. (Back)",
+            "next_node": "0"
+          }
+        ]
+      },
+      "bd_deny": {
+        "npc_text": "No.",
+        "player_choices": [
+          {
+            "text": "Understood. (Back)",
+            "next_node": "0"
+          }
+        ]
+      }
+    }
+  }
+}

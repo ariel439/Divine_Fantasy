@@ -1,0 +1,33 @@
+{
+  "sarah_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Hi Luke!",
+        "player_choices": [
+          {
+            "text": "See you soon, Sarah.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  },
+  "sarah_intro": {
+    "nodes": {
+      "0": {
+        "npc_text": "Hi Luke! Want to help me later?",
+        "player_choices": [
+          {
+            "text": "Let's play.",
+            "closes_dialogue": true,
+            "action": "set_flag:played_midday:true|update_relationship:npc_sarah:10"
+          },
+          {
+            "text": "Talk to you later.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

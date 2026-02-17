@@ -1,0 +1,15 @@
+{
+  "adalia_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Ah, a visitor to the library.",
+        "player_choices": [
+          {
+            "text": "Goodbye, Adalia.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

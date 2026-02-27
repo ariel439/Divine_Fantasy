@@ -39,6 +39,10 @@
           {
             "text": "No, you pay now.",
             "next_node": "elara_angry_refusal"
+          },
+          {
+            "text": "I'll come back later.",
+            "closes_dialogue": true
           }
         ]
       },

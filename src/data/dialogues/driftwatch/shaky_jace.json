@@ -5,10 +5,16 @@
         "npc_text": "Spare a coin? Just one coin... I need my fix...",
         "player_choices": [
           {
-            "text": "Here's 3 coppers.",
-            "action": "remove_money:3:copper",
+            "text": "Here's 1 copper.",
+            "action": "remove_money:1:copper",
             "next_node": "jace_talk",
-            "condition": "currency.copper>=3"
+            "condition": "currency.copper>=1 && world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_elara==false && world_flags.elara_secret_known==false"
+          },
+          {
+            "text": "Here's 1 copper.",
+            "action": "remove_money:1:copper",
+            "next_node": "jace_thanks",
+            "condition": "currency.copper>=1 && world_flags.elara_secret_known==true"
           },
           {
             "text": "Get lost.",
@@ -32,6 +38,15 @@
             "text": "Interesting. (Leave)",
             "closes_dialogue": true,
             "action": "set_flag:elara_secret_known:true"
+          }
+        ]
+      },
+      "jace_thanks": {
+        "npc_text": "Bless you... bless you... that'll keep me warm tonight.",
+        "player_choices": [
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
           }
         ]
       }

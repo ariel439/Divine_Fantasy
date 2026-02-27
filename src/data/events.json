@@ -135,19 +135,19 @@
   ],
   "elaraDeliverySlides": [
     {
-      "image": "/assets/locations/driftwatch_slums_day.png",
+      "image": "/assets/events/elara_delivery.png",
       "text": "You navigate the twisting alleys of the slums until you find the recipient—a twitchy man in the shadows. He grabs the package, checks the contents, and nods. The 'medicine' has been delivered."
     }
   ],
   "berylDeliverySlides": [
     {
-      "image": "/assets/locations/driftwatch_noble_quarter_day.png",
-      "text": "You approach the servant's entrance of a grand estate. The steward takes the package with a sneer, but signs the receipt. The delivery is complete."
+      "image": "/assets/events/beryl_delivery.png",
+      "text": "You wait at the servant's entrance of a grand estate until a noblewoman arrives. She takes the parcel with a cool glance and signs the receipt with a practiced hand. The delivery is complete."
     }
   ],
   "benCheatEventSlides": [
     {
-      "image": "/assets/locations/salty_mug_night.png",
+      "image": "/assets/events/ben_cheat.png",
       "text": "The cards fly. Ben sweats. You signal from the side—a cough, a tap. He catches on. Slowly, the pile of silvers in front of him grows. He cashes out before they catch on."
     }
   ],

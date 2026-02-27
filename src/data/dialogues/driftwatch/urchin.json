@@ -7,6 +7,10 @@
           {
             "text": "Hold it! What are you doing sneaking out of Beryl's?",
             "next_node": "urchin_caught"
+          },
+          {
+            "text": "Ignore him.",
+            "closes_dialogue": true
           }
         ]
       },
@@ -16,6 +20,10 @@
           {
             "text": "At night? With a bag?",
             "next_node": "urchin_lie"
+          },
+          {
+            "text": "Whatever. Get out of here.",
+            "closes_dialogue": true
           }
         ]
       },
@@ -25,6 +33,10 @@
           {
             "text": "What's that paper in your pocket?",
             "next_node": "urchin_letter"
+          },
+          {
+            "text": "Just food? Fine. Go.",
+            "closes_dialogue": true
           }
         ]
       },

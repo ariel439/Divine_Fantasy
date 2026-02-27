@@ -163,13 +163,36 @@
           },
           {
             "text": "Finn sent me. Pay 10 silvers.",
-            "action": "collect_debt_from:npc_beryl",
-            "closes_dialogue": true,
+            "next_node": "tavern_refusal",
             "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_beryl==false && world_flags.beryl_help_agreed==false && inventory.beryl_noble_parcel==0"
+          },
+          {
+            "text": "About that letter...",
+            "next_node": "tavern_blackmail",
+            "condition": "world_flags.beryl_letter_found==true && world_flags.debt_paid_by_beryl==false"
           },
           {
             "text": "Goodbye, Beryl.",
             "closes_dialogue": true
+          }
+        ]
+      },
+      "tavern_refusal": {
+        "npc_text": "Not here, kid. I'm trying to enjoy my ale. Come by the shop in the morning.",
+        "player_choices": [
+          {
+            "text": "Fine.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "tavern_blackmail": {
+        "npc_text": "You found it? Shh! Not so loud! Fine, take the money, just give it to me!",
+        "player_choices": [
+          {
+            "text": "Pleasure doing business.",
+            "closes_dialogue": true,
+            "action": "collect_debt_from:npc_beryl|remove_item:beryl_noble_letter:1|add_xp:coercion:20|update_relationship:npc_beryl:-10"
           }
         ]
       },
@@ -215,7 +238,7 @@
         "npc_text": "Ten silvers? That's a lot of money. What are my options?",
         "player_choices": [
           {
-            "text": "You could help me with some chores.",
+            "text": "Maybe I can help with something?",
             "next_node": "soft_approach",
             "condition": "world_flags.beryl_soft_approach_started==false"
           },

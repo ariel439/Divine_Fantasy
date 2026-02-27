@@ -5,7 +5,7 @@
         "npc_text": "Hard work on the farm. What can I do for you?",
         "player_choices": [
           {
-            "text": "[Collect Share] We won! Pay up.",
+            "text": "We won! Pay up.",
             "next_node": "ben_pay_cheat",
             "condition": "world_flags.ben_cheat_done==true && world_flags.debt_paid_by_ben==false"
           },
@@ -16,7 +16,23 @@
           },
           {
             "text": "Goodbye, Ben.",
-            "closes_dialogue": true
+            "closes_dialogue": true,
+            "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_ben==false && world_flags.ben_cheat_agreed==false"
+          },
+          {
+            "text": "Goodbye, Ben.",
+            "closes_dialogue": true,
+            "condition": "world_flags.finn_debt_collection_active==false"
+          },
+          {
+            "text": "Goodbye, Ben.",
+            "closes_dialogue": true,
+            "condition": "world_flags.debt_paid_by_ben==true"
+          },
+          {
+            "text": "Goodbye, Ben.",
+            "closes_dialogue": true,
+            "condition": "world_flags.ben_cheat_agreed==true && world_flags.ben_cheat_done==false"
           }
         ]
       },

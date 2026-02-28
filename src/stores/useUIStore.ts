@@ -1,12 +1,10 @@
 import { create } from 'zustand';
-import type { CraftingSkill } from '../types';
-
-type Screen = 'mainMenu' | 'characterSelection' | 'prologue' | 'event' | 'inGame' | 'dialogue' | 'dialogueRoberta' | 'characterScreen' | 'inventory' | 'jobScreen' | 'journal' | 'diary' | 'library' | 'trade' | 'tradeConfirmation' | 'crafting' | 'choiceEvent' | 'combat' | 'combatVictory' | 'companion' | 'debugMenu';
+import type { CraftingSkill, GameState } from '../types';
 
 type Modal = 'confirmation' | 'options' | 'saveLoad' | 'sleepWait' | 'timedAction' | 'actionSummary' | 'quantity' | 'tutorial' | null;
 
 interface UIState {
-  currentScreen: Screen;
+  currentScreen: GameState;
   activeModal: Modal;
   dialogueNpcId: string | null;
   shopId: string | null;
@@ -18,7 +16,7 @@ interface UIState {
   craftingSkill: CraftingSkill | null;
   confirmationType: string | null;
   // Actions
-  setScreen: (screen: Screen) => void;
+  setScreen: (screen: GameState) => void;
   openModal: (modal: Modal) => void;
   closeModal: () => void;
   setDialogueNpcId: (npcId: string | null) => void;

@@ -17,25 +17,73 @@ import enemiesJson from '../data/enemies.json';
 import itemsJson from '../data/items.json';
 import type { CombatParticipant, Item } from '../types';
 import { DataValidator } from './DataValidator';
+import { timeoutSlides, starvationSlides, gameOverSlides } from '../data/events';
 
 export class GameManagerService {
   private static currentDay: number = 0;
+  private static initialized: boolean = false;
 
   static init(): void {
-    // Subscribe to world time changes for weekly resets
+    if (GameManagerService.initialized) return;
+    GameManagerService.initialized = true;
+
+    // Subscribe to world time changes
     useWorldTimeStore.subscribe(
       (state) => {
         const day = state.day;
         if (day !== GameManagerService.currentDay) {
           GameManagerService.currentDay = day;
+          
           // Check for weekly reset (e.g., every 7 days)
           if (day > 1 && (day - 1) % 7 === 0) { // Reset on day 8, 15, 22, etc.
             console.log('Weekly store reset triggered!');
             useShopStore.getState().resetAllShops();
           }
+
+          // 7-Day Demo Timeout Check (End of Day 7 -> Day 8)
+          // If we reach Day 8, trigger game over immediately
+          if (day > 7) {
+             const ui = useUIStore.getState();
+             const world = useWorldStateStore.getState();
+             // Only trigger if intro is done and not already over
+             if (world.introCompleted && ui.currentEventId !== 'game_over' && ui.currentEventId !== 'timeout_game_over') {
+                console.log('Game Over: 7-Day Timeout Reached');
+                ui.setEventSlides(timeoutSlides);
+                ui.setCurrentEventId('timeout_game_over');
+                ui.setScreen('event');
+             }
+          }
         }
       }
     );
+
+    // Subscribe to character stats (HP/Hunger) for Death/Starvation
+    useCharacterStore.subscribe((state) => {
+        const ui = useUIStore.getState();
+        const world = useWorldStateStore.getState();
+        
+        // Skip checks during intro or if already dead
+        if (!world.introCompleted || ui.currentEventId === 'game_over' || ui.currentEventId === 'starvation_game_over' || ui.currentEventId === 'timeout_game_over') {
+            return;
+        }
+
+        if (state.hp <= 0) {
+            // Check if starvation (hunger is 0 and caused the drain)
+            if (state.hunger <= 0) {
+                console.log('Game Over: Starvation');
+                ui.setEventSlides(starvationSlides);
+                ui.setCurrentEventId('starvation_game_over');
+                ui.setScreen('event');
+            } else if (ui.currentScreen !== 'combat') {
+                // Generic death outside combat (e.g. event choice)
+                console.log('Game Over: Generic Death');
+                ui.setEventSlides(gameOverSlides);
+                ui.setCurrentEventId('game_over');
+                ui.setScreen('event');
+            }
+        }
+    });
+
     try {
       const issues = DataValidator.run();
       if (issues.length > 0) {
@@ -406,6 +454,62 @@ export class GameManagerService {
     ];
 
     useCombatStore.getState().startCombat(player, companions, enemies);
+    useUIStore.getState().setScreen('combat');
+  }
+
+  static startFinnTimeoutCombat(): void {
+    const character = useCharacterStore.getState();
+
+    const enemies: CombatParticipant[] = [];
+
+    // 1. Finn (Boss)
+    const finnTemplate = enemiesJson['finn_boss'];
+    enemies.push({
+      id: `finn_boss_${Date.now()}`,
+      name: finnTemplate?.name || 'Finn',
+      hp: finnTemplate?.stats.hp || 150,
+      maxHp: finnTemplate?.stats.hp || 150,
+      attack: finnTemplate?.stats.attack || 15,
+      defence: finnTemplate?.stats.defence || 8,
+      dexterity: finnTemplate?.stats.dexterity || 10,
+      portraitUrl: finnTemplate?.image || '/assets/portraits/Finn.png',
+      isPlayer: false,
+      isCompanion: false,
+    });
+
+    // 2. Add 3 Thugs
+    const thugTemplate = enemiesJson['thug_generic'];
+    for (let i = 0; i < 3; i++) {
+      enemies.push({
+        id: `thug_${i}_${Date.now()}`,
+        name: thugTemplate?.name || 'Thug',
+        hp: thugTemplate?.stats.hp || 80,
+        maxHp: thugTemplate?.stats.hp || 80,
+        attack: thugTemplate?.stats.attack || 12,
+        defence: thugTemplate?.stats.defence || 4,
+        dexterity: thugTemplate?.stats.dexterity || 5,
+        portraitUrl: thugTemplate?.image || '/assets/portraits/Thug.png',
+        isPlayer: false,
+        isCompanion: false,
+      });
+    }
+
+    // 3. Setup Player
+    const playerStats = GameManagerService.calculatePlayerStats(character);
+    const player: CombatParticipant = {
+      id: 'player',
+      name: character.bio?.name || 'Adventurer',
+      hp: character.hp,
+      maxHp: character.maxHp || 100,
+      attack: playerStats.attack,
+      defence: playerStats.defence,
+      dexterity: playerStats.dexterity,
+      portraitUrl: character.bio?.image || 'https://i.imgur.com/gUNzyBA.jpeg',
+      isPlayer: true,
+      isCompanion: false,
+    };
+
+    useCombatStore.getState().startCombat(player, null, enemies);
     useUIStore.getState().setScreen('combat');
   }
 

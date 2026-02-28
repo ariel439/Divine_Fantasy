@@ -99,7 +99,19 @@
       "text": "Luke has fallen in battle. His journey ends here."
     }
   ],
-  "raid_salty_mug_intro": [
+  "starvationSlides": [
+    {
+      "image": "/assets/events/game_over.png",
+      "text": "Hunger gnaws at your insides until there is nothing left. You collapse, too weak to rise again. Your journey ends in silence."
+    }
+  ],
+  "timeoutSlides": [
+    {
+      "image": "/assets/events/finn_timeout_raid.png",
+      "text": "The seventh day passes. You are cornered in a dark alley by Finn and his thugs. 'Time's up, kid. Pay up or bleed.' You have no coin, but you have your steel."
+    }
+  ],
+  "rebelRaidIntroSlides": [
     {
       "image": "/assets/events/raid_gear_handoff.png",
       "text": "You gather with Rodrick, Matthias, and Stan at the Tidehunter Quarter. 'Suit up, kid,' Rodrick grunts, tossing you a bundle of iron gear. 'You'll need this where we're going.' You equip the heavy iron armor and grip the sword, feeling the weight of the coming battle."

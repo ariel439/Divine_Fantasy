@@ -32,8 +32,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
   };
 
   const handleOpenSaveLoadModal = () => {
-    // TODO: Implement save/load modal
-    console.log('Open save/load modal');
+    openModal('saveLoad');
   };
 
   return (

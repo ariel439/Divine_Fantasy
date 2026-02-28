@@ -10,6 +10,8 @@ import SleepWaitModal from './modals/SleepWaitModal';
 import ConfirmationModal from './modals/ConfirmationModal';
 import OptionsModal from './modals/OptionsModal';
 import TutorialModal from './modals/TutorialModal';
+import SaveLoadModal from './modals/SaveLoadModal';
+import { SaveLoadService } from '../services/SaveLoadService';
 import { finnDebtIntroSlides, raidSaltyMugIntroSlides } from '../data/events';
 
 const ModalManager: React.FC = () => {
@@ -20,6 +22,14 @@ const ModalManager: React.FC = () => {
 
   return (
     <>
+      {activeModal === 'saveLoad' && (
+        <SaveLoadModal
+          isOpen={true}
+          onClose={closeModal}
+          context={currentScreen === 'mainMenu' ? 'mainMenu' : 'inGame'}
+        />
+      )}
+
       {activeModal === 'options' && (
         <OptionsModal isOpen={true} onClose={closeModal} />
       )}
@@ -70,6 +80,11 @@ const ModalManager: React.FC = () => {
                   console.log(`[SleepWait] passTime ${durationMin}m`);
                   useWorldTimeStore.getState().passTime(durationMin);
                 }
+                
+                // Autosave after sleep/wait completes
+                console.log('[SleepWait] Triggering Autosave...');
+                SaveLoadService.saveToSlot('autosave', 'Autosave');
+                
                 useWorldTimeStore.getState().setClockPaused(false);
                 closeModal();
               }}

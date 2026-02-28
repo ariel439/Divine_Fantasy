@@ -2,9 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import type { FC } from 'react';
 import { X } from 'lucide-react';
-import { mockSaveSlots } from '../../data';
 import SaveSlot from '../ui/SaveSlot';
 import ConfirmationModal from './ConfirmationModal';
+import { SaveLoadService, SaveSlotMetadata } from '../../services/SaveLoadService';
+import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
 
 interface SaveLoadModalProps {
   isOpen: boolean;
@@ -16,7 +17,8 @@ type Tab = 'Save' | 'Load';
 
 const SaveLoadModal: FC<SaveLoadModalProps> = ({ isOpen, onClose, context }) => {
   const [activeTab, setActiveTab] = useState<Tab>(context === 'mainMenu' ? 'Load' : 'Save');
-  const [saveName, setSaveName] = useState('New Save');
+  const [saveName, setSaveName] = useState('');
+  const [slots, setSlots] = useState<SaveSlotMetadata[]>([]);
   const [confirmationState, setConfirmationState] = useState<{
     isOpen: boolean;
     title: string;
@@ -27,65 +29,109 @@ const SaveLoadModal: FC<SaveLoadModalProps> = ({ isOpen, onClose, context }) => 
   useEffect(() => {
     if (isOpen) {
       setActiveTab(context === 'mainMenu' ? 'Load' : 'Save');
+      refreshSlots();
+      
+      // Default save name
+      const t = useWorldTimeStore.getState();
+      const defaultName = `Day ${t.day} - ${t.hour}:${String(t.minute).padStart(2, '0')}`;
+      setSaveName(defaultName);
     }
   }, [isOpen, context]);
 
+  const refreshSlots = () => {
+    setSlots(SaveLoadService.getSlots());
+  };
+
   if (!isOpen) return null;
 
-  const handleSave = (slotId: number) => {
-    const slot = mockSaveSlots.find(s => s.id === slotId);
+  const handleSave = (slotId: string) => {
+    const slot = slots.find(s => s.id === slotId);
     if (!slot) return;
+
+    const performSave = () => {
+      SaveLoadService.saveToSlot(slotId, saveName || `Save ${slotId}`);
+      refreshSlots();
+      onClose();
+    };
+
     if (slot.isEmpty) {
-        console.log(`Saving to slot ${slotId} with name "${saveName}"`);
-        onClose(); // In a real app, update state and then close
+        performSave();
     } else {
         setConfirmationState({
             isOpen: true,
             title: "Overwrite Save?",
             message: `Are you sure you want to overwrite "${slot.saveName}"? This action cannot be undone.`,
             onConfirm: () => {
-                console.log(`Overwriting slot ${slotId} with name "${saveName}"`);
+                performSave();
                 setConfirmationState(null);
-                onClose();
             }
         });
     }
   };
 
-  const handleLoad = (slotId: number) => {
-    console.log(`Loading from slot ${slotId}`);
-    onClose();
+  const handleLoad = (slotId: string) => {
+    const slot = slots.find(s => s.id === slotId);
+    if (!slot || slot.isEmpty) return;
+
+    setConfirmationState({
+        isOpen: true,
+        title: "Load Game?",
+        message: `Are you sure you want to load "${slot.saveName}"? Any unsaved progress will be lost.`,
+        onConfirm: () => {
+            const success = SaveLoadService.loadFromSlot(slotId);
+            setConfirmationState(null);
+            if (success) {
+                onClose();
+            } else {
+                alert("Failed to load save file.");
+            }
+        }
+    });
   };
 
-  const handleDelete = (slotId: number) => {
-     const slot = mockSaveSlots.find(s => s.id === slotId);
-     if (!slot) return;
+  const handleDelete = (slotId: string) => {
+     const slot = slots.find(s => s.id === slotId);
+     if (!slot || slot.isEmpty) return;
+
      setConfirmationState({
         isOpen: true,
         title: "Delete Save?",
         message: `Are you sure you want to delete "${slot.saveName}"? This action is permanent.`,
         onConfirm: () => {
-            console.log(`Deleting slot ${slotId}`);
+            SaveLoadService.deleteSlot(slotId);
             setConfirmationState(null);
-            // Here you would update the state of mockSaveSlots, for a demo we just log
+            refreshSlots();
         }
     });
   };
 
-  const renderContent = () => (
-    <div className="space-y-3 pr-2 overflow-y-auto custom-scrollbar h-full">
-      {mockSaveSlots.map(slot => (
-        <SaveSlot
-          key={slot.id}
-          slot={slot}
-          mode={activeTab.toLowerCase() as 'save' | 'load'}
-          onSave={handleSave}
-          onLoad={handleLoad}
-          onDelete={handleDelete}
-        />
-      ))}
-    </div>
-  );
+  const renderContent = () => {
+    // Filter out autosave for Save tab, or make it unselectable
+    const displayedSlots = activeTab === 'Save' 
+        ? slots.filter(s => s.id !== 'autosave') 
+        : slots;
+
+    return (
+        <div className="space-y-3 pr-2 overflow-y-auto custom-scrollbar h-full">
+        {displayedSlots.map(slot => (
+            <SaveSlot
+            key={slot.id}
+            slot={{
+                id: slot.id,
+                isEmpty: slot.isEmpty,
+                saveName: slot.saveName,
+                screenshotUrl: slot.screenshotUrl,
+                saveDate: slot.timestamp ? new Date(slot.timestamp).toLocaleString() : undefined
+            }}
+            mode={activeTab.toLowerCase() as 'save' | 'load'}
+            onSave={handleSave}
+            onLoad={handleLoad}
+            onDelete={handleDelete}
+            />
+        ))}
+        </div>
+    );
+  };
 
   return (
     <>
@@ -108,11 +154,19 @@ const SaveLoadModal: FC<SaveLoadModalProps> = ({ isOpen, onClose, context }) => 
           <div className="p-4 flex-shrink-0">
                <div className="flex justify-center items-center gap-2 border-b-2 border-zinc-800 mb-4">
                   {context === 'inGame' && (
-                    <button key="Save" onClick={() => setActiveTab('Save')} className={`px-8 py-2 text-md font-semibold capitalize transition-colors ${activeTab === 'Save' ? 'text-white border-b-2 border-zinc-300 -mb-px' : 'text-zinc-400 hover:text-white'}`}>
+                    <button 
+                        key="Save" 
+                        onClick={() => setActiveTab('Save')} 
+                        className={`px-8 py-2 text-md font-semibold capitalize transition-colors ${activeTab === 'Save' ? 'text-white border-b-2 border-zinc-300 -mb-px' : 'text-zinc-400 hover:text-white'}`}
+                    >
                         Save
                     </button>
                   )}
-                  <button key="Load" onClick={() => setActiveTab('Load')} className={`px-8 py-2 text-md font-semibold capitalize transition-colors ${activeTab === 'Load' ? 'text-white border-b-2 border-zinc-300 -mb-px' : 'text-zinc-400 hover:text-white'}`}>
+                  <button 
+                    key="Load" 
+                    onClick={() => setActiveTab('Load')} 
+                    className={`px-8 py-2 text-md font-semibold capitalize transition-colors ${activeTab === 'Load' ? 'text-white border-b-2 border-zinc-300 -mb-px' : 'text-zinc-400 hover:text-white'}`}
+                  >
                       Load
                   </button>
               </div>
@@ -124,7 +178,8 @@ const SaveLoadModal: FC<SaveLoadModalProps> = ({ isOpen, onClose, context }) => 
                         type="text"
                         value={saveName}
                         onChange={(e) => setSaveName(e.target.value)}
-                        className="w-full bg-black/30 border border-zinc-700 rounded-md py-2 px-4 focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none transition"
+                        className="w-full bg-black/30 border border-zinc-700 rounded-md py-2 px-4 focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none transition text-white"
+                        placeholder="Enter a name for your save..."
                       />
                   </div>
               )}

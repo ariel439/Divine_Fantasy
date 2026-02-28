@@ -3,8 +3,8 @@ import React from 'react';
 import type { FC, ReactNode } from 'react';
 import { Save, Download, Trash2, ImageOff } from 'lucide-react';
 
-interface SaveSlotData {
-    id: number;
+export interface SaveSlotData {
+    id: string;
     isEmpty: boolean;
     screenshotUrl?: string;
     saveName?: string;
@@ -14,9 +14,9 @@ interface SaveSlotData {
 interface SaveSlotProps {
     slot: SaveSlotData;
     mode: 'save' | 'load';
-    onSave: (slotId: number) => void;
-    onLoad: (slotId: number) => void;
-    onDelete: (slotId: number) => void;
+    onSave: (slotId: string) => void;
+    onLoad: (slotId: string) => void;
+    onDelete: (slotId: string) => void;
 }
 
 const SaveSlot: FC<SaveSlotProps> = ({ slot, mode, onSave, onLoad, onDelete }) => {
@@ -62,11 +62,23 @@ const SaveSlot: FC<SaveSlotProps> = ({ slot, mode, onSave, onLoad, onDelete }) =
 
     return (
         <div className="flex items-center gap-4 p-3 bg-zinc-900/70 rounded-lg border border-zinc-800 hover:bg-zinc-800/60 transition-colors">
-            <div className="w-32 h-24 flex-shrink-0 bg-black/30 rounded-md border border-zinc-700 flex items-center justify-center">
-                {slot.isEmpty ? (
-                    <ImageOff size={32} className="text-zinc-600" />
+            <div className="w-32 h-24 flex-shrink-0 bg-black/30 rounded-md border border-zinc-700 flex items-center justify-center overflow-hidden relative">
+                {slot.isEmpty || !slot.screenshotUrl ? (
+                    <div className="flex flex-col items-center justify-center text-zinc-600">
+                        <ImageOff size={24} />
+                        {slot.screenshotUrl === undefined && !slot.isEmpty && <span className="text-[10px] mt-1">No Image</span>}
+                    </div>
                 ) : (
-                    <img src={slot.screenshotUrl} alt={`Save slot ${slot.id}`} className="w-full h-full object-cover rounded-md" />
+                    <img 
+                        src={slot.screenshotUrl} 
+                        alt={`Save slot ${slot.id}`} 
+                        className="w-full h-full object-cover rounded-md" 
+                        onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                            (e.target as HTMLImageElement).parentElement!.classList.add('flex', 'items-center', 'justify-center');
+                            // We can't easily inject the fallback icon here without state, but hiding the broken image is a start
+                        }}
+                    />
                 )}
             </div>
             <div className="flex-grow">

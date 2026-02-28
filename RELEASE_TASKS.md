@@ -11,10 +11,7 @@
     - **Fix**: Add a global listener in `Game.tsx` (or `useWorldTimeStore`) that checks `day >= 7` after every time update. Trigger `finn_timeout_event` immediately.
     - **Starvation**: `useCharacterStore.tickHunger` reduces HP to 0 but doesn't trigger "Game Over".
     - **Fix**: Add a subscriber to `useCharacterStore` in `Game.tsx`. If `hp <= 0` and `cause === 'starvation'`, trigger a specific "Starved to Death" event/slide.
-- [ ] **Broken Shop Multipliers**:
-    - **Issue**: `TradeScreen.tsx` uses a hardcoded `0.5` sell multiplier, ignoring `shops.json` data.
-    - **Task**: Update `TradeScreen` to use `shop.buy_multiplier` and `shop.sell_multiplier`.
-- [ ] **Save/Load System**:
+- [x] **Save/Load System**:
     - **Current State**: `SaveLoadModal.tsx` is UI-only. `SaveLoadService.ts` is implemented but needs UI integration.
     - **Task**: 
         - **Autosave**: Implement autosave triggered by specific events (Sleep, Day Pass, Quest Completion) to `localStorage`.
@@ -59,9 +56,10 @@
     - **Task**: Add a "Promotion" system.
     - **Logic**: After X days worked with high performance, unlock a "Senior" title with +20% pay.
     - **New Job**: Add one additional job type for sandbox gameplay variety (e.g., Guard Duty or Courier).
-- [ ] **Price Rebalance**:
+- [ ] **Price Rebalance & Shop Logic**:
     - **Task**: Review `items.json` base values. Adjust prices for food (too cheap?) and tools (too expensive?).
     - **Modifiability**: Ensure ALL shop data (inventory, prices, multipliers) is strictly loaded from `shops.json` and `items.json` to allow easy user modification/modding. Remove any hardcoded shop logic.
+    - **Fix Broken Multipliers**: `TradeScreen.tsx` currently uses a hardcoded `0.5` sell multiplier. Update it to use `shop.buy_multiplier` and `shop.sell_multiplier` from `shops.json`.
 
 ## 🔊 Phase 4: Audio & Atmosphere (Polish)
 - [ ] **Combat SFX**:

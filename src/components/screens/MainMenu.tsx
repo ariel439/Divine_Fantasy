@@ -11,7 +11,7 @@ import { Volume2, VolumeX } from 'lucide-react';
 import { useAudioStore } from '../../stores/useAudioStore';
 
 const MainMenu: FC = () => {
-    const { setScreen } = useUIStore();
+    const { setScreen, openModal } = useUIStore();
     const MenuButton: FC<{children: ReactNode, onClick?: () => void}> = ({ children, onClick }) => (
         <button 
             onClick={onClick}
@@ -39,8 +39,8 @@ const MainMenu: FC = () => {
                 <div className="mt-12 flex flex-col items-center space-y-4 animate-fade-in-up delay-500">
                     <MenuButton onClick={() => setScreen('characterSelection')}>New Game</MenuButton>
                     <MenuButton onClick={() => setScreen('debugMenu')}>Debug</MenuButton>
-                    <MenuButton>Load Game</MenuButton>
-                    <MenuButton onClick={() => useUIStore.getState().openModal('options')}>Settings</MenuButton>
+                    <MenuButton onClick={() => openModal('saveLoad')}>Load Game</MenuButton>
+                    <MenuButton onClick={() => openModal('options')}>Settings</MenuButton>
                     <MenuButton>Quit</MenuButton>
                 </div>
             </div>

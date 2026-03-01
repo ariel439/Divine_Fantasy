@@ -20,7 +20,7 @@
 - [ ] **Dialogue Condition Parser**:
     - **Issue**: `DialogueService.applyConditionsToNode` is a massive, brittle switch statement.
     - **Task**: Refactor into a `ConditionEvaluator` class that allows registering new condition types (e.g., `quest`, `time`, `stat`) dynamically.
-- [ ] **Store Coupling (Time & Character)**:
+- [x] **Store Coupling (Time & Character)**:
     - **Issue**: `useWorldTimeStore` directly calls `useCharacterStore.tickHunger()`.
     - **Task**: Implement a "Time Listener" pattern in `Game.tsx` or `GameLoopService` to handle side effects of time passing (Hunger, Rotting, Quest Timers).
 - [ ] **Quest Trigger Consolidation**:

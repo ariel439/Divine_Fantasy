@@ -27,9 +27,21 @@ export class GameManagerService {
     if (GameManagerService.initialized) return;
     GameManagerService.initialized = true;
 
-    // Subscribe to world time changes
+      // Subscribe to world time changes
     useWorldTimeStore.subscribe(
-      (state) => {
+      (state, prevState) => {
+        // Simple delta calculation to trigger time-based effects
+        // Assuming year doesn't change drastically in one tick for now, simplified logic:
+        const prevMinutes = (prevState.day * 1440) + (prevState.hour * 60) + prevState.minute;
+        const currMinutes = (state.day * 1440) + (state.hour * 60) + state.minute;
+        
+        const delta = currMinutes - prevMinutes;
+        
+        if (delta > 0) {
+            // Apply Hunger
+            useCharacterStore.getState().tickHunger(delta);
+        }
+
         const day = state.day;
         if (day !== GameManagerService.currentDay) {
           GameManagerService.currentDay = day;

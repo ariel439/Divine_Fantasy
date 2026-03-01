@@ -78,12 +78,8 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
       let weather = state.weather;
       let nextWeatherChangeAt = state.nextWeatherChangeAt;
 
-      // Drain Hunger
-      try {
-        useCharacterStore.getState().tickHunger(minutes);
-      } catch (e) {
-        console.warn('Failed to tick hunger:', e);
-      }
+      // Hunger drain moved to TimeManagerService subscription
+
 
       if (typeof state.nextWeatherChangeAt === 'number' && totalMinutes >= state.nextWeatherChangeAt) {
         const introMode = useWorldStateStore.getState().introMode;

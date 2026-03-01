@@ -140,6 +140,24 @@
     },
     "image": "/assets/items/fish_trout_cooked.png"
   },
+  "hammer": {
+    "name": "Hammer",
+    "description": "A sturdy iron hammer. Essential for construction.",
+    "type": "tool",
+    "stackable": false,
+    "weight": 1.5,
+    "base_value": 8,
+    "image": "/assets/items/hammer.png"
+  },
+  "iron_nails": {
+    "name": "Iron Nail",
+    "description": "A simple iron nail. Used for building and repairs.",
+    "type": "resource",
+    "stackable": true,
+    "weight": 0.05,
+    "base_value": 1,
+    "image": "/assets/items/nails.png"
+  },
   "axe_basic": {
     "name": "Old Axe",
     "description": "Old but reliable enough for chopping wood.",

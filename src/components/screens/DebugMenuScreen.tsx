@@ -9,12 +9,18 @@ import itemsJson from '../../data/items.json';
 import type { Item, EquipmentSlot } from '../../types';
 import { useCompanionStore } from '../../stores/useCompanionStore';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
+import { useLocationStore } from '../../stores/useLocationStore';
+import { useDiaryStore } from '../../stores/useDiaryStore';
+import { useJournalStore } from '../../stores/useJournalStore';
 
 const DebugMenuScreen: FC = () => {
   const { setScreen } = useUIStore();
   const inventoryStore = useInventoryStore();
   const characterStore = useCharacterStore();
   const worldStateStore = useWorldStateStore();
+  const locationStore = useLocationStore();
+  const diaryStore = useDiaryStore();
+  const journalStore = useJournalStore();
 
   const [playerSetup, setPlayerSetup] = useState<'naked' | 'naked_dagger' | 'wolf_dagger' | 'iron_sword' | 'iron_sword_wolf'>('naked');
   const [wolfCount, setWolfCount] = useState<number>(1);
@@ -116,6 +122,36 @@ const DebugMenuScreen: FC = () => {
     GameManagerService.startWoodsCombat(wolfCount);
   };
 
+  const handleDebugRobertaQuest = () => {
+    // 1. Reset Quest
+    journalStore.updateQuest('roberta_planks_for_the_past', { active: false, completed: false, currentStage: 0 });
+    // Also remove from questsList so it doesn't show up
+    useJournalStore.setState((state) => ({
+      questsList: state.questsList.filter(q => q.id !== 'roberta_planks_for_the_past')
+    }));
+
+    // 2. Set Relationship to 20
+    const currentRel = diaryStore.relationships['npc_roberta']?.friendship?.value || 0;
+    const diff = 20 - currentRel;
+    if (diff !== 0) {
+        diaryStore.updateRelationship('npc_roberta', { friendship: diff });
+    }
+
+    // 3. Add 10 Planks
+    // First clear existing planks to avoid duplicate adding if user clicks multiple times
+    const currentPlanks = inventoryStore.getItemQuantity('wooden_plank');
+    if (currentPlanks > 0) {
+        inventoryStore.removeItem('wooden_plank', currentPlanks);
+    }
+    inventoryStore.addItem('wooden_plank', 10);
+
+    // 4. Teleport
+    locationStore.setLocation('tide_trade');
+    
+    // 5. Close Debug Menu
+    setScreen('inGame');
+  };
+
   return (
     <div className="w-full h-full flex items-center justify-center bg-black/80">
       <div className="w-full max-w-2xl mx-auto bg-zinc-950/95 border border-zinc-700 rounded-xl p-6 shadow-lg overflow-y-auto max-h-[90vh]">
@@ -132,6 +168,18 @@ const DebugMenuScreen: FC = () => {
         </div>
 
         <div className="space-y-6">
+          <section className="bg-zinc-900/50 p-4 rounded-lg border border-zinc-800">
+            <h2 className="text-lg font-semibold text-white mb-3">Quest Testing</h2>
+            <div className="flex gap-3">
+              <button
+                onClick={handleDebugRobertaQuest}
+                className="flex-1 px-4 py-2 rounded-md bg-blue-900/40 hover:bg-blue-800/60 text-blue-100 text-sm font-semibold border border-blue-800/50 transition-all hover:shadow-[0_0_10px_rgba(59,130,246,0.2)]"
+              >
+                Setup Roberta Quest
+              </button>
+            </div>
+          </section>
+
           <section className="bg-zinc-900/50 p-4 rounded-lg border border-zinc-800">
             <h2 className="text-lg font-semibold text-white mb-3">Combat Testing Suite</h2>
             <div className="grid grid-cols-2 gap-4 mb-4">

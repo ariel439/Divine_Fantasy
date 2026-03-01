@@ -237,9 +237,10 @@ export const useJournalStore = create<JournalState>((set, get) => ({
     const currentStage = q.currentStage ?? 0;
     // Stage 1 is gather 10 wooden planks
     if (currentStage === 1) {
-      const invQty = useInventoryStore.getState().getItemQuantity('wooden_plank');
-      if (invQty >= 10) {
-        // Move to stage 2: ready to repair at Tide & Trade
+      const inv = useInventoryStore.getState();
+      const planks = inv.getItemQuantity('wooden_plank');
+      if (planks >= 10) {
+        // Move to stage 2: return to Roberta
         get().setQuestStage(targetQuestId, 2);
       }
     }

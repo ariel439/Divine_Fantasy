@@ -165,7 +165,7 @@
     "is_indoor": true,
     "actions": [
       { "text": "Talk to Roberta", "type": "dialogue", "target": "npc_roberta" },
-      { "text": "Repair Wall", "type": "use", "target": "repair_wall", "condition": "quest.roberta_planks_for_the_past.stage==2" },
+      { "text": "Repair Wall", "type": "use", "target": "repair_wall", "condition": "quest.roberta_planks_for_the_past.stage==3" },
       { "text": "Travel to Driftwatch Docks", "type": "navigate", "target": "driftwatch_docks" }
     ]
   },

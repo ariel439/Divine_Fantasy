@@ -16,13 +16,23 @@
           {
             "text": "How is the wall repair going?",
             "next_node": "rb_help_gate",
-            "condition": "quest.roberta_planks_for_the_past.active==true"
+            "condition": "quest.roberta_planks_for_the_past.active==true && quest.roberta_planks_for_the_past.stage == 1 && inventory.wooden_plank < 10"
           },
           {
-            "text": "I have the planks you needed.",
+            "text": "I have the planks.",
+            "next_node": "rb_give_materials",
+            "condition": "quest.roberta_planks_for_the_past.active==true && inventory.wooden_plank >= 10 && quest.roberta_planks_for_the_past.stage <= 2"
+          },
+          {
+            "text": "I have the materials.",
+            "next_node": "rb_materials_check",
+            "condition": "quest.roberta_planks_for_the_past.active==true && quest.roberta_planks_for_the_past.stage == 3"
+          },
+          {
+            "text": "I repaired the wall.",
             "action": "complete_quest:roberta_planks_for_the_past",
-            "next_node": "0",
-            "condition": "quest.roberta_planks_for_the_past.active==true && inventory.wood_plank>=5"
+            "next_node": "rb_quest_complete",
+            "condition": "quest.roberta_planks_for_the_past.active==true && quest.roberta_planks_for_the_past.stage == 4"
           },
           {
             "text": "Tell me about Tide & Trade.",
@@ -64,18 +74,52 @@
         ]
       },
       "rb_help_gate": {
-        "npc_text": "I'll pay you for the trouble. I need 5 Wood Planks. You can find them at the lumberyard or scavenging the shore.",
+        "npc_text": "I'll pay you for the trouble. I need 10 Wood Planks. If you can bring me those, I'll provide the rest.",
         "player_choices": [
           {
             "text": "I'll find them.",
-            "action": "start_quest:roberta_planks_for_the_past",
+            "action": "start_quest:roberta_planks_for_the_past | set_quest_stage:roberta_planks_for_the_past:1",
             "next_node": "0",
             "condition": "quest.roberta_planks_for_the_past.active==false"
+          },
+          {
+            "text": "I already have them.",
+            "action": "start_quest:roberta_planks_for_the_past | set_quest_stage:roberta_planks_for_the_past:2",
+            "next_node": "rb_give_materials",
+            "condition": "quest.roberta_planks_for_the_past.active==false && inventory.wooden_plank >= 10"
           },
           {
             "text": "I'm still looking.",
             "next_node": "0",
             "condition": "quest.roberta_planks_for_the_past.active==true"
+          }
+        ]
+      },
+      "rb_give_materials": {
+        "npc_text": "Good work getting these planks. Here, take these nails and a hammer I have lying around. Now go fix it.",
+        "player_choices": [
+          {
+            "text": "I'll get to work.",
+            "action": "add_item:iron_nails:20 | add_item:hammer:1 | set_quest_stage:roberta_planks_for_the_past:3",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "rb_materials_check": {
+        "npc_text": "The hole is on the east side. Use the hammer and nails I gave you to patch it up.",
+        "player_choices": [
+          {
+            "text": "Right, I'm on it. (Back)",
+            "next_node": "0"
+          }
+        ]
+      },
+      "rb_quest_complete": {
+        "npc_text": "You did a fine job! The draft is gone. Here's your payment, as promised.",
+        "player_choices": [
+          {
+            "text": "Glad I could help.",
+            "next_node": "0"
           }
         ]
       },
@@ -120,13 +164,28 @@
           },
           {
             "text": "I brought the planks.",
-            "next_node": "reward",
-            "action": "advance_quest_stage:roberta_planks_for_the_past",
-            "condition": "quest.roberta_planks_for_the_past.stage==3"
+            "next_node": "rb_give_materials",
+            "condition": "inventory.wooden_plank >= 10 && quest.roberta_planks_for_the_past.stage <= 2"
+          },
+          {
+            "text": "I have the materials.",
+            "next_node": "rb_materials_check",
+            "condition": "quest.roberta_planks_for_the_past.stage == 3"
+          },
+          {
+            "text": "I repaired the wall.",
+            "action": "complete_quest:roberta_planks_for_the_past",
+            "next_node": "rb_quest_complete",
+            "condition": "quest.roberta_planks_for_the_past.stage == 4"
           },
           {
             "text": "What's for sale?",
             "action": "open_shop:tide_and_trade"
+          },
+          {
+            "text": "Tell me about Tide & Trade.",
+            "next_node": "rb_lore_tide_trade1",
+            "condition": "world_flags.roberta_lore_seen==false"
           },
           {
             "text": "I'll come back later.",
@@ -143,13 +202,59 @@
           }
         ]
       },
-      "reward": {
-        "npc_text": "Thank you. This will hold. Here's your payment.",
+      "rb_give_materials": {
+        "npc_text": "Good work getting these planks. Here, take these nails and a hammer I have lying around. Now go fix it.",
+        "player_choices": [
+          {
+            "text": "I'll get to work.",
+            "action": "add_item:iron_nail:20 | add_item:hammer:1 | set_quest_stage:roberta_planks_for_the_past:3",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "rb_materials_check": {
+        "npc_text": "The hole is on the east side. Use the hammer and nails I gave you to patch it up.",
+        "player_choices": [
+          {
+            "text": "Right, I'm on it. (Back)",
+            "next_node": "0"
+          }
+        ]
+      },
+      "rb_quest_complete": {
+        "npc_text": "You did a fine job! The draft is gone. Here's your payment, as promised.",
+        "player_choices": [
+          {
+            "text": "Glad I could help.",
+            "next_node": "0"
+          }
+        ]
+      },
+      "rb_lore_tide_trade1": {
+        "npc_text": "Tide & Trade is one of Driftwatch’s oldest shops. It’s stood through lean years and storms.",
+        "player_choices": [
+          {
+            "text": "And your family?",
+            "next_node": "rb_lore_tide_trade2"
+          }
+        ]
+      },
+      "rb_lore_tide_trade2": {
+        "npc_text": "My father ran it for decades. He passed recently… I'm still learning to handle everything.",
         "player_choices": [
           {
             "text": "Back to counter",
             "next_node": "0",
-            "action": "complete_quest:roberta_planks_for_the_past"
+            "action": "set_flag:roberta_lore_seen:true"
+          }
+        ]
+      },
+      "rb_lore_family": {
+        "npc_text": "It's just me now. The shop is all I have left of them.",
+        "player_choices": [
+          {
+            "text": "Back to counter",
+            "next_node": "0"
           }
         ]
       }
@@ -176,21 +281,11 @@
         ]
       },
       "tide_trade_lore": {
-        "npc_text": "Tide & Trade is one of Driftwatch’s oldest shops. It’s stood through lean years and storms.",
+        "npc_text": "This shop has been in my family for generations. We've weathered worse storms than this.",
         "player_choices": [
           {
-            "text": "And your family?",
-            "next_node": "tide_trade_lore2"
-          }
-        ]
-      },
-      "tide_trade_lore2": {
-        "npc_text": "My father ran it for decades. He passed recently… I'm still learning to handle everything.",
-        "player_choices": [
-          {
-            "text": "Back to counter",
-            "next_node": "0",
-            "action": "set_flag:roberta_lore_seen:true"
+            "text": "Good to hear. (Back)",
+            "next_node": "0"
           }
         ]
       }

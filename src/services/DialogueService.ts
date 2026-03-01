@@ -18,6 +18,7 @@ import { useLocationStore } from '../stores/useLocationStore';
 import { benCheatEventSlides, rebelRaidIntroSlides, evilEndingSlides, hybridEndingSlides } from '../data/events';
 import type { ConversationEntry } from '../types';
 import { GameManagerService } from './GameManagerService';
+import { ConditionEvaluator } from './ConditionEvaluator';
 
 interface DialogueNode {
   npc_text: string;
@@ -83,192 +84,25 @@ export class DialogueService {
 
   public static applyConditionsToNode(node: DialogueNode): DialogueNode {
     const choices = node.player_choices || [];
-    // Debug logging - FULL DUMP
-    const jobStore = useJobStore.getState();
-    const world = useWorldStateStore.getState();
-    const journal = useJournalStore.getState();
-    const diary = useDiaryStore.getState();
-    const timeStore = useWorldTimeStore.getState();
-    const inventory = useInventoryStore.getState();
-
-    console.log('[DialogueService] applyConditionsToNode - START');
-    console.log('[DialogueService] Current Job State:', {
-      activeJob: jobStore.activeJob,
-      firedJobs: jobStore.firedJobs,
-      activeJobId: jobStore.activeJob?.jobId
-    });
-    console.log('[DialogueService] Relationships:', diary.relationships);
     
     const filtered = choices.filter((choice) => {
       const condition = choice.condition;
-      console.log(`[DialogueService] Evaluating choice: "${choice.text}"`);
+      // console.log(`[DialogueService] Evaluating choice: "${choice.text}"`);
+      
       if (!condition) {
-        console.log(`  -> No condition, keeping.`);
         return true;
       }
       
-      console.log(`  -> Condition: "${condition}"`);
-
-      const parts = String(condition).split('&&').map(s => s.trim());
-
-      for (const expr of parts) {
-        let op = '==';
-        let lhs = expr;
-        let rhsRaw = '';
-        let opFound = false;
-
-        // Find operator
-        for (const candidate of ['>=','<=','==','>','<']) {
-          const idx = expr.indexOf(candidate);
-          if (idx >= 0) {
-            op = candidate;
-            lhs = expr.slice(0, idx).trim();
-            rhsRaw = expr.slice(idx + candidate.length).trim();
-            opFound = true;
-            break;
-          }
-        }
-
-        const rhsBool = rhsRaw === 'true' ? true : rhsRaw === 'false' ? false : undefined;
-        const rhsNum = rhsBool === undefined && rhsRaw !== '' && !isNaN(Number(rhsRaw)) ? Number(rhsRaw) : undefined;
-
-        console.log(`    -> Part: "${expr}" parsed as LHS="${lhs}" OP="${op}" RHS="${rhsRaw}"`);
-
-        let result = true; // Default for this part
-
-        if (lhs.startsWith('quest.')) {
-          const [, questId, field] = lhs.split('.');
-          const q = journal.quests[questId];
-          if (field === 'active') {
-            const val = (q?.active || false);
-            if (op === '==') { if (val !== (rhsBool as boolean)) result = false; }
-          } else if (field === 'completed') {
-            const val = (q?.completed || false);
-            if (op === '==') { if (val !== (rhsBool as boolean)) result = false; }
-          } else if (field === 'stage') {
-            const stage = q?.currentStage ?? 0;
-            if (op === '==') { if (stage !== (rhsNum as number)) result = false; }
-            if (op === '>') { if (!(stage > (rhsNum as number))) result = false; }
-            if (op === '<') { if (!(stage < (rhsNum as number))) result = false; }
-            if (op === '>=') { if (!(stage >= (rhsNum as number))) result = false; }
-            if (op === '<=') { if (!(stage <= (rhsNum as number))) result = false; }
-          }
-        } else if (lhs.startsWith('world_flags.')) {
-          const flag = lhs.replace('world_flags.', '');
-          const val = world.getFlag(flag);
-          const target = rhsBool !== undefined ? rhsBool : rhsNum;
-          console.log(`      -> Checking flag "${flag}": val=${val}, target=${target}`);
-          if (op === '==') { if (val !== target) result = false; }
-          if (op === '>') { if (!(Number(val) > (rhsNum as number))) result = false; }
-          if (op === '<') { if (!(Number(val) < (rhsNum as number))) result = false; }
-          if (op === '>=') { if (!(Number(val) >= (rhsNum as number))) result = false; }
-          if (op === '<=') { if (!(Number(val) <= (rhsNum as number))) result = false; }
-        } else if (lhs === 'time.is_day') {
-          const hour = timeStore.hour;
-          const isDay = hour >= 6 && hour < 18;
-          if (op === '==') { if (isDay !== (rhsBool as boolean)) result = false; }
-        } else if (lhs === 'time.is_night') {
-          const hour = timeStore.hour;
-          const isNight = hour < 6 || hour >= 18;
-          if (op === '==') { if (isNight !== (rhsBool as boolean)) result = false; }
-        } else if (lhs === 'time.hour_lt') {
-          const hour = timeStore.hour;
-          if (!(hour < (rhsNum as number))) result = false;
-        } else if (lhs === 'time.hour_gte') {
-          const hour = timeStore.hour;
-          if (!(hour >= (rhsNum as number))) result = false;
-        } else if (lhs === 'time.window') {
-           // Format: time.window:start_hour:end_hour (inclusive start, exclusive end)
-           // logic: start <= hour < end
-           const parts = rhsRaw.split(':'); // Using rhsRaw because the parser might not handle 19:23 as a single number
-           // The parser splits by operator. If we use '==' it expects a value. 
-           // Let's assume the syntax in json is "time.window==19:23"
-           // But wait, the parser extracts RHS based on operator.
-           // If JSON has "time.window==19:23", op is ==, rhsRaw is "19:23".
-           
-           if (rhsRaw.includes(':')) {
-             const [startStr, endStr] = rhsRaw.split(':');
-             const start = parseInt(startStr, 10);
-             const end = parseInt(endStr, 10);
-             const hour = timeStore.hour;
-             const inWindow = hour >= start && hour < end;
-             
-             if (op === '==') { if (inWindow !== true) result = false; } // We only support checking if it IS in window for now
-             if (op === '!=') { if (inWindow !== false) result = false; }
-           }
-        } else if (lhs === 'time.weekday') {
-          const names = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-          const firstDow = ((timeStore.month - 1) * 30) % 7;
-          const weekday = (firstDow + timeStore.dayOfMonth - 1) % 7;
-          const current = names[weekday];
-          if (current !== rhsRaw) result = false;
-        } else if (lhs.startsWith('relationship.')) {
-          const npcId = lhs.replace('relationship.', '');
-          const val = diary.relationships[npcId]?.friendship?.value ?? 0;
-          console.log(`      -> Checking relationship "${npcId}": val=${val}, target=${rhsNum}`);
-          if (op === '==') { if (val !== (rhsNum as number)) result = false; }
-          if (op === '>') { if (!(val > (rhsNum as number))) result = false; }
-          if (op === '<') { if (!(val < (rhsNum as number))) result = false; }
-          if (op === '>=') { if (!(val >= (rhsNum as number))) result = false; }
-          if (op === '<=') { if (!(val <= (rhsNum as number))) result = false; }
-        } else if (lhs.startsWith('job.')) {
-           const parts = lhs.split('.'); // e.g. ['job', 'job_dockhand', 'active']
-           const jobId = parts[1];
-           const property = parts[2];
-           let val: boolean = false;
-           
-           if (property === 'fired') {
-             val = !!jobStore.firedJobs[jobId];
-           } else {
-             // Default to active check if not specified or 'active'
-             val = jobStore.activeJob?.jobId === jobId;
-           }
-           
-           console.log(`      -> Checking job "${jobId}" property "${property}": val=${val}, target=${rhsBool}`);
-           if (op === '==') { if (val !== (rhsBool as boolean)) result = false; }
-        } else if (lhs.startsWith('inventory.')) {
-          const itemId = lhs.replace('inventory.', '');
-          const qty = inventory.getItemQuantity(itemId);
-          if (op === '==') { if (qty !== (rhsNum as number)) result = false; }
-          if (op === '>') { if (!(qty > (rhsNum as number))) result = false; }
-          if (op === '<') { if (!(qty < (rhsNum as number))) result = false; }
-          if (op === '>=') { if (!(qty >= (rhsNum as number))) result = false; }
-          if (op === '<=') { if (!(qty <= (rhsNum as number))) result = false; }
-        } else if (lhs.startsWith('has_item:')) {
-          const itemId = lhs.split(':')[1];
-          const qty = inventory.getItemQuantity(itemId);
-          if (qty < 1) result = false;
-        } else if (lhs.startsWith('currency.')) {
-          const type = lhs.replace('currency.', '') as 'copper' | 'silver' | 'gold';
-          const val = useCharacterStore.getState().currency[type] || 0;
-          if (op === '==') { if (val !== (rhsNum as number)) result = false; }
-          if (op === '>') { if (!(val > (rhsNum as number))) result = false; }
-          if (op === '<') { if (!(val < (rhsNum as number))) result = false; }
-          if (op === '>=') { if (!(val >= (rhsNum as number))) result = false; }
-          if (op === '<=') { if (!(val <= (rhsNum as number))) result = false; }
-        } else if (lhs === 'money') {
-             // Alias for currency.silver for backward compatibility with existing json
-             const val = useCharacterStore.getState().currency.silver;
-             if (op === '==') { if (val !== (rhsNum as number)) result = false; }
-             if (op === '>') { if (!(val > (rhsNum as number))) result = false; }
-             if (op === '<') { if (!(val < (rhsNum as number))) result = false; }
-             if (op === '>=') { if (!(val >= (rhsNum as number))) result = false; }
-             if (op === '<=') { if (!(val <= (rhsNum as number))) result = false; }
-        } else {
-           console.warn(`[DialogueService] Unrecognized condition part: "${lhs}"`);
-           // Fail closed for unknown conditions to prevent "ghost buttons"
-           return false; 
-        }
-
-        if (!result) {
-          console.log(`    -> Part FAILED. Excluding choice.`);
-          return false;
-        } else {
-          console.log(`    -> Part PASSED.`);
-        }
+      // console.log(`  -> Condition: "${condition}"`);
+      const result = ConditionEvaluator.evaluate(condition);
+      
+      if (!result) {
+        // console.log(`    -> Condition FAILED. Excluding choice.`);
+      } else {
+        // console.log(`    -> Condition PASSED.`);
       }
-      console.log(`  -> All parts passed. Keeping choice.`);
-      return true;
+      
+      return result;
     });
     return { ...node, player_choices: filtered };
   }
@@ -314,17 +148,6 @@ export class DialogueService {
         const world = useWorldStateStore.getState();
         if (world.getFlag('finn_debt_collection_active')) {
           dialogueId = 'beryl_debt_approach';
-        }
-      }
-
-      // Check if Roberta's quest is active or completed
-      if (npcId === 'npc_roberta') {
-        const journalStore = useJournalStore.getState();
-        const robertaQuest = journalStore.quests['roberta_planks_for_the_past'];
-        if (robertaQuest && robertaQuest.active && !robertaQuest.completed) {
-          dialogueId = 'roberta_planks_active';
-        } else if (robertaQuest && robertaQuest.completed) {
-          dialogueId = 'roberta_planks_completed';
         }
       }
 

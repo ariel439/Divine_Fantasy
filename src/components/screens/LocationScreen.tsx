@@ -31,6 +31,7 @@ const LocationScreen: React.FC = () => {
   const { month, dayOfMonth, hour, minute, getFormattedTime, getFormattedDate, getSeason, getWeather, temperatureC } = useWorldTimeStore();
   const { getCurrentLocation } = useLocationStore();
   const { setScreen, currentScreen } = useUIStore();
+  const worldFlags = useWorldStateStore(state => state.worldFlags); // Subscribe to world flags for updates
 
   const currentLocation = getCurrentLocation();
   const isNight = hour >= 18 || hour < 6;
@@ -437,29 +438,48 @@ const LocationScreen: React.FC = () => {
           const q = journal.quests[questId];
           const inventory = useInventoryStore.getState();
           const planks = inventory.getItemQuantity('wooden_plank');
-          if (q && q.active && !q.completed && (q.currentStage ?? 0) === 2) {
-            if (planks >= 10) {
-              // Consume 10 planks and complete the quest
-              const removed = inventory.removeItem('wooden_plank', 10);
-              if (removed) {
-                // Advance to final talk stage (stage 3); do not complete yet
-                journal.setQuestStage(questId, 3);
-                // Set a world flag for future conditions (e.g., different dialogue or visuals)
+          const nails = inventory.getItemQuantity('iron_nails');
+          const hammer = inventory.getItemQuantity('hammer');
+
+          if (q && q.active && !q.completed && (q.currentStage ?? 0) === 3) {
+            if (planks >= 10 && nails >= 20 && hammer >= 1) {
+              // Consume 10 planks and 20 nails
+              const removedPlanks = inventory.removeItem('wooden_plank', 10);
+              const removedNails = inventory.removeItem('iron_nails', 20);
+              
+              if (removedPlanks && removedNails) {
+                // Advance to final talk stage (stage 4); do not complete yet
+                journal.setQuestStage(questId, 4);
+                // Set a world flag for future conditions
                 useWorldStateStore.getState().setFlag('tide_trade_wall_repaired', true);
 
                 // Show summary modal
                 const summary: ActionSummary = {
                   title: 'Wall Repaired',
-                  durationInMinutes: 15,
-                  vitalsChanges: [],
-                  expended: [{ name: 'Wooden Plank', quantity: 10, icon: <Package size={20} className="text-zinc-300"/> }],
+                  durationInMinutes: 30,
+                  vitalsChanges: [{ vital: 'Energy', change: -10, icon: <Zap size={20} className="text-blue-300"/> }],
+                  expended: [
+                    { name: 'Wooden Plank', quantity: 10, icon: <Package size={20} className="text-zinc-300"/> },
+                    { name: 'Iron Nails', quantity: 20, icon: <Package size={20} className="text-zinc-300"/> }
+                  ],
                   rewards: [{ name: 'Wall Fixed', quantity: 1, icon: <Hammer size={20} className="text-green-300"/> }],
                 };
                 setSummaryData(summary);
                 setSummaryModalOpen(true);
               }
             } else {
-              console.log('Not enough planks to repair. Need 10, have', planks);
+              const missing = [];
+              if (planks < 10) missing.push(`${10 - planks} more Planks`);
+              if (nails < 20) missing.push(`${20 - nails} more Nails`);
+              if (hammer < 1) missing.push('a Hammer');
+              
+              setJobEnergyMessage(
+                <div>
+                  <p className="mb-2">You don't have the required materials/tools.</p>
+                  <p className="text-zinc-400">Missing: {missing.join(', ')}</p>
+                </div>
+              );
+              setJobEnergyModalOpen(true);
             }
           }
         }

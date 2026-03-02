@@ -4,6 +4,7 @@ import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useUIStore } from '../stores/useUIStore';
 import { gameOverSlides } from '../data/events';
+import explorationEventsData from '../data/exploration_events.json';
 
 export interface ExplorationResult {
   type: 'nothing' | 'resource' | 'combat' | 'unique' | 'item' | 'damage';
@@ -19,6 +20,13 @@ export interface ExplorationResult {
     energyGain?: number;
     eventId?: string;
   };
+}
+
+interface ExplorationEventDefinition {
+  id: string;
+  weight: number;
+  condition?: string;
+  result: ExplorationResult;
 }
 
 export class ExplorationService {
@@ -69,106 +77,43 @@ export class ExplorationService {
   }
 
   static explore(locationId: string): ExplorationResult {
-    // 1. Roll d100
-    const roll = Math.floor(Math.random() * 100) + 1;
-    console.log(`[ExplorationService] Explored ${locationId} - Roll: ${roll}`);
+    // 1. Load events
+    const events: ExplorationEventDefinition[] = explorationEventsData as any; // Cast to avoid strict JSON type issues
 
-    // 2. Determine Event Category
-    // 01-10: Nothing (10%)
-    if (roll <= 10) {
-      return {
-        type: 'nothing',
-        title: 'Quiet Woods',
-        description: 'You explored for 30 minutes and found nothing interesting.',
-        image: '/assets/locations/driftwatch_woods_day.png',
-      };
-    }
-
-    // 11-25: Fallen Log (Woodcutting) (15%)
-    if (roll <= 25) {
-      return {
-        type: 'unique',
-        title: 'Fallen Log',
-        description: 'You find a large fallen log blocking the path.',
-        image: '/assets/events/event_fallen_log.png',
-        data: { eventId: 'fallen_log_event' },
-      };
-    }
-
-    // 26-40: Wild Apple Tree (Choice Event) (15%)
-    if (roll <= 40) {
-      return {
-        type: 'unique',
-        title: 'Wild Apple Tree',
-        description: 'You find a wild apple tree heavy with ripe fruit.',
-        image: '/assets/events/event_apple_tree.png',
-        data: { eventId: 'apple_tree_event' }, // Fixed ID to match Game.tsx
-      };
-    }
-
-    // 41-50: Abandoned Campsite (Rest or Loot) (10%)
-    if (roll <= 50) {
-      return {
-        type: 'unique',
-        title: 'Abandoned Campsite',
-        description: 'You stumble upon a small abandoned campsite.',
-        image: '/assets/events/event_abandoned_campsite.png',
-        data: { eventId: 'abandoned_campsite_event' },
-      };
-    }
-
-    // 51-60: Hollow Tree Stump (Gamble) (10%)
-    if (roll <= 60) {
-      return {
-        type: 'unique',
-        title: 'Hollow Stump',
-        description: 'You spot a moss-covered stump with a dark, hollow center.',
-        image: '/assets/events/event_hollow_stump.png',
-        data: { eventId: 'hollow_stump_event' },
-      };
-    }
-
-    // 61-85: Combat (Wolves) (25%)
-    if (roll <= 85) {
-      // 60% 1 Wolf, 30% 2 Wolves, 10% 4 Wolves
-      const combatRoll = Math.random();
-      let wolfCount = 1;
-      if (combatRoll > 0.6) wolfCount = 2;
-      if (combatRoll > 0.9) wolfCount = 4;
-
-      return {
-        type: 'combat',
-        title: 'Wild Wolves',
-        description: `You encountered a pack of ${wolfCount} wolf(s)!`,
-        image: '/assets/portraits/Wolf.png',
-        data: {
-          wolfCount: wolfCount,
-          enemies: Array(wolfCount).fill('Forest Wolf'),
-        },
-      };
-    }
-
-    // 86-95: Unique (Overgrown Path) (10%)
-    if (roll <= 95) {
-      if (!useWorldStateStore.getState().getFlag('loc_cabin_unlocked')) {
-        return {
-          type: 'unique',
-          title: 'Overgrown Path',
-          description: 'You see a dense thicket of vines blocking an old path.',
-          image: '/assets/locations/driftwatch_woods_day.png',
-          data: { eventId: 'overgrown_path_event' },
-        };
-      }
+    // 2. Filter valid events based on conditions
+    const validEvents = events.filter(event => {
+      if (!event.condition) return true;
       
-      return {
-        type: 'nothing',
-        title: 'Quiet Woods',
-        description: 'You explored for 30 minutes and found nothing interesting.',
-        image: '/assets/locations/driftwatch_woods_day.png',
-      };
+      // Simple condition parsing
+      if (event.condition.startsWith('!')) {
+        const flagName = event.condition.substring(1);
+        return !useWorldStateStore.getState().getFlag(flagName);
+      } else {
+        return useWorldStateStore.getState().getFlag(event.condition);
+      }
+    });
+
+    // 3. Calculate total weight
+    const totalWeight = validEvents.reduce((sum, event) => sum + event.weight, 0);
+
+    // 4. Roll random number
+    const roll = Math.floor(Math.random() * totalWeight);
+    console.log(`[ExplorationService] Explored ${locationId} - Roll: ${roll}/${totalWeight}`);
+
+    // 5. Select event
+    let currentWeight = 0;
+    for (const event of validEvents) {
+      currentWeight += event.weight;
+      if (roll < currentWeight) {
+        // Special handling for dynamic content (like random wolf count)
+        if (event.id === 'wolf_pack') {
+          return this.generateWolfEncounter(event.result);
+        }
+        return event.result;
+      }
     }
 
-    // 96-100: Nothing (Remaining 5%)
+    // Fallback (should not be reached if weights are correct)
     return {
       type: 'nothing',
       title: 'Quiet Woods',
@@ -177,5 +122,20 @@ export class ExplorationService {
     };
   }
 
+  private static generateWolfEncounter(baseResult: ExplorationResult): ExplorationResult {
+      // 60% 1 Wolf, 30% 2 Wolves, 10% 4 Wolves
+      const combatRoll = Math.random();
+      let wolfCount = 1;
+      if (combatRoll > 0.6) wolfCount = 2;
+      if (combatRoll > 0.9) wolfCount = 4;
 
+      return {
+        ...baseResult,
+        description: `You encountered a pack of ${wolfCount} wolf(s)!`,
+        data: {
+          wolfCount: wolfCount,
+          enemies: Array(wolfCount).fill('Forest Wolf'),
+        },
+      };
+  }
 }

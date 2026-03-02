@@ -31,7 +31,7 @@
     - **Task**: Remove side effects from the store. Use a subscription pattern where `QuestManager` listens to inventory changes.
 
 ## 🎮 Phase 3: Enhancements & Content
-- [ ] **Hardcoded Exploration Logic**:
+- [x] **Hardcoded Exploration Logic**:
     - **Issue**: `ExplorationService.ts` contains hardcoded event probabilities and data.
     - **Task**: Move exploration events to `data/exploration_events.json` with weights and conditions.
 - [ ] **Hardcoded Combat Logic**:

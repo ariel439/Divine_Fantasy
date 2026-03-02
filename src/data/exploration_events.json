@@ -1,0 +1,92 @@
+[
+  {
+    "id": "quiet_woods",
+    "weight": 10,
+    "result": {
+      "type": "nothing",
+      "title": "Quiet Woods",
+      "description": "You explored for 30 minutes and found nothing interesting.",
+      "image": "/assets/locations/driftwatch_woods_day.png"
+    }
+  },
+  {
+    "id": "fallen_log",
+    "weight": 15,
+    "result": {
+      "type": "unique",
+      "title": "Fallen Log",
+      "description": "You find a large fallen log blocking the path.",
+      "image": "/assets/events/event_fallen_log.png",
+      "data": { "eventId": "fallen_log_event" }
+    }
+  },
+  {
+    "id": "apple_tree",
+    "weight": 15,
+    "result": {
+      "type": "unique",
+      "title": "Wild Apple Tree",
+      "description": "You find a wild apple tree heavy with ripe fruit.",
+      "image": "/assets/events/event_apple_tree.png",
+      "data": { "eventId": "apple_tree_event" }
+    }
+  },
+  {
+    "id": "abandoned_campsite",
+    "weight": 10,
+    "result": {
+      "type": "unique",
+      "title": "Abandoned Campsite",
+      "description": "You stumble upon a small abandoned campsite.",
+      "image": "/assets/events/event_abandoned_campsite.png",
+      "data": { "eventId": "abandoned_campsite_event" }
+    }
+  },
+  {
+    "id": "hollow_stump",
+    "weight": 10,
+    "result": {
+      "type": "unique",
+      "title": "Hollow Stump",
+      "description": "You spot a moss-covered stump with a dark, hollow center.",
+      "image": "/assets/events/event_hollow_stump.png",
+      "data": { "eventId": "hollow_stump_event" }
+    }
+  },
+  {
+    "id": "wolf_pack",
+    "weight": 25,
+    "result": {
+      "type": "combat",
+      "title": "Wild Wolves",
+      "description": "You encountered a pack of wolves!",
+      "image": "/assets/portraits/Wolf.png",
+      "data": {
+        "wolfCount": 1,
+        "enemies": ["Forest Wolf"]
+      }
+    }
+  },
+  {
+    "id": "overgrown_path",
+    "weight": 10,
+    "condition": "!loc_cabin_unlocked",
+    "result": {
+      "type": "unique",
+      "title": "Overgrown Path",
+      "description": "You see a dense thicket of vines blocking an old path.",
+      "image": "/assets/locations/driftwatch_woods_day.png",
+      "data": { "eventId": "overgrown_path_event" }
+    }
+  },
+  {
+    "id": "nothing_fallback",
+    "weight": 5,
+    "result": {
+      "type": "nothing",
+      "title": "Quiet Woods",
+      "description": "You explored for 30 minutes and found nothing interesting.",
+      "image": "/assets/locations/driftwatch_woods_day.png"
+    }
+  }
+]

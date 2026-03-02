@@ -17,16 +17,16 @@
         - **Autosave**: Implement autosave triggered by specific events (Sleep, Day Pass, Quest Completion) to `localStorage`.
 
 ## 🛠️ Phase 2: Core Architecture & Mechanics
-- [ ] **Dialogue Condition Parser**:
+- [x] **Dialogue Condition Parser**:
     - **Issue**: `DialogueService.applyConditionsToNode` is a massive, brittle switch statement.
     - **Task**: Refactor into a `ConditionEvaluator` class that allows registering new condition types (e.g., `quest`, `time`, `stat`) dynamically.
 - [x] **Store Coupling (Time & Character)**:
     - **Issue**: `useWorldTimeStore` directly calls `useCharacterStore.tickHunger()`.
     - **Task**: Implement a "Time Listener" pattern in `Game.tsx` or `GameLoopService` to handle side effects of time passing (Hunger, Rotting, Quest Timers).
-- [ ] **Quest Trigger Consolidation**:
+- [x] **Quest Trigger Consolidation**:
     - **Issue**: Quest logic is scattered between `DialogueService` and `Game.tsx`.
-    - **Task**: Centralize all quest stage transitions and event triggers into a `QuestManagerService` or `useJournalStore` actions.
-- [ ] **Inventory/Quest Coupling**:
+    - **Task**: Centralize all quest stage transitions and event triggers into a `QuestManagerService` or `useJournalStore` actions. (Gather objectives implemented).
+- [x] **Inventory/Quest Coupling**:
     - **Issue**: `useInventoryStore` contains hardcoded checks for specific quests (e.g., `roberta_planks`).
     - **Task**: Remove side effects from the store. Use a subscription pattern where `QuestManager` listens to inventory changes.
 

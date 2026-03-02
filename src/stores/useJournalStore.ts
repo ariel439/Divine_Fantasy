@@ -8,11 +8,19 @@ import dialogueData from '../data/dialogues/index';
 import type { Quest as UiQuest } from '../types';
 import npcsData from '../data/npcs.json';
 
+interface QuestStage {
+  id: number;
+  text: string;
+  type: string;
+  target: string;
+  quantity?: number;
+}
+
 interface Quest {
   id: string;
   title: string;
   description: string;
-  stages: any[]; // TODO: Define proper stage interface
+  stages: QuestStage[]; 
   rewards: any; // TODO: Define proper rewards interface
   completed: boolean;
   active: boolean;
@@ -229,20 +237,34 @@ export const useJournalStore = create<JournalState>((set, get) => ({
     set(() => ({ questsList: quests }));
   },
   syncQuestProgress: (questId) => {
-    // Currently supports: Roberta's planks quest gather objective
+    // Generic quest progress synchronization
     const state = get();
-    const targetQuestId = questId || 'roberta_planks_for_the_past';
-    const q = state.quests[targetQuestId];
-    if (!q || !q.active) return;
-    const currentStage = q.currentStage ?? 0;
-    // Stage 1 is gather 10 wooden planks
-    if (currentStage === 1) {
-      const inv = useInventoryStore.getState();
-      const planks = inv.getItemQuantity('wooden_plank');
-      if (planks >= 10) {
-        // Move to stage 2: return to Roberta
-        get().setQuestStage(targetQuestId, 2);
+    const inventory = useInventoryStore.getState();
+
+    // If a specific questId is provided, only check that one
+    // Otherwise, check ALL active quests
+    const questsToCheck = questId 
+      ? [state.quests[questId]].filter(q => q && q.active && !q.completed)
+      : Object.values(state.quests).filter(q => q.active && !q.completed);
+
+    questsToCheck.forEach(quest => {
+      const currentStageIndex = quest.currentStage || 0;
+      // Get the quest definition from static data to check stage type
+      // We need to look up the quest in questsData to get the full stage definition including 'type' and 'target'
+      const questDef = questsData[quest.id as keyof typeof questsData];
+      
+      if (!questDef || !questDef.stages || !questDef.stages[currentStageIndex]) return;
+
+      const currentStageDef = questDef.stages[currentStageIndex] as QuestStage;
+
+      // Check for 'gather' type objectives
+      if (currentStageDef.type === 'gather' && currentStageDef.target && currentStageDef.quantity) {
+        const currentQty = inventory.getItemQuantity(currentStageDef.target);
+        if (currentQty >= currentStageDef.quantity) {
+          // Objective met, advance stage
+          get().setQuestStage(quest.id, currentStageIndex + 1);
+        }
       }
-    }
+    });
   },
 }));

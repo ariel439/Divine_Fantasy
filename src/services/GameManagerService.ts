@@ -96,6 +96,16 @@ export class GameManagerService {
         }
     });
 
+    // Subscribe to inventory changes to sync quest progress
+    // This decouples the inventory store from the journal store
+    useInventoryStore.subscribe(() => {
+        try {
+            useJournalStore.getState().syncQuestProgress();
+        } catch (e) {
+            console.warn('Failed to sync quest progress on inventory change:', e);
+        }
+    });
+
     try {
       const issues = DataValidator.run();
       if (issues.length > 0) {

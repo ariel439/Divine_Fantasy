@@ -79,3 +79,20 @@
     - **Content**: Add 3-5 new books to `data.ts`.
 - [ ] **Side Quests**:
     - **Idea**: "The Lost Locket" or "Roberta's Shipment" (delivery quest).
+
+## 🧩 Phase 6: Advanced Systems & Dialogue Revamp (Post-Everything)
+- [ ] **Roberta's Wall Quest Improvement**:
+    - **Current**: Uses a simple modal for fixing the wall.
+    - **Task**: Convert into a full event-based interaction to improve immersion.
+- [ ] **Dialogue UI Refactor**:
+    - **Issue**: UI can get cluttered with too many options.
+    - **Task**: Clean up the interface layout to handle multiple choices better.
+- [ ] **Social & Interaction System**:
+    - **Social Menu**: Add a nested menu within dialogue for social actions.
+    - **Ask Menu**: 
+        - Allow unique questions (e.g., Lore, Store history).
+        - Unlock questions based on relationship level.
+    - **Interact Menu**:
+        - Actions: "Chit Chat", "Aggressive", "Romantic".
+        - **Mechanic**: Actions consume "Social Energy" (new resource).
+        - **Goal**: Build relationship status dynamically through these interactions.

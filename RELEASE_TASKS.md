@@ -34,10 +34,10 @@
 - [x] **Hardcoded Exploration Logic**:
     - **Issue**: `ExplorationService.ts` contains hardcoded event probabilities and data.
     - **Task**: Move exploration events to `data/exploration_events.json` with weights and conditions.
-- [ ] **Hardcoded Combat Logic**:
+- [x] **Hardcoded Combat Logic**:
     - **Issue**: `CombatManager.tsx` has hardcoded weapon sounds and hit chances.
     - **Task**: Move SFX mapping to `items.json` and `npcs.json`. Make hit/flee formulas configurable constants or data-driven.
-- [ ] **Sandbox Mode**:
+- [x] **Sandbox Mode**:
     - **Task**: Add "Start Game" selection:
         - **Story Mode**: Standard game with tutorial and main quest.
         - **Sandbox Mode**: Starts immediately (skips tutorial), disables main quest timer/events, free play.
@@ -45,7 +45,6 @@
 - [ ] **Navbar Overhaul (`LocationNav.tsx`)**:
     - **Menu Icon**: Replace `MoreHorizontal` (...) with `Settings` (Gear) icon.
     - **Functionality**: Clicking Gear opens a new "System Menu" modal containing [Save, Load, Options, Main Menu].
-    - **Timer**: Move the Clock/Date display from the top-right floating element directly into the bottom Navbar.
 - [ ] **Keyboard Shortcuts**:
     - **Task**: Add global key listeners for quick navigation.
     - **Keys**: `I` (Inventory), `C` (Character/Companion), `J` (Journal), `Esc` (System Menu/Back).

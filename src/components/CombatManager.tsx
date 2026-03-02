@@ -9,6 +9,7 @@ import { useAudioStore } from '../stores/useAudioStore';
 import { useInventoryStore } from '../stores/useInventoryStore';
 import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
+import { COMBAT_CONFIG } from '../config/combat';
 import CombatScreen from './screens/CombatScreen';
 import { robertCaughtSlides, gameOverSlides, raidVictorySlides } from '../data/events';
 
@@ -46,28 +47,42 @@ const CombatManager: React.FC = () => {
   };
 
   const getAttackSound = (attacker: CombatParticipant) => {
+      // 1. Use specific sound if available on the participant
+      if (attacker.attack_sound) {
+          return attacker.attack_sound;
+      }
+
+      // 2. Player weapon logic
       if (attacker.isPlayer) {
           const weapon = useCharacterStore.getState().equippedItems.weapon;
-          if (!weapon) return '/assets/sfx/combat_punch.mp3';
           
-          const id = weapon.id.toLowerCase();
-          if (id.includes('sword') || id.includes('blade') || id.includes('knife') || id.includes('dagger') || id.includes('axe')) {
-              return '/assets/sfx/combat_sword_swing.mp3';
+          // Use weapon's specific sound if available
+          if (weapon?.attack_sound) {
+              return weapon.attack_sound;
           }
-          return '/assets/sfx/combat_punch.mp3';
+          
+          // Fallback logic for weapons without configured sound
+          if (weapon) {
+              const id = weapon.id.toLowerCase();
+              if (id.includes('sword') || id.includes('blade') || id.includes('knife') || id.includes('dagger') || id.includes('axe')) {
+                  return COMBAT_CONFIG.DEFAULT_SFX.SWORD;
+              }
+          }
+          return COMBAT_CONFIG.DEFAULT_SFX.ATTACK;
       }
       
+      // 3. Legacy fallback for enemies/companions without configured sound
       const name = attacker.name.toLowerCase();
 
       if (name.includes('wolf')) {
-          return '/assets/sfx/wolf_bite.mp3';
+          return COMBAT_CONFIG.DEFAULT_SFX.WOLF;
       }
       
-      if (name.includes('bandit') || name.includes('smuggler') || name.includes('guard')) {
-           return '/assets/sfx/combat_sword_swing.mp3';
+      if (name.includes('bandit') || name.includes('smuggler') || name.includes('guard') || attacker.isCompanion) {
+           return COMBAT_CONFIG.DEFAULT_SFX.SWORD;
       }
 
-      return '/assets/sfx/combat_punch.mp3';
+      return COMBAT_CONFIG.DEFAULT_SFX.ATTACK;
   };
 
   const scriptedTurnCount = React.useRef(0);
@@ -144,7 +159,12 @@ const CombatManager: React.FC = () => {
     const target = participants.find(p => p.id === selectedTargetId);
     if (!attacker || !target || target.hp <= 0) return;
 
-    const baseHitChance = attacker.isPlayer || attacker.isCompanion ? 0.8 : 0.7;
+    const baseHitChance = attacker.isPlayer 
+      ? COMBAT_CONFIG.BASE_HIT_CHANCE.PLAYER 
+      : attacker.isCompanion 
+        ? COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION 
+        : COMBAT_CONFIG.BASE_HIT_CHANCE.ENEMY;
+
     if (Math.random() > baseHitChance) {
       addLogEntry(`${attacker.name} attacks ${target.name} but misses!`);
       nextTurn();
@@ -153,8 +173,18 @@ const CombatManager: React.FC = () => {
 
     const attackPower = attacker.attack;
     const defencePower = Math.max(0, target.defence);
-    let damage = Math.floor(attackPower * 1.4 - defencePower * 0.3);
-    damage = Math.max(3, damage);
+    
+    let damage = 0;
+    if (attacker.isPlayer) {
+        damage = Math.floor(attackPower * COMBAT_CONFIG.DAMAGE_FORMULA.PLAYER_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.PLAYER_DEFENCE_FACTOR);
+        damage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.PLAYER, damage);
+    } else if (attacker.isCompanion) {
+        damage = Math.floor(attackPower * COMBAT_CONFIG.DAMAGE_FORMULA.COMPANION_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.COMPANION_DEFENCE_FACTOR);
+        damage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.COMPANION, damage);
+    } else {
+        damage = Math.floor(attackPower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_DEFENCE_FACTOR);
+        damage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY, damage);
+    }
 
     const newHp = Math.max(0, target.hp - damage);
 
@@ -186,10 +216,17 @@ const CombatManager: React.FC = () => {
   const handleFlee = () => {
     if (!isPlayerTurn()) return;
     
-    // Simple flee logic - 70% base chance modified by dexterity difference
+    // Simple flee logic - base chance modified by dexterity difference
     const partyDexterity = getAliveParty().reduce((sum, p) => sum + p.dexterity, 0) / getAliveParty().length;
     const enemyDexterity = getAliveEnemies().reduce((sum, e) => sum + e.dexterity, 0) / getAliveEnemies().length;
-    const fleeChance = Math.min(0.9, Math.max(0.1, 0.7 + (partyDexterity - enemyDexterity) * 0.05));
+    
+    const fleeChance = Math.min(
+      COMBAT_CONFIG.FLEE.MAX_CHANCE, 
+      Math.max(
+        COMBAT_CONFIG.FLEE.MIN_CHANCE, 
+        COMBAT_CONFIG.FLEE.BASE_CHANCE + (partyDexterity - enemyDexterity) * COMBAT_CONFIG.FLEE.DEX_FACTOR
+      )
+    );
     
     if (Math.random() < fleeChance) {
       addLogEntry('Party successfully fled from combat!');
@@ -244,7 +281,7 @@ const CombatManager: React.FC = () => {
         } else {
           target = aliveParty[Math.floor(Math.random() * aliveParty.length)];
 
-          const baseHitChance = 0.75;
+          const baseHitChance = COMBAT_CONFIG.BASE_HIT_CHANCE.ENEMY;
           if (Math.random() > baseHitChance) {
             addLogEntry(`${currentEnemy.name} attacks ${target.name} but misses!`);
             playSfx(getAttackSound(currentEnemy));
@@ -255,8 +292,8 @@ const CombatManager: React.FC = () => {
           const attackPower = currentEnemy.attack;
           const defencePower = Math.max(0, target.defence);
           // Enemies deal slightly less multiplier damage, armor is more effective
-          damage = Math.floor(attackPower * 1.2 - defencePower * 0.5);
-          damage = Math.max(3, damage);
+          damage = Math.floor(attackPower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_DEFENCE_FACTOR);
+          damage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY, damage);
           
           playSfx(getAttackSound(currentEnemy));
         }
@@ -303,7 +340,7 @@ const CombatManager: React.FC = () => {
             
             const target = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
 
-            const baseHitChance = 0.8;
+            const baseHitChance = COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION;
             if (Math.random() > baseHitChance) {
               addLogEntry(`${current.name} attacks ${target.name} but misses!`);
               playSfx(getAttackSound(current));
@@ -314,8 +351,8 @@ const CombatManager: React.FC = () => {
             const attackPower = current.attack;
             const defencePower = Math.max(0, target.defence);
             // Balanced companion damage
-            let damage = Math.floor(attackPower * 1.3 - defencePower * 0.4);
-            damage = Math.max(2, damage);
+            let damage = Math.floor(attackPower * COMBAT_CONFIG.DAMAGE_FORMULA.COMPANION_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.COMPANION_DEFENCE_FACTOR);
+            damage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.COMPANION, damage);
             
             playSfx(getAttackSound(current));
             

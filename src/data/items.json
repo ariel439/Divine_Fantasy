@@ -165,7 +165,8 @@
     "stackable": false,
     "weight": 2.0,
     "base_value": 10,
-    "image": "/assets/items/old_axe.png"
+    "image": "/assets/items/old_axe.png",
+    "attack_sound": "/assets/sfx/combat_sword_swing.mp3"
   },
   "fishing_rod": {
     "name": "Wooden Fishing Rod",
@@ -321,6 +322,7 @@
     "base_value": 5,
     "image": "/assets/items/crude_knife.png",
     "equipmentSlot": "weapon",
+    "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
     "stats": {
       "attack": 4
     }
@@ -334,6 +336,7 @@
     "base_value": 50,
     "image": "/assets/items/iron_sword.png",
     "equipmentSlot": "weapon",
+    "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
     "stats": {
       "attack": 6
     }

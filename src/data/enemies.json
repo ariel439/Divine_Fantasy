@@ -1,6 +1,7 @@
 {
   "wolf_forest": {
     "name": "Forest Wolf",
+    "attack_sound": "/assets/sfx/wolf_bite.mp3",
     "stats": { "hp": 60, "attack": 10, "defence": 0, "dexterity": 4 },
     "loot_table": [
       { "item_id": "wolf_pelt", "quantity": 1, "chance": 1 },
@@ -11,6 +12,7 @@
   "smuggler_dockhand": {
     "name": "Smuggler",
     "image": "/assets/portraits/Smuggler.png",
+    "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
     "stats": { "hp": 150, "attack": 15, "defence": 6, "dexterity": 6 },
     "loot_table": [
       { "item_id": "coins", "quantity": 5, "chance": 0.5 }
@@ -25,6 +27,7 @@
   "thug_generic": {
     "name": "Thug",
     "image": "/assets/portraits/Thug.png",
+    "attack_sound": "/assets/sfx/combat_punch.mp3",
     "stats": { "hp": 80, "attack": 12, "defence": 4, "dexterity": 5 },
     "loot_table": [
       { "item_id": "coins", "quantity": 10, "chance": 0.5 }
@@ -33,6 +36,7 @@
   "finn_boss": {
     "name": "Finn",
     "image": "/assets/portraits/OldManFinn.png",
+    "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
     "stats": { "hp": 200, "attack": 25, "defence": 10, "dexterity": 8 },
     "loot_table": [
       { "item_id": "coins", "quantity": 100, "chance": 1 }

@@ -6,6 +6,7 @@ interface WorldState {
   knownNpcs: string[];
   introMode: boolean;
   introCompleted: boolean;
+  gameMode: 'story' | 'sandbox';
   tutorialStep: number;
   seenRoomTutorial: boolean;
   seenLeoTutorial: boolean;
@@ -17,6 +18,7 @@ interface WorldState {
   removeKnownNpc: (npcId: string) => void;
   setIntroMode: (value: boolean) => void;
   setIntroCompleted: (value: boolean) => void;
+  setGameMode: (mode: 'story' | 'sandbox') => void;
   setTutorialStep: (step: number) => void;
   setSeenRoomTutorial: (value: boolean) => void;
   setSeenLeoTutorial: (value: boolean) => void;
@@ -39,6 +41,7 @@ export const useWorldStateStore = create<WorldState>((set, get) => ({
   knownNpcs: [],
   introMode: false,
   introCompleted: false,
+  gameMode: 'story',
   tutorialStep: 0,
   seenRoomTutorial: false,
   seenLeoTutorial: false,
@@ -86,6 +89,9 @@ export const useWorldStateStore = create<WorldState>((set, get) => ({
   },
   setIntroCompleted: (value) => {
     set({ introCompleted: value });
+  },
+  setGameMode: (mode) => {
+    set({ gameMode: mode });
   },
   setTutorialStep: (step) => {
     set({ tutorialStep: step });

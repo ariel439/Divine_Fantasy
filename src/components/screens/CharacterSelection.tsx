@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import type { FC } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 // FIX: Changed to a named import to resolve module issue.
-import { ConfirmationModal } from '../modals/ConfirmationModal';
+import { GameModeSelectionModal } from '../modals/GameModeSelectionModal';
 import { characters, getDescriptiveAttributeLabel } from '../../data';
 import { useUIStore } from '../../stores/useUIStore';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
@@ -37,23 +37,36 @@ const AttributeBar: FC<{ label: keyof typeof characters[0]['attributes']; value:
 const CharacterSelection: FC = () => {
     const { setScreen } = useUIStore();
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [isGameModeModalOpen, setIsGameModeModalOpen] = useState(false);
     const character = characters[currentIndex];
 
     const handleBeginJourneyClick = () => {
-        setIsConfirmModalOpen(true);
+        setIsGameModeModalOpen(true);
     };
 
-    const handleConfirmJourney = () => {
-        setIsConfirmModalOpen(false);
+    const handleStartGame = (mode: 'story' | 'sandbox') => {
+        setIsGameModeModalOpen(false);
+        const setGameMode = useWorldStateStore.getState().setGameMode;
+        setGameMode(mode);
+        
         // Start new game with the selected template
         GameManagerService.startNewGame('luke_orphan');
-        useWorldStateStore.getState().setIntroMode(true);
-        useWorldStateStore.getState().setIntroCompleted(false);
-        useWorldStateStore.getState().setTutorialStep(0);
-        useWorldTimeStore.setState({ year: 775 });
-        DialogueService.executeAction('start_quest:luke_tutorial');
-        useLocationStore.getState().setLocation('orphanage_room');
+
+        if (mode === 'sandbox') {
+            useWorldStateStore.getState().setIntroMode(false);
+            useWorldStateStore.getState().setIntroCompleted(true);
+            useWorldStateStore.getState().setTutorialStep(100);
+            useWorldTimeStore.setState({ year: 780, month: 5, day: 1, hour: 8, minute: 0 });
+            useLocationStore.getState().setLocation('driftwatch');
+        } else {
+            useWorldStateStore.getState().setIntroMode(true);
+            useWorldStateStore.getState().setIntroCompleted(false);
+            useWorldStateStore.getState().setTutorialStep(0);
+            useWorldTimeStore.setState({ year: 775 });
+            DialogueService.executeAction('start_quest:luke_tutorial');
+            useLocationStore.getState().setLocation('orphanage_room');
+        }
+
         setScreen('inGame');
     };
     
@@ -142,14 +155,10 @@ const CharacterSelection: FC = () => {
                     </div>
                 </div>
             </div>
-            <ConfirmationModal
-                isOpen={isConfirmModalOpen}
-                title="Begin Your Journey?"
-                message={`Do you want to start your adventure as ${character.name}?`}
-                onConfirm={handleConfirmJourney}
-                onCancel={() => setIsConfirmModalOpen(false)}
-                confirmText="Yes"
-                cancelText="No"
+            <GameModeSelectionModal
+                isOpen={isGameModeModalOpen}
+                onSelectMode={handleStartGame}
+                onCancel={() => setIsGameModeModalOpen(false)}
             />
         </>
     );

@@ -62,6 +62,7 @@ export interface Item {
   actions?: string[];
   equipmentSlot?: EquipmentSlot;
   stats?: Record<string, number>;
+  attack_sound?: string;
 }
 
 // Trading
@@ -96,6 +97,7 @@ export interface CombatParticipant {
   isCompanion?: boolean;
   portraitUrl?: string;
   defending?: boolean;
+  attack_sound?: string;
 }
 
 // Dialogue

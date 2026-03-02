@@ -57,8 +57,8 @@ export class GameManagerService {
           if (day > 7) {
              const ui = useUIStore.getState();
              const world = useWorldStateStore.getState();
-             // Only trigger if intro is done and not already over
-             if (world.introCompleted && ui.currentEventId !== 'game_over' && ui.currentEventId !== 'timeout_game_over') {
+             // Only trigger if intro is done and not already over, AND not in sandbox mode
+             if (world.introCompleted && world.gameMode !== 'sandbox' && ui.currentEventId !== 'game_over' && ui.currentEventId !== 'timeout_game_over') {
                 console.log('Game Over: 7-Day Timeout Reached');
                 ui.setEventSlides(timeoutSlides);
                 ui.setCurrentEventId('timeout_game_over');
@@ -265,6 +265,7 @@ export class GameManagerService {
           portraitUrl: '/assets/portraits/Wolf.png',
           isPlayer: false,
           isCompanion: false,
+          attack_sound: wolfTemplate.attack_sound,
         });
       }
     }
@@ -326,6 +327,7 @@ export class GameManagerService {
         portraitUrl: '/assets/portraits/Smuggler.png',
         isPlayer: false,
         isCompanion: false,
+        attack_sound: enemyTemplate?.attack_sound,
       });
     }
 
@@ -402,6 +404,7 @@ export class GameManagerService {
       portraitUrl: finnTemplate?.image || '/assets/portraits/OldManFinn.png',
       isPlayer: false,
       isCompanion: false,
+      attack_sound: finnTemplate?.attack_sound,
     });
 
     // Add 3 Thugs (Weaker as requested)
@@ -417,6 +420,7 @@ export class GameManagerService {
         portraitUrl: thugTemplate?.image || '/assets/portraits/Thug.png',
         isPlayer: false,
         isCompanion: false,
+        attack_sound: thugTemplate?.attack_sound,
       });
     }
 
@@ -448,6 +452,7 @@ export class GameManagerService {
         portraitUrl: '/assets/portraits/Rodrick.png',
         isPlayer: false,
         isCompanion: true,
+        attack_sound: '/assets/sfx/combat_sword_swing.mp3',
       },
       {
         id: 'matthias_companion',
@@ -460,6 +465,7 @@ export class GameManagerService {
         portraitUrl: '/assets/portraits/Matthias.png', // Placeholder
         isPlayer: false,
         isCompanion: true,
+        attack_sound: '/assets/sfx/combat_sword_swing.mp3',
       },
       {
         id: 'stan_companion',
@@ -472,6 +478,7 @@ export class GameManagerService {
         portraitUrl: '/assets/portraits/Guard_Generic.png',
         isPlayer: false,
         isCompanion: true,
+        attack_sound: '/assets/sfx/combat_sword_swing.mp3',
       }
     ];
 
@@ -497,6 +504,7 @@ export class GameManagerService {
       portraitUrl: finnTemplate?.image || '/assets/portraits/Finn.png',
       isPlayer: false,
       isCompanion: false,
+      attack_sound: finnTemplate?.attack_sound,
     });
 
     // 2. Add 3 Thugs
@@ -513,6 +521,7 @@ export class GameManagerService {
         portraitUrl: thugTemplate?.image || '/assets/portraits/Thug.png',
         isPlayer: false,
         isCompanion: false,
+        attack_sound: thugTemplate?.attack_sound,
       });
     }
 
@@ -554,6 +563,7 @@ export class GameManagerService {
       portraitUrl: finnTemplate?.image || '/assets/portraits/OldManFinn.png',
       isPlayer: false,
       isCompanion: false,
+      attack_sound: finnTemplate?.attack_sound,
     });
 
     for (let i = 0; i < 3; i++) {
@@ -568,6 +578,7 @@ export class GameManagerService {
         portraitUrl: thugTemplate?.image || '/assets/portraits/Thug.png',
         isPlayer: false,
         isCompanion: false,
+        attack_sound: thugTemplate?.attack_sound,
       });
     }
 

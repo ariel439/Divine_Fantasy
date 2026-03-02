@@ -95,20 +95,9 @@ const ModalManager: React.FC = () => {
       )}
 
       {activeModal === 'confirmation' && (() => {
-        const loc = useLocationStore.getState().getCurrentLocation();
-        const { tutorialStep, introMode } = useWorldStateStore.getState();
-        const isIntroSkip = introMode && loc.id === 'orphanage_room' && tutorialStep === 0;
-        
-        let title = isIntroSkip ? 'Skip Intro' : undefined;
-        let message: React.ReactNode = isIntroSkip ? (
-          <div>
-            <p className="mb-2">Are you sure you want to skip the intro?</p>
-            <p className="text-zinc-400 text-sm">You will start at the Salty Mug without receiving any intro rewards.</p>
-          </div>
-        ) : (
-          <p>Are you sure?</p>
-        );
-        let confirmText = isIntroSkip ? 'Skip Intro' : 'Confirm';
+        let title = undefined;
+        let message: React.ReactNode = <p>Are you sure?</p>;
+        let confirmText = 'Confirm';
 
         if (confirmationType === 'raid_start') {
           title = 'Start Raid';
@@ -127,19 +116,6 @@ const ModalManager: React.FC = () => {
               setCurrentEventId('raid_salty_mug_intro');
               setScreen('event');
               setDialogueNpcId(null);
-          } else if (isIntroSkip) {
-            useWorldTimeStore.setState({ hour: 8, minute: 0 });
-            useCharacterStore.setState({ hunger: 100 });
-            useWorldStateStore.getState().setIntroCompleted(true);
-            useWorldStateStore.getState().setFlag('intro_completed', true);
-            useWorldStateStore.getState().setIntroMode(false);
-            useWorldStateStore.getState().removeKnownNpc('npc_robert');
-            useWorldTimeStore.setState({ year: 780 });
-            useLocationStore.getState().setLocation('salty_mug');
-            setEventSlides(finnDebtIntroSlides);
-            setCurrentEventId('finn_debt_intro');
-            try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
-            setScreen('event');
           }
           useWorldTimeStore.getState().setClockPaused(false);
           closeModal();
@@ -186,30 +162,13 @@ const ModalManager: React.FC = () => {
           }
           closeModal();
         };
-        const handleSkipIntro = () => {
-          useWorldTimeStore.setState({ hour: 8, minute: 0 });
-          useCharacterStore.setState({ hunger: 100 });
-          useWorldStateStore.getState().setIntroCompleted(true);
-          useWorldStateStore.getState().setFlag('intro_completed', true);
-          useWorldStateStore.getState().setIntroMode(false);
-          useWorldStateStore.getState().removeKnownNpc('npc_robert');
-          useWorldStateStore.getState().setFlag('finn_debt_intro_pending', true);
-          useWorldTimeStore.setState({ year: 780 });
-          useLocationStore.getState().setLocation('salty_mug');
-          setEventSlides(finnDebtIntroSlides);
-          setCurrentEventId('finn_debt_intro');
-          try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
-          setScreen('event');
-          closeModal();
-        };
+
         return (
           <TutorialModal 
             isOpen={true} 
             title="Tutorial" 
             message={message} 
             onClose={handleClose} 
-            secondaryActionText={loc.id === 'orphanage_room' && tutorialStep === 0 ? 'Skip Intro' : undefined} 
-            onSecondary={loc.id === 'orphanage_room' && tutorialStep === 0 ? handleSkipIntro : undefined} 
           />
         );
       })()}

@@ -182,6 +182,11 @@ const LocationScreen: React.FC = () => {
         setScreen('crafting');
         break;
       }
+      case 'cook': {
+        useUIStore.getState().setCraftingSkill('Cooking');
+        setScreen('crafting');
+        break;
+      }
 
       case 'library': {
         // Show all mock books for now so the user can see them
@@ -514,6 +519,7 @@ const LocationScreen: React.FC = () => {
     case 'fish': return <Fish size={20} className="text-orange-400" />;
     case 'woodcut': return <Leaf size={20} className="text-orange-400" />; // match Fishing orange card
       case 'craft': return <Hammer size={20} className="text-orange-300" />;
+      case 'cook': return <CookingPot size={20} className="text-amber-400" />;
       case 'job': return <Briefcase size={20} className="text-orange-400" />;
       case 'library': return <BookOpen size={20} className="text-zinc-300" />;
       case 'navigate': return <MapPin size={20} className="text-green-300" />;
@@ -525,7 +531,7 @@ const LocationScreen: React.FC = () => {
     switch (type) {
       case 'dialogue': return 'dialogue';
       case 'shop': return 'commerce';
-      case 'fish': case 'job': case 'woodcut': case 'craft': return 'action';
+      case 'fish': case 'job': case 'woodcut': case 'craft': case 'cook': return 'action';
       case 'library': return 'dialogue';
       case 'navigate': return 'travel';
       default: return 'explore';
@@ -627,7 +633,7 @@ const LocationScreen: React.FC = () => {
       const loc = pendingSkillAction.target;
       const rewardsSummary = loc === 'fish_docks'
         ? `~${iterations} casts; mainly Sardines; XP per catch`
-        : `~${iterations} casts; Trout common, Pike rare (lvl 5+); XP per catch`;
+        : `~${iterations} casts; Trout (lvl 3+), Pike (lvl 5+); XP per catch`;
       return { energyCost, rewardsSummary };
     }
     return { energyCost: 0, rewardsSummary: '' };
@@ -746,10 +752,14 @@ const LocationScreen: React.FC = () => {
             // got away: no item, no XP
           }
         } else {
-          // river: 70% trout, 20% pike (lvl 5+ to catch), 10% miss
+          // river: 70% trout (lvl 3+), 20% pike (lvl 5+), 10% miss
           if (roll < 0.7) {
-            if (inventory.addItem('fish_trout', 1)) trout += 1;
             skills.addXp('fishing', 15);
+            if (fishingLevel >= 3) {
+                if (inventory.addItem('fish_trout', 1)) trout += 1;
+            } else {
+                // Not skilled enough to catch trout; only XP awarded
+            }
           } else if (roll < 0.9) {
             skills.addXp('fishing', 40);
             if (fishingLevel >= 5) {

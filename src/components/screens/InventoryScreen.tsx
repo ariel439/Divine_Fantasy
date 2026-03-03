@@ -1,7 +1,7 @@
 import React, { useState, useMemo, ReactElement } from 'react';
 import type { FC } from 'react';
 import { Coins } from 'lucide-react';
-import type { Item, EquipmentSlot } from '../../types';
+import type { Item, EquipmentSlot, FilterCategory } from '../../types';
 import { mockInventory, mockEquippedItems } from '../../data';
 import { useInventoryStore } from '../../stores/useInventoryStore';
 import { useCharacterStore } from '../../stores/useCharacterStore';
@@ -27,12 +27,30 @@ const InventoryScreen: FC = () => {
             if (!itemData) return null;
             const equipSlot = (itemData as any).equipmentSlot as EquipmentSlot | undefined;
             const iconSrc = (itemData as any).image as string | undefined;
+            
+            // Map JSON types to FilterCategory
+            let category: FilterCategory = 'Misc';
+            const itemType = (itemData as any).type as string;
+            
+            if (itemType === 'weapon' || itemType === 'armor' || itemType === 'accessory') {
+                category = 'Equipment';
+            } else if (itemType === 'resource') {
+                category = 'Resource';
+            } else if (itemType === 'consumable') {
+                category = 'Consumable';
+            } else if (itemType === 'tool') {
+                category = 'Tool';
+            } else if (itemType === 'key_item' || itemType === 'quest') {
+                category = 'Quest';
+            }
+
             return {
                 id: invItem.id,
                 name: itemData.name,
                 description: itemData.description,
                 icon: iconSrc ? (<img src={iconSrc} alt={itemData.name} className="w-6 h-6" />) : undefined,
-                category: itemData.type as any, // TODO: Map to proper categories
+                category: category, 
+                type: itemType, // Keep original type for other checks
                 weight: itemData.weight,
                 base_value: itemData.base_value,
                 quantity: invItem.quantity,

@@ -81,7 +81,6 @@
     "is_indoor": true,
     "actions": [
       { "text": "Talk to Kaelen", "type": "dialogue", "target": "npc_kaelen", "condition": "time.is_day==true" },
-      { "text": "Browse Shop", "type": "shop", "target": "kaelens_forge", "condition": "time.is_day==true" },
       { "text": "Talk to Cyrus", "type": "dialogue", "target": "npc_cyrus", "condition": "time.is_day==true" },
       { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
     ]

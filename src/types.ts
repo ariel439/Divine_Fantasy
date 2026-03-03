@@ -45,7 +45,8 @@ export type FilterCategory =
   | 'Resource'
   | 'Consumable'
   | 'Tool'
-  | 'Quest';
+  | 'Quest'
+  | 'Misc'; // Added Misc category
 
 export interface Item {
   id: string;
@@ -53,6 +54,7 @@ export interface Item {
   description: string;
   icon?: ReactElement;
   category?: Exclude<FilterCategory, 'All'>; // concrete category for items
+  type?: string; // e.g. "consumable", "resource", "tool", "armor", "weapon"
   weight: number;
   base_value: number;
   quantity?: number;
@@ -82,6 +84,7 @@ export interface Recipe {
   ingredients: { itemId: string; quantity: number }[];
   timeCost: number; // minutes
   energyCost: number; // abstract points
+  xpGranted: number;
 }
 
 // Combat

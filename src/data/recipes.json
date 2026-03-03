@@ -6,16 +6,18 @@
     "xp_granted": 10,
     "output": { "item_id": "food_sardine_grilled", "quantity": 1 },
     "ingredients": [{ "item_id": "fish_sardine", "quantity": 1 }],
-    "time_cost_minutes": 5
+    "time_cost_minutes": 5,
+    "energy_cost": 3
   },
   "recipe_grilled_trout": {
     "name": "Grilled Trout",
     "skill": "cooking",
-    "level_required": 1,
+    "level_required": 3,
     "xp_granted": 25,
     "output": { "item_id": "food_trout_grilled", "quantity": 1 },
     "ingredients": [{ "item_id": "fish_trout", "quantity": 1 }],
-    "time_cost_minutes": 8
+    "time_cost_minutes": 8,
+    "energy_cost": 5
   },
   "recipe_grilled_pike": {
     "name": "Grilled Pike",
@@ -24,7 +26,8 @@
     "xp_granted": 50,
     "output": { "item_id": "food_pike_grilled", "quantity": 1 },
     "ingredients": [{ "item_id": "fish_pike", "quantity": 1 }],
-    "time_cost_minutes": 12
+    "time_cost_minutes": 12,
+    "energy_cost": 7
   },
   "recipe_wooden_plank": {
     "name": "Wooden Plank",
@@ -33,7 +36,8 @@
     "xp_granted": 25,
     "output": { "item_id": "wooden_plank", "quantity": 1 },
     "ingredients": [{ "item_id": "log", "quantity": 1 }],
-    "time_cost_minutes": 15
+    "time_cost_minutes": 15,
+    "energy_cost": 2
   },
   "recipe_wolf_helmet": {
     "name": "Wolf Leather Helmet",
@@ -42,25 +46,28 @@
     "xp_granted": 50,
     "output": { "item_id": "wolf_leather_helmet", "quantity": 1 },
     "ingredients": [{ "item_id": "wolf_pelt", "quantity": 2 }],
-    "time_cost_minutes": 30
+    "time_cost_minutes": 30,
+    "energy_cost": 5
   },
   "recipe_wolf_armor": {
     "name": "Wolf Leather Armor",
     "skill": "crafting",
-    "level_required": 2,
+    "level_required": 5,
     "xp_granted": 100,
     "output": { "item_id": "wolf_leather_armor", "quantity": 1 },
     "ingredients": [{ "item_id": "wolf_pelt", "quantity": 5 }],
-    "time_cost_minutes": 60
+    "time_cost_minutes": 60,
+    "energy_cost": 10
   },
   "recipe_wolf_legs": {
     "name": "Wolf Leather Leggings",
     "skill": "crafting",
-    "level_required": 1,
+    "level_required": 3,
     "xp_granted": 60,
     "output": { "item_id": "wolf_leather_legs", "quantity": 1 },
     "ingredients": [{ "item_id": "wolf_pelt", "quantity": 3 }],
-    "time_cost_minutes": 45
+    "time_cost_minutes": 45,
+    "energy_cost": 8
   },
   "recipe_wolf_amulet": {
     "name": "Wolf Tooth Amulet",
@@ -69,6 +76,17 @@
     "xp_granted": 80,
     "output": { "item_id": "wolf_tooth_amulet", "quantity": 1 },
     "ingredients": [{ "item_id": "wolf_tooth", "quantity": 5 }, { "item_id": "rope", "quantity": 1 }],
-    "time_cost_minutes": 30
+    "time_cost_minutes": 30,
+    "energy_cost": 6
+  },
+  "recipe_cooked_meat": {
+    "name": "Cooked Meat",
+    "skill": "cooking",
+    "level_required": 1,
+    "xp_granted": 20,
+    "output": { "item_id": "cooked_meat", "quantity": 1 },
+    "ingredients": [{ "item_id": "raw_meat", "quantity": 1 }],
+    "time_cost_minutes": 10,
+    "energy_cost": 5
   }
 }

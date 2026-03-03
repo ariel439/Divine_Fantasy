@@ -10,11 +10,21 @@ interface ItemSelectionPanelProps {
     selectedItemId?: string | null;
     highlightedItemIds?: Set<string>;
     valueMultiplier?: number; // Added value multiplier prop
+    acceptedCategories?: string[]; // Optional: restrict which items can be selected
 }
 
-const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({ title, items, onItemSelect, selectedItemId, highlightedItemIds, valueMultiplier = 1.0 }) => {
+const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({ title, items, onItemSelect, selectedItemId, highlightedItemIds, valueMultiplier = 1.0, acceptedCategories }) => {
     const [activeFilter, setActiveFilter] = useState<FilterCategory>('All');
     const [searchTerm, setSearchTerm] = useState('');
+
+    const isItemAccepted = (item: Item) => {
+        if (!acceptedCategories) return true;
+        const itemType = item.type || (item.category ? item.category.toLowerCase() : 'misc');
+        return acceptedCategories.some(cat => 
+            cat.toLowerCase() === itemType.toLowerCase() || 
+            (item.category && cat.toLowerCase() === item.category.toLowerCase())
+        );
+    };
 
     const filteredItems = useMemo(() => {
         let filtered = items;
@@ -32,6 +42,9 @@ const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({ title, items, onItemS
     const filterTabs: FilterCategory[] = ['All', 'Equipment', 'Resource', 'Consumable', 'Tool', 'Quest'];
 
     const getRowClass = (item: Item) => {
+        const accepted = isItemAccepted(item);
+        if (!accepted) return 'opacity-50 cursor-not-allowed text-zinc-500';
+
         if (highlightedItemIds?.has(item.uuid || item.id)) {
             return 'bg-zinc-700/60 font-semibold text-white border-l-4 border-zinc-400';
         }
@@ -72,21 +85,24 @@ const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({ title, items, onItemS
             {/* List */}
             <div className="overflow-y-auto flex-grow custom-scrollbar pr-2 space-y-1">
                 {filteredItems.map(item => {
+                    const accepted = isItemAccepted(item);
                     return (
                     <button 
                         key={item.uuid || item.id} 
-                        onClick={() => onItemSelect(item)}
+                        onClick={() => accepted && onItemSelect(item)}
+                        disabled={!accepted}
                         className={`w-full flex justify-between items-center p-2 rounded-lg transition-colors text-sm ${getRowClass(item)}`}
                     >
                         <div className="flex items-center gap-3 w-3/5">
-                            <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-black/40 rounded-md border border-zinc-700">
+                            <div className={`w-8 h-8 flex-shrink-0 flex items-center justify-center bg-black/40 rounded-md border border-zinc-700 ${!accepted ? 'opacity-50' : ''}`}>
                                 {item.icon || ((itemsData as any)[item.id]?.image ? <img src={(itemsData as any)[item.id].image} alt={item.name} className="w-6 h-6" /> : null)}
                             </div>
                             <span className="truncate">{item.name}</span>
-                            {item.stackable && item.quantity && item.quantity > 1 && <span className="text-xs text-zinc-400">({item.quantity})</span>}
+                            {item.quantity && item.quantity > 1 && <span className="text-xs text-zinc-400">({item.quantity})</span>}
                         </div>
                         <span className="text-right w-1/5">{(item.weight ?? 0).toFixed(1)}</span>
                         {(() => {
+                            if (!accepted) return <span className="text-right w-1/5 text-zinc-600 text-xs italic">Not Interested</span>;
                             const v = Math.round((item.base_value || 0) * valueMultiplier);
                             const gold = Math.floor(v / 10000);
                             const silver = Math.floor((v % 10000) / 100);

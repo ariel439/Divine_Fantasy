@@ -38,7 +38,7 @@ const CombatantCard: FC<CombatantCardProps> = ({ combatant, isPartyMember, isAct
                 </div>
             )}
             <div className="p-4">
-                <h3 className="text-xl font-bold text-white truncate" style={{ fontFamily: 'Cinzel, serif' }}>
+                <h3 className="text-xl font-bold text-white truncate text-center" style={{ fontFamily: 'Cinzel, serif' }}>
                     {combatant.name}
                 </h3>
                 <div className="mt-2">

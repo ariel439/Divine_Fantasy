@@ -8,6 +8,8 @@ import type { Recipe, Item, CraftingSkill } from '../../types';
 import { ConfirmationModal } from '../modals/ConfirmationModal';
 import { useInventoryStore } from '../../stores/useInventoryStore';
 import { useCharacterStore } from '../../stores/useCharacterStore';
+import { useToastStore } from '../../stores/useToastStore';
+import { useSkillStore } from '../../stores/useSkillStore';
 import itemsData from '../../data/items.json';
 
 interface CraftingScreenProps {
@@ -33,20 +35,28 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [sortBy, setSortBy] = useState<'level' | 'name'>('level');
     
+    const playerInventory = useInventoryStore(state => state.items);
+    const getSkillLevel = useSkillStore(state => state.getSkillLevel);
+    const { energy: playerEnergy } = useCharacterStore();
+    
+    const playerSkillLevel = useMemo(() => {
+        if (!initialSkill) return 1;
+        return getSkillLevel(initialSkill.toLowerCase());
+    }, [initialSkill, getSkillLevel]);
+
     const playerInventoryMap = useMemo(() => {
         const map = new Map<string, number>();
-        const inv = useInventoryStore.getState();
-        inv.items.forEach(invItem => {
+        playerInventory.forEach(invItem => {
             map.set(invItem.id, invItem.quantity);
         });
         return map;
-    }, []);
+    }, [playerInventory]);
     
     const sortedAndFilteredRecipes = useMemo(() => {
         if (!initialSkill) return [];
         
         const filtered = mockRecipes.filter(recipe => 
-            recipe.skill === initialSkill &&
+            recipe.skill.toLowerCase() === initialSkill.toLowerCase() &&
             recipe.result.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
@@ -99,6 +109,14 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
 
     const canCraftQuantity = useMemo(() => {
         if (!selectedRecipe || craftQuantity === 0) return false;
+        
+        // Check level requirement
+        if (playerSkillLevel < selectedRecipe.levelRequired) return false;
+
+        // Check energy requirement
+        const totalEnergyCost = (selectedRecipe.energyCost || 0) * craftQuantity;
+        if (playerEnergy < totalEnergyCost) return false;
+
         const itemsOk = ingredientsWithStatus.every(ing => ing.playerQty >= (ing.quantity * craftQuantity));
         if (!itemsOk) return false;
         if (selectedRecipe.result.id === 'wooden_plank') {
@@ -123,6 +141,7 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
 
     const handleConfirmCraft = () => {
         if (!selectedRecipe) return;
+        
         onStartCrafting(selectedRecipe, craftQuantity);
         setIsConfirmModalOpen(false);
     };
@@ -167,8 +186,8 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
     
   return (
     <>
-        <div className="w-full h-full p-4 sm:p-8 flex items-center justify-center">
-            <div className="w-full h-full max-w-7xl bg-zinc-950/80 backdrop-blur-lg rounded-xl border border-zinc-700 p-6 relative flex flex-col">
+        <div className="w-full h-full p-2 sm:p-4 flex items-center justify-center">
+            <div className="w-full h-full max-w-[98vw] bg-zinc-950/80 backdrop-blur-lg rounded-xl border border-zinc-700 p-6 relative flex flex-col">
                 <button onClick={onClose} className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors z-20"><X size={24} /></button>
                 <header className="flex-shrink-0 text-center mb-4">
                     <h1 className="text-3xl lg:text-4xl font-bold" style={{ fontFamily: 'Cinzel, serif' }}>{initialSkill || 'Crafting'}</h1>
@@ -226,6 +245,22 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
                                     </div>
                                     <h2 className="text-3xl font-bold mt-3 text-white" style={{ fontFamily: 'Cinzel, serif' }}>{selectedRecipe.result.name}</h2>
                                     <p className="text-zinc-400 italic leading-relaxed text-base mt-1">{selectedRecipe.result.description}</p>
+                                    
+                                    {playerSkillLevel < selectedRecipe.levelRequired && (
+                                        <div className="mt-3 px-3 py-1 bg-red-900/40 border border-red-500/50 rounded-md inline-block">
+                                            <p className="text-red-300 text-sm font-bold">
+                                                Requires Level {selectedRecipe.levelRequired} {selectedRecipe.skill}
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {playerEnergy < (selectedRecipe.energyCost || 0) * craftQuantity && (
+                                        <div className="mt-3 px-3 py-1 bg-amber-900/40 border border-amber-500/50 rounded-md inline-block ml-2">
+                                            <p className="text-amber-300 text-sm font-bold">
+                                                Not enough Energy
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                                 
                                 <div className="flex-grow space-y-4">

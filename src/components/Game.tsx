@@ -89,6 +89,11 @@ const Game: React.FC = () => {
     }
   }, [currentScreen, activeModal]);
 
+  // No local shortcuts here anymore, handled in GameLayout.tsx
+  useEffect(() => {
+    // This effect is now empty as shortcuts moved to GameLayout
+  }, []);
+
   return (
     <GameLayout>
       <ScreenManager />

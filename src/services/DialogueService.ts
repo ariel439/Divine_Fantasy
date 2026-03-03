@@ -111,7 +111,7 @@ export class DialogueService {
     // Determine known state before updating, to support first-time greeting behavior
     const worldStateStore = useWorldStateStore.getState();
     const wasKnown = worldStateStore.knownNpcs.includes(npcId);
-    console.log('[DialogueService][start] npcId=', npcId, 'wasKnown=', wasKnown);
+    
     if (!wasKnown) {
       worldStateStore.addKnownNpc(npcId);
       const npcName = typedNpcsData[npcId]?.name || 'Unknown NPC';
@@ -121,7 +121,7 @@ export class DialogueService {
     // Find the default dialogue for this NPC
     const npcData = typedNpcsData[npcId];
     if (!npcData) {
-      console.error('NPC not found in NPC data:', npcId);
+      console.error(`NPC not found in NPC data: ${npcId}`);
       return null;
     }
 

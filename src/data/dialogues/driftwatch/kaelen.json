@@ -5,6 +5,10 @@
         "npc_text": "The forge is hot today. What brings you here?",
         "player_choices": [
           {
+            "text": "Show me your wares.",
+            "action": "open_shop:kaelens_forge"
+          },
+          {
             "text": "Goodbye, Kaelen.",
             "closes_dialogue": true
           }

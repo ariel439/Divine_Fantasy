@@ -48,14 +48,10 @@
 - [x] **Keyboard Shortcuts**:
     - **Task**: Add global key listeners for quick navigation.
     - **Keys**: `I` (Inventory), `C` (Character/Companion), `J` (Journal), `Esc` (System Menu/Back).
-- [ ] **Crafting Feedback**:
+- [x] **Crafting Feedback**:
     - **Issue**: Crafting is instant and silent.
     - **Fix**: Add a "Toast" notification system showing the item created (e.g., "Crafted: Wooden Plank x1").
-- [ ] **Job Progression**:
-    - **Task**: Add a "Promotion" system.
-    - **Logic**: After X days worked with high performance, unlock a "Senior" title with +20% pay.
-    - **New Job**: Add one additional job type for sandbox gameplay variety (e.g., Guard Duty or Courier).
-- [ ] **Price Rebalance & Shop Logic**:
+- [x] **Price Rebalance & Shop Logic**:
     - **Task**: Review `items.json` base values. Adjust prices for food (too cheap?) and tools (too expensive?).
     - **Modifiability**: Ensure ALL shop data (inventory, prices, multipliers) is strictly loaded from `shops.json` and `items.json` to allow easy user modification/modding. Remove any hardcoded shop logic.
     - **Fix Broken Multipliers**: `TradeScreen.tsx` currently uses a hardcoded `0.5` sell multiplier. Update it to use `shop.buy_multiplier` and `shop.sell_multiplier` from `shops.json`.
@@ -79,7 +75,11 @@
 - [ ] **Side Quests**:
     - **Idea**: "The Lost Locket" or "Roberta's Shipment" (delivery quest).
 
-## 🧩 Phase 6: Advanced Systems & Dialogue Revamp (Post-Everything)
+## 🧩 Phase 6: Advanced Systems & Dialogue Revamp (Can be done concurrently with Phase 5)
+- [ ] **Job Progression**:
+    - **Task**: Add a "Promotion" system.
+    - **Logic**: After X days worked with high performance, unlock a "Senior" title with +20% pay.
+    - **New Job**: Add one additional job type for sandbox gameplay variety (e.g., Guard Duty or Courier).
 - [ ] **Roberta's Wall Quest Improvement**:
     - **Current**: Uses a simple modal for fixing the wall.
     - **Task**: Convert into a full event-based interaction to improve immersion.

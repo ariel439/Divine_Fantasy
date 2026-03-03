@@ -267,105 +267,111 @@ export const mockRecipes: Recipe[] = [
             { itemId: 'log', quantity: 1 }
         ],
         timeCost: 1,
-        energyCost: 0,
+        energyCost: 2,
+        xpGranted: 25,
     },
     {
-        id: 'recipe1',
-        skill: 'Carpentry',
-        levelRequired: 1,
-        result: {
-            id: 'c1', name: 'Wooden Stool', description: 'A simple, sturdy stool. Better than sitting on the floor.', icon: React.createElement(Armchair, { size: 24, className: "text-orange-400" }), category: 'Tool', weight: 3.0, base_value: 15, stackable: false, actions: ['Drop']
-        },
-        ingredients: [
-            { itemId: '1', quantity: 5 }, // 5 Driftwood
-        ],
-        timeCost: 8,
-        energyCost: 10,
-    },
-    {
-        id: 'recipe2',
-        skill: 'Carpentry',
-        levelRequired: 3,
-        result: {
-            id: 'c2', name: 'Sturdy Chest', description: 'A small chest to store your belongings.', icon: React.createElement(Backpack, { size: 24, className: "text-orange-500" }), category: 'Tool', weight: 10.0, base_value: 50, stackable: false, actions: ['Drop']
-        },
-        ingredients: [
-            { itemId: '1', quantity: 10 }, // 10 Driftwood
-            { itemId: '6', quantity: 2 }, // 2 Iron Ore
-        ],
-        timeCost: 30,
-        energyCost: 25,
-    },
-    {
-        id: 'recipe3',
+        id: 'recipe_grilled_sardine',
         skill: 'Cooking',
         levelRequired: 1,
         result: {
-            id: 'c3', name: 'Grilled Fish', description: 'A simple but satisfying meal.', icon: React.createElement(UtensilsCrossed, { size: 24, className: "text-amber-300" }), category: 'Consumable', weight: 0.4, base_value: 20, stackable: true, quantity: 1, effects: { 'Restores': '30 Hunger' }, actions: ['Use', 'Drop']
+            id: 'food_sardine_grilled', name: 'Grilled Sardine', description: 'A sardine, grilled over an open flame.', icon: React.createElement(UtensilsCrossed, { size: 24, className: "text-amber-300" }), category: 'Consumable', weight: 0.3, base_value: 4, stackable: true, quantity: 1, effects: { 'Restores': '10 Hunger' }, actions: ['Use', 'Drop']
         },
         ingredients: [
-            { itemId: '2', quantity: 1 }, // 1 Salted Fish
-        ],
-        timeCost: 2,
-        energyCost: 5,
-    },
-    {
-        id: 'recipe4',
-        skill: 'Cooking',
-        levelRequired: 2,
-        result: {
-            id: 'c4', name: 'Fish Stew', description: 'A hearty stew that warms the soul.', icon: React.createElement(CookingPot, { size: 24, className: "text-amber-400" }), category: 'Consumable', weight: 0.8, base_value: 45, stackable: true, quantity: 1, effects: { 'Restores': '60 Hunger', 'Warms': 'Slightly' }, actions: ['Use', 'Drop']
-        },
-        ingredients: [
-            { itemId: '2', quantity: 2 }, // 2 Salted Fish
-            { itemId: '5', quantity: 1 }, // 1 Red Apple
+            { itemId: 'fish_sardine', quantity: 1 },
         ],
         timeCost: 5,
-        energyCost: 15,
+        energyCost: 3,
+        xpGranted: 10,
+    },
+    {
+        id: 'recipe_grilled_trout',
+        skill: 'Cooking',
+        levelRequired: 3,
+        result: {
+            id: 'food_trout_grilled', name: 'Grilled Trout', description: 'A trout, grilled over an open flame.', icon: React.createElement(UtensilsCrossed, { size: 24, className: "text-amber-400" }), category: 'Consumable', weight: 0.6, base_value: 7, stackable: true, quantity: 1, effects: { 'Restores': '15 Hunger' }, actions: ['Use', 'Drop']
+        },
+        ingredients: [
+            { itemId: 'fish_trout', quantity: 1 },
+        ],
+        timeCost: 8,
+        energyCost: 5,
+        xpGranted: 25,
+    },
+    {
+        id: 'recipe_grilled_pike',
+        skill: 'Cooking',
+        levelRequired: 5,
+        result: {
+            id: 'food_pike_grilled', name: 'Grilled Pike', description: 'A pike, grilled over an open flame.', icon: React.createElement(UtensilsCrossed, { size: 24, className: "text-amber-500" }), category: 'Consumable', weight: 1.2, base_value: 10, stackable: true, quantity: 1, effects: { 'Restores': '18 Hunger' }, actions: ['Use', 'Drop']
+        },
+        ingredients: [
+            { itemId: 'fish_pike', quantity: 1 },
+        ],
+        timeCost: 12,
+        energyCost: 7,
+        xpGranted: 50,
+    },
+    {
+        id: 'recipe_cooked_meat',
+        skill: 'Cooking',
+        levelRequired: 1,
+        result: {
+            id: 'cooked_meat', name: 'Cooked Meat', description: 'A juicy piece of meat, perfectly seared.', icon: React.createElement(UtensilsCrossed, { size: 24, className: "text-red-400" }), category: 'Consumable', weight: 0.5, base_value: 6, stackable: true, quantity: 1, effects: { 'Restores': '14 Hunger' }, actions: ['Use', 'Drop']
+        },
+        ingredients: [
+            { itemId: 'raw_meat', quantity: 1 },
+        ],
+        timeCost: 10,
+        energyCost: 5,
+        xpGranted: 20,
     },
     {
         id: 'recipe_wolf_helmet',
         skill: 'Crafting',
         levelRequired: 1,
         result: {
-            id: 'wolf_leather_helmet', name: 'Wolf Leather Helmet', description: 'A sturdy leather helmet made from wolf hide.', icon: React.createElement(Shirt, { size: 24, className: "text-amber-700" }), category: 'Equipment', weight: 1.0, base_value: 15, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'head', stats: { 'defence': 3 }
-        },
-        ingredients: [
-            { itemId: 'wolf_pelt', quantity: 1 },
-        ],
-        timeCost: 30,
-        energyCost: 10,
-    },
-    {
-        id: 'recipe_wolf_armor',
-        skill: 'Crafting',
-        levelRequired: 1,
-        result: {
-            id: 'wolf_leather_armor', name: 'Wolf Leather Armor', description: 'Light armor crafted from cured wolf pelts.', icon: React.createElement(Shirt, { size: 24, className: "text-amber-700" }), category: 'Equipment', weight: 3.0, base_value: 25, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'chest', stats: { 'defence': 6 }
-        },
-        ingredients: [
-            { itemId: 'wolf_pelt', quantity: 3 },
-        ],
-        timeCost: 60,
-        energyCost: 20,
-    },
-    {
-        id: 'recipe_wolf_legs',
-        skill: 'Crafting',
-        levelRequired: 1,
-        result: {
-            id: 'wolf_leather_legs', name: 'Wolf Leather Leggings', description: 'Tough leather leggings for agility and protection.', icon: React.createElement(Shirt, { size: 24, className: "text-amber-700" }), category: 'Equipment', weight: 1.5, base_value: 20, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'legs', stats: { 'defence': 3 }
+            id: 'wolf_leather_helmet', name: 'Wolf Leather Helmet', description: 'A sturdy leather helmet made from wolf hide.', icon: React.createElement(Shirt, { size: 24, className: "text-amber-700" }), category: 'Equipment', weight: 1.0, base_value: 56, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'head', stats: { 'defence': 3 }
         },
         ingredients: [
             { itemId: 'wolf_pelt', quantity: 2 },
         ],
+        timeCost: 30,
+        energyCost: 5,
+        xpGranted: 50,
+    },
+    {
+        id: 'recipe_wolf_armor',
+        skill: 'Crafting',
+        levelRequired: 5,
+        result: {
+            id: 'wolf_leather_armor', name: 'Wolf Leather Armor', description: 'Light armor crafted from cured wolf pelts.', icon: React.createElement(Shirt, { size: 24, className: "text-amber-700" }), category: 'Equipment', weight: 3.0, base_value: 140, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'chest', stats: { 'defence': 6 }
+        },
+        ingredients: [
+            { itemId: 'wolf_pelt', quantity: 5 },
+        ],
+        timeCost: 60,
+        energyCost: 10,
+        xpGranted: 100,
+    },
+    {
+        id: 'recipe_wolf_legs',
+        skill: 'Crafting',
+        levelRequired: 3,
+        result: {
+            id: 'wolf_leather_legs', name: 'Wolf Leather Leggings', description: 'Tough leather leggings for agility and protection.', icon: React.createElement(Shirt, { size: 24, className: "text-amber-700" }), category: 'Equipment', weight: 1.5, base_value: 84, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'legs', stats: { 'defence': 3 }
+        },
+        ingredients: [
+            { itemId: 'wolf_pelt', quantity: 3 },
+        ],
         timeCost: 45,
-        energyCost: 15,
+        energyCost: 8,
+        xpGranted: 60,
     },
     {
         id: 'recipe_wolf_amulet',
         skill: 'Crafting',
-        levelRequired: 1,
+        levelRequired: 3,
         result: {
             id: 'wolf_tooth_amulet', name: 'Wolf Tooth Amulet', description: 'A necklace made of wolf teeth.', icon: React.createElement(Gem, { size: 24, className: "text-zinc-400" }), category: 'Equipment', weight: 0.2, base_value: 15, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'amulet', stats: { 'strength': 2 }
         },
@@ -373,7 +379,8 @@ export const mockRecipes: Recipe[] = [
             { itemId: 'wolf_tooth', quantity: 3 },
         ],
         timeCost: 15,
-        energyCost: 10,
+        energyCost: 6,
+        xpGranted: 80,
     }
 ];
 

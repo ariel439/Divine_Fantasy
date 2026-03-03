@@ -1,5 +1,4 @@
 {
-
   "npc_beryl": {
     "name": "Beryl",
     "home_location": "beryls_general_goods",
@@ -84,7 +83,6 @@
     "default_dialogue_id": "crawler_default",
     "portrait": "/assets/portraits/Crawler.png"
   },
-
   "npc_ben": {
     "name": "Ben",
     "home_location": "homestead_farm",
@@ -144,5 +142,11 @@
     "home_location": "driftwatch_slums",
     "default_dialogue_id": "shaky_jace_default",
     "portrait": "/assets/portraits/ShakyJace.png"
+  },
+  "npc_ronald": {
+    "name": "Ronald",
+    "home_location": "hunters_cabin",
+    "default_dialogue_id": "ronald_default",
+    "portrait": "/assets/portraits/Ronald.png"
   }
 }

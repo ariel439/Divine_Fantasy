@@ -210,9 +210,9 @@ export class GameManagerService {
     // After all items are added, recalculate currentWeight
     useInventoryStore.getState().getCurrentWeight();
 
-    // Developer convenience: seed 10 wooden planks to start
+    // Developer convenience: seed 10 wolf pelts to start
     // This helps quickly verify Roberta's quest progression and completion.
-    useInventoryStore.getState().addItem('wooden_plank', 10);
+    useInventoryStore.getState().addItem('wolf_pelt', 10);
 
     // If the quest is already accepted before seeding (e.g., dev flows), sync progress
     try {

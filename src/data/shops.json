@@ -3,9 +3,9 @@
     "shop_id": "beryls_general_goods",
     "name": "Beryl's General Goods",
     "location_id": "driftwatch",
-    "currency": 1000,
-    "buy_multiplier": 0.8,
-    "sell_multiplier": 1.2,
+    "currency": 600,
+    "buy_multiplier": 0.7,
+    "sell_multiplier": 1.4,
     "inventory": [
       { "item_id": "wolf_pelt", "quantity": 5 },
       { "item_id": "nails", "quantity": 20 },
@@ -19,9 +19,10 @@
     "shop_id": "tide_and_trade",
     "name": "Tide & Trade",
     "location_id": "driftwatch",
-    "currency": 1000,
-    "buy_multiplier": 0.9,
-    "sell_multiplier": 1.1,
+    "currency": 400,
+    "buy_multiplier": 0.8,
+    "sell_multiplier": 1.2,
+    "accepted_categories": ["consumable"],
     "inventory": [
       { "item_id": "fish_sardine", "quantity": 15 },
       { "item_id": "food_sardine_grilled", "quantity": 10 },
@@ -32,9 +33,10 @@
     "shop_id": "salty_mug",
     "name": "Salty Mug (Tavern)",
     "location_id": "driftwatch",
-    "currency": 1000,
+    "currency": 1500,
     "buy_multiplier": 0.7,
     "sell_multiplier": 1.3,
+    "accepted_categories": ["consumable"],
     "inventory": [
       { "item_id": "bread", "quantity": 12 },
       { "item_id": "cheese", "quantity": 8 },
@@ -46,17 +48,32 @@
     "shop_id": "kaelens_forge",
     "name": "Kaelen's Forge",
     "location_id": "kaelens_forge",
-    "currency": 5000,
-    "buy_multiplier": 0.6,
+    "currency": 700,
+    "buy_multiplier": 0.7,
     "sell_multiplier": 1.4,
+    "accepted_categories": ["weapon", "armor", "tool", "resource"],
     "inventory": [
         { "item_id": "iron_helmet", "quantity": 2 },
         { "item_id": "iron_chainmail", "quantity": 2 },
         { "item_id": "iron_leggings", "quantity": 2 },
         { "item_id": "iron_sword", "quantity": 2 },
         { "item_id": "axe_basic", "quantity": 3 },
-        { "item_id": "hammer", "quantity": 5 },
-        { "item_id": "crude_knife", "quantity": 5 }
+        { "item_id": "hammer", "quantity": 5 }
       ]
+  },
+  {
+    "shop_id": "hunters_cabin",
+    "name": "Ronald's Hunting Supplies",
+    "location_id": "hunters_cabin",
+    "currency": 250,
+    "buy_multiplier": 0.8,
+    "sell_multiplier": 1.3,
+    "accepted_categories": ["resource", "tool", "consumable", "weapon", "armor"],
+    "inventory": [
+      { "item_id": "crude_knife", "quantity": 3 },
+      { "item_id": "wolf_pelt", "quantity": 5 },
+      { "item_id": "wolf_tooth", "quantity": 10 },
+      { "item_id": "raw_meat", "quantity": 10 }
+    ]
   }
 ]

@@ -5,6 +5,10 @@
         "npc_text": "The woods are dangerous. What brings you?",
         "player_choices": [
           {
+            "text": "What have you got for sale?",
+            "action": "open_shop:hunters_cabin"
+          },
+          {
             "text": "I noticed your workbench. Mind if I use it?",
             "next_node": "crafting_unlock",
             "condition": "world_flags.hunter_crafting_unlocked==false"

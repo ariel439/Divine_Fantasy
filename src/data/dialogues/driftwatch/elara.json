@@ -5,10 +5,6 @@
         "npc_text": "Herbs, potions, salves... I have everything a healer needs.",
         "player_choices": [
           {
-            "text": "Show me your wares.",
-            "action": "open_shop:herbalists_hovel"
-          },
-          {
             "text": "Finn sent me. Pay 10 silvers.",
             "next_node": "debt_confrontation",
             "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_elara==false && world_flags.elara_help_agreed==false && inventory.elara_medicine_parcel==0"

@@ -61,23 +61,46 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
 
     const playerOfferValue = useMemo(() => playerOffer.reduce((sum, offer) => {
         const value = tradeMode === 'selling' || tradeMode === 'bartering'
-            ? Math.floor(offer.item.base_value * SELL_PRICE_MULTIPLIER)
+            ? Math.floor(offer.item.base_value * shop.buy_multiplier) // Use shop's buy multiplier
             : offer.item.base_value; // If buying, player's items are valued at full price
         return sum + value * offer.quantity;
-    }, 0), [playerOffer, tradeMode]);
+    }, 0), [playerOffer, tradeMode, shop.buy_multiplier]);
 
     const merchantOfferValue = useMemo(() => merchantOffer.reduce((sum, offer) => {
         const value = tradeMode === 'buying' || tradeMode === 'bartering'
-            ? offer.item.base_value
-            : Math.floor(offer.item.base_value * SELL_PRICE_MULTIPLIER); // If selling, merchant's items are valued at half price
+            ? Math.floor(offer.item.base_value * shop.sell_multiplier) // Use shop's sell multiplier
+            : Math.floor(offer.item.base_value * shop.buy_multiplier); // If selling, merchant's items are valued at buy price
         return sum + value * offer.quantity;
-    }, 0), [merchantOffer, tradeMode]);
+    }, 0), [merchantOffer, tradeMode, shop.sell_multiplier, shop.buy_multiplier]);
     
     const balance = playerOfferValue - merchantOfferValue;
 
     const canAfford = (playerTotalCopper + balance) >= 0;
 
     const handleItemSelect = (item: Item, side: 'player' | 'merchant') => {
+        // Check if shop accepts this item category when player is selling
+        if (side === 'player' && shop.accepted_categories) {
+            // Determine item category/type
+            // Use 'type' field if available, fallback to 'category' or guess based on item properties
+            const itemType = item.type || (item.category ? item.category.toLowerCase() : 'misc');
+            
+            // Check if item type is in accepted categories
+            // We need to handle potential mismatches in naming conventions (e.g. 'consumable' vs 'Consumable')
+            const isAccepted = shop.accepted_categories.some(cat => 
+                cat.toLowerCase() === itemType.toLowerCase() || 
+                (item.category && cat.toLowerCase() === item.category.toLowerCase())
+            );
+
+            if (!isAccepted) {
+                // Ideally show a toast or message here
+                // For now, we can just return and maybe log it
+                // console.log(`Shop ${shop.name} does not accept ${itemType}`);
+                // You might want to use the toast system here if available in this context
+                // toast.addToast(`${shop.name} doesn't buy ${itemType} items.`, 'warning');
+                return;
+            }
+        }
+
         const offer = side === 'player' ? playerOffer : merchantOffer;
         const setOffer = side === 'player' ? setPlayerOffer : setMerchantOffer;
 
@@ -202,8 +225,8 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
 
     return (
         <>
-            <div className="w-full h-full p-4 sm:p-8 flex items-center justify-center">
-                 <div className="w-full h-full max-w-screen-xl bg-zinc-950/80 backdrop-blur-lg rounded-xl border border-zinc-700 p-6 flex flex-col relative">
+            <div className="w-full h-full p-2 sm:p-4 flex items-center justify-center">
+                 <div className="w-full h-full max-w-[98vw] bg-zinc-950/80 backdrop-blur-lg rounded-xl border border-zinc-700 p-6 flex flex-col relative">
                     <button onClick={onClose} className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors z-20"><X size={24} /></button>
                     <header className="flex-shrink-0 text-center mb-4">
                         <h1 className="text-3xl lg:text-4xl font-bold" style={{ fontFamily: 'Cinzel, serif' }}>Trading with {shop.name}</h1>
@@ -222,7 +245,8 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
                                     onItemSelect={(item) => handleItemSelect(item, 'player')}
                                     selectedItemId={selectedPlayerItemId}
                                     highlightedItemIds={playerOfferIds}
-                                    valueMultiplier={SELL_PRICE_MULTIPLIER}
+                                    valueMultiplier={shop.buy_multiplier} // Pass dynamic multiplier
+                                    acceptedCategories={shop.accepted_categories}
                                 />
                             </div>
                         </div>
@@ -262,7 +286,7 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
                                     onItemSelect={(item) => handleItemSelect(item, 'merchant')}
                                     selectedItemId={selectedMerchantItemId}
                                     highlightedItemIds={merchantOfferIds}
-                                    valueMultiplier={1.0}
+                                    valueMultiplier={shop.sell_multiplier} // Pass dynamic multiplier
                                 />
                             </div>
                         </div>

@@ -41,6 +41,24 @@ const DebugMenuScreen: FC = () => {
     }
   };
 
+  const handleCraftingSetup = () => {
+    // 1. Add Materials (Do NOT unlock flag, so user can test dialogue)
+    const inv = useInventoryStore.getState();
+    // inv.addItem('log', 10); // Removed per user request
+    inv.addItem('wolf_pelt', 10);
+    inv.addItem('wolf_tooth', 10);
+    inv.addItem('rope', 2);
+    
+    // 2. Add Copper (for planks if needed elsewhere)
+    useCharacterStore.getState().addCurrency('copper', 100);
+    
+    // 3. Move to Hunter's Cabin
+    locationStore.setLocation('hunters_cabin');
+    
+    // 4. Close Menu
+    setScreen('inGame');
+  };
+
   const handleStartCombatTest = () => {
     // 0. Disable Tutorial
     worldStateStore.setFlag('combat_tutorial_seen', true);
@@ -176,6 +194,12 @@ const DebugMenuScreen: FC = () => {
                 className="flex-1 px-4 py-2 rounded-md bg-blue-900/40 hover:bg-blue-800/60 text-blue-100 text-sm font-semibold border border-blue-800/50 transition-all hover:shadow-[0_0_10px_rgba(59,130,246,0.2)]"
               >
                 Setup Roberta Quest
+              </button>
+              <button
+                onClick={handleCraftingSetup}
+                className="flex-1 px-4 py-2 rounded-md bg-amber-900/40 hover:bg-amber-800/60 text-amber-100 text-sm font-semibold border border-amber-800/50 transition-all hover:shadow-[0_0_10px_rgba(245,158,11,0.2)]"
+              >
+                Unlock Hunter Crafting & Materials
               </button>
             </div>
           </section>

@@ -10,6 +10,8 @@ import { useDiaryStore } from '../stores/useDiaryStore';
 import { useInventoryStore } from '../stores/useInventoryStore';
 import { useCombatStore } from '../stores/useCombatStore';
 import { useCompanionStore } from '../stores/useCompanionStore';
+import { useToastStore } from '../stores/useToastStore';
+import { useSkillStore } from '../stores/useSkillStore';
 import { GameManagerService } from '../services/GameManagerService';
 import { DialogueService } from '../services/DialogueService';
 
@@ -419,8 +421,113 @@ const ScreenManager: React.FC = () => {
             onClose={() => setScreen('inGame')}
             initialSkill={useUIStore.getState().craftingSkill}
             onStartCrafting={(recipe, quantity) => {
+              const inventory = useInventoryStore.getState();
+              const character = useCharacterStore.getState();
+              const worldTime = useWorldTimeStore.getState();
+              const toast = useToastStore.getState();
+              const skillStore = useSkillStore.getState();
+
+              // 0. Validate Level
+              const playerLevel = skillStore.getSkillLevel(recipe.skill.toLowerCase());
+              if (playerLevel < recipe.levelRequired) {
+                toast.addToast(`Your ${recipe.skill} level is too low. Required: ${recipe.levelRequired}`, 'error', 3000, 'Level Requirement');
+                return;
+              }
+
+              // 0.5. Validate Energy
+              const totalEnergyCost = (recipe.energyCost || 0) * quantity;
+              if (character.energy < totalEnergyCost) {
+                toast.addToast("You are too exhausted to craft this.", 'error', 3000, 'Not Enough Energy');
+                return;
+              }
+
+              // 1. Validate Resources
+              const canAfford = recipe.ingredients.every(ing => 
+                inventory.getItemQuantity(ing.itemId) >= ing.quantity * quantity
+              );
+              
+              let specialCostMet = true;
               if (recipe.result.id === 'wooden_plank') {
-                DialogueService.executeAction(`convert_logs_to_planks:${quantity}`);
+                 // Hardcoded copper cost for planks
+                 specialCostMet = character.currency.copper >= 2 * quantity;
+              }
+
+              if (!canAfford || !specialCostMet) {
+                toast.addToast("You don't have the required materials.", 'error', 3000, 'Not Enough Resources');
+                return;
+              }
+
+              // 2. Consume Resources
+              recipe.ingredients.forEach(ing => {
+                inventory.removeItem(ing.itemId, ing.quantity * quantity);
+              });
+              
+              if (recipe.result.id === 'wooden_plank') {
+                character.removeCurrency(2 * quantity);
+              }
+
+              // 2.5. Deduct Energy
+              if (totalEnergyCost > 0) {
+                character.updateStats({ energy: character.energy - totalEnergyCost });
+              }
+
+              // 3. Add Result & XP
+              const isCooking = recipe.skill.toLowerCase() === 'cooking';
+              let successes = 0;
+              let failures = 0;
+
+              if (isCooking) {
+                // Cooking Success Chance: 60% base + 10% per level above recipe requirement
+                // Guaranteed success at PlayerLevel >= RecipeLevel + 4
+                const levelDiff = playerLevel - recipe.levelRequired;
+                const successChance = Math.min(100, Math.max(5, 60 + (levelDiff * 10)));
+
+                for (let i = 0; i < quantity; i++) {
+                  if (Math.random() * 100 < successChance) {
+                    successes++;
+                  } else {
+                    failures++;
+                  }
+                }
+
+                if (successes > 0) {
+                  inventory.addItem(recipe.result.id, successes * (recipe.result.quantity || 1));
+                }
+                if (failures > 0) {
+                  const burnedId = recipe.result.id === 'cooked_meat' ? 'burned_meat' : 'burned_food';
+                  inventory.addItem(burnedId, failures);
+                }
+
+                // Grant XP: Full for success, 25% for failure
+                const totalXp = (successes * recipe.xpGranted) + (failures * Math.floor(recipe.xpGranted * 0.25));
+                skillStore.addXp(recipe.skill.toLowerCase(), totalXp);
+
+                // Show detailed toast for cooking
+                if (failures > 0) {
+                  toast.addToast(
+                    `Cooked ${quantity} items: ${successes} success, ${failures} burned.`,
+                    'warning',
+                    4000,
+                    'Cooking Result'
+                  );
+                } else {
+                  toast.addToast(
+                    `Successfully cooked ${quantity}x ${recipe.result.name}!`,
+                    'success',
+                    3000,
+                    'Cooking Success'
+                  );
+                }
+              } else {
+                // Non-cooking crafting is always successful for now
+                const resultQty = (recipe.result.quantity || 1) * quantity;
+                inventory.addItem(recipe.result.id, resultQty);
+                skillStore.addXp(recipe.skill.toLowerCase(), recipe.xpGranted * quantity);
+              }
+
+              // 4. Pass Time
+              if (recipe.timeCost) {
+                worldTime.passTime(recipe.timeCost * quantity);
               }
             }}
           />

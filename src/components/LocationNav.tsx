@@ -1,6 +1,6 @@
 import React from 'react';
 import type { FC } from 'react';
-import { User, Backpack, ScrollText, Settings, MapPin, PawPrint, Briefcase, BookUser, Sun, Moon, Cloud, CloudRain, Snowflake, Leaf, Sprout } from 'lucide-react';
+import { User, Backpack, ScrollText, Settings, MapPin, PawPrint, Briefcase, BookUser, Sun, Moon, Cloud, CloudRain, Snowflake, Leaf, Sprout, Hourglass } from 'lucide-react';
 import type { GameState, NavVariant } from '../types';
 import NavButton from './ui/NavButton';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
@@ -62,6 +62,22 @@ const LocationNav: FC<LocationNavProps> = ({ onNavigate, activeScreen, onOpenSle
     return (
         <footer className={footerClasses}>
             <div className={containerClasses}>
+                 {/* Left Side: Weather & Season */}
+                 {showTimeControls && !introMode && (
+                    <div className="absolute top-1/2 left-6 -translate-y-1/2 flex items-center space-x-4 hidden md:flex">
+                        <div className="flex flex-col items-start">
+                            <div className="flex items-center space-x-2 text-zinc-300">
+                                <SeasonIcon size={18} className="text-zinc-400" />
+                                <span className="text-sm font-medium">{season}</span>
+                            </div>
+                            <div className="flex items-center space-x-2 text-xs text-zinc-500">
+                                <WeatherIcon size={14} className="text-zinc-500" />
+                                <span>{weatherText}, {temperatureC}°C</span>
+                            </div>
+                        </div>
+                    </div>
+                 )}
+
                  <div className="flex justify-center items-center p-2 max-w-7xl mx-auto w-full">
                     {/* Navigation Buttons */}
                     <nav className="flex justify-center items-center space-x-1 md:space-x-2 transition-all duration-300 ease-in-out">
@@ -72,7 +88,11 @@ const LocationNav: FC<LocationNavProps> = ({ onNavigate, activeScreen, onOpenSle
                         {!introMode && <NavButton icon={<BookUser size={24} />} tooltip="Diary" onClick={() => onNavigate('diary')} isActive={activeScreen === 'diary'} />}
                         {!introMode && <NavButton icon={<Briefcase size={24} />} tooltip="Job" onClick={() => onNavigate('jobScreen')} isActive={activeScreen === 'jobScreen'} />}
                         {!introMode && <NavButton icon={<PawPrint size={24} />} tooltip="Companion" onClick={() => onNavigate('companion')} isActive={activeScreen === 'companion'} />}
-                        {/* System Menu Button - Now part of the main nav group */}
+                        
+                        {/* Wait Button */}
+                        {!introMode && <NavButton icon={<Hourglass size={24} />} tooltip="Wait (T)" onClick={() => onOpenSleepWaitModal('wait')} isActive={false} />}
+                        
+                        {/* System Menu Button */}
                         <NavButton 
                             icon={<Settings size={24} />} 
                             tooltip="System Menu" 
@@ -81,10 +101,9 @@ const LocationNav: FC<LocationNavProps> = ({ onNavigate, activeScreen, onOpenSle
                     </nav>
                  </div>
 
-                 {/* Time Controls - Positioned Absolutely to the Right of the full container */}
+                 {/* Right Side: Time & Date */}
                  {showTimeControls && (
                     <div className="absolute top-1/2 right-6 -translate-y-1/2 flex items-center space-x-4">
-                         {/* Clock Display */}
                          <div className="flex flex-col items-end mr-2 hidden sm:flex">
                              {introMode ? (
                                 <div className="flex items-center space-x-2 text-zinc-200">
@@ -96,12 +115,9 @@ const LocationNav: FC<LocationNavProps> = ({ onNavigate, activeScreen, onOpenSle
                                  <>
                                      <div className="flex items-center space-x-2 text-zinc-200">
                                          <span className="font-mono font-bold text-lg leading-none">{timeString}</span>
-                                         <span className="text-xs text-zinc-400 font-medium">{temperatureC}°C</span>
-                                         <WeatherIcon size={16} className="text-zinc-400" />
                                      </div>
                                      <div className="flex items-center space-x-2 text-xs text-zinc-500">
                                          <span>{weekday}, {dateString}</span>
-                                         <span className="flex items-center"><SeasonIcon size={10} className="mr-1"/> {season}</span>
                                      </div>
                                  </>
                              )}

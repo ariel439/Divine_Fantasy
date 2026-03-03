@@ -5,6 +5,7 @@ import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import LocationNav from './LocationNav';
 import ModalManager from './ModalManager';
 import AudioManager from './AudioManager';
+import { ToastContainer } from './ToastContainer';
 
 interface GameLayoutProps {
   children: React.ReactNode;
@@ -13,6 +14,12 @@ interface GameLayoutProps {
 const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
   const { currentScreen, setScreen, setSleepWaitMode, openModal, activeModal, closeModal } = useUIStore();
   const { getCurrentLocation } = useLocationStore();
+
+  const handleOpenSleepWaitModal = React.useCallback((mode: 'sleep' | 'wait') => {
+    setSleepWaitMode(mode);
+    useWorldTimeStore.getState().setClockPaused(true);
+    openModal('sleepWait');
+  }, [setSleepWaitMode, openModal]);
 
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -44,6 +51,11 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
             if (currentScreen === 'diary') setScreen('inGame');
             else setScreen('diary');
             break;
+        case 't':
+            if (activeModal) break;
+            if (currentScreen !== 'inGame') break;
+            handleOpenSleepWaitModal('wait');
+            break;
         case 'escape':
             if (activeModal) {
                 closeModal();
@@ -58,7 +70,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentScreen, activeModal, setScreen, openModal, closeModal]);
+  }, [currentScreen, activeModal, setScreen, openModal, closeModal, handleOpenSleepWaitModal]);
 
   const isSolidBg = ['characterScreen', 'inventory', 'journal', 'diary', 'trade', 'crafting', 'jobScreen', 'library', 'companion'].includes(currentScreen);
   const isInGame = ['inGame', 'characterScreen', 'inventory', 'journal', 'diary', 'jobScreen', 'companion'].includes(currentScreen);
@@ -67,15 +79,10 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
     setScreen(screen);
   };
 
-  const handleOpenSleepWaitModal = (mode: 'sleep' | 'wait') => {
-    setSleepWaitMode(mode);
-    useWorldTimeStore.getState().setClockPaused(true);
-    openModal('sleepWait');
-  };
-
   return (
     <div className="fixed inset-0 overflow-hidden text-white bg-black font-sans">
       <AudioManager />
+      <ToastContainer />
       {/* Background and overlays */}
       <div
         className={`absolute inset-0 transition-all duration-700 ${

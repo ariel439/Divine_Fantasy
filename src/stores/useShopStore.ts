@@ -15,6 +15,7 @@ interface Shop {
   currency: number; // Add currency field
   buy_multiplier: number;
   sell_multiplier: number;
+  accepted_categories?: string[]; // Added accepted_categories field
   inventory: ShopItem[];
 }
 

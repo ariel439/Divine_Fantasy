@@ -32,11 +32,23 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.5,
-    "base_value": 3,
+    "base_value": 5,
     "effects": {
       "hunger": 5
     },
-    "image": "/assets/items/meat_raw.png"
+    "image": "/assets/items/raw_meat.png"
+  },
+  "cooked_meat": {
+    "name": "Cooked Meat",
+    "description": "A juicy piece of meat, perfectly seared.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.5,
+    "base_value": 6,
+    "effects": {
+      "hunger": 14
+    },
+    "image": "/assets/items/cooked_meat.png"
   },
   "log": {
     "name": "Log",
@@ -74,11 +86,11 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.3,
-    "base_value": 4,
+    "base_value": 3,
     "effects": {
       "hunger": 5
     },
-    "image": "/assets/items/fish_sardine.png"
+    "image": "/assets/items/raw_sardine.png"
   },
   "fish_trout": {
     "name": "Raw Trout",
@@ -86,11 +98,11 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.6,
-    "base_value": 7,
+    "base_value": 6,
     "effects": {
       "hunger": 6
     },
-    "image": "/assets/items/fish_trout.png"
+    "image": "/assets/items/raw_trout.png"
   },
   "fish_pike": {
     "name": "Raw Pike",
@@ -98,11 +110,11 @@
     "type": "consumable",
     "stackable": true,
     "weight": 1.2,
-    "base_value": 15,
+    "base_value": 9,
     "effects": {
       "hunger": 10
     },
-    "image": "/assets/items/fish_pike.png"
+    "image": "/assets/items/raw_pike.png"
   },
   "food_sardine_grilled": {
     "name": "Grilled Sardine",
@@ -110,11 +122,11 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.3,
-    "base_value": 10,
+    "base_value": 4,
     "effects": {
-      "hunger": 12
+      "hunger": 10
     },
-    "image": "/assets/items/fish_sardine_cooked.png"
+    "image": "/assets/items/grilled_sardine.png"
   },
   "food_trout_grilled": {
     "name": "Grilled Trout",
@@ -122,11 +134,11 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.6,
-    "base_value": 18,
+    "base_value": 7,
     "effects": {
-      "hunger": 25
+      "hunger": 15
     },
-    "image": "/assets/items/fish_trout_cooked.png"
+    "image": "/assets/items/grilled_trout.png"
   },
   "food_pike_grilled": {
     "name": "Grilled Pike",
@@ -134,11 +146,11 @@
     "type": "consumable",
     "stackable": true,
     "weight": 1.2,
-    "base_value": 30,
+    "base_value": 10,
     "effects": {
-      "hunger": 40
+      "hunger": 18
     },
-    "image": "/assets/items/fish_trout_cooked.png"
+    "image": "/assets/items/grilled_pike.png"
   },
   "hammer": {
     "name": "Hammer",
@@ -146,7 +158,7 @@
     "type": "tool",
     "stackable": false,
     "weight": 1.5,
-    "base_value": 8,
+    "base_value": 15,
     "image": "/assets/items/hammer.png"
   },
   "iron_nails": {
@@ -164,7 +176,7 @@
     "type": "tool",
     "stackable": false,
     "weight": 2.0,
-    "base_value": 10,
+    "base_value": 20,
     "image": "/assets/items/old_axe.png",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3"
   },
@@ -174,7 +186,7 @@
     "type": "tool",
     "stackable": false,
     "weight": 1.0,
-    "base_value": 15,
+    "base_value": 30,
     "image": "/assets/items/wooden_rod.png"
   },
   "rope": {
@@ -210,7 +222,7 @@
     "type": "resource",
     "stackable": true,
     "weight": 0.1,
-    "base_value": 2,
+    "base_value": 5,
     "image": "/assets/items/wolf_tooth.png"
   },
   "wolf_pelt": {
@@ -219,7 +231,7 @@
     "type": "resource",
     "stackable": true,
     "weight": 1.0,
-    "base_value": 5,
+    "base_value": 18,
     "image": "/assets/items/wolf_pelt.png"
   },
   "wolf_leather_helmet": {
@@ -228,7 +240,7 @@
     "type": "armor",
     "stackable": false,
     "weight": 1.0,
-    "base_value": 15,
+    "base_value": 56,
     "image": "/assets/items/wolf_helm.png",
     "equipmentSlot": "head",
     "stats": {
@@ -241,7 +253,7 @@
     "type": "armor",
     "stackable": false,
     "weight": 3.0,
-    "base_value": 25,
+    "base_value": 140,
     "image": "/assets/items/wolf_body.png",
     "equipmentSlot": "chest",
     "stats": {
@@ -254,7 +266,7 @@
     "type": "armor",
     "stackable": false,
     "weight": 1.5,
-    "base_value": 20,
+    "base_value": 84,
     "image": "/assets/items/wolf_legs.png",
     "equipmentSlot": "legs",
     "stats": {
@@ -293,7 +305,7 @@
     "type": "armor",
     "stackable": false,
     "weight": 10.0,
-    "base_value": 150,
+    "base_value": 200,
     "image": "/assets/items/iron_chainmail.png",
     "equipmentSlot": "chest",
     "stats": {
@@ -306,7 +318,7 @@
     "type": "armor",
     "stackable": false,
     "weight": 5.0,
-    "base_value": 100,
+    "base_value": 120,
     "image": "/assets/items/iron_chainlegs.png",
     "equipmentSlot": "legs",
     "stats": {
@@ -316,10 +328,10 @@
   "crude_knife": {
     "name": "Crude Knife",
     "description": "A crude, hand-forged knife with a chipped blade.",
-    "type": "tool",
+    "type": "weapon",
     "stackable": false,
     "weight": 1.0,
-    "base_value": 5,
+    "base_value": 25,
     "image": "/assets/items/crude_knife.png",
     "equipmentSlot": "weapon",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
@@ -333,7 +345,7 @@
     "type": "tool",
     "stackable": false,
     "weight": 2.5,
-    "base_value": 50,
+    "base_value": 100,
     "image": "/assets/items/iron_sword.png",
     "equipmentSlot": "weapon",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
@@ -386,22 +398,13 @@
     "base_value": 3,
     "image": "/assets/items/cloth.png"
   },
-  "hammer": {
-    "name": "Hammer",
-    "description": "A sturdy hammer.",
-    "type": "tool",
-    "stackable": false,
-    "weight": 2.0,
-    "base_value": 8,
-    "image": "/assets/items/hammer.png"
-  },
   "spade": {
     "name": "Spade",
     "description": "Good for digging.",
     "type": "tool",
     "stackable": false,
     "weight": 2.5,
-    "base_value": 8,
+    "base_value": 12,
     "image": "/assets/items/spade.png"
   },
   "bread": {
@@ -423,5 +426,29 @@
     "base_value": 5,
     "effects": { "hunger": 8 },
     "image": "/assets/items/cheese.png"
+  },
+  "burned_food": {
+    "name": "Burned Food",
+    "description": "A charred, inedible mess. It smells like regret.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.3,
+    "base_value": 1,
+    "effects": {
+      "hunger": 2
+    },
+    "image": "/assets/items/burned_fish.png"
+  },
+  "burned_meat": {
+    "name": "Burned Meat",
+    "description": "A black, carbonized block of what used to be meat.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.5,
+    "base_value": 1,
+    "effects": {
+      "hunger": 2
+    },
+    "image": "/assets/items/burned_meat.png"
   }
 }

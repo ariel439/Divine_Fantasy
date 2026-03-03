@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { CraftingSkill, GameState } from '../types';
 
-type Modal = 'confirmation' | 'options' | 'saveLoad' | 'sleepWait' | 'timedAction' | 'actionSummary' | 'quantity' | 'tutorial' | null;
+type Modal = 'confirmation' | 'options' | 'saveLoad' | 'sleepWait' | 'timedAction' | 'actionSummary' | 'quantity' | 'tutorial' | 'systemMenu' | null;
 
 interface UIState {
   currentScreen: GameState;

@@ -11,6 +11,7 @@ import ConfirmationModal from './modals/ConfirmationModal';
 import OptionsModal from './modals/OptionsModal';
 import TutorialModal from './modals/TutorialModal';
 import SaveLoadModal from './modals/SaveLoadModal';
+import SystemMenuModal from './modals/SystemMenuModal';
 import { SaveLoadService } from '../services/SaveLoadService';
 import { finnDebtIntroSlides, raidSaltyMugIntroSlides } from '../data/events';
 
@@ -32,6 +33,19 @@ const ModalManager: React.FC = () => {
 
       {activeModal === 'options' && (
         <OptionsModal isOpen={true} onClose={closeModal} />
+      )}
+
+      {activeModal === 'systemMenu' && (
+        <SystemMenuModal
+          isOpen={true}
+          onClose={closeModal}
+          onOpenSaveLoad={() => ui.openModal('saveLoad')}
+          onOpenOptions={() => ui.openModal('options')}
+          onReturnToMainMenu={() => {
+             closeModal();
+             setScreen('mainMenu');
+          }}
+        />
       )}
 
       {activeModal === 'sleepWait' && (

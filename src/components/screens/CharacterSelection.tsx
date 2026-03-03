@@ -8,6 +8,7 @@ import { characters, getDescriptiveAttributeLabel } from '../../data';
 import { useUIStore } from '../../stores/useUIStore';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import { useLocationStore } from '../../stores/useLocationStore';
+import { useJournalStore } from '../../stores/useJournalStore';
 import { GameManagerService } from '../../services/GameManagerService';
 import { DialogueService } from '../../services/DialogueService';
 import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
@@ -55,7 +56,9 @@ const CharacterSelection: FC = () => {
         if (mode === 'sandbox') {
             useWorldStateStore.getState().setIntroMode(false);
             useWorldStateStore.getState().setIntroCompleted(true);
+            useWorldStateStore.getState().setFlag('intro_completed', true);
             useWorldStateStore.getState().setTutorialStep(100);
+            useJournalStore.getState().completeQuest('luke_tutorial');
             useWorldTimeStore.setState({ year: 780, month: 5, day: 1, hour: 8, minute: 0 });
             useLocationStore.getState().setLocation('driftwatch');
         } else {

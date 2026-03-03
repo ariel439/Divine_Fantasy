@@ -808,34 +808,38 @@ const LocationScreen: React.FC = () => {
 
       {/* Right-Side: Information & Actions Panel */}
       <aside className="absolute top-8 right-8 bottom-24 z-10 w-full max-w-sm bg-zinc-950/85 backdrop-blur-xl rounded-xl border border-zinc-700/80 p-4 flex flex-col">
-        {/* Date & Time Header */}
-        <div className="flex-shrink-0 mb-4 px-2">
-        <div className="flex justify-between items-center">
-          <h2 className="text-4xl font-bold font-mono tracking-tighter" style={{lineHeight: '1'}}>{introMode ? (tutorialStep < 4 ? 'Morning' : tutorialStep < 6 ? 'Midday' : 'Evening') : timeString}</h2>
-            <div className="flex items-center space-x-2 text-lg text-white/90">
-              <span className="font-semibold">{temp}°C {weatherText}</span>
-              {WeatherIcon}
-            </div>
-          </div>
-          <div className="flex justify-between items-center mt-1">
-            <p className="text-sm text-white/70">{weekday}, {dateString}</p>
-            <div className="flex items-center space-x-2 text-sm text-zinc-300">
-              <SeasonIcon size={18} />
-              <span className="font-semibold">{season}</span>
-            </div>
-          </div>
-          <div className="w-full h-px bg-zinc-700 mt-3"></div>
-        </div>
-
         {/* Scrollable Actions */}
         <div className="overflow-y-auto flex-grow pr-2 space-y-3 custom-scrollbar scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-zinc-800/50 hover:scrollbar-thumb-zinc-500">
           {currentLocation.actions
             .slice()
             .sort((a: any, b: any) => {
-              const isAHub = a.type === 'navigate' && (a.target === 'driftwatch' || /Hub/i.test(a.text));
-              const isBHub = b.type === 'navigate' && (b.target === 'driftwatch' || /Hub/i.test(b.text));
-              if (isAHub && !isBHub) return 1;
-              if (!isAHub && isBHub) return -1;
+              // Priority: 
+              // 1. Explore (Zinc)
+              // 2. Actions (Job, Craft, Fish, Woodcut - Orange)
+              // 3. Commerce (Shop - Yellow)
+              // 4. Dialogues (Dialogue, Library - Blue)
+              // 5. Navigation (Travel - Green)
+              
+              const getPriority = (action: any) => {
+                if (action.type === 'navigate') return 5;
+                if (action.type === 'dialogue' || action.type === 'library') return 4;
+                if (action.type === 'shop') return 3;
+                if (['job', 'craft', 'woodcut', 'fish'].includes(action.type)) return 2;
+                return 1; // Default/Explore (Zinc)
+              };
+
+              const pA = getPriority(a);
+              const pB = getPriority(b);
+
+              if (pA !== pB) return pA - pB;
+
+              // Secondary sort for navigation: Hubs at the bottom
+              if (a.type === 'navigate' && b.type === 'navigate') {
+                const isAHub = a.target === 'driftwatch' || /Hub/i.test(a.text);
+                const isBHub = b.target === 'driftwatch' || /Hub/i.test(b.text);
+                if (isAHub && !isBHub) return 1;
+                if (!isAHub && isBHub) return -1;
+              }
               return 0;
             })
             .filter((action: any) => {
@@ -1082,8 +1086,7 @@ const LocationScreen: React.FC = () => {
         activeScreen={currentScreen}
         onOpenSleepWaitModal={handleOpenSleepWaitModal}
         showTimeControls={true}
-        onOpenOptionsModal={handleOpenOptionsModal}
-        onOpenSaveLoadModal={handleOpenSaveLoadModal}
+        onOpenSystemMenu={() => useUIStore.getState().openModal('systemMenu')}
       />
 
       {/* Travel Confirmation Modal */}

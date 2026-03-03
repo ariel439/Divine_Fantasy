@@ -11,8 +11,54 @@ interface GameLayoutProps {
 }
 
 const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
-  const { currentScreen, setScreen, setSleepWaitMode, openModal } = useUIStore();
+  const { currentScreen, setScreen, setSleepWaitMode, openModal, activeModal, closeModal } = useUIStore();
   const { getCurrentLocation } = useLocationStore();
+
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      // Only allow shortcuts if we are "in game" or in a sub-screen
+      const isGameplayState = ['inGame', 'characterScreen', 'inventory', 'journal', 'diary', 'jobScreen', 'companion', 'crafting', 'trade', 'library'].includes(currentScreen);
+      
+      if (!isGameplayState) return;
+
+      switch (e.key.toLowerCase()) {
+        case 'i':
+            if (activeModal) break; // Don't toggle screens if a modal is open
+            if (currentScreen === 'inventory') setScreen('inGame');
+            else setScreen('inventory');
+            break;
+        case 'c':
+            if (activeModal) break;
+            if (currentScreen === 'characterScreen') setScreen('inGame');
+            else setScreen('characterScreen');
+            break;
+        case 'j':
+            if (activeModal) break;
+            if (currentScreen === 'journal') setScreen('inGame');
+            else setScreen('journal');
+            break;
+        case 'd':
+            if (activeModal) break;
+            if (currentScreen === 'diary') setScreen('inGame');
+            else setScreen('diary');
+            break;
+        case 'escape':
+            if (activeModal) {
+                closeModal();
+            } else if (currentScreen !== 'inGame') {
+                setScreen('inGame');
+            } else {
+                openModal('systemMenu');
+            }
+            break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentScreen, activeModal, setScreen, openModal, closeModal]);
 
   const isSolidBg = ['characterScreen', 'inventory', 'journal', 'diary', 'trade', 'crafting', 'jobScreen', 'library', 'companion'].includes(currentScreen);
   const isInGame = ['inGame', 'characterScreen', 'inventory', 'journal', 'diary', 'jobScreen', 'companion'].includes(currentScreen);
@@ -25,14 +71,6 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
     setSleepWaitMode(mode);
     useWorldTimeStore.getState().setClockPaused(true);
     openModal('sleepWait');
-  };
-
-  const handleOpenOptionsModal = () => {
-    openModal('options');
-  };
-
-  const handleOpenSaveLoadModal = () => {
-    openModal('saveLoad');
   };
 
   return (
@@ -76,8 +114,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
             activeScreen={currentScreen}
             onOpenSleepWaitModal={handleOpenSleepWaitModal}
             showTimeControls={currentScreen === 'inGame'}
-            onOpenOptionsModal={handleOpenOptionsModal}
-            onOpenSaveLoadModal={handleOpenSaveLoadModal}
+            onOpenSystemMenu={() => openModal('systemMenu')}
           />
         )}
         

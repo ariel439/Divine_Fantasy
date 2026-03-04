@@ -67,15 +67,11 @@
     - [x] **Issue**: Audio settings (volume/mute) reset on reload.
     - [x] **Fix**: Add `persist` middleware to `useAudioStore`.
 
-## 📖 Phase 5: Content & Writing (Bonus)
-- [ ] **Dialogues**:
-    - **Lore**: Add "Tell me about..." options to Ben, Elara, and Father Thomas.
+## 📖 Phase 5: Content & Writing (Library)
 - [ ] **Library**:
     - **Content**: Add 3-5 new books to `data.ts`.
-- [ ] **Side Quests**:
-    - **Idea**: "The Lost Locket" or "Roberta's Shipment" (delivery quest).
 
-## 🧩 Phase 6: Advanced Systems & Dialogue Revamp (Can be done concurrently with Phase 5)
+## 🧩 Phase 6: Advanced Systems, Side Quests & Dialogue Revamp
 - [ ] **Job Progression**:
     - **Task**: Add a "Promotion" system.
     - **Logic**: After X days worked with high performance, unlock a "Senior" title with +20% pay.
@@ -95,3 +91,7 @@
         - Actions: "Chit Chat", "Aggressive", "Romantic".
         - **Mechanic**: Actions consume "Social Energy" (new resource).
         - **Goal**: Build relationship status dynamically through these interactions.
+- [ ] **Dialogues**:
+    - **Lore**: Add "Tell me about..." options to Ben, Elara, and Father Thomas.
+- [ ] **Side Quests**:
+    - **Idea**: "The Lost Locket" or "Roberta's Shipment" (delivery quest).

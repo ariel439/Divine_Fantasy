@@ -79,11 +79,11 @@ const AudioManager: React.FC = () => {
           musicRef.current.play().catch(() => {});
       }
       
-      if (store.sfxEnabled && sfxRef.current && sfxRef.current.paused) {
+      if (store.sfxEnabled && sfxRef.current && sfxRef.current.paused && currentSfxPathRef.current) {
           sfxRef.current.play().catch(() => {});
       }
 
-      if (store.weatherEnabled && weatherRef.current && weatherRef.current.paused) {
+      if (store.weatherEnabled && weatherRef.current && weatherRef.current.paused && useWorldTimeStore.getState().weather === 'Rainy') {
           weatherRef.current.play().catch(() => {});
       }
     };
@@ -205,10 +205,12 @@ const AudioManager: React.FC = () => {
     if (!sfxRef.current) {
       sfxRef.current = new Audio();
       sfxRef.current.loop = true;
+      sfxRef.current.volume = 0;
     }
     if (!weatherRef.current) {
       weatherRef.current = new Audio('/assets/sfx/weather_rain.mp3');
       weatherRef.current.loop = true;
+      weatherRef.current.volume = 0;
     }
 
     // 4. Initialize Sources

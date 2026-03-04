@@ -21,17 +21,70 @@ const AudioManager: React.FC = () => {
   const shelfNodeRef = useRef<BiquadFilterNode | null>(null);
   const weatherSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
 
+  // Fade Refs
+  const musicFadeIntervalRef = useRef<number | null>(null);
+  const sfxFadeIntervalRef = useRef<number | null>(null);
+  const weatherFadeIntervalRef = useRef<number | null>(null);
+  const currentMusicVolumeRef = useRef<number>(musicVolume * 0.4);
+  const currentSfxVolumeRef = useRef<number>(sfxVolume * 0.5);
+  const currentWeatherVolumeRef = useRef<number>(weatherVolume * 0.5);
+
+  const fadeAudio = (
+    audio: HTMLAudioElement, 
+    targetVolume: number, 
+    duration: number, 
+    onComplete?: () => void,
+    intervalRef?: React.MutableRefObject<number | null>,
+    currentVolRef?: React.MutableRefObject<number>
+  ) => {
+    if (intervalRef?.current) clearInterval(intervalRef.current);
+    
+    const startVolume = audio.volume;
+    const steps = 20;
+    const stepDuration = duration / steps;
+    const volumeStep = (targetVolume - startVolume) / steps;
+    let currentStep = 0;
+
+    const interval = window.setInterval(() => {
+      currentStep++;
+      const nextVolume = Math.max(0, Math.min(1, startVolume + (volumeStep * currentStep)));
+      audio.volume = nextVolume;
+      if (currentVolRef) currentVolRef.current = nextVolume;
+
+      if (currentStep >= steps) {
+        clearInterval(interval);
+        if (intervalRef) intervalRef.current = null;
+        audio.volume = targetVolume;
+        if (currentVolRef) currentVolRef.current = targetVolume;
+        if (onComplete) onComplete();
+      }
+    }, stepDuration);
+
+    if (intervalRef) intervalRef.current = interval;
+  };
+
   // Resume AudioContext on interaction
   useEffect(() => {
     const handleInteraction = () => {
+      // Resume AudioContext
       const ctx = audioCtxRef.current;
       if (ctx && ctx.state === 'suspended') {
         ctx.resume().catch((e) => console.warn('Audio resume failed', e));
       }
       
-      // Retry playback if stuck
-      if (useAudioStore.getState().musicEnabled && musicRef.current && musicRef.current.paused) {
+      // Retry all audio layers if they were blocked by Autoplay
+      const store = useAudioStore.getState();
+      
+      if (store.musicEnabled && musicRef.current && musicRef.current.paused) {
           musicRef.current.play().catch(() => {});
+      }
+      
+      if (store.sfxEnabled && sfxRef.current && sfxRef.current.paused) {
+          sfxRef.current.play().catch(() => {});
+      }
+
+      if (store.weatherEnabled && weatherRef.current && weatherRef.current.paused) {
+          weatherRef.current.play().catch(() => {});
       }
     };
 
@@ -64,24 +117,45 @@ const AudioManager: React.FC = () => {
     }
 
     const audio = musicRef.current;
+    const targetMusicVolume = musicEnabled ? (musicVolume * 0.4) : 0;
     
-    // Change track if needed
+    // Change track if needed with cross-fade
     if (currentTrackPathRef.current !== desiredMusicSrc) {
-        audio.src = desiredMusicSrc;
-        currentTrackPathRef.current = desiredMusicSrc;
-        if (musicEnabled) {
-            audio.play().catch(() => {});
+        if (currentTrackPathRef.current) {
+            // Fade out, change source, then fade in
+            fadeAudio(audio, 0, 1000, () => {
+                audio.src = desiredMusicSrc;
+                currentTrackPathRef.current = desiredMusicSrc;
+                if (musicEnabled) {
+                    audio.play().catch(() => {});
+                    fadeAudio(audio, targetMusicVolume, 1000, undefined, musicFadeIntervalRef, currentMusicVolumeRef);
+                }
+            }, musicFadeIntervalRef, currentMusicVolumeRef);
+        } else {
+            // Initial load
+            audio.src = desiredMusicSrc;
+            currentTrackPathRef.current = desiredMusicSrc;
+            audio.volume = 0;
+            if (musicEnabled) {
+                audio.play().catch(() => {});
+                fadeAudio(audio, targetMusicVolume, 1000, undefined, musicFadeIntervalRef, currentMusicVolumeRef);
+            }
         }
-    }
-
-    // Apply a scaling factor to music volume so it's not too loud even at 100%
-    // User sees 50%, code uses 0.5 * 0.4 = 0.2 actual volume
-    audio.volume = musicVolume * 0.4; 
-    
-    if (musicEnabled) {
-      if (audio.paused) audio.play().catch(() => {});
     } else {
-      audio.pause();
+        // Just volume update if no track change is in progress
+        if (!musicFadeIntervalRef.current) {
+            audio.volume = targetMusicVolume;
+            currentMusicVolumeRef.current = targetMusicVolume;
+        }
+
+        if (musicEnabled) {
+            if (audio.paused) audio.play().catch(() => {});
+        } else {
+            // If music was just disabled, fade it out instead of sudden stop
+            if (audio.volume > 0 && !musicFadeIntervalRef.current) {
+                fadeAudio(audio, 0, 500, () => audio.pause(), musicFadeIntervalRef, currentMusicVolumeRef);
+            }
+        }
     }
   }, [musicEnabled, musicVolume, currentScreen]);
 
@@ -220,30 +294,73 @@ const AudioManager: React.FC = () => {
 
     const sfxAudio = sfxRef.current;
     if (sfxAudio) {
-       sfxAudio.volume = applyMuffle ? Math.max(0, Math.min(1, sfxVolume * 0.3)) : sfxVolume * 0.5;
+       const baseVolume = applyMuffle ? Math.max(0, Math.min(1, sfxVolume * 0.3)) : sfxVolume * 0.5;
        
+       // Reduce volume for forest as requested
+       const finalTargetVolume = (loc.id === 'driftwatch_woods' && sfxEnabled) ? (baseVolume * 0.6) : baseVolume;
+       const effectiveVolume = sfxEnabled ? finalTargetVolume : 0;
+
        if (desiredSfxSrc && sfxEnabled) {
           if (currentSfxPathRef.current !== desiredSfxSrc) {
-             sfxAudio.src = desiredSfxSrc;
-             currentSfxPathRef.current = desiredSfxSrc;
-             sfxAudio.play().catch(() => {});
-          } else if (sfxAudio.paused) {
-             sfxAudio.play().catch(() => {});
+             if (currentSfxPathRef.current) {
+                // Fade out current ambience before switching
+                fadeAudio(sfxAudio, 0, 1000, () => {
+                   sfxAudio.src = desiredSfxSrc!;
+                   currentSfxPathRef.current = desiredSfxSrc!;
+                   sfxAudio.play().catch(() => {});
+                   fadeAudio(sfxAudio, effectiveVolume, 1000, undefined, sfxFadeIntervalRef, currentSfxVolumeRef);
+                }, sfxFadeIntervalRef, currentSfxVolumeRef);
+             } else {
+                sfxAudio.src = desiredSfxSrc;
+                currentSfxPathRef.current = desiredSfxSrc;
+                sfxAudio.volume = 0;
+                sfxAudio.play().catch(() => {});
+                fadeAudio(sfxAudio, effectiveVolume, 1000, undefined, sfxFadeIntervalRef, currentSfxVolumeRef);
+             }
+          } else {
+             // Just volume update if no ambience change in progress
+             if (!sfxFadeIntervalRef.current) {
+                sfxAudio.volume = effectiveVolume;
+                currentSfxVolumeRef.current = effectiveVolume;
+                if (sfxAudio.paused) sfxAudio.play().catch(() => {});
+             }
           }
        } else {
-          if (!sfxAudio.paused) sfxAudio.pause();
+          // Fade out ambience if it's disabled or no source
+          if (sfxAudio.volume > 0 && !sfxFadeIntervalRef.current) {
+             fadeAudio(sfxAudio, 0, 800, () => {
+                sfxAudio.pause();
+                currentSfxPathRef.current = null;
+             }, sfxFadeIntervalRef, currentSfxVolumeRef);
+          } else if (!sfxFadeIntervalRef.current) {
+             sfxAudio.pause();
+             currentSfxPathRef.current = null;
+          }
        }
     }
 
     // 8. Update Weather Track
     const weatherAudio = weatherRef.current;
     if (weatherAudio) {
-        weatherAudio.volume = applyMuffle ? Math.max(0, Math.min(1, weatherVolume * 0.2)) : weatherVolume * 0.5;
+        const targetWeatherVolume = applyMuffle ? Math.max(0, Math.min(1, weatherVolume * 0.2)) : weatherVolume * 0.5;
+        const effectiveWeatherVolume = (weatherEnabled && weather === 'Rainy') ? targetWeatherVolume : 0;
         
         if (weatherEnabled && weather === 'Rainy') {
-            if (weatherAudio.paused) weatherAudio.play().catch(() => {});
+            if (weatherAudio.paused) {
+                weatherAudio.volume = 0;
+                weatherAudio.play().catch(() => {});
+                fadeAudio(weatherAudio, effectiveWeatherVolume, 1500, undefined, weatherFadeIntervalRef, currentWeatherVolumeRef);
+            } else if (!weatherFadeIntervalRef.current) {
+                weatherAudio.volume = effectiveWeatherVolume;
+                currentWeatherVolumeRef.current = effectiveWeatherVolume;
+            }
         } else {
-            if (!weatherAudio.paused) weatherAudio.pause();
+            // Fade out rain when it stops
+            if (weatherAudio.volume > 0 && !weatherFadeIntervalRef.current) {
+                fadeAudio(weatherAudio, 0, 1500, () => weatherAudio.pause(), weatherFadeIntervalRef, currentWeatherVolumeRef);
+            } else if (!weatherFadeIntervalRef.current) {
+                weatherAudio.pause();
+            }
         }
     }
 

@@ -60,12 +60,12 @@
 - [x] **Combat SFX**:
     - [x] **Missing Sounds**: Add a specific "Miss" sound (whoosh/swish).
     - [x] **Bug Fix**: Ensure audio promises are handled correctly.
-- [ ] **Ambience**:
-    - **Fade System**: Implement a volume fader in `AudioManager.tsx` when `currentLocation` changes.
-    - **Forest Volume**: Reduce gain for `driftwatch_woods`.
-- [ ] **Settings Persistence**:
-    - **Issue**: Audio settings (volume/mute) reset on reload.
-    - **Fix**: Add `persist` middleware to `useAudioStore`.
+- [x] **Ambience**:
+    - [x] **Fade System**: Implement a volume fader in `AudioManager.tsx` when `currentLocation` or music track changes.
+    - [x] **Forest Volume**: Reduce gain for `driftwatch_woods`.
+- [x] **Settings Persistence**:
+    - [x] **Issue**: Audio settings (volume/mute) reset on reload.
+    - [x] **Fix**: Add `persist` middleware to `useAudioStore`.
 
 ## 📖 Phase 5: Content & Writing (Bonus)
 - [ ] **Dialogues**:

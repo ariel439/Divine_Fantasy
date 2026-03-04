@@ -26,6 +26,7 @@ export const COMBAT_CONFIG = {
   DEFAULT_SFX: {
     ATTACK: '/assets/sfx/combat_punch.mp3',
     SWORD: '/assets/sfx/combat_sword_swing.mp3',
-    WOLF: '/assets/sfx/wolf_bite.mp3'
+    WOLF: '/assets/sfx/wolf_bite.mp3',
+    MISS: '/assets/sfx/combat_miss.mp3'
   }
 };

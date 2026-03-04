@@ -57,9 +57,9 @@
     - **Fix Broken Multipliers**: `TradeScreen.tsx` currently uses a hardcoded `0.5` sell multiplier. Update it to use `shop.buy_multiplier` and `shop.sell_multiplier` from `shops.json`.
 
 ## 🔊 Phase 4: Audio & Atmosphere (Polish)
-- [ ] **Combat SFX**:
-    - **Missing Sounds**: Add a specific "Miss" sound (whoosh/swish).
-    - **Bug Fix**: Ensure audio promises are handled correctly.
+- [x] **Combat SFX**:
+    - [x] **Missing Sounds**: Add a specific "Miss" sound (whoosh/swish).
+    - [x] **Bug Fix**: Ensure audio promises are handled correctly.
 - [ ] **Ambience**:
     - **Fade System**: Implement a volume fader in `AudioManager.tsx` when `currentLocation` changes.
     - **Forest Volume**: Reduce gain for `driftwatch_woods`.

@@ -12,6 +12,7 @@ import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import { useLocationStore } from '../../stores/useLocationStore';
 import { useDiaryStore } from '../../stores/useDiaryStore';
 import { useJournalStore } from '../../stores/useJournalStore';
+import { smugglerTrapSlides } from '../../data/events';
 
 const DebugMenuScreen: FC = () => {
   const { setScreen } = useUIStore();
@@ -140,6 +141,43 @@ const DebugMenuScreen: FC = () => {
     GameManagerService.startWoodsCombat(wolfCount);
   };
 
+  const handleStartSmugglerIntroFight = () => {
+    // 1. Ensure intro mode is active and set up Luke's basic info
+    worldStateStore.setIntroMode(true);
+    worldStateStore.setIntroCompleted(false);
+    
+    const charStore = useCharacterStore.getState();
+    if (!charStore.bio) {
+        useCharacterStore.setState({
+            bio: {
+                name: 'Luke',
+                image: '/assets/portraits/luke.jpg',
+                description: 'Driftwatch Orphan',
+                gender: 'Male',
+                race: 'Human',
+                birthplace: 'Driftwatch',
+                born: '762'
+            }
+        });
+    }
+
+    // 2. Setup Robert companion if not already there
+    const companionStore = useCompanionStore.getState();
+    if (!companionStore.activeCompanion) {
+      companionStore.setCompanion({
+        id: 'npc_robert',
+        name: 'Robert',
+        type: 'human',
+        stats: { hp: 70, maxHp: 70, attack: 7, defence: 6, dexterity: 7 },
+        equippedItems: [],
+      });
+    }
+
+    // 3. Teleport to Docks and start combat immediately (Luke + Robert vs 4 Smugglers)
+    locationStore.setLocation('driftwatch_docks');
+    GameManagerService.startSmugglerCombat();
+  };
+
   const handleDebugRobertaQuest = () => {
     // 1. Reset Quest
     journalStore.updateQuest('roberta_planks_for_the_past', { active: false, completed: false, currentStage: 0 });
@@ -188,19 +226,27 @@ const DebugMenuScreen: FC = () => {
         <div className="space-y-6">
           <section className="bg-zinc-900/50 p-4 rounded-lg border border-zinc-800">
             <h2 className="text-lg font-semibold text-white mb-3">Quest Testing</h2>
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3">
               <button
-                onClick={handleDebugRobertaQuest}
-                className="flex-1 px-4 py-2 rounded-md bg-blue-900/40 hover:bg-blue-800/60 text-blue-100 text-sm font-semibold border border-blue-800/50 transition-all hover:shadow-[0_0_10px_rgba(59,130,246,0.2)]"
+                onClick={handleStartSmugglerIntroFight}
+                className="w-full px-4 py-2 rounded-md bg-purple-900/40 hover:bg-purple-800/60 text-purple-100 text-sm font-semibold border border-purple-800/50 transition-all hover:shadow-[0_0_10px_rgba(147,51,234,0.2)]"
               >
-                Setup Roberta Quest
+                Start Smuggler Intro Fight (Luke + Robert)
               </button>
-              <button
-                onClick={handleCraftingSetup}
-                className="flex-1 px-4 py-2 rounded-md bg-amber-900/40 hover:bg-amber-800/60 text-amber-100 text-sm font-semibold border border-amber-800/50 transition-all hover:shadow-[0_0_10px_rgba(245,158,11,0.2)]"
-              >
-                Unlock Hunter Crafting & Materials
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDebugRobertaQuest}
+                  className="flex-1 px-4 py-2 rounded-md bg-blue-900/40 hover:bg-blue-800/60 text-blue-100 text-sm font-semibold border border-blue-800/50 transition-all hover:shadow-[0_0_10px_rgba(59,130,246,0.2)]"
+                >
+                  Setup Roberta Quest
+                </button>
+                <button
+                  onClick={handleCraftingSetup}
+                  className="flex-1 px-4 py-2 rounded-md bg-amber-900/40 hover:bg-amber-800/60 text-amber-100 text-sm font-semibold border border-amber-800/50 transition-all hover:shadow-[0_0_10px_rgba(245,158,11,0.2)]"
+                >
+                  Unlock Hunter Crafting & Materials
+                </button>
+              </div>
             </div>
           </section>
 

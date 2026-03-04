@@ -39,10 +39,19 @@ const CombatManager: React.FC = () => {
   const { sfxEnabled, sfxVolume } = useAudioStore();
 
   const playSfx = (src: string) => {
-    if (sfxEnabled) {
-        const audio = new Audio(src);
-        audio.volume = sfxVolume;
-        audio.play().catch(() => {});
+    if (sfxEnabled && src) {
+        try {
+            const audio = new Audio(src);
+            audio.volume = sfxVolume;
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.warn("Combat SFX playback failed:", error);
+                });
+            }
+        } catch (e) {
+            console.error("Error creating/playing combat SFX:", e);
+        }
     }
   };
 
@@ -167,7 +176,11 @@ const CombatManager: React.FC = () => {
 
     if (Math.random() > baseHitChance) {
       addLogEntry(`${attacker.name} attacks ${target.name} but misses!`);
-      nextTurn();
+      playSfx(COMBAT_CONFIG.DEFAULT_SFX.MISS);
+      // Brief delay so the miss is visible/audible before next turn
+      setTimeout(() => {
+        nextTurn();
+      }, 800);
       return;
     }
 
@@ -278,14 +291,17 @@ const CombatManager: React.FC = () => {
           
           damage = 15; // Fixed high damage for cinematic feel
           scriptedTurnCount.current += 1;
+          playSfx(getAttackSound(currentEnemy));
         } else {
           target = aliveParty[Math.floor(Math.random() * aliveParty.length)];
 
           const baseHitChance = COMBAT_CONFIG.BASE_HIT_CHANCE.ENEMY;
           if (Math.random() > baseHitChance) {
             addLogEntry(`${currentEnemy.name} attacks ${target.name} but misses!`);
-            playSfx(getAttackSound(currentEnemy));
-            nextTurn();
+            playSfx(COMBAT_CONFIG.DEFAULT_SFX.MISS);
+            setTimeout(() => {
+              nextTurn();
+            }, 800);
             return;
           }
 
@@ -343,8 +359,10 @@ const CombatManager: React.FC = () => {
             const baseHitChance = COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION;
             if (Math.random() > baseHitChance) {
               addLogEntry(`${current.name} attacks ${target.name} but misses!`);
-              playSfx(getAttackSound(current));
-              nextTurn();
+              playSfx(COMBAT_CONFIG.DEFAULT_SFX.MISS);
+              setTimeout(() => {
+                nextTurn();
+              }, 800);
               return;
             }
 

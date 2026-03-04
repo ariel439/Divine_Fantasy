@@ -335,13 +335,13 @@ export class GameManagerService {
 
     const player: CombatParticipant = {
       id: 'player',
-      name: character.bio.name,
+      name: character.bio?.name || 'Luke',
       hp: character.hp,
       maxHp: 100,
       attack: playerStats.attack,
       defence: playerStats.defence,
       dexterity: playerStats.dexterity,
-      portraitUrl: character.bio.image,
+      portraitUrl: character.bio?.image || '/assets/portraits/luke.jpg',
       isPlayer: true,
       isCompanion: false,
     };
@@ -350,12 +350,12 @@ export class GameManagerService {
     if (companion) {
       companionCombatant = {
         id: 'companion',
-        name: companion.name,
-        hp: companion.stats.hp,
-        maxHp: companion.stats.maxHp,
-        attack: companion.stats.attack,
-        defence: companion.stats.defence,
-        dexterity: companion.stats.dexterity,
+        name: companion.name || 'Companion',
+        hp: companion.stats?.hp || 70,
+        maxHp: companion.stats?.maxHp || 70,
+        attack: companion.stats?.attack || 7,
+        defence: companion.stats?.defence || 6,
+        dexterity: companion.stats?.dexterity || 7,
         portraitUrl: '/assets/portraits/Robert.png',
         isPlayer: false,
         isCompanion: true,

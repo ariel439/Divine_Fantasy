@@ -230,6 +230,13 @@ const ScreenManager: React.FC = () => {
             setScreen('inGame');
             return;
           }
+          if (id === 'debug_smuggler_intro') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            useLocationStore.getState().setLocation('driftwatch_docks');
+            GameManagerService.startSmugglerCombat();
+            return;
+          }
           if (id === 'robert_caught') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);

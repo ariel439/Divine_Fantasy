@@ -60,14 +60,6 @@ const CombatScreen: FC<CombatScreenProps> = ({
     const prevPartyRef = useRef<CombatParticipant[]>(JSON.parse(JSON.stringify(party)));
     const { sfxEnabled, sfxVolume } = useAudioStore();
 
-    const playSfx = (src: string) => {
-        if (sfxEnabled) {
-            const audio = new Audio(src);
-            audio.volume = sfxVolume;
-            audio.play().catch(() => {});
-        }
-    };
-
     useEffect(() => {
         logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [combatLog]);

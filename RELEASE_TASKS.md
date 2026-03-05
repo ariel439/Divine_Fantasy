@@ -68,8 +68,10 @@
     - [x] **Fix**: Add `persist` middleware to `useAudioStore`.
 
 ## 📖 Phase 5: Content & Writing (Library)
-- [ ] **Library**:
-    - **Content**: Add 3-5 new books to `data.ts`.
+- [x] **Library**:
+    - [x] **Content**: Added "The Pale Kin Invasion" (299 AW) and "The Lunar Luminaries" (733 AW).
+    - [x] **Feature**: Add release years (AW) to all books.
+    - [x] **Maesters**: Standardized all historical books to be written by Maesters.
 
 ## 🧩 Phase 6: Advanced Systems, Side Quests & Dialogue Revamp
 - [ ] **Job Progression**:

@@ -1,6 +1,6 @@
 
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { FC } from 'react';
 import { Search, BookOpen, ChevronLeft, MapPin } from 'lucide-react';
 import type { Book, BookContent } from '../../types';
@@ -16,6 +16,13 @@ const renderContent = (content: BookContent, index: number) => {
             return <h2 key={index} className="text-2xl lg:text-3xl font-bold text-zinc-200 mt-8 mb-4" style={{ fontFamily: 'Cinzel, serif' }}>{content.content}</h2>;
         case 'p':
             return <p key={index} className="text-base lg:text-lg text-zinc-300 leading-relaxed mb-4">{content.content}</p>;
+        case 'note':
+            return (
+                <div key={index} className="my-6 p-4 bg-zinc-800/30 border-l-4 border-zinc-600 rounded-r-lg italic shadow-inner">
+                    <span className="not-italic font-bold text-zinc-400 uppercase text-xs tracking-widest block mb-1">Scholar's Note:</span>
+                    <p className="text-sm lg:text-base text-zinc-400 leading-relaxed">{content.content}</p>
+                </div>
+            );
         case 'img':
             return (
                 <figure key={index} className="my-8">
@@ -29,7 +36,7 @@ const renderContent = (content: BookContent, index: number) => {
 }
 
 interface LibraryScreenProps {
-    onClose: () => void;
+    onClose?: () => void;
 }
 
 const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
@@ -40,6 +47,22 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
     };
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+
+    // Escape key handling
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                if (selectedBook) {
+                    setSelectedBook(null);
+                } else {
+                    handleClose();
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedBook]);
 
     const books = libraryBooks && libraryBooks.length > 0 ? libraryBooks : mockBooks;
     const filteredBooks = useMemo(() => {
@@ -63,7 +86,12 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
                     <article className="max-w-4xl mx-auto px-4 sm:px-8 pb-24">
                         <header className="text-center border-b-2 border-zinc-700 pb-6 mb-8">
                             <h1 className="text-4xl lg:text-6xl font-bold text-white" style={{ fontFamily: 'Cinzel, serif' }}>{selectedBook.title}</h1>
-                            <p className="text-lg text-zinc-400 italic mt-2">{selectedBook.author}</p>
+                            <div className="mt-2 space-y-1">
+                                <p className="text-lg text-zinc-300 italic">{selectedBook.author}</p>
+                                {selectedBook.releaseYear && (
+                                    <p className="text-sm text-zinc-500 font-medium tracking-widest">{selectedBook.releaseYear}</p>
+                                )}
+                            </div>
                         </header>
                         {selectedBook.content.map(renderContent)}
                     </article>

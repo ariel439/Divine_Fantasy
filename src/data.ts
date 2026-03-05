@@ -523,6 +523,7 @@ export const mockBooks: Book[] = [
         id: 'odrans-rebellion',
         title: "Odran's Rebellion",
         author: "Maester Alister",
+        releaseYear: "731 AW",
         coverUrl: "/assets/books/odran_cover.png",
         content: [
             { type: 'h1', content: "Odran's Rebellion (730 AW)" },
@@ -565,6 +566,7 @@ export const mockBooks: Book[] = [
         id: 'pearl-war',
         title: "The Pearl War",
         author: "Maester Valerius",
+        releaseYear: "368 AW",
         coverUrl: "/assets/books/pearl_war_cover.png",
         content: [
             { type: 'h1', content: "The Pearl War (367 AW)" },
@@ -596,6 +598,91 @@ export const mockBooks: Book[] = [
             { type: 'p', content: "The Pearl War fundamentally transformed the islands' society. The once patriarchal structure gave way to a matriarchal order where women not only held power but were expected to wield it. Barbara's leadership inspired generations of daughters raised to command ships and wield weapons. The name \"Mermaid Islands\" replaced \"Pearl Islands,\" reflecting this new identity." },
             { type: 'p', content: "The Tide Devil trident became more than a symbol—it was the weapon that reshaped history. Each Lady of House Lirs swears an oath upon it, committing to protect the islands and maintain the matriarchal rule. The Pearl Throne was rebuilt as the Mermaid Throne, and the hall where Barbara killed her brother stands as both warning and testament to House Lirs' resolve." },
             { type: 'p', content: "House Lirs flourished in subsequent decades, becoming a formidable maritime power. Though small, the Mermaid Islands grew into a crucial trade center known for skilled sailors and fearsome captains. The matriarchal order became intrinsic to their identity, shaping how they fought, traded, and lived—Barbara's legacy enduring as the woman who changed the tides of history forever." }
+        ]
+    },
+    {
+        id: 'pale-kin-invasion',
+        title: "The Pale Kin Invasion",
+        author: "Maester Kaelen",
+        releaseYear: "300 AW",
+        coverUrl: "/assets/books/pale_kin_cover.png",
+        content: [
+            { type: 'h1', content: "The Pale Kin Invasion (299 AW)" },
+            { type: 'p', content: "The Pale Kin Invasion (299 AW) was one of the most horrifying events in the history of The Whispers. A savage horde of pale-skinned raiders emerged from the frozen north, crossing the great lake in the northeast to descend upon the valley. These were no ordinary men—they were cannibals, hardened by generations of exile in the cold wastes, driven by hunger and a twisted sense of kinship." },
+            { type: 'p', content: "Their attack on Ironpass was a massacre, leaving the settlement in ruin. Lord Brian Durnhart and his people were slaughtered, their bodies defiled in ways too gruesome to speak of. It was Lord Draymor Seryn, younger brother to the King and commander of the Knights of the Moon, who led the charge to reclaim Ironpass. What followed was not a battle, but a reckoning. The Pale Kin were butchered to the last, their leader, the infamous Bonechewer, slain by Draymor's blade." },
+            { type: 'p', content: "In the aftermath, Draymor led settlers to the frozen lake's edge, establishing Wintermere, ensuring that never again would such horrors come from the north unchecked." },
+            
+            { type: 'h1', content: "I. Legends of the Pale Kin" },
+            { type: 'img', content: "/assets/books/pale_kin_warriors.png", caption: "Artist's depiction of the Pale Kin warriors and their leader" },
+            { type: 'p', content: "The origins of the Pale Kin are shrouded in myth and horror, whispered in hushed tones by the fires of The Whispers. It is said that long ago, a brother and sister of noble blood in Nightfall were discovered to be lovers. In their shame and disgrace, the ruling king exiled them beyond the frozen wastes of the north, condemning them to certain death. But death did not claim them. Against all odds, they survived, and in time, they bore children. Their bloodline grew into a hardened people, shaped by the merciless cold and endless hunger." },
+            { type: 'p', content: "As their numbers swelled, they turned not only to hunting beasts, but to hunting men. Travelers who strayed too far north vanished without a trace, their bones later found gnawed clean in the snow. The Pale Kin, as they came to be known, embraced cannibalism as both necessity and ritual. Their flesh-eating ways were not simply for survival, but for power—they believed that by consuming their enemies, they took their strength. Some claimed they marked their bodies with blood sigils, that they drank marrow as if it were sacred wine. Others swore they worshiped a dark, nameless force from the ice, an ancient hunger that whispered to them in the howling winds." },
+            { type: 'p', content: "The tales grew worse with time. Some said the Pale Kin could not feel the cold, that they painted their bodies in ash and bone dust to appear as specters in the snow. It was even rumored that they had become something other than human, their flesh cursed by centuries of inbreeding and dark rites. No one in The Whispers truly believed these horrors—until the winter of 299 AW, when the Pale Kin crossed the lake, and the nightmare became real." },
+
+            { type: 'h1', content: "II. The Battle for Ironpass" },
+            { type: 'h2', content: "The Massacre" },
+            { type: 'img', content: "/assets/books/pale_kin_crossing.png", caption: "The Pale Kin crossing the frozen lake to invade The Whispers" },
+            { type: 'p', content: "The Pale Kin's descent upon Ironpass was a massacre. Under the cover of summer's last breath, they crossed the frozen lake that separated the wild north from the lands of The Whispers. By the time the freeze began, they had already reached the valley, their crude boats abandoned on the shores of the freezing ice. What awaited Ironpass was not an army, but a horde—starved, feral, and insatiable." },
+            { type: 'p', content: "The settlement was still young, its defenses weak. There was no southern gate, for no threat was ever expected from that direction. When the Pale Kin struck, they fell upon the town like wolves. They set fire to homes, dragged families into the streets, and butchered them beneath the rising sun. Lord Brian Durnhart, sworn protector of Ironpass, rallied what few warriors he had, but they were no match for the sheer savagery of the Kin. The lord was captured, bound, and forced to watch as his wife and people were slaughtered, defiled, and consumed before his eyes. When his son, Edric Durnhart, returned from a hunting trip to find his home in flames, he did not hesitate—he rode with all haste to Nightfall, carrying news of the atrocity." },
+            { type: 'h2', content: "The Reckoning" },
+            { type: 'img', content: "/assets/books/pale_kin_reckoning.png", caption: "Lord Draymor Seryn slays the Bonechewer at Ironpass" },
+            { type: 'p', content: "The response was swift. Lord Draymor Seryn, younger brother to the King and commander of the Knights of the Moon, gathered his warriors and rode north with vengeance in his heart. What followed was no battle, but a reckoning. Clad in steel, mounted on their warhorses, the Knights of the Moon crashed into the Pale Kin like a storm, cutting them down with cold precision. The cannibals fought with mad fury, throwing themselves at the knights with jagged bone-blades and rusted iron, but they were no match for trained warriors in full plate." },
+            { type: 'p', content: "The Bonechewer, leader of the Kin, stood his ground to the last, his teeth filed to points, his body scarred from a lifetime of ritual bloodletting. But his savagery meant nothing against the steel of the Seryn knights. He fell beneath Draymor's blade, his skull split open upon the red-stained snow. With their leader dead, the Kin broke and fled, hunted down by the knights and burned in great pyres outside Ironpass. The last of them were cut down in the frozen woods beyond the valley, their bodies left for the crows." },
+            { type: 'p', content: "Ironpass had been saved, but the scars remained. Lord Brian Durnhart was found dead, his body mutilated beyond recognition. His son, Edric, took up his father's banner, vowing to never again allow such horror to touch their lands. In the aftermath, Lord Draymor was tasked with establishing a stronghold at the lake to ensure that nothing would ever cross its frozen surface again. Thus, Wintermere was founded, and the House of Draymor became the eternal watchmen of the frozen north." },
+            
+            { type: 'h1', content: "III. Legacy" },
+            { type: 'h2', content: "House Durnhart & House Draymor" },
+            { type: 'img', content: "/assets/books/pale_kin_legacy.png", caption: "The Frostguard of Wintermere keep eternal watch over the north" },
+            { type: 'p', content: "To House Durnhart, the Pale Kin Invasion remains a bitter wound. The tragedy of Ironpass is carved into their history, a reminder of the price of weakness. Their warriors train relentlessly, their defenses never left wanting. What was once a simple settlement is now one of the most heavily fortified strongholds in the north, its walls reinforced with iron, its watchtowers manned day and night. No invader, human or otherwise, will ever take it unprepared again." },
+            { type: 'p', content: "For House Draymor, their duty did not end with the Kin's defeat. Wintermere stands as a testament to their vigilance, a fortress of stone and ice perched upon the lake's edge. The Draymors are not like the rest of The Whispers—they have adapted to the cold, forsaking cavalry for the Frostguard, Wintermere's elite warriors." },
+            { type: 'p', content: "Lord Draymor Seryn, who led the charge against the Pale Kin, became a legendary figure in The Whispers. His victory over the Bonechewer earned him the title \"The Pale Slayer,\" and his founding of Wintermere and House Draymor cemented his place in history. The Knights of the Moon, which he commanded, would later become an elite cavalry unit under House Seryn, while his own descendants would focus on the specialized infantry needed to guard the frozen north." },
+            { type: 'h2', content: "Lingering Fears" },
+            { type: 'p', content: "Though the Pale Kin were slaughtered and scattered, their legend did not die with them. Tales of their cannibalistic rituals, whispered prayers to the cold, and unnatural resilience still haunt the people of The Whispers. Some say that even now, remnants of their cursed bloodline still hide in the frozen wastes beyond Wintermere, waiting for the summer thaw. Hunters and traders who venture too far into the northern wilderness claim to have seen pale figures watching from the trees, their breath steaming in the frigid air. Whether these are merely ghosts of the past or something far worse, none can say." },
+            { type: 'p', content: "But the greatest fear does not lie in the past. It lies in the future—in the idea that the Pale Kin were only the first. That beyond the lake, deeper into the ice-choked wilderness, something far older, far hungrier, still lingers. The Kin may have been driven south by desperation, but what if they were running from something worse?" },
+            { type: 'p', content: "The people of The Whispers still tell stories in the dead of winter—of things that move through the snow without sound, of voices carried on the wind, of laughter echoing in the night. They call it nonsense, the ramblings of old men and frightened children. But when the summer comes, and the lake melts once more, no one dares look north." }
+        ]
+    },
+    {
+        id: 'lunar-luminaries',
+        title: "The Lunar Luminaries: A Study of the Moon’s Chosen",
+        author: "Maester Alister",
+        releaseYear: "733 AW",
+        coverUrl: "/assets/books/luminaries_cover.png",
+        content: [
+            { type: 'h1', content: "The Lunar Luminaries: A Study of the Moon’s Chosen" },
+            { type: 'p', content: "The spiritual landscape of The Whispers is defined by the Moon’s Creed, but its endurance is rooted in the history of the 'Sons and Daughters of the Moon.' These individuals, appearing in our darkest hours, serve as both catalysts for survival and anchors for our collective faith. This study examines four such figures whose legacies continue to shape our world." },
+            
+            { type: 'h1', content: "I. The Elias Paradigm (30 AW) – The Shepherd of Nightfall" },
+            { type: 'img', content: "/assets/books/elias_nightfall.png", caption: "Elias sharing food with a child during the Frozen Moon" },
+            { type: 'h2', content: "The Frozen Nightfall" },
+            { type: 'p', content: "The Year of the Frozen Moon (30 AW) was a period of unprecedented hardship. An unnatural winter descended upon the region, testing the resilience of its people and giving rise to the legend of the 'Sons and Daughters of the Moon.' While smaller villages suffered, Nightfall, our capital, was at the heart of the crisis. Crops failed, rivers froze solid, and hunger gripped the people." },
+            { type: 'p', content: "Snow piled higher than the city walls, and the cold was so intense that it cracked stone and froze men in their tracks. Families huddled together, burning furniture and books when firewood ran out. Hope began to fade, and even the most faithful began to question whether the Moon had abandoned them." },
+            { type: 'h2', content: "The Shepherd's Light" },
+            { type: 'p', content: "Amidst this despair, a priest named Elias emerged as a beacon of light. He traveled tirelessly through the frozen streets, tending to the sick and distributing what little food remained. Miraculously, he uncovered hidden stores of food and brought warmth where it was most needed." },
+            { type: 'p', content: "Witnesses claimed Elias could walk barefoot through snow without leaving footprints, that food multiplied in his presence, and that the sick were healed by his touch. Most remarkable was his ability to predict where help was needed, appearing with a lantern before cries for aid could be raised. Whether divine or simply a man of extraordinary devotion, his presence carried the city through the unyielding frost." },
+            { type: 'p', content: "When the ice finally thawed, accounts of Elias's fate varied. Some say he disappeared with the last of the snow; others claim he ascended to the moon itself. Regardless, his legacy transformed the Moon's Creed from a regional faith into the dominant religion of The Whispers." },
+            { type: 'note', content: "Many early records of Elias are purely hagiographical, but the sudden stabilization of Nightfall's food supply during the 30 AW famine is an indisputable historical fact that remains unexplained." },
+
+            { type: 'h1', content: "II. Aric the Deep-Watcher (212 AW) – The Echo of Ironpass" },
+            { type: 'img', content: "/assets/books/aric_ironpass.png", caption: "Artist's depiction of Aric guiding the miners through the darkness" },
+            { type: 'p', content: "A fascinating case from the House Dunhart archives. During the Great Cave-In of 212 AW, forty miners were trapped in the deepest iron veins of Ironpass. Aric, a young blind laborer, claimed he could 'hear the moon's pulse' through the solid rock." },
+            { type: 'p', content: "He led the survivors through three miles of uncharted, pitch-black tunnels for four days. While skeptics suggest he possessed an acute sense of echolocation or an intimate knowledge of the mountain's fault lines, the survivors maintain that a 'silver hum' guided their every step to the surface." },
+            { type: 'note', content: "Aric's later years were spent in seclusion, where he reportedly drew maps of the Ironpass depths that were accurate to within inches, despite his blindness. This suggests a sensory perception far beyond normal human capability." },
+
+            { type: 'h1', content: "III. Vespera’s Alchemical Grace (411 AW) – The Healer of Embris" },
+            { type: 'img', content: "/assets/books/vespera_embris.png", caption: "Vespera working on a cure during the Embris plague" },
+            { type: 'p', content: "In 411 AW, the port city of Embris was ravaged by a deadly plague. Vespera, an alchemist of the Alchemy Guild, recognized the symptoms and tirelessly worked to find a cure. She proved that the Moon’s guidance could manifest as the clarity of a sharp mind." },
+            { type: 'p', content: "By synthesizing a potent antidote, she saved the House Olaris trade hub from total collapse. Her actions transformed her into a legend, solidifying her place as a 'Daughter of the Moon' and proving that knowledge and compassion could be as powerful as faith." },
+            { type: 'note', content: "Vespera’s 'miracle' was a triumph of systematic research. Her journals, which I have personally reviewed, show a woman who saw the Moon's light as the ultimate source of scientific clarity." },
+
+            { type: 'h1', content: "IV. Leo, the Beacon's Shield (569 AW) – The Guardian of Driftwatch" },
+            { type: 'img', content: "/assets/books/leo_lighthouse.png", caption: "Leo rescuing children from the burning orphanage, 'Leo's Lighthouse'" },
+            { type: 'p', content: "The most recent example of the Moon’s protection. Leo was the humble caretaker of the Driftwatch orphanage, a ramshackle wooden structure known locally as 'Leo's Lighthouse' for the single lantern he kept burning in the top window to guide lost sailors. During the Great Driftwatch Fire of 569 AW, the dry timber of the orphanage became a death trap." },
+            { type: 'p', content: "Leo braved the inferno to save sixteen children. His final act—pushing the last child through a high window just as the wooden roof collapsed—is why the rebuilt stone sanctuary bears his name today. He proved that the Moon’s protection is often found in the simplest acts of sacrifice." },
+            { type: 'note', content: "The present-day stone orphanage was built on the same site to honor his memory. To this day, the children of Driftwatch are told that the lantern light in the window is Leo's spirit still watching over the harbor." },
+
+            { type: 'h1', content: "Conclusion: The Recurring Light" },
+            { type: 'p', content: "In examining these four disparate figures—a priest, a miner, an alchemist, and a caretaker—we find a common thread. The Moon’s chosen are rarely the powerful or the noble; they are the dedicated, the observant, and the selfless. Whether their abilities are divine or simply the peak of human potential under pressure, their appearance marks the survival of our people through every era of shadow." },
+            { type: 'p', content: "As the summer comes and the tides turn, we must remember: the Moon does not just watch from above; it acts through the hands of those below." }
         ]
     }
 ];

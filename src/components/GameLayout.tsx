@@ -30,35 +30,40 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
       
       if (!isGameplayState) return;
 
+      const isLibrary = currentScreen === 'library';
+
       switch (e.key.toLowerCase()) {
         case 'i':
-            if (activeModal) break; // Don't toggle screens if a modal is open
+            if (activeModal || isLibrary) break; // Don't toggle screens if a modal is open or in library
             if (currentScreen === 'inventory') setScreen('inGame');
             else setScreen('inventory');
             break;
         case 'c':
-            if (activeModal) break;
+            if (activeModal || isLibrary) break;
             if (currentScreen === 'characterScreen') setScreen('inGame');
             else setScreen('characterScreen');
             break;
         case 'j':
-            if (activeModal) break;
+            if (activeModal || isLibrary) break;
             if (currentScreen === 'journal') setScreen('inGame');
             else setScreen('journal');
             break;
         case 'd':
-            if (activeModal) break;
+            if (activeModal || isLibrary) break;
             if (currentScreen === 'diary') setScreen('inGame');
             else setScreen('diary');
             break;
         case 't':
-            if (activeModal) break;
+            if (activeModal || isLibrary) break;
             if (currentScreen !== 'inGame') break;
             handleOpenSleepWaitModal('wait');
             break;
         case 'escape':
             if (activeModal) {
                 closeModal();
+            } else if (isLibrary) {
+                // Let LibraryScreen handle its own escape logic
+                break;
             } else if (currentScreen !== 'inGame') {
                 setScreen('inGame');
             } else {

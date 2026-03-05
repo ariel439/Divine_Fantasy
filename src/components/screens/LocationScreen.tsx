@@ -516,12 +516,13 @@ const LocationScreen: React.FC = () => {
     switch (type) {
       case 'dialogue': return <MessageSquare size={20} className="text-sky-300" />;
       case 'shop': return <ShoppingCart size={20} className="text-yellow-300" />;
-    case 'fish': return <Fish size={20} className="text-orange-400" />;
-    case 'woodcut': return <Leaf size={20} className="text-orange-400" />; // match Fishing orange card
+      case 'fish': return <Fish size={20} className="text-orange-400" />;
+      case 'woodcut': return <Leaf size={20} className="text-orange-400" />;
       case 'craft': return <Hammer size={20} className="text-orange-300" />;
       case 'cook': return <CookingPot size={20} className="text-amber-400" />;
       case 'job': return <Briefcase size={20} className="text-orange-400" />;
       case 'library': return <BookOpen size={20} className="text-zinc-300" />;
+      case 'sleep': case 'tutorial_sleep': return <Bed size={20} className="text-zinc-300" />;
       case 'navigate': return <MapPin size={20} className="text-green-300" />;
       default: return <Search size={20} className="text-zinc-300" />;
     }
@@ -532,7 +533,7 @@ const LocationScreen: React.FC = () => {
       case 'dialogue': return 'dialogue';
       case 'shop': return 'commerce';
       case 'fish': case 'job': case 'woodcut': case 'craft': case 'cook': return 'action';
-      case 'library': return 'dialogue';
+      case 'library': case 'sleep': case 'tutorial_sleep': return 'explore'; // Library/Sleep are "normal" (white/zinc)
       case 'navigate': return 'travel';
       default: return 'explore';
     }
@@ -824,18 +825,18 @@ const LocationScreen: React.FC = () => {
             .slice()
             .sort((a: any, b: any) => {
               // Priority: 
-              // 1. Explore (Zinc)
+              // 1. Explore/Sleep/Library (Zinc)
               // 2. Actions (Job, Craft, Fish, Woodcut - Orange)
               // 3. Commerce (Shop - Yellow)
-              // 4. Dialogues (Dialogue, Library - Blue)
+              // 4. Dialogues (Dialogue - Blue)
               // 5. Navigation (Travel - Green)
               
               const getPriority = (action: any) => {
                 if (action.type === 'navigate') return 5;
-                if (action.type === 'dialogue' || action.type === 'library') return 4;
+                if (action.type === 'dialogue') return 4;
                 if (action.type === 'shop') return 3;
                 if (['job', 'craft', 'woodcut', 'fish'].includes(action.type)) return 2;
-                return 1; // Default/Explore (Zinc)
+                return 1; // Default/Explore/Sleep/Library (Zinc)
               };
 
               const pA = getPriority(a);

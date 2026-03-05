@@ -150,11 +150,11 @@ export interface Location {
 }
 
 // Books & Library
-export type BookContentType = 'h1' | 'h2' | 'p' | 'img';
+export type BookContentType = 'h1' | 'h2' | 'p' | 'img' | 'note';
 
 export interface BookContent {
   type: BookContentType;
-  content: string; // text or image URL depending on type
+  content: string; // text, note, or image URL depending on type
   caption?: string; // for images
 }
 
@@ -162,6 +162,7 @@ export interface Book {
   id: string;
   title: string;
   author: string;
+  releaseYear?: string;
   coverUrl?: string;
   content: BookContent[];
 }

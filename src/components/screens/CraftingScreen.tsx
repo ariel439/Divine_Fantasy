@@ -141,7 +141,10 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
 
     const handleConfirmCraft = () => {
         if (!selectedRecipe) return;
-        
+        const addToast = useToastStore.getState().addToast;
+        const itemImage = (itemsData as any)[selectedRecipe.result.id]?.image;
+
+        addToast(`Crafted: ${selectedRecipe.result.name} x${craftQuantity}`, 'success', 3000, 'Crafting Complete', itemImage);
         onStartCrafting(selectedRecipe, craftQuantity);
         setIsConfirmModalOpen(false);
     };

@@ -158,12 +158,15 @@ export interface BookContent {
   caption?: string; // for images
 }
 
+export type BookShelf = 'Historical' | 'Informational' | 'Maps' | 'Miscellaneous';
+
 export interface Book {
   id: string;
   title: string;
   author: string;
   releaseYear?: string;
   coverUrl?: string;
+  shelf: BookShelf;
   content: BookContent[];
 }
 

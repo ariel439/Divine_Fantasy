@@ -74,10 +74,6 @@
     - [x] **Maesters**: Standardized all historical books to be written by Maesters.
 
 ## 🧩 Phase 6: Advanced Systems, Side Quests & Dialogue Revamp
-- [ ] **Job Progression**:
-    - **Task**: Add a "Promotion" system.
-    - **Logic**: After X days worked with high performance, unlock a "Senior" title with +20% pay.
-    - **New Job**: Add one additional job type for sandbox gameplay variety (e.g., Guard Duty or Courier).
 - [ ] **Roberta's Wall Quest Improvement**:
     - **Current**: Uses a simple modal for fixing the wall.
     - **Task**: Convert into a full event-based interaction to improve immersion.
@@ -91,9 +87,12 @@
         - Unlock questions based on relationship level.
     - **Interact Menu**:
         - Actions: "Chit Chat", "Aggressive", "Romantic".
-        - **Mechanic**: Actions consume "Social Energy" (new resource).
+        - **Lore**: Add "Tell me about..."
+        - **Mechanic**: Actions consume "Social Energy".
         - **Goal**: Build relationship status dynamically through these interactions.
-- [ ] **Dialogues**:
-    - **Lore**: Add "Tell me about..." options to Ben, Elara, and Father Thomas.
+- [ ] **UI Integration**:
+    - **Task**: Integrate the Job UI into the Journal UI.
+    - **Task**: Transform the Pet UI into a Party UI.
+    - **Task**: Integrate the new Party UI into the Diary UI.
 - [ ] **Side Quests**:
     - **Idea**: "The Lost Locket" or "Roberta's Shipment" (delivery quest).

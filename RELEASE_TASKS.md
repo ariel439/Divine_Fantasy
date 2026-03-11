@@ -73,62 +73,52 @@
     - [x] **Feature**: Add release years (AW) to all books.
     - [x] **Maesters**: Standardized all historical books to be written by Maesters.
 
-## 🧩 Phase 6: UI Consolidation & Immersion
-- [ ] **UI Integration**:
+## ✨ Phase 6: Core Gameplay Loop Fixes (CRITICAL)
+*This combines your highest priority with the most critical stability fix.*
+- [x] **Gathering Skill Overhaul**:
+    - **Task**: Fix the non-cancellable `TimedActionModal` and ensure starvation can occur during skill actions.
+    - **Task**: Implement "partial failure" states (pity XP, resource cost) for a better user experience.
+- [x] **Save System Robustness**:
+    - **Task**: Implement a `migrate(savedData)` function in `SaveLoadService.ts` to handle version changes and prevent old saves from crashing the game.
+    - **Task**: Sanitize save data to exclude transient UI state.
+
+## 🚀 Phase 7: Production & Performance Polish
+*This phase focuses on the technical aspects that make the game feel professional and perform well on the web.*
+- [ ] **Build Stripping & Security**:
+    - **Task**: Use environment variables to remove debug menus and `console.log`s from the production build.
+- [ ] **Asset Preloading**:
+    - **Task**: Create an `AssetManager` to preload images and audio for adjacent locations, reducing stutter and pop-in.
+- [ ] **UI Responsiveness Audit**:
+    - **Task**: Review all major UI components to ensure they adapt correctly to different screen sizes and aspect ratios.
+- [ ] **Advanced Audio Ducking**:
+    - **Task**: Implement audio ducking in `AudioManager.tsx` to lower ambient/music volume during dialogue and modal pop-ups.
+
+## 🌍 Phase 8: The "Alive" World
+*This phase is about adding content and dynamism to make the world feel less static.*
+- [ ] **Dynamic NPC Schedules**:
+    - **Task**: Implement daily schedules for at least 3-4 key NPCs who are currently static.
+- [ ] **Add New Side Quests**:
+    - **Task**: Add 2-3 new side quests to encourage exploration and interaction with the new NPC schedules.
+- [ ] **Global Event Listener**:
+    - **Task**: Implement a centralized `WorldEventManager` to trigger events based on time, location, or flags, independent of player actions.
+
+## 🧩 Phase 9: UI & Quest System Integration
+*This phase is about improving the user experience by consolidating information and automating tedious checks.*
+- [ ] **UI Consolidation**:
     - **Task**: Integrate the Job UI into the Journal UI.
-    - **Task**: Transform the Pet UI into a Party UI.
-    - **Task**: Integrate the new Party UI into the Diary UI.
-- [ ] **Roberta's Wall Quest Improvement**:
-    - **Current**: Uses a simple modal for fixing the wall.
-    - **Task**: Convert into a full event-based interaction to improve immersion.
-- [ ] **Side Quests**:
-    - **Idea**: "The Lost Locket" or "Roberta's Shipment" (delivery quest).
+    - **Task**: Transform the Pet UI into a more comprehensive Party UI.
+- [ ] **Quest System Automation (The "Observer")**:
+    - **Task**: Refactor `useJournalStore` to automatically listen for inventory and location changes and update quest objectives reactively.
 
-## 🌍 Phase 7: The "Alive" World (Event Architecture)
-- [ ] **Event Bottleneck Fix (Global Event Listener)**:
-    - **Issue**: Events are manually triggered in code or dialogue.
-    - **Task**: Implement a centralized `WorldEventManager` that subscribes to state changes.
-    - **Logic**: Automatically trigger events based on:
-        - `Time` (e.g., midnight encounter).
-        - `Location` (e.g., entering the Slums for the first time).
-        - `Flags` (e.g., having enough money to trigger a debt collector).
-- [ ] **Night Transition & Store Logic**:
-    - **Issue**: Time passes but the world doesn't react to closing hours while the player is inside.
-    - **Task**: Implement "Closing Time" logic.
-    - **Mechanic**: 
-        - If the player is in a shop at 18:00 (closing), trigger a "Kicked Out" event/modal.
-        - Force move the player to the street.
-        - Add a "Day/Night" screen transition effect to make time jumps more obvious.
-
-## 🗣️ Phase 8: Social & Dialogue Revamp
-- [ ] **Dialogue UI Refactor**:
-    - **Issue**: UI can get cluttered with too many options.
-    - **Task**: Clean up the interface layout to handle multiple choices better.
+## 🗣️ Phase 10: Advanced Social Dynamics
+*This phase adds the deeper role-playing mechanics you planned.*
 - [ ] **Interaction System**:
-    - **Social Menu**: Add a nested menu within dialogue for social actions.
-    - **Ask Menu**: 
-        - Allow unique questions (e.g., Lore, Store history).
-        - Unlock questions based on relationship level.
-    - **Interact Menu**:
-        - Actions: "Friendly", "Aggressive", "Romantic".
-        - **Lore**: Add "Tell me about...".
-        - **Mechanic**: Actions consume "Social Energy" (new resource in `useCharacterStore`).
-        - **Goal**: Build relationship status dynamically through these interactions.
+    - **Task**: Implement "Social Energy" as a resource.
+    - **Task**: Add the nested "Ask" and "Interact" menus to the dialogue system to allow for more dynamic relationship building.
 
-## 🛠️ Phase 9: Skill System Overhaul
-- [ ] **Fix Core Action Loop**:
-    - **Issue**: Closing the `TimedActionModal` does not cancel the underlying action.
-    - **Task**: Refactor the skill action logic to be cancellable.
-- [ ] **Fix Starvation Bug**:
-    - **Issue**: Player does not die when hunger reaches 0 during a skill action.
-    - **Task**: Ensure the death check in `GameManagerService` is reliably triggered by all forms of time-passing.
-- [ ] **Implement Partial Failure for Skills**:
-    - **Issue**: Failing a skill check is a hard block with no feedback.
-    - **Task**: Implement a "partial failure" state.
-    - **Logic**: If a skill check fails, waste time, consume resources (energy/hunger), but grant a small amount of "pity" XP.
-- [ ] **Redesign Reward UI**:
-    - **Issue**: The `ActionSummaryModal` is clunky and unimmersive for skill gains.
-    - **Task**: Replace the modal with a more fluid UI, such as a "Toast" notification for XP and item gains.
-- [ ] **Define Skill Unlocks**:
-    - **Issue**: Skills are just numbers and don't unlock new gameplay.
-    - **Task**: Define clear unlocks for each skill level (e.g., new recipes, new locations, new dialogue options).
+## 🔮 Phase 11: Future-Proofing & Final Polish
+*These are the final touches that set the stage for future updates.*
+- [ ] **Roberta's Wall Quest Improvement**:
+    - **Task**: Convert the simple modal interaction into a more immersive, event-based sequence.
+- [ ] **Night Transition & Store Logic**:
+    - **Task**: Implement the "Closing Time" logic to kick players out of shops at 18:00.

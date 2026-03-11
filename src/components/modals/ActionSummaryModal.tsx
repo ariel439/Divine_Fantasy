@@ -70,26 +70,6 @@ const ActionSummaryModal: FC<ActionSummaryModalProps> = ({
         </header>
 
         <div className="space-y-6">
-            {summary.vitalsChanges.length > 0 && (
-                <Section title="Vitals">
-                    <div className="space-y-2">
-                        {summary.vitalsChanges.map((vital, index) => (
-                             <div key={index} className="flex items-center justify-between bg-black/20 p-3 rounded-md border border-zinc-800">
-                                <div className="flex items-center gap-3">
-                                    {vital.icon && (
-                                        <div className="text-red-400">{vital.icon}</div>
-                                    )}
-                                    <span className="font-semibold text-white">{vital.vital}</span>
-                                </div>
-                                <span className={`font-bold text-lg ${vital.change > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                    {vital.change > 0 ? '+' : ''}{vital.change}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-                </Section>
-            )}
-            
             {summary.expended && summary.expended.length > 0 && (
                  <Section title="Resources Used">
                     <div className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar pr-2">
@@ -111,7 +91,7 @@ const ActionSummaryModal: FC<ActionSummaryModalProps> = ({
             )}
 
             {summary.rewards.length > 0 && (
-                 <Section title="Rewards">
+                 <Section title="Items Obtained">
                     <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-2">
                         {summary.rewards.map((reward, index) => (
                              <div key={index} className="flex items-center justify-between bg-black/20 p-3 rounded-md border border-zinc-800">

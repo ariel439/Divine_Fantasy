@@ -95,6 +95,11 @@ const SleepWaitModal: FC<SleepWaitModalProps> = ({
       }, stepDuration);
   };
 
+  const handleCancelAction = () => {
+    if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+    onCancel();
+  };
+
   const title = mode === 'sleep' ? "How long will you sleep?" : "How long will you wait?";
   const Icon = mode === 'sleep' ? Bed : Clock;
 
@@ -161,6 +166,14 @@ const SleepWaitModal: FC<SleepWaitModalProps> = ({
                     <ProgressBar value={progressTime} max={totalDurationSeconds} colorClass="bg-zinc-600/70" variant="thick" showText={false}/>
                  </div>
             </div>
+            <div className="flex justify-center mt-4">
+              <button 
+                onClick={handleCancelAction}
+                className="px-6 py-2 text-sm font-semibold text-zinc-500 hover:text-red-400 transition-colors flex items-center gap-2"
+              >
+                <X size={16}/> Cancel Rest
+              </button>
+            </div>
         </>
     );
   }
@@ -180,7 +193,7 @@ const SleepWaitModal: FC<SleepWaitModalProps> = ({
                     {isProgressing ? 'Resting...' : title}
                 </h2>
             </div>
-            {!isProgressing && <button onClick={onCancel} className="text-zinc-400 hover:text-white transition-colors"><X size={24}/></button>}
+            <button onClick={handleCancelAction} className="text-zinc-400 hover:text-white transition-colors"><X size={24}/></button>
         </div>
         
         <div className="transition-opacity duration-300">

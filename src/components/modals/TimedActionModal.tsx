@@ -12,12 +12,14 @@ interface TimedActionModalProps {
     rewardsSummary: string;
   };
   onStart?: (hours: number) => void;
+  onCancel?: () => void;
   onClose: () => void;
   progress?: {
     currentTime: number; // in-game seconds for animation progress
     totalTime: number; // total in-game seconds for animation
     startTime: number; // in-game seconds, passed from game state
   } | null;
+  currentEnergy?: number;
 }
 
 const formatTime = (totalSeconds: number): string => {
@@ -34,8 +36,10 @@ const TimedActionModal: FC<TimedActionModalProps> = ({
   maxDuration,
   calculatePreview,
   onStart,
+  onCancel,
   onClose,
   progress,
+  currentEnergy,
 }) => {
   const [duration, setDuration] = useState(1);
   const preview = useMemo(() => {
@@ -43,9 +47,20 @@ const TimedActionModal: FC<TimedActionModalProps> = ({
       return null;
   }, [duration, calculatePreview]);
 
+  const canAfford = useMemo(() => {
+    if (currentEnergy === undefined || !preview || preview.energyCost === undefined) return true;
+    return currentEnergy >= preview.energyCost;
+  }, [currentEnergy, preview]);
+
   const [progressTime, setProgressTime] = useState(0);
   const progressTimerRef = useRef<number | null>(null);
   const hasClosedRef = useRef(false);
+
+  const handleCancel = () => {
+    if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+    if (onCancel) onCancel();
+    else onClose();
+  };
 
   useEffect(() => {
     if (isOpen && !progress) {
@@ -120,27 +135,31 @@ const TimedActionModal: FC<TimedActionModalProps> = ({
         {preview.energyCost !== undefined && (
             <div className="flex justify-between items-center">
                 <span className="text-zinc-400 flex items-center gap-2"><Zap size={16}/> Est. Energy Cost:</span>
-                <span className="font-semibold text-white">{preview.energyCost}</span>
+                <span className={`${canAfford ? 'text-white' : 'text-red-400'} font-semibold`}>
+                  {preview.energyCost} {!canAfford && '(Too Tired)'}
+                </span>
             </div>
         )}
-        <div className="flex justify-between items-start">
-            <span className="text-zinc-400 flex-shrink-0 mr-4">Rewards:</span>
-            <span className="font-semibold text-white text-right">{preview.rewardsSummary}</span>
-        </div>
       </div>
       
       <div className="flex justify-end items-center gap-4 mt-6">
         <button 
-          onClick={onClose}
-          className="px-5 py-2 text-sm font-semibold tracking-wide text-white/90 bg-zinc-700/80 border border-zinc-600 rounded-md transition-all duration-300 hover:bg-zinc-600/80 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+          onClick={handleCancel}
+          className="px-6 py-2.5 text-sm font-semibold text-zinc-400 hover:text-white transition-colors"
         >
           Cancel
         </button>
         <button 
           onClick={() => onStart(duration)}
-          className="px-5 py-2 text-sm font-semibold tracking-wide text-white/90 bg-zinc-800 border border-zinc-700 rounded-md transition-all duration-300 hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+          disabled={!canAfford}
+          className={`px-8 py-2.5 text-sm font-bold tracking-wider rounded-lg border transition-all duration-300 ${
+            canAfford 
+              ? 'bg-zinc-100 text-zinc-950 border-white hover:bg-white hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(255,255,255,0.2)]' 
+              : 'bg-zinc-800 text-zinc-500 border-zinc-700 cursor-not-allowed'
+          }`}
+          style={{ fontFamily: 'Cinzel, serif' }}
         >
-          Start
+          Begin Action
         </button>
       </div>
     </>
@@ -160,6 +179,14 @@ const TimedActionModal: FC<TimedActionModalProps> = ({
                     <ProgressBar value={progressTime} max={progress.totalTime} colorClass="bg-zinc-600/70" variant="thick" showText={false}/>
                  </div>
             </div>
+            <div className="flex justify-center mt-4">
+              <button 
+                onClick={handleCancel}
+                className="px-6 py-2 text-sm font-semibold text-zinc-500 hover:text-red-400 transition-colors flex items-center gap-2"
+              >
+                <X size={16}/> Cancel Action
+              </button>
+            </div>
         </>
     );
   }
@@ -176,7 +203,7 @@ const TimedActionModal: FC<TimedActionModalProps> = ({
             <h2 className="text-2xl font-bold text-white" style={{ fontFamily: 'Cinzel, serif' }}>
                 {progress ? 'Working...' : actionName}
             </h2>
-            {!progress && <button onClick={onClose} className="text-zinc-400 hover:text-white transition-colors"><X size={24}/></button>}
+            <button onClick={handleCancel} className="text-zinc-400 hover:text-white transition-colors"><X size={24}/></button>
         </div>
         
         <div className="transition-opacity duration-300">

@@ -649,6 +649,13 @@ const LocationScreen: React.FC = () => {
     setSkillProgress({ currentTime: 0, totalTime: hours * 3600, startTime: world.hour * 3600 + world.minute * 60 });
   }, []);
 
+  const handleSkillCancel = useCallback(() => {
+    useWorldTimeStore.getState().setClockPaused(false);
+    setSkillModalOpen(false);
+    setSkillProgress(null);
+    setPendingSkillAction(null);
+  }, []);
+
   // Apply skilling results, advance time, resume clock, and show summary
   const handleSkillClose = useCallback(() => {
     if (!pendingSkillAction) {
@@ -658,7 +665,6 @@ const LocationScreen: React.FC = () => {
     }
 
     const totalMinutes = selectedSkillHours * 60;
-    const vitalsChanges: ActionSummary['vitalsChanges'] = [];
     const expended: ActionSummary['expended'] = [];
     const rewards: ActionSummary['rewards'] = [];
 
@@ -668,7 +674,6 @@ const LocationScreen: React.FC = () => {
 
     const applyEnergyCost = (cost: number) => {
       useCharacterStore.setState((state) => ({ energy: Math.max(0, state.energy - cost) }));
-      vitalsChanges.push({ vital: 'Energy', change: -cost, icon: <Zap size={20} className="text-blue-300"/> });
       expended!.push({ name: 'Energy', quantity: cost, icon: <Zap size={20} className="text-blue-300"/> });
     };
 
@@ -677,12 +682,12 @@ const LocationScreen: React.FC = () => {
         const cost = Math.floor(4 * (minutes / 60));
         if (cost > 0) {
             useCharacterStore.setState((state) => ({ hunger: Math.max(0, state.hunger - cost) }));
-            vitalsChanges.push({ vital: 'Hunger', change: -cost, icon: <CookingPot size={20} className="text-orange-300"/> });
+            // Don't show hunger in summary per user request
         }
     };
 
-    const addReward = (name: string, quantity: number) => {
-      rewards.push({ name, quantity, icon: <Award size={20} className="text-yellow-300"/> });
+    const addReward = (name: string, quantity: number, icon?: React.ReactElement) => {
+      rewards.push({ name, quantity, icon: icon || <Award size={20} className="text-yellow-300"/> });
     };
 
     // Tool requirements
@@ -711,13 +716,23 @@ const LocationScreen: React.FC = () => {
 
       // Award items and XP
       let logsAdded = 0;
+      let xpEarned = 0;
       for (let i = 0; i < iterations; i++) {
         const added = inventory.addItem('log', 1);
-        if (added) logsAdded += 1;
-        skills.addXp('woodcutting', 30);
+        if (added) {
+          logsAdded += 1;
+          xpEarned += 30;
+          skills.addXp('woodcutting', 30);
+        } else {
+          // Pity XP if inventory full? User didn't specify, but let's stick to their "try without level" logic
+          xpEarned += 5;
+          skills.addXp('woodcutting', 5);
+        }
       }
-      if (logsAdded > 0) addReward('Logs', logsAdded);
-      addReward('Woodcutting XP', iterations * 30);
+      if (logsAdded > 0) addReward('Logs', logsAdded, <Package size={20} className="text-amber-600"/>);
+      // Only show XP if no items were obtained? "the rewards should just show the items that you got not the xp"
+      // Wait, "if you didn't got any item should show nothing"
+      // This means if logsAdded == 0, show nothing in rewards.
     } else if (pendingSkillAction.type === 'fish') {
       if (!hasTool('fishing_rod')) {
         setSummaryData({
@@ -742,43 +757,68 @@ const LocationScreen: React.FC = () => {
       let sardines = 0;
       let trout = 0;
       let pike = 0;
+      let xpEarned = 0;
       const fishingLevel = skills.getSkillLevel('fishing');
       for (let i = 0; i < iterations; i++) {
         const roll = Math.random();
         if (pendingSkillAction.target === 'fish_docks') {
           // 90% sardine, 10% miss
           if (roll < 0.9) {
-            if (inventory.addItem('fish_sardine', 1)) sardines += 1;
-            skills.addXp('fishing', 15);
+            if (inventory.addItem('fish_sardine', 1)) {
+              sardines += 1;
+              xpEarned += 15;
+              skills.addXp('fishing', 15);
+            } else {
+              xpEarned += 2;
+              skills.addXp('fishing', 2);
+            }
           } else {
-            // got away: no item, no XP
+            // got away: pity XP
+            xpEarned += 2;
+            skills.addXp('fishing', 2);
           }
         } else {
           // river: 70% trout (lvl 3+), 20% pike (lvl 5+), 10% miss
           if (roll < 0.7) {
-            skills.addXp('fishing', 15);
             if (fishingLevel >= 3) {
-                if (inventory.addItem('fish_trout', 1)) trout += 1;
+                if (inventory.addItem('fish_trout', 1)) {
+                  trout += 1;
+                  xpEarned += 15;
+                  skills.addXp('fishing', 15);
+                } else {
+                  xpEarned += 5;
+                  skills.addXp('fishing', 5);
+                }
             } else {
-                // Not skilled enough to catch trout; only XP awarded
+                // Pity XP
+                xpEarned += 5;
+                skills.addXp('fishing', 5);
             }
           } else if (roll < 0.9) {
-            skills.addXp('fishing', 40);
             if (fishingLevel >= 5) {
-              if (inventory.addItem('fish_pike', 1)) pike += 1;
+              if (inventory.addItem('fish_pike', 1)) {
+                pike += 1;
+                xpEarned += 40;
+                skills.addXp('fishing', 40);
+              } else {
+                xpEarned += 10;
+                skills.addXp('fishing', 10);
+              }
             } else {
-              // Not skilled enough to catch pike; only XP awarded
+              // Pity XP
+              xpEarned += 10;
+              skills.addXp('fishing', 10);
             }
           } else {
-            // got away: no item, no XP
+            // got away: pity XP
+            xpEarned += 5;
+            skills.addXp('fishing', 5);
           }
         }
       }
-      if (sardines > 0) addReward('Sardines', sardines);
-      if (trout > 0) addReward('Trout', trout);
-      if (pike > 0) addReward('Pike', pike);
-      const totalFishingXp = (sardines * 15) + (trout * 15) + (pike * 40); // only counted catches above
-      if (totalFishingXp > 0) addReward('Fishing XP', totalFishingXp);
+      if (sardines > 0) addReward('Sardines', sardines, <Fish size={20} className="text-blue-400"/>);
+      if (trout > 0) addReward('Trout', trout, <Fish size={20} className="text-orange-400"/>);
+      if (pike > 0) addReward('Pike', pike, <Fish size={20} className="text-zinc-400"/>);
     }
 
     // Advance in-game time equal to selected duration
@@ -790,7 +830,7 @@ const LocationScreen: React.FC = () => {
     const summary: ActionSummary = {
       title,
       durationInMinutes: totalMinutes,
-      vitalsChanges,
+      vitalsChanges: [], // Removed per user request (they said vitals and resources are same)
       expended,
       rewards,
     };
@@ -1151,11 +1191,13 @@ const LocationScreen: React.FC = () => {
       <TimedActionModal
         isOpen={skillModalOpen}
         actionName={pendingSkillAction?.type === 'woodcut' ? 'Woodcutting' : pendingSkillAction?.type === 'fish' ? 'Fishing' : 'Action'}
-        maxDuration={4}
+        maxDuration={Math.max(1, Math.min(12, Math.floor(energy / (pendingSkillAction?.type === 'woodcut' ? 20 : 15))))}
         calculatePreview={calculateSkillPreview}
         onStart={handleStartSkilling}
+        onCancel={handleSkillCancel}
         progress={skillProgress}
         onClose={handleSkillClose}
+        currentEnergy={energy}
       />
 
       {exploreProgressModalOpen && (

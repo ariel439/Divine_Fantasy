@@ -5,9 +5,9 @@ import { useLocationStore } from '../stores/useLocationStore';
 import { useAudioStore } from '../stores/useAudioStore';
 
 const AudioManager: React.FC = () => {
-  const { currentScreen } = useUIStore();
+  const { currentScreen, activeModal } = useUIStore();
   const { hour, weather } = useWorldTimeStore();
-  const { currentLocationId, getCurrentLocation } = useLocationStore();
+  const { currentLocationId } = useLocationStore();
   const { musicEnabled, sfxEnabled, weatherEnabled, musicVolume, sfxVolume, weatherVolume } = useAudioStore();
 
   const musicRef = useRef<HTMLAudioElement | null>(null);
@@ -20,6 +20,72 @@ const AudioManager: React.FC = () => {
   const filterNodeRef = useRef<BiquadFilterNode | null>(null);
   const shelfNodeRef = useRef<BiquadFilterNode | null>(null);
   const weatherSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+
+  // Ducking Logic
+  const UI_SCREENS = [
+    'inventory', 'journal', 'diary', 'characterScreen', 'jobScreen', 
+    'companion', 'crafting', 'trade', 'tradeConfirmation', 'library',
+    'dialogue', 'event', 'choiceEvent'
+  ];
+  const isDucking = Boolean(activeModal) || UI_SCREENS.includes(currentScreen);
+  const DUCK_MULTIPLIER = 0.4;
+  const currentDuckMultiplier = isDucking ? DUCK_MULTIPLIER : 1.0;
+
+  // Smoothed Ducking Ref
+  const duckMultiplierRef = useRef<number>(currentDuckMultiplier);
+  const duckFadeIntervalRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (duckFadeIntervalRef.current) clearInterval(duckFadeIntervalRef.current);
+
+    const startVal = duckMultiplierRef.current;
+    const targetVal = isDucking ? DUCK_MULTIPLIER : 1.0;
+    
+    if (startVal === targetVal) return;
+
+    const duration = 500; // 0.5s fade
+    const steps = 20;
+    const stepDuration = duration / steps;
+    const stepVal = (targetVal - startVal) / steps;
+    let currentStep = 0;
+
+    duckFadeIntervalRef.current = window.setInterval(() => {
+      currentStep++;
+      const nextVal = Math.max(0.1, Math.min(1.0, startVal + (stepVal * currentStep)));
+      duckMultiplierRef.current = nextVal;
+
+      // Manually trigger volume updates across all active layers
+      const music = musicRef.current;
+      if (music && musicEnabled && !musicFadeIntervalRef.current) {
+        music.volume = musicVolume * 0.4 * nextVal;
+      }
+      const sfx = sfxRef.current;
+      if (sfx && sfxEnabled && !sfxFadeIntervalRef.current) {
+        const loc = useLocationStore.getState().getLocation(currentLocationId) || useLocationStore.getState().getCurrentLocation();
+        const isIndoor = loc.is_indoor || ['leo_lighthouse', 'orphanage_room', 'beryls_general_goods', 'kaelens_forge', 'grand_library', 'tide_trade', 'salty_mug', 'salty_mug_rented_room', 'herbalists_hovel'].includes(loc.id);
+        const baseVolume = isIndoor ? Math.max(0, Math.min(1, sfxVolume * 0.3)) : sfxVolume * 0.5;
+        const finalTargetVolume = (loc.id === 'driftwatch_woods') ? (baseVolume * 0.6) : baseVolume;
+        sfx.volume = finalTargetVolume * nextVal;
+      }
+      const weatherAudio = weatherRef.current;
+      if (weatherAudio && weatherEnabled && weather === 'Rainy' && !weatherFadeIntervalRef.current) {
+        const loc = useLocationStore.getState().getLocation(currentLocationId) || useLocationStore.getState().getCurrentLocation();
+        const isIndoor = loc.is_indoor || ['leo_lighthouse', 'orphanage_room', 'beryls_general_goods', 'kaelens_forge', 'grand_library', 'tide_trade', 'salty_mug', 'salty_mug_rented_room', 'herbalists_hovel'].includes(loc.id);
+        const targetWeatherVolume = isIndoor ? Math.max(0, Math.min(1, weatherVolume * 0.2)) : weatherVolume * 0.5;
+        weatherAudio.volume = targetWeatherVolume * nextVal;
+      }
+
+      if (currentStep >= steps) {
+        clearInterval(duckFadeIntervalRef.current!);
+        duckFadeIntervalRef.current = null;
+        duckMultiplierRef.current = targetVal;
+      }
+    }, stepDuration);
+
+    return () => {
+      if (duckFadeIntervalRef.current) clearInterval(duckFadeIntervalRef.current);
+    };
+  }, [isDucking, musicEnabled, musicVolume, sfxEnabled, sfxVolume, weatherEnabled, weatherVolume, weather, currentLocationId]);
 
   // Fade Refs
   const musicFadeIntervalRef = useRef<number | null>(null);
@@ -117,7 +183,7 @@ const AudioManager: React.FC = () => {
     }
 
     const audio = musicRef.current;
-    const targetMusicVolume = musicEnabled ? (musicVolume * 0.4) : 0;
+    const targetMusicVolume = musicEnabled ? (musicVolume * 0.4 * duckMultiplierRef.current) : 0;
     
     // Change track if needed with cross-fade
     if (currentTrackPathRef.current !== desiredMusicSrc) {
@@ -157,7 +223,7 @@ const AudioManager: React.FC = () => {
             }
         }
     }
-  }, [musicEnabled, musicVolume, currentScreen]);
+  }, [musicEnabled, musicVolume, currentScreen, currentDuckMultiplier]);
 
   // Combined Audio Logic (Ambience & Weather & Muffling)
   useEffect(() => {
@@ -276,7 +342,13 @@ const AudioManager: React.FC = () => {
     const isRural = ruralLocations.includes(loc.id);
 
     // Determine base ambience
-    if (currentScreen === 'inGame' || ['inventory', 'journal', 'diary', 'characterScreen', 'jobScreen', 'companion'].includes(currentScreen)) {
+    const GAME_ACTIVE_SCREENS = [
+        'inGame', 'inventory', 'journal', 'diary', 'characterScreen', 
+        'jobScreen', 'companion', 'crafting', 'trade', 'tradeConfirmation', 
+        'library', 'dialogue', 'event', 'choiceEvent'
+    ];
+
+    if (GAME_ACTIVE_SCREENS.includes(currentScreen)) {
         if (loc.id === 'salty_mug') {
              desiredSfxSrc = '/assets/sfx/bar.mp3';
         } else if (isRural) {
@@ -284,14 +356,6 @@ const AudioManager: React.FC = () => {
         } else {
              desiredSfxSrc = (hour >= 6 && hour < 18) ? '/assets/sfx/coastal.mp3' : '/assets/sfx/waves.mp3';
         }
-    } else if (['dialogue', 'event', 'choiceEvent'].includes(currentScreen)) {
-         if (loc.id === 'salty_mug') {
-             desiredSfxSrc = '/assets/sfx/bar.mp3';
-         } else if (isRural) {
-             desiredSfxSrc = (hour >= 6 && hour < 18) ? '/assets/sfx/ambience_rural_day.mp3' : '/assets/sfx/ambience_rural_night.mp3';
-         } else {
-             desiredSfxSrc = (hour >= 6 && hour < 18) ? '/assets/sfx/coastal.mp3' : '/assets/sfx/waves.mp3';
-         }
     }
 
     const sfxAudio = sfxRef.current;
@@ -300,7 +364,7 @@ const AudioManager: React.FC = () => {
        
        // Reduce volume for forest as requested
        const finalTargetVolume = (loc.id === 'driftwatch_woods' && sfxEnabled) ? (baseVolume * 0.6) : baseVolume;
-       const effectiveVolume = sfxEnabled ? finalTargetVolume : 0;
+       const effectiveVolume = sfxEnabled ? (finalTargetVolume * duckMultiplierRef.current) : 0;
 
        if (desiredSfxSrc && sfxEnabled) {
           if (currentSfxPathRef.current !== desiredSfxSrc) {
@@ -345,7 +409,7 @@ const AudioManager: React.FC = () => {
     const weatherAudio = weatherRef.current;
     if (weatherAudio) {
         const targetWeatherVolume = applyMuffle ? Math.max(0, Math.min(1, weatherVolume * 0.2)) : weatherVolume * 0.5;
-        const effectiveWeatherVolume = (weatherEnabled && weather === 'Rainy') ? targetWeatherVolume : 0;
+        const effectiveWeatherVolume = (weatherEnabled && weather === 'Rainy') ? (targetWeatherVolume * duckMultiplierRef.current) : 0;
         
         if (weatherEnabled && weather === 'Rainy') {
             if (weatherAudio.paused) {
@@ -366,7 +430,7 @@ const AudioManager: React.FC = () => {
         }
     }
 
-  }, [hour, sfxEnabled, sfxVolume, weatherEnabled, weatherVolume, weather, currentLocationId, currentScreen]);
+  }, [hour, sfxEnabled, sfxVolume, weatherEnabled, weatherVolume, weather, currentLocationId, currentScreen, currentDuckMultiplier]);
 
   return null;
 };

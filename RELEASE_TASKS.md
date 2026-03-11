@@ -90,7 +90,7 @@
     - **Task**: Create an `AssetManager` to preload images and audio for adjacent locations, reducing stutter and pop-in.
 - [ ] **UI Responsiveness Audit**:
     - **Task**: Review all major UI components to ensure they adapt correctly to different screen sizes and aspect ratios.
-- [ ] **Advanced Audio Ducking**:
+- [x] **Advanced Audio Ducking**:
     - **Task**: Implement audio ducking in `AudioManager.tsx` to lower ambient/music volume during dialogue and modal pop-ups.
 
 ## 🌍 Phase 8: The "Alive" World

@@ -103,7 +103,7 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
     // Book List View (default)
     return (
         <div className="w-full h-full p-4 sm:p-8 pt-12 pb-24 flex flex-col">
-            <header className="w-full max-w-screen-2xl mx-auto mb-6 flex-shrink-0 flex justify-between items-start flex-wrap gap-4">
+            <header className="w-full max-w-[1920px] mx-auto mb-6 flex-shrink-0 flex justify-between items-start flex-wrap gap-4">
                 <div>
                     <h1 className="text-5xl font-bold text-white mb-4" style={{ fontFamily: 'Cinzel, serif' }}>Library</h1>
                     <div className="relative max-w-md">
@@ -125,7 +125,7 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
                     Back to Location
                 </button>
             </header>
-            <div className="w-full max-w-screen-2xl mx-auto flex-grow overflow-y-auto custom-scrollbar min-h-0 pr-4 pt-2">
+            <div className="w-full max-w-[1920px] mx-auto flex-grow overflow-y-auto custom-scrollbar min-h-0 pr-4 pt-2">
                 {filteredBooks.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
                         {filteredBooks.map(book => (

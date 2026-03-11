@@ -129,7 +129,7 @@ const InventoryScreen: FC = () => {
     return (
         <>
             <div className="w-full h-full p-6 pt-10 pb-20 flex flex-col">
-                <div className="w-full max-w-screen-2xl mx-auto flex flex-col flex-grow min-h-0">
+                <div className="w-full max-w-[1920px] mx-auto flex flex-col flex-grow min-h-0">
                     {/* Header Section */}
                     <header className="mb-6 flex-shrink-0">
                         <h1 className="text-5xl font-bold text-white mb-4" style={{ fontFamily: 'Cinzel, serif' }}>Inventory</h1>

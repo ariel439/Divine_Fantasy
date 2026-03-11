@@ -43,10 +43,10 @@ const JournalScreen: FC = () => {
 
     return (
         <div className="w-full h-full p-8 pt-12 pb-20 flex flex-col">
-            <header className="w-full max-w-screen-2xl mx-auto mb-8 flex-shrink-0">
+            <header className="w-full max-w-[1920px] mx-auto mb-8 flex-shrink-0">
                 <h1 className="text-5xl font-bold text-white" style={{ fontFamily: 'Cinzel, serif' }}>Journal</h1>
             </header>
-            <div className="w-full max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 flex-grow min-h-0">
+            <div className="w-full max-w-[1920px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 flex-grow min-h-0">
                 {/* Left Panel: Quest List */}
                 <div className="lg:col-span-1 bg-black/20 rounded-lg border border-zinc-800 p-4 flex flex-col h-full">
                     <div className="flex-shrink-0 flex items-center gap-2 border-b-2 border-zinc-800 mb-2">

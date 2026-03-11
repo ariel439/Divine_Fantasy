@@ -111,7 +111,7 @@ export const LootScreen: React.FC<LootScreenProps> = ({ loot, onClose }) => {
 
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="w-full max-w-5xl h-[80vh] bg-zinc-900 border-2 border-zinc-700 rounded-xl shadow-2xl overflow-hidden flex flex-col">
+      <div className="w-full max-w-[1400px] h-[80vh] bg-zinc-900 border-2 border-zinc-700 rounded-xl shadow-2xl overflow-hidden flex flex-col">
         
         {/* Header */}
         <div className="bg-zinc-950 p-4 border-b border-zinc-800 flex justify-between items-center shrink-0">

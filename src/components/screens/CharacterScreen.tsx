@@ -87,7 +87,7 @@ const CharacterScreen: FC = () => {
     return (
         <>
             <div className="w-full h-full p-8 pt-12 pb-24">
-                <div className="w-full max-w-screen-2xl mx-auto flex flex-col lg:flex-row gap-8 h-full">
+                <div className="w-full max-w-[1920px] mx-auto flex flex-col lg:flex-row gap-8 h-full">
                     {/* Column 1: Fixed Portrait for Desktop */}
                     <div className="hidden lg:flex flex-col justify-center w-96 flex-shrink-0">
                         <div className="space-y-6">

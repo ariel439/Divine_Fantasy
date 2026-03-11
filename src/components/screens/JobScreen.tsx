@@ -159,12 +159,12 @@ const JobScreen: FC = () => {
 
     return (
         <div className="w-full h-full px-8 pt-12 pb-24 flex flex-col">
-            <header className="w-full max-w-screen-2xl mx-auto mb-8 flex-shrink-0">
+            <header className="w-full max-w-[1920px] mx-auto mb-8 flex-shrink-0">
                 <h1 className="text-5xl font-bold text-white" style={{ fontFamily: 'Cinzel, serif' }}>
                     Job
                 </h1>
             </header>
-            <div className="w-full max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+            <div className="w-full max-w-[1920px] mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 flex-1 min-h-0 overflow-y-auto custom-scrollbar">
                 {/* Left Column (Info) - Takes 2/5 of width on large screens */}
                 <div className="lg:col-span-2 flex flex-col gap-8">
                     <Section title="Position Details">

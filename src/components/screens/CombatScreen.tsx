@@ -148,7 +148,7 @@ const CombatScreen: FC<CombatScreenProps> = ({
             {/* Main Combat Area */}
             <main className="flex-grow flex flex-col lg:flex-row items-center justify-around p-4 md:p-8">
                 {/* Party Column */}
-                <div className="w-full max-w-xl grid gap-4 lg:gap-8 mb-8 lg:mb-0" style={{ gridTemplateColumns: `repeat(${Math.min(2, party.length)}, minmax(0, 1fr))` }}>
+                <div className="w-full max-w-2xl grid gap-4 lg:gap-8 mb-8 lg:mb-0" style={{ gridTemplateColumns: `repeat(${Math.min(2, party.length)}, minmax(0, 1fr))` }}>
                     {party.map(member => (
                         <div key={member.id} className="relative w-full">
                              <CombatantCard
@@ -167,7 +167,7 @@ const CombatScreen: FC<CombatScreenProps> = ({
                 </div>
 
                 {/* Enemies Grid */}
-                <div className={`grid gap-4 lg:gap-6 w-full max-w-xl ${tutorialActive ? 'ring-2 ring-yellow-400 rounded-lg p-2' : ''}`} style={{ gridTemplateColumns: `repeat(${Math.min(2, enemies.length)}, minmax(0, 1fr))` }}>
+                <div className={`grid gap-4 lg:gap-6 w-full max-w-2xl ${tutorialActive ? 'ring-2 ring-yellow-400 rounded-lg p-2' : ''}`} style={{ gridTemplateColumns: `repeat(${Math.min(2, enemies.length)}, minmax(0, 1fr))` }}>
                     {enemies.map(enemy => (
                          <div key={enemy.id} className="relative">
                             <CombatantCard
@@ -189,7 +189,7 @@ const CombatScreen: FC<CombatScreenProps> = ({
 
             {/* Bottom Command Panel */}
             <footer className="flex-shrink-0 w-full bg-zinc-950/90 backdrop-blur-sm border-t border-zinc-700 p-4 shadow-[0_-10px_30px_rgba(0,0,0,0.3)]">
-                <div className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                <div className="w-full max-w-[1920px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     
                     {/* Combat Log */}
                     <div className="md:col-span-1 h-32 bg-black/30 rounded-lg p-2 flex flex-col border border-zinc-800 order-3 md:order-1">

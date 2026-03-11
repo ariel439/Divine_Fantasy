@@ -86,7 +86,7 @@
 *This phase focuses on the technical aspects that make the game feel professional and perform well on the web.*
 - [x] **Build Stripping & Security**:
     - **Task**: Use environment variables to remove debug menus and `console.log`s from the production build.
-- [ ] **Asset Preloading**:
+- [x] **Asset Preloading**:
     - **Task**: Create an `AssetManager` to preload images and audio for adjacent locations, reducing stutter and pop-in.
 - [ ] **UI Responsiveness Audit**:
     - **Task**: Review all major UI components to ensure they adapt correctly to different screen sizes and aspect ratios.

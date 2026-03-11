@@ -5,7 +5,7 @@
     "night_description": "Driftwatch hub is calm at night, lanterns glow softly.",
     "day_background": "/assets/locations/driftwatch_day.png",
     "night_background": "/assets/locations/driftwatch_night.png",
-    "music_track": "GDD/assets/audio/music/driftwatch_main.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
       { "text": "Travel to Main Street", "type": "navigate", "target": "driftwatch_main_street" },
       { "text": "Travel to Noble Quarter", "type": "navigate", "target": "driftwatch_noble_quarter" },
@@ -20,7 +20,7 @@
     "night_description": "The main street is quiet at night, with only a few lanterns flickering.",
     "day_background": "/assets/locations/driftwatch_main_street_day.png",
     "night_background": "/assets/locations/driftwatch_main_street_night.png",
-    "music_track": "GDD/assets/audio/music/driftwatch_main.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
       { "text": "Travel to Leo's Lighthouse", "type": "navigate", "target": "leo_lighthouse", "condition": "time.is_day==true" },
       { "text": "Travel to Beryl's General Goods", "type": "navigate", "target": "beryls_general_goods", "condition": "time.is_day==true" },
@@ -35,7 +35,7 @@
     "day_description": "A repurposed lighthouse that now serves as a home for the city's orphans, run by the kindly Old Leo.",
     "night_description": "The lighthouse stands tall, its light guiding ships through the night.",
     "day_background": "/assets/locations/leo_lighthouse.png",
-    "music_track": "GDD/assets/audio/music/lighthouse.mp3",
+    "music_track": "/assets/musics/Whisper of the Pines.mp3",
     "is_indoor": true,
     "actions": [
       { "text": "Talk to Old Leo", "type": "dialogue", "target": "npc_old_leo" },
@@ -53,7 +53,7 @@
     "day_description": "Luke's shared room at Leo's Lighthouse. A simple bed, a chest, and the morning light through the window.",
     "night_description": "Dim lantern light flickers across the walls; it's quiet and still.",
     "day_background": "/assets/locations/leo_lighthouse_room.png",
-    "music_track": "GDD/assets/audio/music/room.mp3",
+    "music_track": "/assets/musics/Whisper of the Pines.mp3",
     "is_indoor": true,
     "actions": [
       { "text": "Leave the Room", "type": "navigate", "target": "leo_lighthouse" },
@@ -65,7 +65,7 @@
     "day_description": "A cluttered but well-stocked shop for all basic necessities.",
     "night_description": "The shop is closed, but the windows show glimpses of goods inside.",
     "day_background": "/assets/locations/beryls_general_goods.png",
-    "music_track": "GDD/assets/audio/music/shops.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": true,
     "actions": [
       { "text": "Talk to Beryl", "type": "dialogue", "target": "npc_beryl", "condition": "time.is_day==true" },
@@ -77,7 +77,7 @@
     "day_description": "The clang of hammer on anvil echoes through the air, and the scent of hot metal hangs heavy.",
     "night_description": "The forge glows faintly in the darkness, a beacon of industry.",
     "day_background": "/assets/locations/kaelens_forge.png",
-    "music_track": "GDD/assets/audio/music/forge.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": true,
     "actions": [
       { "text": "Talk to Kaelen", "type": "dialogue", "target": "npc_kaelen", "condition": "time.is_day==true" },
@@ -91,7 +91,7 @@
     "night_description": "The noble quarter is serene under the moonlight.",
     "day_background": "/assets/locations/driftwatch_noble_quarter_day.png",
     "night_background": "/assets/locations/driftwatch_noble_quarter_night.png",
-    "music_track": "GDD/assets/audio/music/noble_quarter.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
       { "text": "Travel to Mosswatch Keep", "type": "navigate", "target": "mosswatch_keep" },
       { "text": "Sell Antique Locket", "type": "trigger_event", "eventId": "sell_locket_event", "condition": "has_item:antique_locket && time.is_day==true" },
@@ -106,7 +106,7 @@
     "night_description": "The keep stands vigilant in the night.",
     "day_background": "/assets/locations/mosswatch_keep_day.png",
     "night_background": "/assets/locations/mosswatch_keep_night.png",
-    "music_track": "GDD/assets/audio/music/driftwatch_main.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
       { "text": "Talk to Corporal Matthias", "type": "dialogue", "target": "npc_matthias", "condition": "time.is_day==true" },
       { "text": "Talk to Private Stan", "type": "dialogue", "target": "npc_stan", "condition": "time.is_day==false" },
@@ -119,7 +119,7 @@
     "day_description": "A quiet repository of knowledge, moved to the Noble Quarter.",
     "night_description": "The library is dimly lit by candles.",
     "day_background": "/assets/locations/grand_library.png",
-    "music_track": "GDD/assets/audio/music/library.mp3",
+    "music_track": "/assets/musics/Whisper of the Pines.mp3",
     "is_indoor": true,
     "actions": [
       { "text": "Talk to Adalia", "type": "dialogue", "target": "npc_adalia" },
@@ -132,7 +132,7 @@
     "day_description": "The barracks for the elite Tidehunter guards.",
     "night_description": "The quarter is quiet, guards patrolling.",
     "day_background": "/assets/locations/tidehunter_quarter.png",
-    "music_track": "GDD/assets/audio/music/barracks.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
       { "text": "Talk to Sergeant Rodrick", "type": "dialogue", "target": "npc_rodrick" },
       { "text": "Travel to Mosswatch Keep", "type": "navigate", "target": "mosswatch_keep" }
@@ -144,7 +144,7 @@
     "night_description": "The docks are quieter at night, waves lapping against the piers.",
     "day_background": "/assets/locations/driftwatch_docks_day.png",
     "night_background": "/assets/locations/driftwatch_docks_night.png",
-    "music_track": "GDD/assets/audio/music/docks.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
       { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.is_day==true&&time.weekday==Saturday" },
       { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.is_day==true&&time.weekday==Sunday" },
@@ -160,7 +160,7 @@
     "name": "Tide & Trade",
     "day_description": "Roberta's fishmonger shop.",
     "night_description": "The shop is closed, but the smell of fish lingers.",
-    "music_track": "GDD/assets/audio/music/shops.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": true,
     "actions": [
       { "text": "Talk to Roberta", "type": "dialogue", "target": "npc_roberta" },
@@ -174,7 +174,7 @@
     "night_description": "The slums are shadowy and quiet.",
     "day_background": "/assets/locations/driftwatch_slums_day.png",
     "night_background": "/assets/locations/driftwatch_slums_night.png",
-    "music_track": "GDD/assets/audio/music/slums.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
       { "text": "Sleep on the Floor", "type": "sleep", "target": "sleep_floor" },
       { "text": "Cook on Firepit", "type": "cook", "target": "cook_firepit" },
@@ -191,7 +191,7 @@
     "day_description": "A dimly lit, rowdy tavern frequented by sailors and the city's underbelly.",
     "night_description": "The tavern is lively even at night.",
     "day_background": "/assets/locations/salty_mug.png",
-    "music_track": "GDD/assets/audio/music/tavern.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": true,
     "actions": [
       { "text": "Talk to Finn", "type": "dialogue", "target": "npc_finn", "condition": "time.is_day==true" },
@@ -213,7 +213,7 @@
     "day_description": "A small, sparsely furnished room, but a welcome private space.",
     "night_description": "The rented room is quiet, offering a peaceful night's rest.",
     "day_background": "/assets/locations/salty_mug_rented_room.png",
-    "music_track": "GDD/assets/audio/music/room.mp3",
+    "music_track": "/assets/musics/Whisper of the Pines.mp3",
     "is_indoor": true,
     "actions": [
       { "text": "Sleep", "type": "sleep", "target": "sleep_bed" },
@@ -228,7 +228,7 @@
     "day_background": "/assets/locations/hunters_cabin_day.png",
     "night_background": "/assets/locations/hunters_cabin_night.png",
     "is_indoor": false,
-    "music_track": "GDD/assets/audio/music/woods.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
       { "text": "Talk to Ronald", "type": "dialogue", "target": "npc_ronald", "condition": "time.is_day==true" },
       { "text": "Use Workbench", "type": "craft", "target": "craft_basic", "condition": "world_flags.hunter_crafting_unlocked==true" },
@@ -240,7 +240,7 @@
     "day_description": "A small, strange hut filled with drying herbs and mysterious potions.",
     "night_description": "The hovel is eerie in the moonlight.",
     "day_background": "/assets/locations/herbalists_hovel.png",
-    "music_track": "GDD/assets/audio/music/hovel.mp3",
+    "music_track": "/assets/musics/Whisper of the Pines.mp3",
     "is_indoor": true,
     "actions": [
       { "text": "Talk to Elara", "type": "dialogue", "target": "npc_elara" },
@@ -253,7 +253,7 @@
     "night_description": "The crossroads are deserted at night.",
     "day_background": "/assets/locations/driftwatch_crossroads_day.png",
     "night_background": "/assets/locations/driftwatch_crossroads_night.png",
-    "music_track": "GDD/assets/audio/music/crossroads.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" },
       { "text": "Travel to Driftwatch Woods", "type": "navigate", "target": "driftwatch_woods", "time_cost": 60 },
@@ -267,7 +267,7 @@
     "night_description": "The woods are dark and foreboding.",
     "day_background": "/assets/locations/driftwatch_woods_day.png",
     "night_background": "/assets/locations/driftwatch_woods_night.png",
-    "music_track": "GDD/assets/audio/music/woods.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
       { "text": "Explore", "type": "explore", "target": "explore_woods" },
       { "text": "Chop Wood", "type": "woodcut", "target": "woodcut_basic" },
@@ -285,7 +285,7 @@
     "day_background": "/assets/locations/secret_cabin_interior.png",
     "night_background": "/assets/locations/secret_cabin_interior.png",
     "is_indoor": true,
-    "music_track": "GDD/assets/audio/music/room.mp3",
+    "music_track": "/assets/musics/Whisper of the Pines.mp3",
     "actions": [
       { "text": "Sleep", "type": "sleep", "target": "sleep_bed" },
       { "text": "Travel to Driftwatch Woods", "type": "navigate", "target": "driftwatch_woods" }
@@ -298,7 +298,7 @@
     "night_description": "The sawmill is silent at night.",
     "day_background": "/assets/locations/sawmill_day.png",
     "night_background": "/assets/locations/sawmill_night.png",
-    "music_track": "GDD/assets/audio/music/sawmill.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
       { "text": "Talk to Crawler", "type": "dialogue", "target": "npc_crawler", "condition": "time.is_day==true" },
       { "text": "Make Planks", "type": "craft", "target": "craft_planks", "condition": "world_flags.sawmill_unlocked==true" },
@@ -311,7 +311,7 @@
     "night_description": "The farm is peaceful under the stars.",
     "day_background": "/assets/locations/homestead_farm_day.png",
     "night_background": "/assets/locations/homestead_farm_night.png",
-    "music_track": "GDD/assets/audio/music/farm.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
       { "text": "Talk to Ben", "type": "dialogue", "target": "npc_ben", "condition": "time.hour_gte==6 && time.hour_lt==19" },
       { "text": "Talk to Elisa", "type": "dialogue", "target": "npc_elisa", "condition": "time.hour_gte==6 && time.hour_lt==23" },

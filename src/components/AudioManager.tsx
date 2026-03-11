@@ -165,7 +165,8 @@ const AudioManager: React.FC = () => {
 
   // Music Logic
   useEffect(() => {
-    let desiredMusicSrc = '/assets/musics/driftwatch_region.mp3'; // Default / Exploration
+    const loc = useLocationStore.getState().getCurrentLocation();
+    let desiredMusicSrc = loc?.music_track || '/assets/musics/driftwatch_region.mp3';
 
     if ((currentScreen as string) === 'mainMenu' || (currentScreen as string) === 'characterSelection') {
       desiredMusicSrc = '/assets/musics/Whisper of the Pines.mp3';
@@ -223,7 +224,7 @@ const AudioManager: React.FC = () => {
             }
         }
     }
-  }, [musicEnabled, musicVolume, currentScreen, currentDuckMultiplier]);
+  }, [musicEnabled, musicVolume, currentScreen, currentDuckMultiplier, currentLocationId]);
 
   // Combined Audio Logic (Ambience & Weather & Muffling)
   useEffect(() => {

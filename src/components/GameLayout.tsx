@@ -5,6 +5,7 @@ import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import LocationNav from './LocationNav';
 import ModalManager from './ModalManager';
 import AudioManager from './AudioManager';
+import AssetManager from './AssetManager';
 import { ToastContainer } from './ToastContainer';
 
 interface GameLayoutProps {
@@ -87,6 +88,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
   return (
     <div className="fixed inset-0 overflow-hidden text-white bg-black font-sans">
       <AudioManager />
+      <AssetManager />
       <ToastContainer />
       {/* Background and overlays */}
       <div

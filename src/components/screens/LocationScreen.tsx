@@ -208,7 +208,7 @@ const LocationScreen: React.FC = () => {
         setSkillModalOpen(true);
         break;
       case 'explore': {
-        const debugInfiniteEnergy = useWorldStateStore.getState().getFlag('debug_infinite_energy');
+        const debugInfiniteEnergy = import.meta.env.DEV && useWorldStateStore.getState().getFlag('debug_infinite_energy');
         if (!debugInfiniteEnergy && useCharacterStore.getState().energy < 20) {
           setJobEnergyMessage('You are too tired to explore.');
           setJobEnergyModalOpen(true);

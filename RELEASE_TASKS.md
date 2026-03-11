@@ -84,7 +84,7 @@
 
 ## 🚀 Phase 7: Production & Performance Polish
 *This phase focuses on the technical aspects that make the game feel professional and perform well on the web.*
-- [ ] **Build Stripping & Security**:
+- [x] **Build Stripping & Security**:
     - **Task**: Use environment variables to remove debug menus and `console.log`s from the production build.
 - [ ] **Asset Preloading**:
     - **Task**: Create an `AssetManager` to preload images and audio for adjacent locations, reducing stutter and pop-in.

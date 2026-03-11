@@ -233,8 +233,12 @@ const ScreenManager: React.FC = () => {
           if (id === 'debug_smuggler_intro') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
-            useLocationStore.getState().setLocation('driftwatch_docks');
-            GameManagerService.startSmugglerCombat();
+            if (import.meta.env.DEV) {
+              useLocationStore.getState().setLocation('driftwatch_docks');
+              GameManagerService.startSmugglerCombat();
+            } else {
+              setScreen('inGame');
+            }
             return;
           }
           if (id === 'robert_caught') {
@@ -846,7 +850,7 @@ const ScreenManager: React.FC = () => {
       case 'companion':
         return <CompanionScreen hasPet={false} />;
       case 'debugMenu':
-        return <DebugMenuScreen />;
+        return import.meta.env.DEV ? <DebugMenuScreen /> : <MainMenu />;
       default:
         return <MainMenu />;
     }

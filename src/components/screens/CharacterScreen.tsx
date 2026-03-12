@@ -122,7 +122,7 @@ const CharacterScreen: FC = () => {
 
             {/* Main Content Scroll Area */}
             <div className="relative z-10 w-full flex-1 min-h-0 overflow-y-auto custom-scrollbar">
-                <div className="max-w-[1600px] mx-auto w-full min-h-full flex flex-col lg:flex-row gap-8 p-8 lg:p-12 lg:pb-32 items-start">
+                <div className="w-full min-h-full flex flex-col lg:flex-row gap-8 p-8 lg:p-12 lg:pb-32 items-start">
                     
                     {/* Column 1: Portrait & Stats (Sticky on Desktop) */}
                     <div className="w-full lg:w-[400px] flex-shrink-0 lg:sticky lg:top-0">

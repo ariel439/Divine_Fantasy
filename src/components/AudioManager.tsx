@@ -28,7 +28,7 @@ const AudioManager: React.FC = () => {
     'dialogue', 'event', 'choiceEvent'
   ];
   const isDucking = Boolean(activeModal) || UI_SCREENS.includes(currentScreen);
-  const DUCK_MULTIPLIER = 0.4;
+  const DUCK_MULTIPLIER = 0.6;
   const currentDuckMultiplier = isDucking ? DUCK_MULTIPLIER : 1.0;
 
   // Smoothed Ducking Ref

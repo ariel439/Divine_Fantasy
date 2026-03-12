@@ -129,7 +129,7 @@ const InventoryScreen: FC = () => {
 
             {/* Main Content Area */}
             <div className="relative z-10 w-full flex-1 min-h-0 overflow-y-auto custom-scrollbar">
-                <div className="max-w-[1600px] mx-auto w-full min-h-full flex flex-col gap-6 p-8 lg:p-12 lg:pb-32 items-start">
+                <div className="w-full min-h-full flex flex-col gap-6 p-8 lg:p-12 lg:pb-32 items-start">
                     
                     {/* Top Stats Bar */}
                     <div className="w-full flex flex-col md:flex-row justify-between items-stretch md:items-center gap-6 p-6 bg-zinc-900/40 backdrop-blur-xl rounded-2xl border border-zinc-800/50 shadow-2xl animate-fade-in-up">

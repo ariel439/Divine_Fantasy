@@ -2,30 +2,63 @@
 
 import React from 'react';
 import type { FC } from 'react';
-import { Axe, Fish, ChefHat, Hammer, Smile, Angry, Sword, Wind, Shield } from 'lucide-react';
+import { Axe, Fish, ChefHat, Hammer, Smile, Angry, Sword, Wind, Shield, Zap, Brain, Sparkles, User, Heart, Utensils, MessageSquare, ArrowLeft, BookOpen, ScrollText } from 'lucide-react';
 import { getDescriptiveAttributeLabel, getDescriptiveSkillLabel } from '../../data';
 import Stat from '../ui/Stat';
 import ProgressBar from '../ui/ProgressBar';
 import { useCharacterStore } from '../../stores/useCharacterStore';
 import { useSkillStore } from '../../stores/useSkillStore';
 import { useUIStore } from '../../stores/useUIStore';
-import LocationNav from '../LocationNav';
+
+const AttributeIcon = ({ label }: { label: string }) => {
+    switch (label.toLowerCase()) {
+        case 'strength': return <Shield size={18} className="text-red-400" />;
+        case 'dexterity': return <Zap size={18} className="text-yellow-400" />;
+        case 'intelligence': return <Brain size={18} className="text-blue-400" />;
+        case 'wisdom': return <Sparkles size={18} className="text-purple-400" />;
+        case 'charisma': return <User size={18} className="text-pink-400" />;
+        default: return <Shield size={18} />;
+    }
+};
+
+const StatusCard: FC<{ label: string, value: number, max: number, icon: React.ReactNode, colorClass: string }> = ({ label, value, max, icon, colorClass }) => (
+    <div className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 p-4 rounded-xl flex flex-col gap-3 group hover:border-zinc-700/50 transition-all">
+        <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2 text-zinc-400 group-hover:text-zinc-200 transition-colors">
+                {icon}
+                <span className="text-xs font-black uppercase tracking-widest">{label}</span>
+            </div>
+            <span className="text-sm font-mono text-zinc-300">{value} / {max}</span>
+        </div>
+        <div className="w-full bg-black/40 rounded-full h-2 overflow-hidden border border-zinc-800/30">
+            <div 
+                className={`h-full ${colorClass} transition-all duration-1000 ease-out`}
+                style={{ width: `${(value / max) * 100}%` }}
+            />
+        </div>
+    </div>
+);
 
 const CharacterPortrait: FC<{ characterData: any }> = ({ characterData }) => (
-    <>
-        <div className="w-full aspect-[3/4] rounded-lg overflow-hidden border-2 border-zinc-700 shadow-lg">
-            <img src={characterData.image} alt={characterData.name} className="w-full h-full object-cover" />
+    <div className="flex flex-col gap-6">
+        <div className="relative group">
+            <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden border border-zinc-700/50 shadow-2xl relative">
+                <img src={characterData.image} alt={characterData.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent opacity-60" />
+            </div>
         </div>
-        <div className="space-y-4 p-4 bg-black/20 rounded-lg border border-zinc-800">
-            <ProgressBar label="HP" value={characterData.hp} max={100} colorClass="bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]" variant="thick" showText={true} />
-            <ProgressBar label="Energy" value={characterData.energy} max={100} colorClass="bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.7)]" variant="thick" showText={true} />
-            <ProgressBar label="Hunger" value={characterData.hunger} max={100} colorClass="bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.7)]" variant="thick" showText={true} />
-            <ProgressBar label="Social" value={characterData.socialEnergy} max={characterData.maxSocialEnergy} colorClass="bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.7)]" variant="thick" showText={true} />
+
+        <div className="grid grid-cols-2 gap-3">
+            <StatusCard label="Health" value={characterData.hp} max={100} icon={<Heart size={14} />} colorClass="bg-red-500" />
+            <StatusCard label="Energy" value={characterData.energy} max={100} icon={<Zap size={14} />} colorClass="bg-blue-500" />
+            <StatusCard label="Hunger" value={characterData.hunger} max={100} icon={<Utensils size={14} />} colorClass="bg-orange-500" />
+            <StatusCard label="Social" value={characterData.socialEnergy} max={characterData.maxSocialEnergy} icon={<MessageSquare size={14} />} colorClass="bg-purple-500" />
         </div>
-    </>
+    </div>
 );
 
 const CharacterScreen: FC = () => {
+    const { setScreen } = useUIStore();
     const { attributes, hp, energy, hunger, socialEnergy, maxSocialEnergy, bio } = useCharacterStore();
     const { skills, getSkillLevel } = useSkillStore();
 
@@ -38,10 +71,10 @@ const CharacterScreen: FC = () => {
             birthplace: bio?.birthplace || 'Unknown',
             born: bio?.born || 'Unknown',
         },
-        hp,
-        energy,
-        hunger,
-        socialEnergy,
+        hp: Math.floor(hp),
+        energy: Math.floor(energy),
+        hunger: Math.floor(hunger),
+        socialEnergy: Math.floor(socialEnergy),
         maxSocialEnergy,
         attributes: {
             strength: attributes.strength,
@@ -51,125 +84,147 @@ const CharacterScreen: FC = () => {
             charisma: attributes.charisma
         },
         skills: [
-            { name: 'Attack', level: getSkillLevel('attack'), icon: <Sword size={24} /> },
-            { name: 'Defense', level: getSkillLevel('defense'), icon: <Shield size={24} /> },
-            { name: 'Agility', level: getSkillLevel('agility'), icon: <Wind size={24} /> },
-            { name: 'Woodcutting', level: getSkillLevel('woodcutting'), icon: <Axe size={24} /> },
-            { name: 'Fishing', level: getSkillLevel('fishing'), icon: <Fish size={24} /> },
-            { name: 'Cooking', level: getSkillLevel('cooking'), icon: <ChefHat size={24} /> },
-            { name: 'Carpentry', level: getSkillLevel('carpentry'), icon: <Hammer size={24} /> },
-            { name: 'Crafting', level: getSkillLevel('crafting'), icon: <Hammer size={24} /> },
-            { name: 'Persuasion', level: getSkillLevel('persuasion'), icon: <Smile size={24} /> },
-            { name: 'Coercion', level: getSkillLevel('coercion'), icon: <Angry size={24} /> },
+            { name: 'Attack', level: getSkillLevel('attack'), icon: <Sword size={20} /> },
+            { name: 'Defense', level: getSkillLevel('defense'), icon: <Shield size={20} /> },
+            { name: 'Agility', level: getSkillLevel('agility'), icon: <Wind size={20} /> },
+            { name: 'Woodcutting', level: getSkillLevel('woodcutting'), icon: <Axe size={20} /> },
+            { name: 'Fishing', level: getSkillLevel('fishing'), icon: <Fish size={20} /> },
+            { name: 'Cooking', level: getSkillLevel('cooking'), icon: <ChefHat size={20} /> },
+            { name: 'Carpentry', level: getSkillLevel('carpentry'), icon: <Hammer size={20} /> },
+            { name: 'Crafting', level: getSkillLevel('crafting'), icon: <Hammer size={20} /> },
+            { name: 'Persuasion', level: getSkillLevel('persuasion'), icon: <Smile size={20} /> },
+            { name: 'Coercion', level: getSkillLevel('coercion'), icon: <Angry size={20} /> },
         ]
     };
 
-    const handleNavigate = (screen: any) => {
-        const { setScreen } = useUIStore.getState();
-        setScreen(screen);
-    };
-
-    const handleOpenSleepWaitModal = (mode: 'sleep' | 'wait') => {
-        // TODO: Implement sleep/wait modal
-        console.log('Open sleep/wait modal:', mode);
-    };
-
-    const handleOpenOptionsModal = () => {
-        // TODO: Implement options modal
-        console.log('Open options modal');
-    };
-
-    const handleOpenSaveLoadModal = () => {
-        // TODO: Implement save/load modal
-        console.log('Open save/load modal');
-    };
-    
     return (
-        <>
-            <div className="w-full h-full p-8 pt-12 pb-24">
-                <div className="w-full max-w-[1920px] mx-auto flex flex-col lg:flex-row gap-8 h-full">
-                    {/* Column 1: Fixed Portrait for Desktop */}
-                    <div className="hidden lg:flex flex-col justify-center w-96 flex-shrink-0">
-                        <div className="space-y-6">
-                            <CharacterPortrait characterData={characterData} />
+        <div className="relative w-full h-full min-h-screen bg-zinc-950 flex flex-col items-center overflow-hidden">
+            {/* Background Layer */}
+            <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 blur-sm" style={{ backgroundImage: `url(/assets/backgrounds/minimal_bg.png)` }} />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/90" />
+
+            {/* Top Navigation Bar */}
+            <header className="relative z-20 w-full px-8 py-6 flex justify-between items-center border-b border-zinc-800/50 backdrop-blur-xl shrink-0">
+                <button 
+                    onClick={() => setScreen('inGame')} 
+                    className="flex items-center gap-2 text-zinc-400 hover:text-white transition-all group px-4 py-2 rounded-full hover:bg-white/5 border border-transparent hover:border-zinc-800"
+                >
+                    <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+                    <span className="font-bold tracking-widest uppercase text-xs">Resume Game</span>
+                </button>
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-white tracking-[0.3em] uppercase" style={{ fontFamily: 'Cinzel, serif' }}>
+                        Character Sheet
+                    </h1>
+                </div>
+                <div className="w-32"></div> {/* Spacer for symmetry */}
+            </header>
+
+            {/* Main Content Scroll Area */}
+            <div className="relative z-10 w-full flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+                <div className="max-w-[1600px] mx-auto w-full min-h-full flex flex-col lg:flex-row gap-8 p-8 lg:p-12 lg:pb-32 items-start">
+                    
+                    {/* Column 1: Portrait & Stats (Sticky on Desktop) */}
+                    <div className="w-full lg:w-[400px] flex-shrink-0 lg:sticky lg:top-0">
+                        <CharacterPortrait characterData={characterData} />
+                    </div>
+
+                    {/* Column 2: Details Grid */}
+                    <div className="flex-grow space-y-8 pb-20 lg:pb-0 w-full lg:min-w-0">
+                    
+                    {/* Character Identity & Bio */}
+                    <div className="bg-zinc-900/40 backdrop-blur-xl rounded-2xl border border-zinc-800/50 p-8 shadow-2xl animate-fade-in-up">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="p-3 bg-zinc-800 rounded-xl text-zinc-400">
+                                <User size={24} />
+                            </div>
+                            <div>
+                                <h2 className="text-4xl font-bold text-white tracking-wider" style={{ fontFamily: 'Cinzel, serif' }}>{characterData.name}</h2>
+                                <p className="text-zinc-500 text-sm uppercase font-black tracking-[0.2em] mt-1">The Wanderer of Whispers</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-zinc-800/50 pt-8">
+                            <Stat label="Gender" value={characterData.bio.gender} icon={<User size={14} className="text-zinc-500" />} />
+                            <Stat label="Race" value={characterData.bio.race} icon={<Sparkles size={14} className="text-zinc-500" />} />
+                            <Stat label="Birthplace" value={characterData.bio.birthplace} icon={<ScrollText size={14} className="text-zinc-500" />} />
+                            <Stat label="Born" value={characterData.bio.born} icon={<BookOpen size={14} className="text-zinc-500" />} />
                         </div>
                     </div>
 
-                    {/* Column 2: Scrollable Content */}
-                    <div className="lg:flex-grow bg-black/20 rounded-lg border border-zinc-800 overflow-y-auto custom-scrollbar min-h-0">
-
-                        {/* Portrait for Mobile/Tablet */}
-                        <div className="lg:hidden p-6 pb-0">
-                            <div className="max-w-sm mx-auto space-y-6">
-                                <CharacterPortrait characterData={characterData} />
-                            </div>
+                    {/* Attributes Section */}
+                    <div className="bg-zinc-900/40 backdrop-blur-xl rounded-2xl border border-zinc-800/50 p-8 shadow-2xl animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+                        <div className="flex items-center gap-3 mb-8 border-b border-zinc-800/50 pb-6">
+                            <Sparkles size={20} className="text-zinc-500" />
+                            <h3 className="text-xl font-bold text-zinc-100 uppercase tracking-[0.2em]" style={{ fontFamily: 'Cinzel, serif' }}>Core Attributes</h3>
                         </div>
-
-                        <header className="p-6 text-center border-b border-zinc-700">
-                            <h2 className="text-5xl font-bold text-white" style={{ fontFamily: 'Cinzel, serif' }}>{characterData.name}</h2>
-                        </header>
-                        <div className="p-6">
-                            <div className="space-y-8">
-                                {/* Biography Section */}
-                                <div>
-                                    <h3 className="text-2xl font-bold text-zinc-300 mb-4 tracking-wider" style={{ fontFamily: 'Cinzel, serif' }}>Biography</h3>
-                                    <div className="space-y-2">
-                                        <Stat label="Gender" value={characterData.bio.gender} />
-                                        <Stat label="Race" value={characterData.bio.race} />
-                                        <Stat label="Birthplace" value={characterData.bio.birthplace} />
-                                        <Stat label="Born" value={characterData.bio.born} />
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {Object.entries(characterData.attributes).map(([key, value]) => (
+                                <div key={key} className="bg-black/20 p-4 rounded-xl border border-zinc-800/30 flex justify-between items-center group hover:border-zinc-700 transition-all">
+                                    <div className="flex items-center gap-3">
+                                        <AttributeIcon label={key} />
+                                        <span className="text-zinc-400 font-bold uppercase text-xs tracking-widest">{key}</span>
                                     </div>
+                                    <span className="text-zinc-100 font-black text-sm">{getDescriptiveAttributeLabel(key as any, value)}</span>
                                 </div>
+                            ))}
+                        </div>
+                    </div>
 
-                                {/* Attributes Section */}
-                                <div>
-                                    <h3 className="text-2xl font-bold text-zinc-300 mb-4 tracking-wider" style={{ fontFamily: 'Cinzel, serif' }}>Attributes</h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                        {Object.entries(characterData.attributes).map(([key, value]) => (
-                                            <Stat
-                                                key={key}
-                                                label={key.charAt(0).toUpperCase() + key.slice(1)}
-                                                value={getDescriptiveAttributeLabel(key as keyof typeof characterData.attributes, value)}
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Skills Section */}
-                                <div>
-                                    <h3 className="text-2xl font-bold text-zinc-300 mb-4 tracking-wider" style={{ fontFamily: 'Cinzel, serif' }}>Skills</h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {characterData.skills.map(skill => (
-                                            <div key={skill.name} className="bg-black/20 p-3 rounded-lg border border-zinc-800">
-                                                <div className="flex items-center gap-4 mb-3">
-                                                    <div className="p-3 bg-black/30 rounded-md text-zinc-300 border border-zinc-700">
-                                                        {skill.icon}
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-semibold text-white text-lg">{skill.name}</p>
-                                                        <p className="text-md text-zinc-400">{getDescriptiveSkillLabel(skill.level)}</p>
-                                                    </div>
-                                                </div>
-                                                <ProgressBar 
-                                                    value={((skill.level - 1) % 10) + 1} 
-                                                    max={10} 
-                                                    colorClass="bg-amber-600 shadow-[0_0_8px_rgba(217,119,6,0.5)]" 
-                                                    variant="slim"
-                                                    showText={false}
-                                                />
+                    {/* Skills Grid */}
+                    <div className="bg-zinc-900/40 backdrop-blur-xl rounded-2xl border border-zinc-800/50 p-8 shadow-2xl animate-fade-in-up" style={{ animationDelay: '400ms' }}>
+                        <div className="flex items-center gap-3 mb-8 border-b border-zinc-800/50 pb-6">
+                            <Sword size={20} className="text-zinc-500" />
+                            <h3 className="text-xl font-bold text-zinc-100 uppercase tracking-[0.2em]" style={{ fontFamily: 'Cinzel, serif' }}>Skill Proficiencies</h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                            {characterData.skills.map(skill => (
+                                <div key={skill.name} className="bg-black/20 p-5 rounded-xl border border-zinc-800/30 group hover:border-zinc-700/50 transition-all">
+                                    <div className="flex items-center gap-4 mb-4">
+                                        <div className="p-2.5 bg-zinc-900 rounded-lg text-zinc-500 group-hover:text-zinc-200 transition-colors border border-zinc-800">
+                                            {skill.icon}
+                                        </div>
+                                        <div className="flex-grow">
+                                            <div className="flex justify-between items-end mb-1">
+                                                <p className="font-black text-white text-xs uppercase tracking-widest">{skill.name}</p>
                                             </div>
-                                        ))}
+                                            <p className="text-sm text-zinc-400 font-medium">{getDescriptiveSkillLabel(skill.level)}</p>
+                                        </div>
+                                    </div>
+                                    <div className="w-full bg-black/40 rounded-full h-1.5 overflow-hidden border border-zinc-800/30">
+                                        <div 
+                                            className="h-full bg-gradient-to-r from-zinc-700 to-zinc-400 rounded-full transition-all duration-1000"
+                                            style={{ width: `${((skill.level - 1) % 10 + 1) * 10}%` }}
+                                        />
                                     </div>
                                 </div>
-                            </div>
+                            ))}
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
+        <style>{`
+            @keyframes bounce-subtle {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-5px); }
+            }
+            .animate-bounce-subtle { animation: bounce-subtle 3s ease-in-out infinite; }
+            
+            @keyframes fade-in-up {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in-up { animation: fade-in-up 0.6s ease-out forwards; }
 
-        </>
-    );
+            .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+            .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+            .custom-scrollbar::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+        `}</style>
+    </div>
+);
 };
 
 export default CharacterScreen;

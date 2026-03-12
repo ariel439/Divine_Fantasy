@@ -57,7 +57,7 @@ const CompanionScreen: FC<{ hasPet: boolean }> = ({ hasPet }) => {
     title: "Loyal Companion",
     portraitUrl: "/assets/portraits/CompanionPlaceholder.png", // TODO: Store this in companion data
     vitals: {
-        hp: { current: activeCompanion.stats.hp, max: activeCompanion.stats.maxHp || activeCompanion.stats.hp },
+        hp: { current: Math.floor(activeCompanion.stats.hp), max: Math.floor(activeCompanion.stats.maxHp || activeCompanion.stats.hp) },
         energy: { current: 100, max: 100 }, // TODO: Implement companion energy
     },
     attributes: { 

@@ -88,7 +88,7 @@ const DialogueScreen: FC<DialogueScreenProps> = ({
             <div className="w-full lg:w-2/5 h-2/5 lg:h-full flex flex-col items-center justify-center p-4 animate-panel-left">
                 <div className="absolute top-4 left-4 flex items-center space-x-2 bg-black/40 px-3 py-1.5 rounded-full border border-purple-500/30">
                     <Zap size={16} className="text-purple-400" />
-                    <span className="text-purple-200 font-mono text-sm">{socialEnergy} / {maxSocialEnergy} Social</span>
+                    <span className="text-purple-200 font-mono text-sm">{Math.floor(socialEnergy)} / {Math.floor(maxSocialEnergy)} Social</span>
                 </div>
                 <h2 className="text-4xl font-bold text-white tracking-wider mb-6" style={{ fontFamily: 'Cinzel, serif' }}>
                     {npcName}

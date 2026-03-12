@@ -1,20 +1,61 @@
 {
   "book_odran_fall": {
+    "id": "book_odran_fall",
     "title": "The Fall of House Odran",
     "author": "Maester Aristeles",
     "releaseYear": "731 AW",
-    "content": "Odran's Rebellion was a pivotal moment in the history of The Whispers. Led by Lord Odran, several southern noble houses attempted to secede from the rule of House Seryn. The rebellion was ultimately crushed by King Arthur Seryn, known as the 'Sword of Tomorrow,' resulting in the complete extinction of Houses Odran and Cramb. This event marked a significant moment in the region's history, reshaping the political landscape and demonstrating the military might of House Seryn."
+    "shelf": "Historical",
+    "content": [
+      { "type": "h1", "content": "The Fall of House Odran" },
+      { "type": "p", "content": "Odran's Rebellion was a pivotal moment in the history of The Whispers. Led by Lord Odran, several southern noble houses attempted to secede from the rule of House Seryn." },
+      { "type": "p", "content": "The rebellion was ultimately crushed by King Arthur Seryn, known as the 'Sword of Tomorrow,' resulting in the complete extinction of Houses Odran and Cramb. This event marked a significant moment in the region's history, reshaping the political landscape and demonstrating the military might of House Seryn." }
+    ]
   },
   "book_frozen_moon": {
+    "id": "book_frozen_moon",
     "title": "The Year of the Frozen Moon",
     "author": "Maester Aristeles",
     "releaseYear": "120 AW",
-    "content": "The Year of the Frozen Moon (30 AW) was a period of unprecedented hardship in The Whispers when an unnatural winter descended upon the region. Amidst the bitter frost, a priest named Elias emerged as a beacon of light. His unwavering faith inspired the people to endure, and he was honored as a 'Son of the Moon.' This event solidified the Moon's Creed as the dominant faith in the region."
+    "shelf": "Historical",
+    "content": [
+      { "type": "h1", "content": "The Year of the Frozen Moon" },
+      { "type": "p", "content": "The Year of the Frozen Moon (30 AW) was a period of unprecedented hardship in The Whispers when an unnatural winter descended upon the region. Amidst the bitter frost, a priest named Elias emerged as a beacon of light." },
+      { "type": "p", "content": "His unwavering faith inspired the people to endure, and he was honored as a 'Son of the Moon.' This event solidified the Moon's Creed as the dominant faith in the region." }
+    ]
   },
   "book_pearl_war": {
+    "id": "book_pearl_war",
     "title": "The Pearl War",
     "author": "Maester Aristeles",
     "releaseYear": "368 AW",
-    "content": "The Pearl War (367 AW) was a defining conflict in the history of the Pearl Islands, now known as the Mermaid Islands. Sparked by the death of Lord Isandro Lirs, the war saw a brutal struggle between his children, Lady Barbara and Lord Craster. Barbara's victory established a matriarchal rule that influenced the region's culture for centuries."
+    "shelf": "Historical",
+    "content": [
+      { "type": "h1", "content": "The Pearl War" },
+      { "type": "p", "content": "The Pearl War (367 AW) was a defining conflict in the history of the Pearl Islands, now known as the Mermaid Islands. Sparked by the death of Lord Isandro Lirs, the war saw a brutal struggle between his children, Lady Barbara and Lord Craster." },
+      { "type": "p", "content": "Barbara's victory established a matriarchal rule that influenced the region's culture for centuries." }
+    ]
+  },
+  "book_driftwatch_guide": {
+    "id": "book_driftwatch_guide",
+    "title": "Driftwatch: A Merchant's Guide",
+    "author": "Trader Valerius",
+    "releaseYear": "775 AW",
+    "shelf": "Informational",
+    "content": [
+      { "type": "h1", "content": "Driftwatch: A Merchant's Guide" },
+      { "type": "p", "content": "Driftwatch stands as the gateway to the southern trade routes. For any merchant worth their salt, understanding the guild's influence is paramount." },
+      { "type": "note", "content": "The Shipping Guild taxes all exports at 5%. Ensure your ledgers are accurate." },
+      { "type": "p", "content": "The docks are the heart of the city, bustling with activity from dawn until dusk. Beware the 'Sea Rats'—urchins who are quicker with their fingers than a silver-tongued diplomat." }
+    ]
+  },
+  "map_driftwatch_vicinity": {
+    "id": "map_driftwatch_vicinity",
+    "title": "Driftwatch & Vicinity",
+    "author": "Royal Cartographer",
+    "shelf": "Maps",
+    "coverUrl": "/assets/locations/driftwatch_docks_day.png",
+    "content": [
+      { "type": "img", "content": "/assets/locations/driftwatch_docks_day.png", "caption": "Detailed chart of the Driftwatch docks and surrounding coastline." }
+    ]
   }
 }

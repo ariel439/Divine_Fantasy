@@ -27,7 +27,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
       // Only allow shortcuts if we are "in game" or in a sub-screen
-      const isGameplayState = ['inGame', 'characterScreen', 'inventory', 'journal', 'diary', 'jobScreen', 'companion', 'crafting', 'trade', 'library'].includes(currentScreen);
+      const isGameplayState = ['inGame', 'characterScreen', 'inventory', 'journal', 'diary', 'crafting', 'trade', 'library'].includes(currentScreen);
       
       if (!isGameplayState) return;
 
@@ -78,8 +78,8 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentScreen, activeModal, setScreen, openModal, closeModal, handleOpenSleepWaitModal]);
 
-  const isSolidBg = ['characterScreen', 'inventory', 'journal', 'diary', 'trade', 'crafting', 'jobScreen', 'library', 'companion'].includes(currentScreen);
-  const isInGame = ['inGame', 'characterScreen', 'inventory', 'journal', 'diary', 'jobScreen', 'companion'].includes(currentScreen);
+  const isSolidBg = ['characterScreen', 'inventory', 'journal', 'diary', 'trade', 'crafting', 'library'].includes(currentScreen);
+  const isInGame = ['inGame', 'characterScreen', 'inventory', 'journal', 'diary'].includes(currentScreen);
 
   const handleNavigate = (screen: any) => {
     setScreen(screen);

@@ -22,7 +22,6 @@ import LocationScreen from './screens/LocationScreen';
 import DialogueScreen from './screens/DialogueScreen';
 import CharacterScreen from './screens/CharacterScreen';
 import InventoryScreen from './screens/InventoryScreen';
-import JobScreen from './screens/JobScreen';
 import JournalScreen from './screens/JournalScreen';
 import DiaryScreen from './screens/DiaryScreen';
 import LibraryScreen from './screens/LibraryScreen';
@@ -32,7 +31,6 @@ import CraftingScreen from './screens/CraftingScreen';
 import ChoiceEventScreen from './screens/ChoiceEventScreen';
 import CombatManager from './CombatManager';
 import { LootScreen } from './screens/LootScreen';
-import CompanionScreen from './screens/CompanionScreen';
 import DebugMenuScreen from './screens/DebugMenuScreen';
 
 import npcsData from '../data/npcs.json';
@@ -391,8 +389,6 @@ const ScreenManager: React.FC = () => {
         return <CharacterScreen />;
       case 'inventory':
         return <InventoryScreen />;
-      case 'jobScreen':
-        return <JobScreen />;
       case 'journal':
         return <JournalScreen />;
       case 'diary':
@@ -847,8 +843,6 @@ const ScreenManager: React.FC = () => {
             }} 
           />
         );
-      case 'companion':
-        return <CompanionScreen hasPet={false} />;
       case 'debugMenu':
         return import.meta.env.DEV ? <DebugMenuScreen /> : <MainMenu />;
       default:

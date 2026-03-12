@@ -104,9 +104,9 @@
 
 ## 🧩 Phase 9: UI & Quest System Integration
 *This phase is about improving the user experience by consolidating information and automating tedious checks.*
-- [ ] **UI Consolidation**:
-    - **Task**: Integrate the Job UI into the Journal UI.
-    - **Task**: Transform the Pet UI into a more comprehensive Party UI.
+- [x] **UI Consolidation**:
+    - [x] **Task**: Integrate the Job UI into the Journal UI.
+    - [x] **Task**: Transform the Pet UI into a more comprehensive Party UI within the Diary.
 - [ ] **Quest System Automation (The "Observer")**:
     - **Task**: Refactor `useJournalStore` to automatically listen for inventory and location changes and update quest objectives reactively.
 

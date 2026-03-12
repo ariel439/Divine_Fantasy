@@ -86,8 +86,6 @@ const LocationNav: FC<LocationNavProps> = ({ onNavigate, activeScreen, onOpenSle
                         {!introMode && <NavButton icon={<Backpack size={24} />} tooltip="Inventory" onClick={() => onNavigate('inventory')} isActive={activeScreen === 'inventory'} />}
                         <NavButton icon={<ScrollText size={24} />} tooltip="Journal" onClick={() => onNavigate('journal')} isActive={activeScreen === 'journal'} />
                         {!introMode && <NavButton icon={<BookUser size={24} />} tooltip="Diary" onClick={() => onNavigate('diary')} isActive={activeScreen === 'diary'} />}
-                        {!introMode && <NavButton icon={<Briefcase size={24} />} tooltip="Job" onClick={() => onNavigate('jobScreen')} isActive={activeScreen === 'jobScreen'} />}
-                        {!introMode && <NavButton icon={<PawPrint size={24} />} tooltip="Companion" onClick={() => onNavigate('companion')} isActive={activeScreen === 'companion'} />}
                         
                         {/* Wait Button */}
                         {!introMode && <NavButton icon={<Hourglass size={24} />} tooltip="Wait (T)" onClick={() => onOpenSleepWaitModal('wait')} isActive={false} />}

@@ -43,47 +43,63 @@ const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({ title, items, onItemS
 
     const getRowClass = (item: Item) => {
         const accepted = isItemAccepted(item);
-        if (!accepted) return 'opacity-50 cursor-not-allowed text-zinc-500';
+        if (!accepted) return 'opacity-40 cursor-not-allowed grayscale';
 
         if (highlightedItemIds?.has(item.uuid || item.id)) {
-            return 'bg-zinc-700/60 font-semibold text-white border-l-4 border-zinc-400';
+            return 'bg-zinc-700/40 font-bold text-white border-l-4 border-zinc-400 shadow-inner';
         }
         if (selectedItemId === (item.uuid || item.id)) {
-            return 'bg-zinc-700/50 font-semibold text-white';
+            return 'bg-zinc-100 text-black font-black shadow-[0_0_15px_rgba(255,255,255,0.1)]';
         }
-        return 'hover:bg-white/5 text-zinc-300';
+        return 'hover:bg-white/5 text-zinc-400 hover:text-white transition-all';
     };
 
     return (
-        <div className="bg-black/20 rounded-lg border border-zinc-800 p-4 flex flex-col h-full">
-            <h2 className="text-xl font-bold text-white mb-2 flex-shrink-0" style={{ fontFamily: 'Cinzel, serif' }}>{title}</h2>
-            {/* Filter Tabs */}
-            <div className="flex-shrink-0 flex items-center gap-2 border-b-2 border-zinc-800 flex-wrap pb-2">
-                {filterTabs.map(tab => (
-                    <button key={tab} onClick={() => setActiveFilter(tab)} className={`px-4 py-2 text-sm font-semibold transition-colors ${activeFilter === tab ? 'text-white border-b-2 border-zinc-300 -mb-px' : 'text-zinc-400 hover:text-white'}`}>
-                        {tab}
-                    </button>
-                ))}
+        <div className="bg-transparent flex flex-col h-full overflow-hidden">
+            <div className="p-6 pb-0 flex-shrink-0">
+                <h2 className="text-xl font-bold text-zinc-100 uppercase tracking-[0.2em] mb-4" style={{ fontFamily: 'Cinzel, serif' }}>{title}</h2>
+                
+                {/* Filter Tabs */}
+                <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-zinc-800/50 mb-4 overflow-x-auto no-scrollbar">
+                    {filterTabs.map(tab => (
+                        <button 
+                            key={tab} 
+                            onClick={() => setActiveFilter(tab)} 
+                            className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all rounded-lg whitespace-nowrap ${
+                                activeFilter === tab 
+                                ? 'bg-zinc-100 text-black shadow-lg' 
+                                : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'
+                            }`}
+                        >
+                            {tab}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Search Bar */}
+                <div className="relative mb-4">
+                    <input 
+                        type="text"
+                        placeholder="Search belongings..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full bg-black/40 border border-zinc-800/50 rounded-xl py-3 pl-4 pr-12 text-sm text-zinc-300 focus:ring-2 focus:ring-zinc-700 focus:border-zinc-600 outline-none transition-all placeholder:text-zinc-600 font-medium"
+                    />
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 bg-zinc-800 rounded-lg text-zinc-500">
+                        <Search size={16} />
+                    </div>
+                </div>
+
+                {/* Header Row */}
+                <div className="flex justify-between items-center px-4 py-2 text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] border-b border-zinc-800/50">
+                    <span className="w-3/5">Identification</span>
+                    <span className="w-1/5 text-right">Mass</span>
+                    <span className="w-1/5 text-right">Value</span>
+                </div>
             </div>
-            {/* Search Bar */}
-            <div className="relative my-2 flex-shrink-0">
-                <input 
-                    type="text"
-                    placeholder="Search items..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full bg-black/30 border border-zinc-700 rounded-md py-2 pl-4 pr-10 focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none transition"
-                />
-                <Search size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500" />
-            </div>
-            {/* Header Row */}
-            <div className="flex-shrink-0 flex justify-between items-center px-3 py-1 text-xs text-zinc-400 font-bold uppercase tracking-wider">
-                <span className="w-3/5">Item</span>
-                <span className="w-1/5 text-right">Weight</span>
-                <span className="w-1/5 text-right">Value</span>
-            </div>
+
             {/* List */}
-            <div className="overflow-y-auto flex-grow custom-scrollbar pr-2 space-y-1">
+            <div className="flex-grow overflow-y-auto custom-scrollbar p-4 pt-2 space-y-1">
                 {filteredItems.map(item => {
                     const accepted = isItemAccepted(item);
                     return (
@@ -91,28 +107,32 @@ const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({ title, items, onItemS
                         key={item.uuid || item.id} 
                         onClick={() => accepted && onItemSelect(item)}
                         disabled={!accepted}
-                        className={`w-full flex justify-between items-center p-2 rounded-lg transition-colors text-sm ${getRowClass(item)}`}
+                        className={`w-full flex justify-between items-center p-3 rounded-xl text-sm group ${getRowClass(item)}`}
                     >
-                        <div className="flex items-center gap-3 w-3/5">
-                            <div className={`w-8 h-8 flex-shrink-0 flex items-center justify-center bg-black/40 rounded-md border border-zinc-700 ${!accepted ? 'opacity-50' : ''}`}>
-                                {item.icon || ((itemsData as any)[item.id]?.image ? <img src={(itemsData as any)[item.id].image} alt={item.name} className="w-6 h-6" /> : null)}
+                        <div className="flex items-center gap-4 w-3/5">
+                            <div className={`w-10 h-10 flex-shrink-0 flex items-center justify-center bg-black/60 rounded-xl border border-zinc-800/50 group-hover:border-zinc-700 transition-colors ${!accepted ? 'opacity-50' : ''}`}>
+                                {item.icon || ((itemsData as any)[item.id]?.image ? <img src={(itemsData as any)[item.id].image} alt={item.name} className="w-7 h-7 object-contain" /> : null)}
                             </div>
-                            <span className="truncate">{item.name}</span>
-                            {item.quantity && item.quantity > 1 && <span className="text-xs text-zinc-400">({item.quantity})</span>}
+                            <div className="flex flex-col items-start overflow-hidden">
+                                <span className="truncate font-bold tracking-tight">{item.name}</span>
+                                <span className="text-[10px] uppercase font-black tracking-tighter opacity-50">{item.category}</span>
+                            </div>
                         </div>
-                        <span className="text-right w-1/5">{(item.weight ?? 0).toFixed(1)}</span>
-                        {(() => {
-                            if (!accepted) return <span className="text-right w-1/5 text-zinc-600 text-xs italic">Not Interested</span>;
-                            const v = Math.round((item.base_value || 0) * valueMultiplier);
-                            const gold = Math.floor(v / 10000);
-                            const silver = Math.floor((v % 10000) / 100);
-                            const copper = v % 100;
-                            const color = gold > 0 ? 'text-yellow-300/90' : silver > 0 ? 'text-gray-300/90' : 'text-orange-300/90';
-                            const text = gold > 0 ? `${gold}g ${silver}s ${copper}c` : (silver > 0 ? `${silver}s ${copper}c` : `${copper}c`);
-                            return <span className={`text-right w-1/5 ${color}`}>{text}</span>;
-                        })()}
+                        <div className="w-1/5 text-right font-mono text-xs opacity-70">
+                            {item.weight.toFixed(1)}kg
+                        </div>
+                        <div className="w-1/5 text-right font-black text-zinc-100">
+                            {Math.floor(item.base_value * valueMultiplier)}c
+                        </div>
                     </button>
-                )})}
+                    );
+                })}
+                {filteredItems.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-20 text-zinc-600">
+                        <Search size={48} className="mb-4 opacity-20" />
+                        <p className="font-bold uppercase tracking-widest text-xs">No items found</p>
+                    </div>
+                )}
             </div>
         </div>
     );

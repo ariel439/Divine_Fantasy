@@ -26,11 +26,23 @@ const Slot: FC<{
     return (
         <Component 
             onClick={handleClick}
-            className={`relative w-20 h-20 md:w-24 md:h-24 bg-black/30 border border-zinc-700 rounded-lg flex items-center justify-center transition-all duration-200 ${item ? 'cursor-pointer hover:bg-zinc-700/80 hover:border-zinc-500' : ''}`}
+            className={`relative w-20 h-20 md:w-24 md:h-24 bg-black/40 border border-zinc-800 rounded-2xl flex items-center justify-center transition-all duration-300 group ${item ? 'cursor-pointer hover:bg-zinc-100 hover:border-white shadow-xl' : 'hover:border-zinc-700'}`}
             title={item ? item.name : slot.charAt(0).toUpperCase() + slot.slice(1)}
         >
-            {/* FIX: Provided a more specific type assertion to React.cloneElement to ensure the `size` prop is recognized. */}
-            {item ? React.cloneElement(item.icon as ReactElement<{ size: number }>, { size: 32 }) : placeholder}
+            {item ? (
+                <div className="text-zinc-100 group-hover:text-black transition-colors">
+                    {React.cloneElement(item.icon as ReactElement<{ size: number }>, { size: 36 })}
+                </div>
+            ) : (
+                <div className="opacity-20 group-hover:opacity-40 transition-opacity">
+                    {placeholder}
+                </div>
+            )}
+            
+            {/* Slot Label */}
+            <span className={`absolute -bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter border transition-all ${item ? 'bg-zinc-800 text-zinc-300 border-zinc-700' : 'bg-zinc-900 text-zinc-600 border-zinc-800'}`}>
+                {slot}
+            </span>
         </Component>
     );
 };
@@ -40,16 +52,16 @@ const EquippedGearPanel: FC<EquippedGearPanelProps> = ({ equippedItems, onItemSe
     const EmptySlot = () => <div className="w-20 h-20 md:w-24 md:h-24" />;
 
     const slots: { slot: EquipmentSlot, placeholder: ReactNode }[] = [
-        { slot: 'head', placeholder: <HardHat size={32} className="text-zinc-600" /> },
-        { slot: 'cape', placeholder: <Ribbon size={32} className="text-zinc-600" /> },
-        { slot: 'amulet', placeholder: <Gem size={32} className="text-zinc-600" /> },
-        { slot: 'weapon', placeholder: <Sword size={32} className="text-zinc-600" /> },
-        { slot: 'chest', placeholder: <Shirt size={32} className="text-zinc-600" /> },
-        { slot: 'shield', placeholder: <Shield size={32} className="text-zinc-600" /> },
-        { slot: 'legs', placeholder: <SplitSquareHorizontal size={32} className="text-zinc-600" /> },
-        { slot: 'gloves', placeholder: <Hand size={32} className="text-zinc-600" /> },
-        { slot: 'boots', placeholder: <Footprints size={32} className="text-zinc-600" /> },
-        { slot: 'ring', placeholder: <Radio size={32} className="text-zinc-600" /> },
+        { slot: 'head', placeholder: <HardHat size={32} /> },
+        { slot: 'cape', placeholder: <Ribbon size={32} /> },
+        { slot: 'amulet', placeholder: <Gem size={32} /> },
+        { slot: 'weapon', placeholder: <Sword size={32} /> },
+        { slot: 'chest', placeholder: <Shirt size={32} /> },
+        { slot: 'shield', placeholder: <Shield size={32} /> },
+        { slot: 'legs', placeholder: <SplitSquareHorizontal size={32} /> },
+        { slot: 'gloves', placeholder: <Hand size={32} /> },
+        { slot: 'boots', placeholder: <Footprints size={32} /> },
+        { slot: 'ring', placeholder: <Radio size={32} /> },
     ];
 
     const getSlot = (slotName: EquipmentSlot) => {
@@ -64,10 +76,10 @@ const EquippedGearPanel: FC<EquippedGearPanelProps> = ({ equippedItems, onItemSe
 
 
     return (
-        <div className="bg-black/20 rounded-lg border border-zinc-800 p-4 flex flex-col h-full">
-            <h2 className="text-xl font-bold text-white mb-4 text-center flex-shrink-0" style={{ fontFamily: 'Cinzel, serif' }}>Equipped</h2>
+        <div className="bg-transparent flex flex-col h-full p-6">
+            <h2 className="text-xl font-bold text-zinc-100 uppercase tracking-[0.2em] mb-8 text-center flex-shrink-0" style={{ fontFamily: 'Cinzel, serif' }}>Equipped Gear</h2>
             <div className="flex-grow flex items-center justify-center">
-                <div className="grid grid-cols-3 gap-x-4 gap-y-2 justify-items-center">
+                <div className="grid grid-cols-3 gap-x-6 gap-y-8 justify-items-center">
                     {/* Row 1 */}
                     <EmptySlot />
                     {getSlot('head')}
@@ -76,7 +88,7 @@ const EquippedGearPanel: FC<EquippedGearPanelProps> = ({ equippedItems, onItemSe
                     {/* Row 2 */}
                     {getSlot('cape')}
                     {getSlot('amulet')}
-                    <EmptySlot />
+                    {getSlot('ring')}
 
                     {/* Row 3 */}
                     {getSlot('weapon')}
@@ -84,14 +96,9 @@ const EquippedGearPanel: FC<EquippedGearPanelProps> = ({ equippedItems, onItemSe
                     {getSlot('shield')}
 
                     {/* Row 4 */}
-                    <EmptySlot />
-                    {getSlot('legs')}
-                    <EmptySlot />
-
-                    {/* Row 5 */}
                     {getSlot('gloves')}
+                    {getSlot('legs')}
                     {getSlot('boots')}
-                    {getSlot('ring')}
                  </div>
             </div>
         </div>

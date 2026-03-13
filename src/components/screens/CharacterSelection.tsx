@@ -39,7 +39,7 @@ const AttributeBar: FC<{ label: keyof typeof characters[0]['attributes']; value:
             </div>
             <div className="w-full bg-black/40 rounded-full h-2 shadow-inner border border-zinc-800/50 overflow-hidden">
                 <div
-                    className="bg-gradient-to-r from-zinc-600 to-zinc-400 h-full rounded-full animate-fill-bar transition-all duration-1000"
+                    className="bg-gradient-to-r from-zinc-600 to-zinc-400 h-full rounded-full animate-fill-bar"
                     style={{ '--fill-percentage': `${percentage}%` } as React.CSSProperties}
                 ></div>
             </div>
@@ -251,6 +251,12 @@ const CharacterSelection: FC = () => {
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
                 .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
                 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #52525b; }
+
+                @keyframes fill-bar {
+                    from { width: 0%; }
+                    to { width: var(--fill-percentage); }
+                }
+                .animate-fill-bar { animation: fill-bar 1.5s ease-out forwards; }
             `}</style>
         </div>
     );

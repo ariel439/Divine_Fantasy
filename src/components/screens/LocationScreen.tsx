@@ -787,17 +787,7 @@ const LocationScreen: React.FC = () => {
             {/* Top glass accent */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-zinc-700/20 to-transparent" />
             
-            <div className="flex items-center gap-3 mb-6 shrink-0 px-2">
-              <div className="p-2 bg-zinc-800 rounded-xl text-zinc-400">
-                <Briefcase size={18} />
-              </div>
-              <div>
-                <h3 className="text-sm font-black uppercase tracking-widest text-zinc-100">Actions</h3>
-                <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-tighter">Interact with surroundings</p>
-              </div>
-            </div>
-
-            <div className="overflow-y-auto flex-grow pr-2 space-y-3 custom-scrollbar">
+            <div className="overflow-y-auto flex-grow pr-2 space-y-3 custom-scrollbar mt-2">
               {currentLocation.actions
                 .slice()
                 .sort((a: any, b: any) => {

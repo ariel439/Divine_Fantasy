@@ -2,7 +2,7 @@ import React from 'react';
 import type { FC, ReactNode } from 'react';
 
 interface ActionButtonProps {
-  icon: ReactNode;
+  icon?: ReactNode;
   text: string;
   category?: 'dialogue' | 'action' | 'travel' | 'commerce' | 'explore' | 'highlighted';
   onClick?: () => void;
@@ -31,9 +31,11 @@ const ActionButton: FC<ActionButtonProps> = ({ icon, text, category, onClick, di
             disabled={disabled}
             className={`flex items-center w-full text-left p-3 bg-zinc-800/85 border border-zinc-700 rounded-lg transition-all duration-300 group flex-shrink-0 ${borderClass} ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-zinc-700/80'}`}
           >
-              <div className={`mr-4 p-2 rounded-md ${disabled ? 'bg-white/5' : 'bg-white/5 group-hover:bg-white/10'}`}>
-                  {isHighlighted && React.isValidElement(icon) ? React.cloneElement(icon as any, { className: 'text-yellow-300' }) : icon}
-              </div>
+              {icon && (
+                <div className={`mr-4 p-2 rounded-md ${disabled ? 'bg-white/5' : 'bg-white/5 group-hover:bg-white/10'}`}>
+                    {isHighlighted && React.isValidElement(icon) ? React.cloneElement(icon as any, { className: 'text-yellow-300' }) : icon}
+                </div>
+              )}
               <span className="font-medium tracking-wide">{text}</span>
           </button>
         </div>

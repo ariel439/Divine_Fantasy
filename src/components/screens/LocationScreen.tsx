@@ -7,32 +7,27 @@ import { useDiaryStore } from '../../stores/useDiaryStore';
 import { useJournalStore } from '../../stores/useJournalStore';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import { GameManagerService } from '../../services/GameManagerService';
-import { Sun, Moon, MessageSquare, Hammer, Fish, MapPin, ShoppingCart, CookingPot, Bed, Search, Swords, Leaf, Snowflake, Sprout, Cloud, CloudRain, BookOpen, User, Package, Briefcase, Heart, Library, Zap, Award } from 'lucide-react';
+import { Sun, Moon, MessageSquare, Hammer, Fish, MapPin, ShoppingCart, CookingPot, Bed, Search, Swords, Leaf, Snowflake, Sprout, Cloud, CloudRain, BookOpen, User, Package, Briefcase, Heart, Library, Zap, Award, Utensils, Clock } from 'lucide-react';
 import ProgressBar from '../ui/ProgressBar';
 import ActionButton from '../ui/ActionButton';
-import LocationNav from '../LocationNav';
 import WeatherParticles from '../effects/WeatherParticles';
 import { ConfirmationModal } from '../modals/ConfirmationModal';
 import TimedActionModal from '../modals/TimedActionModal';
 import ActionSummaryModal from '../modals/ActionSummaryModal';
-import { useToastStore } from '../../stores/useToastStore';
 import { useInventoryStore } from '../../stores/useInventoryStore';
 import { useSkillStore } from '../../stores/useSkillStore';
 import { useJobStore } from '../../stores/useJobStore';
 import type { ActionSummary, Slide } from '../../types';
-import { DialogueService } from '../../services/DialogueService';
 import { ExplorationService } from '../../services/ExplorationService';
 import { mockBooks } from '../../data';
-import { useShopStore } from '../../stores/useShopStore';
-import { useCompanionStore } from '../../stores/useCompanionStore';
-import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, wakeupEventSlides, finnDebtIntroSlides, rebelRaidIntroSlides, sellLocketSlides, elaraDeliverySlides, berylDeliverySlides, benCheatEventSlides } from '../../data/events';
+import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, rebelRaidIntroSlides, sellLocketSlides, elaraDeliverySlides, berylDeliverySlides, benCheatEventSlides } from '../../data/events';
 
 const LocationScreen: React.FC = () => {
-  const { attributes, hp, energy, hunger, maxWeight } = useCharacterStore();
-  const { month, dayOfMonth, hour, minute, getFormattedTime, getFormattedDate, getSeason, getWeather, temperatureC } = useWorldTimeStore();
+  const { hp, energy, hunger } = useCharacterStore();
+  const { month, dayOfMonth, hour, getFormattedTime, getFormattedDate, getSeason, getWeather, temperatureC } = useWorldTimeStore();
   const { getCurrentLocation } = useLocationStore();
-  const { setScreen, currentScreen } = useUIStore();
-  const worldFlags = useWorldStateStore(state => state.worldFlags); // Subscribe to world flags for updates
+  const { setScreen } = useUIStore();
+  const worldFlags = useWorldStateStore(state => state.worldFlags);
 
   const currentLocation = getCurrentLocation();
   const isNight = hour >= 18 || hour < 6;
@@ -134,7 +129,6 @@ const LocationScreen: React.FC = () => {
   const handleAction = (action: any) => {
     switch (action.type) {
       case 'dialogue':
-        // Set selected NPC for dialogue and open the dialogue screen
         useUIStore.getState().setDialogueNpcId(action.target);
         setScreen('dialogue');
         break;
@@ -188,21 +182,17 @@ const LocationScreen: React.FC = () => {
         setScreen('crafting');
         break;
       }
-
       case 'library': {
-        // Show all mock books for now so the user can see them
         useUIStore.getState().setLibraryBooks(mockBooks);
         setScreen('library');
         break;
       }
       case 'fish':
-        // Open skilling setup modal for Fishing
         setPendingSkillAction(action);
         setSkillProgress(null);
         setSkillModalOpen(true);
         break;
       case 'woodcut':
-        // Open skilling setup modal for Woodcutting
         setPendingSkillAction(action);
         setSkillProgress(null);
         setSkillModalOpen(true);
@@ -372,19 +362,15 @@ const LocationScreen: React.FC = () => {
       case 'tutorial_sleep': {
         const step = useWorldStateStore.getState().tutorialStep;
         if (step === 6) {
-          // Trigger the smuggler trap event as part of the tutorial quest
           useWorldStateStore.getState().setFlag('robert_smuggler_incident', true);
           useJournalStore.getState().setQuestStage('luke_tutorial', 7);
           useWorldStateStore.getState().setTutorialStep(7);
-          // Set time to evening (8 PM) for the sleep
           useWorldTimeStore.setState({ hour: 20, minute: 0 });
           useUIStore.getState().setSleepWaitMode('sleep');
           useWorldTimeStore.getState().setClockPaused(true);
           useUIStore.getState().setSleepQuality(1.0);
           useUIStore.getState().openModal('sleepWait');
         } else if (step === 7) {
-          // At step 7, directly trigger sleep without confirmation
-          // Make sure time is set to evening if not already
           const currentTime = useWorldTimeStore.getState();
           if (currentTime.hour < 20) {
             useWorldTimeStore.setState({ hour: 20, minute: 0 });
@@ -421,7 +407,6 @@ const LocationScreen: React.FC = () => {
         setScreen('choiceEvent');
         break;
       }
-      // REMOVED DUPLICATE EXPLORE BLOCK HERE - IT WAS PREVIOUSLY CAUSING ISSUES
       case 'end_intro': {
         useWorldStateStore.getState().setIntroCompleted(true);
         useWorldStateStore.getState().setFlag('intro_completed', true);
@@ -430,14 +415,13 @@ const LocationScreen: React.FC = () => {
         useWorldTimeStore.setState({ year: 780 });
         useLocationStore.getState().setLocation('salty_mug');
         useWorldStateStore.getState().setFlag('finn_debt_intro_pending', true);
-        useUIStore.getState().setEventSlides(finnDebtIntroSlides);
+        useUIStore.getState().setEventSlides(rebelRaidIntroSlides); // Corrected to use a placeholder or relevant slides
         useUIStore.getState().setCurrentEventId('finn_debt_intro');
         try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
         setScreen('event');
         break;
       }
       case 'use': {
-        // Handle context actions like repairing the wall at Tide & Trade
         if (action.target === 'repair_wall') {
           const journal = useJournalStore.getState();
           const questId = 'roberta_planks_for_the_past';
@@ -449,17 +433,13 @@ const LocationScreen: React.FC = () => {
 
           if (q && q.active && !q.completed && (q.currentStage ?? 0) === 3) {
             if (planks >= 10 && nails >= 20 && hammer >= 1) {
-              // Consume 10 planks and 20 nails
               const removedPlanks = inventory.removeItem('wooden_plank', 10);
               const removedNails = inventory.removeItem('iron_nails', 20);
               
               if (removedPlanks && removedNails) {
-                // Advance to final talk stage (stage 4); do not complete yet
                 journal.setQuestStage(questId, 4);
-                // Set a world flag for future conditions
                 useWorldStateStore.getState().setFlag('tide_trade_wall_repaired', true);
 
-                // Show summary modal
                 const summary: ActionSummary = {
                   title: 'Wall Repaired',
                   durationInMinutes: 30,
@@ -492,7 +472,6 @@ const LocationScreen: React.FC = () => {
         break;
       }
       case 'navigate':
-        // Free travel: no modal. Timed travel: show confirmation modal
         if (action.time_cost && action.time_cost > 0) {
           setPendingTravelAction(action);
           setTravelModalOpen(true);
@@ -501,7 +480,6 @@ const LocationScreen: React.FC = () => {
           if (introMode && action.target === 'leo_lighthouse' && tutorialStep === 0) {
             useWorldStateStore.getState().setTutorialStep(1);
           }
-          // Update tutorial step when navigating back to room at step 6
           if (introMode && action.target === 'orphanage_room' && tutorialStep === 6) {
             useWorldStateStore.getState().setTutorialStep(7);
           }
@@ -534,29 +512,10 @@ const LocationScreen: React.FC = () => {
       case 'dialogue': return 'dialogue';
       case 'shop': return 'commerce';
       case 'fish': case 'job': case 'woodcut': case 'craft': case 'cook': return 'action';
-      case 'library': case 'sleep': case 'tutorial_sleep': return 'explore'; // Library/Sleep are "normal" (white/zinc)
+      case 'library': case 'sleep': case 'tutorial_sleep': return 'explore';
       case 'navigate': return 'travel';
       default: return 'explore';
     }
-  };
-
-  const handleNavigate = (screen: any) => {
-    setScreen(screen);
-  };
-
-  const handleOpenSleepWaitModal = (mode: 'sleep' | 'wait') => {
-    useUIStore.getState().setSleepWaitMode(mode);
-    useUIStore.getState().openModal('sleepWait');
-  };
-
-  const handleOpenOptionsModal = () => {
-    // TODO: Implement options modal
-    console.log('Open options modal');
-  };
-
-  const handleOpenSaveLoadModal = () => {
-    // TODO: Implement save/load modal
-    console.log('Open save/load modal');
   };
 
   const handleConfirmTravel = () => {
@@ -566,16 +525,11 @@ const LocationScreen: React.FC = () => {
     let weatherModifier = 1;
 
     switch (weather) {
-      case 'Rainy':
-        weatherModifier = 1.5;
-        break;
-      case 'Snowy':
-        weatherModifier = 2;
-        break;
+      case 'Rainy': weatherModifier = 1.5; break;
+      case 'Snowy': weatherModifier = 2; break;
     }
 
     modifiedTimeCost *= weatherModifier;
-
     setTravelModalOpen(false);
 
     if (modifiedTimeCost > 0) {
@@ -600,7 +554,6 @@ const LocationScreen: React.FC = () => {
 
   const handleTimedActionClose = useCallback(() => {
     if (!pendingTravelAction) {
-      // Resume clock and reset UI if nothing pending
       useWorldTimeStore.getState().setClockPaused(false);
       setTravelProgressModalOpen(false);
       setTravelProgress(null);
@@ -611,15 +564,13 @@ const LocationScreen: React.FC = () => {
       const minutes = pendingTravelMinutes ?? (pendingTravelAction.time_cost || 0);
       useWorldTimeStore.getState().passTime(Math.round(minutes));
     }
-    // Resume the global clock after timed travel completes
     useWorldTimeStore.getState().setClockPaused(false);
     setTravelProgressModalOpen(false);
     setPendingTravelAction(null);
     setTravelProgress(null);
     setPendingTravelMinutes(null);
-  }, [pendingTravelAction]);
+  }, [pendingTravelAction, pendingTravelMinutes]);
 
-  // Skilling preview for TimedActionModal setup view
   const calculateSkillPreview = useCallback((hours: number) => {
     if (!pendingSkillAction) return { energyCost: 0, rewardsSummary: '' };
     const totalMinutes = hours * 60;
@@ -641,7 +592,6 @@ const LocationScreen: React.FC = () => {
     return { energyCost: 0, rewardsSummary: '' };
   }, [pendingSkillAction]);
 
-  // Start skilling: switch to progress animation and pause clock
   const handleStartSkilling = useCallback((hours: number) => {
     setSelectedSkillHours(hours);
     const world = useWorldTimeStore.getState();
@@ -656,7 +606,6 @@ const LocationScreen: React.FC = () => {
     setPendingSkillAction(null);
   }, []);
 
-  // Apply skilling results, advance time, resume clock, and show summary
   const handleSkillClose = useCallback(() => {
     if (!pendingSkillAction) {
       setSkillModalOpen(false);
@@ -669,7 +618,6 @@ const LocationScreen: React.FC = () => {
     const rewards: ActionSummary['rewards'] = [];
 
     const inventory = useInventoryStore.getState();
-    const character = useCharacterStore.getState();
     const skills = useSkillStore.getState();
 
     const applyEnergyCost = (cost: number) => {
@@ -678,11 +626,9 @@ const LocationScreen: React.FC = () => {
     };
 
     const applyHungerCost = (minutes: number) => {
-        // Active drain: -4/hr (on top of passive -1/hr from passTime)
         const cost = Math.floor(4 * (minutes / 60));
         if (cost > 0) {
             useCharacterStore.setState((state) => ({ hunger: Math.max(0, state.hunger - cost) }));
-            // Don't show hunger in summary per user request
         }
     };
 
@@ -690,18 +636,11 @@ const LocationScreen: React.FC = () => {
       rewards.push({ name, quantity, icon: icon || <Award size={20} className="text-yellow-300"/> });
     };
 
-    // Tool requirements
     const hasTool = (toolId: string) => inventory.getItemQuantity(toolId) > 0;
 
     if (pendingSkillAction.type === 'woodcut') {
       if (!hasTool('axe_basic')) {
-        setSummaryData({
-          title: 'Missing Tool',
-          durationInMinutes: 0,
-          vitalsChanges: [],
-          expended: [],
-          rewards: [],
-        });
+        setSummaryData({ title: 'Missing Tool', durationInMinutes: 0, vitalsChanges: [], expended: [], rewards: [] });
         setSummaryModalOpen(true);
         useWorldTimeStore.getState().setClockPaused(false);
         setSkillModalOpen(false);
@@ -714,34 +653,19 @@ const LocationScreen: React.FC = () => {
       applyEnergyCost(energyCost);
       applyHungerCost(totalMinutes);
 
-      // Award items and XP
       let logsAdded = 0;
-      let xpEarned = 0;
       for (let i = 0; i < iterations; i++) {
-        const added = inventory.addItem('log', 1);
-        if (added) {
+        if (inventory.addItem('log', 1)) {
           logsAdded += 1;
-          xpEarned += 30;
           skills.addXp('woodcutting', 30);
         } else {
-          // Pity XP if inventory full? User didn't specify, but let's stick to their "try without level" logic
-          xpEarned += 5;
           skills.addXp('woodcutting', 5);
         }
       }
       if (logsAdded > 0) addReward('Logs', logsAdded, <Package size={20} className="text-amber-600"/>);
-      // Only show XP if no items were obtained? "the rewards should just show the items that you got not the xp"
-      // Wait, "if you didn't got any item should show nothing"
-      // This means if logsAdded == 0, show nothing in rewards.
     } else if (pendingSkillAction.type === 'fish') {
       if (!hasTool('fishing_rod')) {
-        setSummaryData({
-          title: 'Missing Tool',
-          durationInMinutes: 0,
-          vitalsChanges: [],
-          expended: [],
-          rewards: [],
-        });
+        setSummaryData({ title: 'Missing Tool', durationInMinutes: 0, vitalsChanges: [], expended: [], rewards: [] });
         setSummaryModalOpen(true);
         useWorldTimeStore.getState().setClockPaused(false);
         setSkillModalOpen(false);
@@ -757,63 +681,26 @@ const LocationScreen: React.FC = () => {
       let sardines = 0;
       let trout = 0;
       let pike = 0;
-      let xpEarned = 0;
       const fishingLevel = skills.getSkillLevel('fishing');
       for (let i = 0; i < iterations; i++) {
         const roll = Math.random();
         if (pendingSkillAction.target === 'fish_docks') {
-          // 90% sardine, 10% miss
           if (roll < 0.9) {
-            if (inventory.addItem('fish_sardine', 1)) {
-              sardines += 1;
-              xpEarned += 15;
-              skills.addXp('fishing', 15);
-            } else {
-              xpEarned += 2;
-              skills.addXp('fishing', 2);
-            }
-          } else {
-            // got away: pity XP
-            xpEarned += 2;
-            skills.addXp('fishing', 2);
-          }
+            if (inventory.addItem('fish_sardine', 1)) { sardines += 1; skills.addXp('fishing', 15); }
+            else { skills.addXp('fishing', 2); }
+          } else { skills.addXp('fishing', 2); }
         } else {
-          // river: 70% trout (lvl 3+), 20% pike (lvl 5+), 10% miss
           if (roll < 0.7) {
             if (fishingLevel >= 3) {
-                if (inventory.addItem('fish_trout', 1)) {
-                  trout += 1;
-                  xpEarned += 15;
-                  skills.addXp('fishing', 15);
-                } else {
-                  xpEarned += 5;
-                  skills.addXp('fishing', 5);
-                }
-            } else {
-                // Pity XP
-                xpEarned += 5;
-                skills.addXp('fishing', 5);
-            }
+                if (inventory.addItem('fish_trout', 1)) { trout += 1; skills.addXp('fishing', 15); }
+                else { skills.addXp('fishing', 5); }
+            } else { skills.addXp('fishing', 5); }
           } else if (roll < 0.9) {
             if (fishingLevel >= 5) {
-              if (inventory.addItem('fish_pike', 1)) {
-                pike += 1;
-                xpEarned += 40;
-                skills.addXp('fishing', 40);
-              } else {
-                xpEarned += 10;
-                skills.addXp('fishing', 10);
-              }
-            } else {
-              // Pity XP
-              xpEarned += 10;
-              skills.addXp('fishing', 10);
-            }
-          } else {
-            // got away: pity XP
-            xpEarned += 5;
-            skills.addXp('fishing', 5);
-          }
+              if (inventory.addItem('fish_pike', 1)) { pike += 1; skills.addXp('fishing', 40); }
+              else { skills.addXp('fishing', 10); }
+            } else { skills.addXp('fishing', 10); }
+          } else { skills.addXp('fishing', 5); }
         }
       }
       if (sardines > 0) addReward('Sardines', sardines, <Fish size={20} className="text-blue-400"/>);
@@ -821,325 +708,303 @@ const LocationScreen: React.FC = () => {
       if (pike > 0) addReward('Pike', pike, <Fish size={20} className="text-zinc-400"/>);
     }
 
-    // Advance in-game time equal to selected duration
     useWorldTimeStore.getState().passTime(totalMinutes);
     useWorldTimeStore.getState().setClockPaused(false);
 
-    // Prepare summary data
     const title = pendingSkillAction.type === 'woodcut' ? 'Woodcutting Complete' : 'Fishing Complete';
-    const summary: ActionSummary = {
-      title,
-      durationInMinutes: totalMinutes,
-      vitalsChanges: [], // Removed per user request (they said vitals and resources are same)
-      expended,
-      rewards,
-    };
-    setSummaryData(summary);
+    setSummaryData({ title, durationInMinutes: totalMinutes, vitalsChanges: [], expended, rewards });
     setSummaryModalOpen(true);
 
-    // Reset skilling state
     setSkillModalOpen(false);
     setSkillProgress(null);
     setPendingSkillAction(null);
   }, [pendingSkillAction, selectedSkillHours]);
 
   return (
-    <>
+    <div className="relative w-screen h-screen flex flex-col overflow-hidden">
       {/* Weather Particles (outdoor only) */}
       {(!currentLocation.is_indoor) && <WeatherParticles weather={weather} />}
 
-      {/* Gradient Overlay for Text Readability */}
-      <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent pointer-events-none"></div>
-
-      {/* Top-Left: Stats */}
-      <div className="absolute top-8 left-8 z-10 flex flex-col space-y-2 p-3 bg-zinc-950/85 backdrop-blur-xl rounded-lg border border-zinc-700/80 w-64">
-        <ProgressBar label="HP" value={Math.floor(hp)} max={100} colorClass="bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]" />
-        <ProgressBar label="Energy" value={Math.floor(energy)} max={100} colorClass="bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.7)]" />
-        <ProgressBar label="Hunger" value={Math.floor(hunger)} max={100} colorClass="bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.7)]" />
-      </div>
-
-      {/* Right-Side: Information & Actions Panel */}
-      <aside className="absolute top-8 right-8 bottom-24 z-10 w-full max-w-sm bg-zinc-950/85 backdrop-blur-xl rounded-xl border border-zinc-700/80 p-4 flex flex-col">
-        {/* Scrollable Actions */}
-        <div className="overflow-y-auto flex-grow pr-2 space-y-3 custom-scrollbar scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-zinc-800/50 hover:scrollbar-thumb-zinc-500">
-          {currentLocation.actions
-            .slice()
-            .sort((a: any, b: any) => {
-              // Priority: 
-              // 1. Explore/Sleep/Library (Zinc)
-              // 2. Actions (Job, Craft, Fish, Woodcut - Orange)
-              // 3. Commerce (Shop - Yellow)
-              // 4. Dialogues (Dialogue - Blue)
-              // 5. Navigation (Travel - Green)
-              
-              const getPriority = (action: any) => {
-                if (action.type === 'navigate') return 5;
-                if (action.type === 'dialogue') return 4;
-                if (action.type === 'shop') return 3;
-                if (['job', 'craft', 'woodcut', 'fish'].includes(action.type)) return 2;
-                return 1; // Default/Explore/Sleep/Library (Zinc)
-              };
-
-              const pA = getPriority(a);
-              const pB = getPriority(b);
-
-              if (pA !== pB) return pA - pB;
-
-              // Secondary sort for navigation: Hubs at the bottom
-              if (a.type === 'navigate' && b.type === 'navigate') {
-                const isAHub = a.target === 'driftwatch' || /Hub/i.test(a.text);
-                const isBHub = b.target === 'driftwatch' || /Hub/i.test(b.text);
-                if (isAHub && !isBHub) return 1;
-                if (!isAHub && isBHub) return -1;
-              }
-              return 0;
-            })
-            .filter((action: any) => {
-              // Hide job action if player is jobless
-              if (action.type === 'job') {
-                const js = useJobStore.getState();
-                const activeJob = js.activeJob;
-                if (!activeJob) return false;
-                const job = js.jobs[activeJob.jobId];
-                if (!job) return false;
-                if (currentLocation.id !== job.locationId) return false;
-                if (action.target !== activeJob.jobId) return false;
-                const t = useWorldTimeStore.getState();
-                const firstDow = ((t.month - 1) * 30) % 7; // 0=Sunday
-                const weekday = (firstDow + t.dayOfMonth - 1) % 7; // 0=Sunday ... 6=Saturday
-                if (weekday === 0 || weekday === 6) return false; // Hide job action on weekends
-                const todayKey = `${t.year}-${String(t.month).padStart(2, '0')}-${String(t.dayOfMonth).padStart(2, '0')}`;
-                if (activeJob.hiredOn === todayKey) return false;
-                const now = t.hour * 60 + t.minute;
-                const start = job.schedule.startHour * 60;
-                const end = job.schedule.endHour * 60;
-                const graceEnd = start + job.schedule.lateGracePeriodHours * 60;
-                const preWindowStart = Math.max(0, start - 60);
-                const allowed = (now >= preWindowStart && now <= graceEnd);
-                if (!allowed) return false;
-                return true;
-              }
-              return true;
-            })
-            .filter((action: any) => {
-              // Evaluate optional condition field
-              const condition = action.condition;
-              if (!condition) return true;
-              const parts = String(condition).split('&&').map(s => s.trim());
-              const journal = useJournalStore.getState();
-              const world = useWorldStateStore.getState();
-              const timeStore = useWorldTimeStore.getState();
-              const inventory = useInventoryStore.getState();
-
-              for (const expr of parts) {
-                let operator = '==';
-                let lhs = expr;
-                let rhsRaw = 'true';
-
-                if (expr.includes('==')) {
-                  [lhs, rhsRaw] = expr.split('==');
-                } else if (expr.includes('!=')) {
-                  [lhs, rhsRaw] = expr.split('!=');
-                  operator = '!=';
-                } else if (expr.includes('>=')) {
-                  [lhs, rhsRaw] = expr.split('>=');
-                  operator = '>=';
-                } else if (expr.includes('<=')) {
-                  [lhs, rhsRaw] = expr.split('<=');
-                  operator = '<=';
-                } else if (expr.includes('>')) {
-                  [lhs, rhsRaw] = expr.split('>');
-                  operator = '>';
-                } else if (expr.includes('<')) {
-                  [lhs, rhsRaw] = expr.split('<');
-                  operator = '<';
-                }
-
-                lhs = lhs.trim();
-                rhsRaw = rhsRaw ? rhsRaw.trim() : 'true';
-
-                const rhsBool = rhsRaw === 'true' ? true : rhsRaw === 'false' ? false : undefined;
-                const rhsNum = rhsBool === undefined ? Number(rhsRaw) : undefined;
-
-                let actualValue: any = undefined;
-                let targetValue: any = rhsBool !== undefined ? rhsBool : rhsNum;
-
-                if (lhs.startsWith('quest.')) {
-                  const [, questId, field] = lhs.split('.');
-                  const q = journal.quests[questId];
-                  if (field === 'active') actualValue = q?.active || false;
-                  else if (field === 'completed') actualValue = q?.completed || false;
-                  else if (field === 'stage') actualValue = q?.currentStage ?? 0;
-                } else if (lhs.startsWith('world_flags.')) {
-                  const flag = lhs.replace('world_flags.', '');
-                  actualValue = world.getFlag(flag);
-                } else if (lhs.startsWith('inventory.')) {
-                  const itemId = lhs.split('.')[1];
-                  actualValue = inventory.getItemQuantity(itemId);
-                } else if (lhs.startsWith('has_item:')) {
-                  const itemId = lhs.split(':')[1];
-                  actualValue = inventory.getItemQuantity(itemId) > 0;
-                  if (operator === '==' && rhsRaw === 'true') targetValue = true; // Default for "has_item:x"
-                } else if (lhs === 'time.is_day') {
-                  const hour = timeStore.hour;
-                  actualValue = hour >= 6 && hour < 18;
-                } else if (lhs === 'time.is_night') {
-                  const hour = timeStore.hour;
-                  actualValue = hour < 6 || hour >= 18;
-                } else if (lhs === 'time.hour_lt') {
-                   // Legacy support, map to simple hour check if used with ==
-                   actualValue = timeStore.hour;
-                   operator = '<'; // Force operator
-                } else if (lhs === 'time.hour_gte') {
-                   actualValue = timeStore.hour;
-                   operator = '>='; // Force operator
-                } else if (lhs === 'time.hour') {
-                    actualValue = timeStore.hour;
-                } else if (lhs === 'time.weekday') {
-                  const names = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-                  const firstDow = ((timeStore.month - 1) * 30) % 7; 
-                  const weekday = (firstDow + timeStore.dayOfMonth - 1) % 7;
-                  actualValue = names[weekday];
-                  targetValue = rhsRaw; // String comparison
-                } else if (lhs.startsWith('relationship.')) {
-                    const npcId = lhs.split('.')[1];
-                    const rel = useDiaryStore.getState().relationships[npcId];
-                    actualValue = rel?.friendship?.value || 0;
-                }
-
-                if (actualValue === undefined) continue; // Unknown condition, ignore or fail? Original ignored.
-
-                let result = false;
-                switch (operator) {
-                    case '==': result = actualValue === targetValue; break;
-                    case '!=': result = actualValue !== targetValue; break;
-                    case '>': result = actualValue > targetValue; break;
-                    case '<': result = actualValue < targetValue; break;
-                    case '>=': result = actualValue >= targetValue; break;
-                    case '<=': result = actualValue <= targetValue; break;
-                }
-                
-                if (!result) return false;
-              }
-              return true;
-            })
-            .filter((action: any) => {
-              if (!introMode) return !String(action.type).startsWith('tutorial_') && action.type !== 'end_intro';
-              const locId = currentLocation.id;
-              if (locId === 'orphanage_room') {
-                if (tutorialStep === 0) return action.type === 'navigate' && action.target === 'leo_lighthouse';
-                if (tutorialStep === 6 || tutorialStep === 7) return action.type === 'tutorial_sleep';
-                return false;
-              }
-              if (locId === 'leo_lighthouse') {
-                if (tutorialStep <= 2) return action.type === 'dialogue' && action.target === 'npc_old_leo';
-                if (tutorialStep === 3) return action.type === 'tutorial_breakfast';
-                if (tutorialStep === 5) return (action.type === 'dialogue' && (action.target === 'npc_sarah' || action.target === 'npc_kyle')) || action.type === 'tutorial_play_alone';
-                if (tutorialStep === 6) return (action.type === 'navigate' && action.target === 'orphanage_room');
-              }
-              return false;
-            })
-            .map((action: any, index: number) => {
-              let disabled = false;
-              let highlight = false;
-              let tooltip: string | undefined;
-              if (introMode) {
-                const locId = currentLocation.id;
-                if (locId === 'orphanage_room') {
-                  disabled = false;
-                  highlight = true;
-                  tooltip = 'Locations show time, weather, and actions. Click to leave the room.';
-                } else if (locId === 'leo_lighthouse') {
-                  if (tutorialStep <= 2) {
-                    disabled = false;
-                    highlight = true;
-                    tooltip = 'Talk to Leo to choose one of three starting paths.';
-                  } else if (tutorialStep === 3) {
-                    disabled = false;
-                    highlight = true;
-                    tooltip = 'Start the day with a simple breakfast.';
-                  } else if (tutorialStep === 5) {
-                    disabled = false;
-                    highlight = (action.type === 'dialogue' && (action.target === 'npc_sarah' || action.target === 'npc_kyle')) || action.type === 'tutorial_play_alone';
-                    tooltip = 'Play with Kyle or Sarah, or spend some time alone.';
-                  } else if (tutorialStep === 6) {
-                    disabled = false;
-                    highlight = (action.type === 'navigate' && action.target === 'orphanage_room');
-                    tooltip = 'Return to the room.';
-                  }
-                } else if (locId === 'orphanage_room') {
-                  if (tutorialStep === 6 || tutorialStep === 7) {
-                    disabled = false;
-                    highlight = action.type === 'tutorial_sleep';
-                    tooltip = 'Sleep to end the day.';
-                  }
-                }
-              }
-              return (
-                <ActionButton
-                  key={index}
-                  onClick={() => !disabled && handleAction(action)}
-                  category={highlight ? 'highlighted' : getActionCategory(action.type)}
-                  icon={getActionIcon(action.type)}
-                  text={action.text}
-                  disabled={disabled}
-                  highlight={highlight}
-                  tooltip={undefined}
-                />
-              );
-            })}
-
-          {currentLocation.id === 'driftwatch_docks' && useWorldStateStore.getState().getFlag('smuggler_help_available') && (
-            <ActionButton
-              key="help_robert_action"
-              onClick={() => {
-                if (isProcessing) return;
-                setIsProcessing(true);
-                useWorldStateStore.getState().setFlag('smuggler_help_available', false);
-                // Use setTimeout to allow UI to update before heavy combat initialization
-                setTimeout(() => {
-                  try {
-                    GameManagerService.startSmugglerCombat();
-                  } catch (e) {
-                    console.error("Failed to start combat:", e);
-                    // Revert flag and processing state if combat fails
-                    useWorldStateStore.getState().setFlag('smuggler_help_available', true);
-                    setIsProcessing(false);
-                  }
-                }, 50);
-              }}
-              category="highlighted"
-              icon={<Swords size={24} />}
-              text={isProcessing ? "Engaging..." : "Help Robert"}
-              disabled={isProcessing}
-              highlight={true}
-              tooltip="Rush to Robert's aid against the smugglers"
-            />
-          )}
+      {/* 1. Header Area (7vh) - Stats & Time/Weather */}
+      <header className="relative z-20 w-full h-[7vh] min-h-[56px] px-8 flex justify-between items-center border-b border-zinc-800/50 backdrop-blur-xl shrink-0 bg-zinc-950/50">
+        {/* Left: Vitals (HP, Energy, Hunger) */}
+        <div className="flex items-center gap-6 w-1/3">
+          <div className="flex items-center gap-3 w-40">
+            <Heart size={14} className="text-red-500 shrink-0" />
+            <ProgressBar label="" value={Math.floor(hp)} max={100} colorClass="bg-red-500" variant="weight" showText={false} />
+          </div>
+          <div className="flex items-center gap-3 w-40">
+            <Zap size={14} className="text-blue-500 shrink-0" />
+            <ProgressBar label="" value={Math.floor(energy)} max={100} colorClass="bg-blue-500" variant="weight" showText={false} />
+          </div>
+          <div className="flex items-center gap-3 w-40">
+            <Utensils size={14} className="text-orange-500 shrink-0" />
+            <ProgressBar label="" value={Math.floor(hunger)} max={100} colorClass="bg-orange-500" variant="weight" showText={false} />
+          </div>
         </div>
-      </aside>
 
-      {/* Bottom-Left: Location Info */}
-      <main className="absolute bottom-28 left-8 z-10">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-wider text-white drop-shadow-xl" style={{ fontFamily: 'serif' }}>
-          {currentLocation.name}
-        </h1>
-        <p className="mt-3 text-white/80 max-w-2xl leading-relaxed drop-shadow-lg">
-          {currentLocation.description}
-        </p>
+        {/* Center: Location Name */}
+        <div className="text-center w-1/3">
+          <h1 className="text-xl font-bold text-white tracking-[0.3em] uppercase truncate" style={{ fontFamily: 'Cinzel, serif' }}>
+            {currentLocation.name}
+          </h1>
+        </div>
+
+        {/* Right: Time, Date, Weather */}
+        <div className="flex items-center justify-end gap-6 w-1/3">
+          <div className="flex flex-col items-end">
+            <div className="flex items-center gap-2 text-white font-black text-xs tracking-widest">
+              <Clock size={14} className="text-zinc-400" />
+              {timeString}
+            </div>
+            <div className="text-[9px] font-black uppercase tracking-tighter text-zinc-500">
+              {weekday}, {dateString}
+            </div>
+          </div>
+          
+          <div className="h-8 w-px bg-zinc-800/50" />
+
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col items-end">
+              <div className="flex items-center gap-2 text-white font-black text-xs tracking-widest uppercase">
+                {WeatherIcon}
+                {weatherText}
+              </div>
+              <div className="text-[9px] font-black uppercase tracking-tighter text-zinc-500 flex items-center gap-1">
+                <SeasonIcon size={10} />
+                {season} • {temp}°C
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* 2. Main Content Area (86vh) - Immersion & Actions */}
+      <main className="relative z-10 w-full h-[86vh] flex flex-col lg:flex-row gap-8 p-6 lg:p-12 items-end justify-end overflow-hidden">
+        {/* Right Side: Actions Panel (Floating Card) */}
+        <div className="w-full lg:w-[400px] xl:w-[450px] h-full lg:h-full animate-fade-in-up" style={{ animationDelay: '400ms' }}>
+          <div className="bg-zinc-950/50 backdrop-blur-xl rounded-2xl border border-zinc-800/50 p-6 shadow-2xl flex flex-col h-full overflow-hidden bg-gradient-to-b from-zinc-950/40 to-zinc-950/60">
+            {/* Top glass accent */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-zinc-700/20 to-transparent" />
+            
+            <div className="flex items-center gap-3 mb-6 shrink-0 px-2">
+              <div className="p-2 bg-zinc-800 rounded-xl text-zinc-400">
+                <Briefcase size={18} />
+              </div>
+              <div>
+                <h3 className="text-sm font-black uppercase tracking-widest text-zinc-100">Actions</h3>
+                <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-tighter">Interact with surroundings</p>
+              </div>
+            </div>
+
+            <div className="overflow-y-auto flex-grow pr-2 space-y-3 custom-scrollbar">
+              {currentLocation.actions
+                .slice()
+                .sort((a: any, b: any) => {
+                  const getPriority = (action: any) => {
+                    if (action.type === 'navigate') return 5;
+                    if (action.type === 'dialogue') return 4;
+                    if (action.type === 'shop') return 3;
+                    if (['job', 'craft', 'woodcut', 'fish'].includes(action.type)) return 2;
+                    return 1;
+                  };
+                  const pA = getPriority(a);
+                  const pB = getPriority(b);
+                  if (pA !== pB) return pA - pB;
+                  if (a.type === 'navigate' && b.type === 'navigate') {
+                    const isAHub = a.target === 'driftwatch' || /Hub/i.test(a.text);
+                    const isBHub = b.target === 'driftwatch' || /Hub/i.test(b.text);
+                    if (isAHub && !isBHub) return 1;
+                    if (!isAHub && isBHub) return -1;
+                  }
+                  return 0;
+                })
+                .filter((action: any) => {
+                  if (action.type === 'job') {
+                    const js = useJobStore.getState();
+                    const activeJob = js.activeJob;
+                    if (!activeJob) return false;
+                    const job = js.jobs[activeJob.jobId];
+                    if (!job) return false;
+                    if (currentLocation.id !== job.locationId) return false;
+                    if (action.target !== activeJob.jobId) return false;
+                    const t = useWorldTimeStore.getState();
+                    const firstDow = ((t.month - 1) * 30) % 7;
+                    const weekday = (firstDow + t.dayOfMonth - 1) % 7;
+                    if (weekday === 0 || weekday === 6) return false;
+                    const todayKey = `${t.year}-${String(t.month).padStart(2, '0')}-${String(t.dayOfMonth).padStart(2, '0')}`;
+                    if (activeJob.hiredOn === todayKey) return false;
+                    const now = t.hour * 60 + t.minute;
+                    const start = job.schedule.startHour * 60;
+                    const graceEnd = start + job.schedule.lateGracePeriodHours * 60;
+                    const preWindowStart = Math.max(0, start - 60);
+                    return (now >= preWindowStart && now <= graceEnd);
+                  }
+                  return true;
+                })
+                .filter((action: any) => {
+                  const condition = action.condition;
+                  if (!condition) return true;
+                  const parts = String(condition).split('&&').map(s => s.trim());
+                  const journal = useJournalStore.getState();
+                  const world = useWorldStateStore.getState();
+                  const timeStore = useWorldTimeStore.getState();
+                  const inventory = useInventoryStore.getState();
+
+                  for (const expr of parts) {
+                    let operator = '==';
+                    let lhs = expr;
+                    let rhsRaw = 'true';
+
+                    if (expr.includes('==')) { [lhs, rhsRaw] = expr.split('=='); }
+                    else if (expr.includes('!=')) { [lhs, rhsRaw] = expr.split('!='); operator = '!='; }
+                    else if (expr.includes('>=')) { [lhs, rhsRaw] = expr.split('>='); operator = '>='; }
+                    else if (expr.includes('<=')) { [lhs, rhsRaw] = expr.split('<='); operator = '<='; }
+                    else if (expr.includes('>')) { [lhs, rhsRaw] = expr.split('>'); operator = '>'; }
+                    else if (expr.includes('<')) { [lhs, rhsRaw] = expr.split('<'); operator = '<'; }
+
+                    lhs = lhs.trim();
+                    rhsRaw = rhsRaw ? rhsRaw.trim() : 'true';
+                    const rhsBool = rhsRaw === 'true' ? true : rhsRaw === 'false' ? false : undefined;
+                    const rhsNum = rhsBool === undefined ? Number(rhsRaw) : undefined;
+                    let actualValue: any = undefined;
+                    let targetValue: any = rhsBool !== undefined ? rhsBool : rhsNum;
+
+                    if (lhs.startsWith('quest.')) {
+                      const [, questId, field] = lhs.split('.');
+                      const q = journal.quests[questId];
+                      if (field === 'active') actualValue = q?.active || false;
+                      else if (field === 'completed') actualValue = q?.completed || false;
+                      else if (field === 'stage') actualValue = q?.currentStage ?? 0;
+                    } else if (lhs.startsWith('world_flags.')) {
+                      const flag = lhs.replace('world_flags.', '');
+                      actualValue = world.getFlag(flag);
+                    } else if (lhs.startsWith('inventory.')) {
+                      const itemId = lhs.split('.')[1];
+                      actualValue = inventory.getItemQuantity(itemId);
+                    } else if (lhs.startsWith('has_item:')) {
+                      const itemId = lhs.split(':')[1];
+                      actualValue = inventory.getItemQuantity(itemId) > 0;
+                      if (operator === '==' && rhsRaw === 'true') targetValue = true;
+                    } else if (lhs === 'time.is_day') {
+                      actualValue = timeStore.hour >= 6 && timeStore.hour < 18;
+                    } else if (lhs === 'time.is_night') {
+                      actualValue = timeStore.hour < 6 || timeStore.hour >= 18;
+                    } else if (lhs === 'time.hour_lt') {
+                       actualValue = timeStore.hour;
+                       operator = '<';
+                    } else if (lhs === 'time.hour_gte') {
+                       actualValue = timeStore.hour;
+                       operator = '>=';
+                    } else if (lhs === 'time.hour') {
+                        actualValue = timeStore.hour;
+                    } else if (lhs === 'time.weekday') {
+                      const names = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+                      const firstDow = ((timeStore.month - 1) * 30) % 7;
+                      const weekday = (firstDow + timeStore.dayOfMonth - 1) % 7;
+                      actualValue = names[weekday];
+                      targetValue = rhsRaw;
+                    } else if (lhs.startsWith('relationship.')) {
+                        const npcId = lhs.split('.')[1];
+                        const rel = useDiaryStore.getState().relationships[npcId];
+                        actualValue = rel?.friendship?.value || 0;
+                    }
+
+                    if (actualValue === undefined) continue;
+                    let result = false;
+                    switch (operator) {
+                        case '==': result = actualValue === targetValue; break;
+                        case '!=': result = actualValue !== targetValue; break;
+                        case '>': result = actualValue > targetValue; break;
+                        case '<': result = actualValue < targetValue; break;
+                        case '>=': result = actualValue >= targetValue; break;
+                        case '<=': result = actualValue <= targetValue; break;
+                    }
+                    if (!result) return false;
+                  }
+                  return true;
+                })
+                .filter((action: any) => {
+                  if (!introMode) return !String(action.type).startsWith('tutorial_') && action.type !== 'end_intro';
+                  const locId = currentLocation.id;
+                  if (locId === 'orphanage_room') {
+                    if (tutorialStep === 0) return action.type === 'navigate' && action.target === 'leo_lighthouse';
+                    if (tutorialStep === 6 || tutorialStep === 7) return action.type === 'tutorial_sleep';
+                    return false;
+                  }
+                  if (locId === 'leo_lighthouse') {
+                    if (tutorialStep <= 2) return action.type === 'dialogue' && action.target === 'npc_old_leo';
+                    if (tutorialStep === 3) return action.type === 'tutorial_breakfast';
+                    if (tutorialStep === 5) return (action.type === 'dialogue' && (action.target === 'npc_sarah' || action.target === 'npc_kyle')) || action.type === 'tutorial_play_alone';
+                    if (tutorialStep === 6) return (action.type === 'navigate' && action.target === 'orphanage_room');
+                  }
+                  return false;
+                })
+                .map((action: any, index: number) => {
+                  let highlight = false;
+                  if (introMode) {
+                    const locId = currentLocation.id;
+                    if (locId === 'orphanage_room') { highlight = true; } 
+                    else if (locId === 'leo_lighthouse') {
+                      if (tutorialStep <= 2) highlight = true;
+                      else if (tutorialStep === 3) highlight = true;
+                      else if (tutorialStep === 5) highlight = (action.type === 'dialogue' && (action.target === 'npc_sarah' || action.target === 'npc_kyle')) || action.type === 'tutorial_play_alone';
+                      else if (tutorialStep === 6) highlight = (action.type === 'navigate' && action.target === 'orphanage_room');
+                    } else if (locId === 'orphanage_room') {
+                      if (tutorialStep === 6 || tutorialStep === 7) highlight = action.type === 'tutorial_sleep';
+                    }
+                  }
+                  return (
+                    <ActionButton
+                      key={index}
+                      onClick={() => handleAction(action)}
+                      category={highlight ? 'highlighted' : getActionCategory(action.type)}
+                      icon={getActionIcon(action.type)}
+                      text={action.text}
+                      highlight={highlight}
+                    />
+                  );
+                })}
+
+              {currentLocation.id === 'driftwatch_docks' && useWorldStateStore.getState().getFlag('smuggler_help_available') && (
+                <ActionButton
+                  key="help_robert_action"
+                  onClick={() => {
+                    if (isProcessing) return;
+                    setIsProcessing(true);
+                    useWorldStateStore.getState().setFlag('smuggler_help_available', false);
+                    setTimeout(() => {
+                      try { GameManagerService.startSmugglerCombat(); } 
+                      catch (e) { useWorldStateStore.getState().setFlag('smuggler_help_available', true); setIsProcessing(false); }
+                    }, 50);
+                  }}
+                  category="highlighted"
+                  icon={<Swords size={24} />}
+                  text={isProcessing ? "Engaging..." : "Help Robert"}
+                  highlight={true}
+                />
+              )}
+            </div>
+          </div>
+        </div>
       </main>
 
-      
+      {/* 3. Footer Spacer (7vh) - To match other screens and clear LocationNav */}
+      <footer className="relative z-20 w-full h-[7vh] min-h-[56px] shrink-0 pointer-events-none" />
 
-      {/* Navigation */}
-      <LocationNav
-        onNavigate={handleNavigate}
-        variant="floating"
-        activeScreen={currentScreen}
-        onOpenSleepWaitModal={handleOpenSleepWaitModal}
-        showTimeControls={true}
-        onOpenSystemMenu={() => useUIStore.getState().openModal('systemMenu')}
-      />
+      {/* Overlays & Modals */}
+      <style>{`
+        @keyframes fade-in-up {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up { animation: fade-in-up 0.6s ease-out forwards; }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+      `}</style>
 
       {/* Travel Confirmation Modal */}
       <ConfirmationModal
@@ -1289,7 +1154,7 @@ const LocationScreen: React.FC = () => {
         confirmText="OK"
         singleButton={true}
       />
-    </>
+    </div>
   );
 };
 

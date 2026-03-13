@@ -124,7 +124,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
         {isInGame && (
           <LocationNav
             onNavigate={handleNavigate}
-            variant={isSolidBg ? 'compact' : 'floating'}
+            variant="compact"
             activeScreen={currentScreen}
             onOpenSleepWaitModal={handleOpenSleepWaitModal}
             showTimeControls={currentScreen === 'inGame'}

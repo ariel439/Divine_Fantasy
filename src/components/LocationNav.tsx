@@ -62,22 +62,6 @@ const LocationNav: FC<LocationNavProps> = ({ onNavigate, activeScreen, onOpenSle
     return (
         <footer className={footerClasses}>
             <div className={containerClasses}>
-                 {/* Left Side: Weather & Season */}
-                 {showTimeControls && !introMode && (
-                    <div className="absolute top-1/2 left-6 -translate-y-1/2 flex items-center space-x-4 hidden md:flex">
-                        <div className="flex flex-col items-start">
-                            <div className="flex items-center space-x-2 text-zinc-300">
-                                <SeasonIcon size={18} className="text-zinc-400" />
-                                <span className="text-sm font-medium">{season}</span>
-                            </div>
-                            <div className="flex items-center space-x-2 text-xs text-zinc-500">
-                                <WeatherIcon size={14} className="text-zinc-500" />
-                                <span>{weatherText}, {temperatureC}°C</span>
-                            </div>
-                        </div>
-                    </div>
-                 )}
-
                  <div className="flex justify-center items-center p-2 max-w-7xl mx-auto w-full">
                     {/* Navigation Buttons */}
                     <nav className="flex justify-center items-center space-x-1 md:space-x-2 transition-all duration-300 ease-in-out">
@@ -98,30 +82,6 @@ const LocationNav: FC<LocationNavProps> = ({ onNavigate, activeScreen, onOpenSle
                         />
                     </nav>
                  </div>
-
-                 {/* Right Side: Time & Date */}
-                 {showTimeControls && (
-                    <div className="absolute top-1/2 right-6 -translate-y-1/2 flex items-center space-x-4">
-                         <div className="flex flex-col items-end mr-2 hidden sm:flex">
-                             {introMode ? (
-                                <div className="flex items-center space-x-2 text-zinc-200">
-                                    <span className="font-mono font-bold text-lg leading-none">
-                                        {tutorialStep < 4 ? 'Morning' : tutorialStep < 6 ? 'Midday' : 'Evening'}
-                                    </span>
-                                </div>
-                             ) : (
-                                 <>
-                                     <div className="flex items-center space-x-2 text-zinc-200">
-                                         <span className="font-mono font-bold text-lg leading-none">{timeString}</span>
-                                     </div>
-                                     <div className="flex items-center space-x-2 text-xs text-zinc-500">
-                                         <span>{weekday}, {dateString}</span>
-                                     </div>
-                                 </>
-                             )}
-                         </div>
-                    </div>
-                )}
             </div>
         </footer>
     );

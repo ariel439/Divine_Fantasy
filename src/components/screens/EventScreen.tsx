@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import type { FC } from 'react';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Play } from 'lucide-react';
 import type { Slide } from '../../types';
 
 interface EventScreenProps {
@@ -48,7 +48,7 @@ const EventScreen: FC<EventScreenProps> = ({ slides, onComplete }) => {
     };
     
     return (
-        <div className="w-full h-full bg-black flex items-center justify-center">
+        <div className="w-full h-full bg-black flex items-center justify-center overflow-hidden">
             {/* Background Image */}
             <div
                 key={currentIndex}
@@ -56,41 +56,40 @@ const EventScreen: FC<EventScreenProps> = ({ slides, onComplete }) => {
                 style={{ backgroundImage: `url(${currentSlide.image})` }}
             />
             
-            {/* Dark Overlay */}
-            <div className="absolute inset-0 bg-black/40"></div>
+            {/* Subtle Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80"></div>
             
-            <button onClick={onComplete} className="absolute top-6 right-6 flex items-center gap-2 text-zinc-300 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10 z-20">
-                <span className="font-semibold hidden sm:inline">Skip</span>
-                <X size={20} />
+            <button onClick={onComplete} className="absolute top-8 right-8 flex items-center gap-2 text-zinc-400 hover:text-white transition-all p-2 rounded-full hover:bg-white/5 border border-transparent hover:border-zinc-800 z-20">
+                <span className="font-bold tracking-widest uppercase text-[10px] hidden sm:inline">Skip Sequence</span>
+                <X size={18} />
             </button>
             
             {/* Text and Navigation */}
             <div className={`relative w-full h-full flex flex-col justify-end ${isTransitioning ? 'animate-fade-out' : 'animate-fade-in-slow'}`}>
-                {/* Text Overlay */}
-                <div className="pt-32 pb-24 px-8 md:px-12 w-full bg-gradient-to-t from-black via-black/80 to-transparent">
+                {/* Text Overlay - Modern Glassmorphism */}
+                <div className="pb-32 pt-20 px-8 md:px-12 w-full bg-gradient-to-t from-zinc-950 via-zinc-950/90 to-transparent">
                     <div className="max-w-4xl mx-auto">
-                        <p className="text-zinc-200 leading-relaxed text-base md:text-lg text-center shadow-text">
-                            {currentSlide.text}
+                        <p className="text-zinc-200 leading-relaxed text-lg md:text-xl text-center font-light italic" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
+                            "{currentSlide.text}"
                         </p>
                     </div>
                 </div>
 
-                {/* Navigation */}
-                <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between py-4 px-6 bg-black/30">
+                {/* Navigation - Floating minimalist bar */}
+                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-8 py-3 px-8 bg-zinc-950/50 backdrop-blur-xl border border-zinc-800/50 rounded-full shadow-2xl">
                     <button 
                         onClick={() => handleNavigation('prev')} 
                         disabled={currentIndex === 0 || isTransitioning}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white/90 bg-white/5 border border-white/20 rounded-md transition-all duration-300 hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="p-2 text-zinc-400 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
                     >
-                        <ChevronLeft size={16} />
-                        Previous
+                        <ChevronLeft size={24} />
                     </button>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                         {slides.map((_, index) => (
                             <div 
                                 key={index}
-                                className={`w-2 h-2 rounded-full transition-colors ${currentIndex === index ? 'bg-zinc-300' : 'bg-zinc-600'}`}
+                                className={`h-1 rounded-full transition-all duration-500 ${currentIndex === index ? 'w-8 bg-zinc-100' : 'w-2 bg-zinc-700'}`}
                             ></div>
                         ))}
                     </div>
@@ -98,16 +97,12 @@ const EventScreen: FC<EventScreenProps> = ({ slides, onComplete }) => {
                     <button 
                         onClick={goToNext}
                         disabled={isTransitioning}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white/90 bg-zinc-700 border border-zinc-600 rounded-md transition-all duration-300 hover:bg-zinc-600 hover:shadow-[0_0_15px_rgba(161,161,170,0.2)] disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="p-2 text-zinc-100 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all"
                     >
-                        {isLastSlide ? 'Continue' : 'Next'}
-                        {!isLastSlide && <ChevronRight size={16} />}
+                        {isLastSlide ? <Play size={24} className="text-zinc-100 fill-zinc-100" /> : <ChevronRight size={24} />}
                     </button>
                 </div>
             </div>
-             <style>{`
-                .shadow-text { text-shadow: 0 1px 5px rgba(0,0,0,0.7); }
-            `}</style>
         </div>
     );
 };

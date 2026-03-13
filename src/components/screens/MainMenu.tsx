@@ -15,7 +15,8 @@ const MainMenu: FC = () => {
     const MenuButton: FC<{children: ReactNode, onClick?: () => void}> = ({ children, onClick }) => (
         <button 
             onClick={onClick}
-            className="w-full max-w-xs px-8 py-3 text-lg font-semibold tracking-widest uppercase text-white/90 bg-black/60 border border-white/30 rounded-md transition-all duration-300 transform-gpu hover:bg-white/10 hover:text-white hover:border-white/70 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/50"
+            className="w-full max-w-xs px-8 py-3 text-lg font-bold tracking-[0.3em] uppercase text-white/90 bg-zinc-950 border border-zinc-800 rounded-lg transition-all duration-500 transform-gpu hover:bg-white/10 hover:text-white hover:border-zinc-400 hover:shadow-[0_0_30px_rgba(255,255,255,0.1)] active:scale-95 focus:outline-none focus:ring-1 focus:ring-white/30"
+            style={{ fontFamily: 'Cinzel, serif' }}
         >
             {children}
         </button>

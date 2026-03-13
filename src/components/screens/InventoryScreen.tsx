@@ -130,42 +130,6 @@ const InventoryScreen: FC = () => {
             {/* Main Content Area - Symmetrical Layout */}
             <div className="relative z-10 w-full h-[86vh] flex flex-col gap-4 p-4 lg:p-6 items-stretch overflow-hidden">
                 
-                {/* Top Stats Bar - Compact height */}
-                <div className="w-full flex-shrink-0 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 p-4 bg-zinc-900/40 backdrop-blur-xl rounded-2xl border border-zinc-800/50 shadow-2xl animate-fade-in-up">
-                    <div className="flex items-center gap-4 w-full md:w-1/3 lg:w-1/4">
-                        <div className="p-2.5 bg-zinc-800 rounded-xl text-zinc-400">
-                            <Weight size={20} />
-                        </div>
-                        <div className="flex-grow">
-                            <ProgressBar label="Carrying Capacity" value={Number(totalWeight.toFixed(1))} max={maxWeight} colorClass="bg-orange-500/80" variant="weight" />
-                        </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-around md:justify-end gap-6 text-xl border-t md:border-t-0 md:border-l border-zinc-800/50 pt-3 md:pt-0 md:pl-6">
-                        <div className="flex flex-col items-center md:items-end gap-0.5 group" title="Gold">
-                            <div className="flex items-center gap-2">
-                                <span className="text-xl font-black text-white group-hover:text-yellow-400 transition-colors">{currency.gold}</span>
-                                <Coins size={16} className="text-yellow-500 shadow-yellow-500/50" />
-                            </div>
-                            <span className="text-[8px] font-black uppercase tracking-tighter text-zinc-500">Gold Sovereigns</span>
-                        </div>
-                        <div className="flex flex-col items-center md:items-end gap-0.5 group" title="Silver">
-                            <div className="flex items-center gap-2">
-                                <span className="text-xl font-black text-white group-hover:text-zinc-300 transition-colors">{currency.silver}</span>
-                                <Coins size={16} className="text-zinc-400 shadow-zinc-400/50" />
-                            </div>
-                            <span className="text-[8px] font-black uppercase tracking-tighter text-zinc-500">Silver Shillings</span>
-                        </div>
-                        <div className="flex flex-col items-center md:items-end gap-0.5 group" title="Copper">
-                            <div className="flex items-center gap-2">
-                                <span className="text-xl font-black text-white group-hover:text-orange-400 transition-colors">{currency.copper}</span>
-                                <Coins size={16} className="text-orange-600 shadow-orange-600/50" />
-                            </div>
-                            <span className="text-[8px] font-black uppercase tracking-tighter text-zinc-500">Copper Pennies</span>
-                        </div>
-                    </div>
-                </div>
-
                 {/* Main Content Grid - Responsive layout with scrollable panels */}
                 <div className="w-full flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch min-h-0">
                     {/* Left Panel: Item List */}
@@ -176,6 +140,9 @@ const InventoryScreen: FC = () => {
                                 items={inventory}
                                 onItemSelect={handleSelectItem}
                                 selectedItemId={selectedItem?.id}
+                                totalWeight={totalWeight}
+                                maxWeight={maxWeight}
+                                currency={currency}
                             />
                         </div>
                     </div>

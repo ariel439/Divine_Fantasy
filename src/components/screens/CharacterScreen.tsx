@@ -12,12 +12,11 @@ import { useUIStore } from '../../stores/useUIStore';
 
 const AttributeIcon = ({ label }: { label: string }) => {
     switch (label.toLowerCase()) {
-        case 'strength': return <Shield size={18} className="text-red-400" />;
-        case 'dexterity': return <Zap size={18} className="text-yellow-400" />;
-        case 'intelligence': return <Brain size={18} className="text-blue-400" />;
-        case 'wisdom': return <Sparkles size={18} className="text-purple-400" />;
-        case 'charisma': return <User size={18} className="text-pink-400" />;
-        default: return <Shield size={18} />;
+        case 'strength': return <Shield size={16} className="text-red-400" />;
+        case 'dexterity': return <Zap size={16} className="text-yellow-400" />;
+        case 'intelligence': return <Brain size={16} className="text-blue-400" />;
+        case 'charisma': return <User size={16} className="text-pink-400" />;
+        default: return <Shield size={16} />;
     }
 };
 
@@ -80,7 +79,6 @@ const CharacterScreen: FC = () => {
             strength: attributes.strength,
             dexterity: attributes.dexterity,
             intelligence: attributes.intelligence,
-            wisdom: attributes.wisdom,
             charisma: attributes.charisma
         },
         skills: [
@@ -157,9 +155,9 @@ const CharacterScreen: FC = () => {
                             <Sparkles size={18} className="text-zinc-500" />
                             <h3 className="text-lg font-bold text-zinc-100 uppercase tracking-[0.2em]" style={{ fontFamily: 'Cinzel, serif' }}>Core Attributes</h3>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                             {Object.entries(characterData.attributes).map(([key, value]) => (
-                                <div key={key} className="bg-black/20 p-3 rounded-xl border border-zinc-800/30 flex justify-between items-center group hover:border-zinc-700 transition-all">
+                                <div key={key} className="bg-black/20 p-4 rounded-xl border border-zinc-800/30 flex justify-between items-center group hover:border-zinc-700 transition-all">
                                     <div className="flex items-center gap-3">
                                         <AttributeIcon label={key} />
                                         <span className="text-zinc-400 font-bold uppercase text-[10px] tracking-widest">{key}</span>

@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import type { FC } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Weight, Coins } from 'lucide-react';
 import type { Item, FilterCategory } from '../../types';
+import ProgressBar from './ProgressBar';
 
 interface ItemSelectionPanelProps {
     title: string;
@@ -11,9 +12,24 @@ interface ItemSelectionPanelProps {
     highlightedItemIds?: Set<string>;
     valueMultiplier?: number; // Added value multiplier prop
     acceptedCategories?: string[]; // Optional: restrict which items can be selected
+    // Stats for display
+    totalWeight?: number;
+    maxWeight?: number;
+    currency?: { gold: number; silver: number; copper: number };
 }
 
-const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({ title, items, onItemSelect, selectedItemId, highlightedItemIds, valueMultiplier = 1.0, acceptedCategories }) => {
+const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({ 
+    title, 
+    items, 
+    onItemSelect, 
+    selectedItemId, 
+    highlightedItemIds, 
+    valueMultiplier = 1.0, 
+    acceptedCategories,
+    totalWeight,
+    maxWeight,
+    currency
+}) => {
     const [activeFilter, setActiveFilter] = useState<FilterCategory>('All');
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -57,7 +73,44 @@ const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({ title, items, onItemS
     return (
         <div className="bg-transparent flex flex-col h-full overflow-hidden">
             <div className="p-6 pb-0 flex-shrink-0">
-                <h2 className="text-xl font-bold text-zinc-100 uppercase tracking-[0.2em] mb-4" style={{ fontFamily: 'Cinzel, serif' }}>{title}</h2>
+                <div className="flex justify-between items-start mb-4">
+                    <h2 className="text-xl font-bold text-zinc-100 uppercase tracking-[0.2em]" style={{ fontFamily: 'Cinzel, serif' }}>{title}</h2>
+                    
+                    {/* Wealth Display (Only if currency provided) */}
+                    {currency && (
+                        <div className="flex items-center gap-3 bg-black/40 px-3 py-1.5 rounded-xl border border-zinc-800/50">
+                            <div className="flex items-center gap-1.5 group" title="Gold">
+                                <span className="text-xs font-black text-white">{currency.gold}</span>
+                                <Coins size={12} className="text-yellow-500" />
+                            </div>
+                            <div className="flex items-center gap-1.5 group" title="Silver">
+                                <span className="text-xs font-black text-white">{currency.silver}</span>
+                                <Coins size={12} className="text-zinc-400" />
+                            </div>
+                            <div className="flex items-center gap-1.5 group" title="Copper">
+                                <span className="text-xs font-black text-white">{currency.copper}</span>
+                                <Coins size={12} className="text-orange-600" />
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Weight Bar (Only if weights provided) */}
+                {(totalWeight !== undefined && maxWeight !== undefined) && (
+                    <div className="flex items-center gap-3 mb-4 px-1">
+                        <Weight size={14} className="text-zinc-500" />
+                        <div className="flex-grow">
+                            <ProgressBar 
+                                label="" 
+                                value={totalWeight} 
+                                max={maxWeight} 
+                                colorClass="bg-orange-500/80" 
+                                variant="weight" 
+                                showText={true}
+                            />
+                        </div>
+                    </div>
+                )}
                 
                 {/* Filter Tabs */}
                 <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-zinc-800/50 mb-4 overflow-x-auto no-scrollbar">

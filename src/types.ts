@@ -241,6 +241,13 @@ export interface ActionSummary {
   rewards: ActionSummaryReward[];
 }
 
+export interface Attributes {
+  strength: number;
+  dexterity: number;
+  intelligence: number;
+  charisma: number;
+}
+
 export const STAT_DESCRIPTIONS = {
   strength: ['Weak', 'Average', 'Strong', 'Mighty'],
   attack: ['Feeble', 'Average', 'Strong', 'Herculean'],

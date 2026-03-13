@@ -16,7 +16,6 @@ export const attributeLabels: { [key: string]: string[] } = {
     attack: ['Feeble', 'Average', 'Strong', 'Herculean'],
     dexterity: ['Clumsy', 'Nimble', 'Graceful', 'Ethereal'],
     intelligence: ['Dull', 'Clever', 'Brilliant', 'Genius'],
-    wisdom: ['Foolish', 'Perceptive', 'Wise', 'Sage-like'],
     charisma: ['Repulsive', 'Personable', 'Charismatic', 'Magnetic'],
     defence: ['Fragile', 'Sturdy', 'Resilient', 'Indomitable'],
 };
@@ -74,7 +73,7 @@ export const characters = [
         title: 'The Driftwatch Orphan',
         image: 'https://i.imgur.com/gUNzyBA.jpeg',
         description: "Born to a tragic fate, Luke's mother died in childbirth and his fisherman father was lost to the unforgiving sea. He was raised in Leo's Lighthouse, an orphanage in the salt-sprayed city of Driftwatch, alongside his only friends, Sarah, Robert, and Kyle. His past is a tapestry of loss, but his sharp mind is a beacon of potential, promising a future far grander than his humble beginnings in the Whispers region.",
-        attributes: { strength: 5, dexterity: 6, intelligence: 8, wisdom: 5, charisma: 3 }
+        attributes: { strength: 5, dexterity: 6, intelligence: 8, charisma: 3 }
     }
 ];
 

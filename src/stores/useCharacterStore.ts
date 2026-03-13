@@ -11,7 +11,6 @@ interface CharacterState {
     strength: number;
     dexterity: number;
     intelligence: number;
-    wisdom: number;
     charisma: number;
   };
   characterId?: string;
@@ -61,11 +60,10 @@ import { useWorldStateStore } from './useWorldStateStore';
 export const useCharacterStore = create<CharacterState>((set, get) => ({
   // Initial state - will be set by GameManagerService on new game
   attributes: {
-    strength: 1,
-    dexterity: 1,
-    intelligence: 1,
-    wisdom: 1,
-    charisma: 1,
+    strength: 5,
+    dexterity: 5,
+    intelligence: 5,
+    charisma: 5,
   },
   hp: 100,
   maxHp: 100,

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import type { FC } from 'react';
-import { ArrowLeft, ChevronLeft, ChevronRight, User, Shield, Zap, Brain, Sparkles, BookOpen } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, User, Shield, Zap, Brain, BookOpen, Sparkles } from 'lucide-react';
 // FIX: Changed to a named import to resolve module issue.
 import { GameModeSelectionModal } from '../modals/GameModeSelectionModal';
 import { characters, getDescriptiveAttributeLabel } from '../../data';
@@ -18,7 +18,6 @@ const AttributeIcon = ({ label }: { label: string }) => {
         case 'strength': return <Shield size={16} className="text-red-400" />;
         case 'dexterity': return <Zap size={16} className="text-yellow-400" />;
         case 'intelligence': return <Brain size={16} className="text-blue-400" />;
-        case 'wisdom': return <Sparkles size={16} className="text-purple-400" />;
         case 'charisma': return <User size={16} className="text-pink-400" />;
         default: return <Shield size={16} />;
     }

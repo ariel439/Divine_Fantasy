@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, ReactNode } from 'react';
 import type { FC } from 'react';
-import { CheckSquare, Square, Search, XCircle, ArrowLeft, BookOpen, ScrollText, Award, User, Target, Briefcase, Coins, Clock, Zap, ChevronLeft, ChevronRight, UserX, ClipboardList, CalendarDays, UserRound } from 'lucide-react';
+import { CheckSquare, Square, Search, XCircle, ArrowLeft, BookOpen, ScrollText, Award, User, Target, Briefcase, Coins, Clock, Zap, ChevronLeft, ChevronRight, UserX, ClipboardList, CalendarDays, UserRound, Check, X } from 'lucide-react';
 import type { Quest } from '../../types';
 import { useJournalStore } from '../../stores/useJournalStore';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';

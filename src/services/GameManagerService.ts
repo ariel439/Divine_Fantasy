@@ -129,10 +129,9 @@ export class GameManagerService {
       characterId: templateId,
       attributes: {
         strength: template.starting_attributes.Strength,
-        dexterity: template.starting_attributes.Dexterity,
-        intelligence: template.starting_attributes.Intelligence,
-        wisdom: template.starting_attributes.Wisdom,
-        charisma: template.starting_attributes.Charisma,
+      dexterity: template.starting_attributes.Dexterity,
+      intelligence: template.starting_attributes.Intelligence,
+      charisma: template.starting_attributes.Charisma,
       },
       hp: 50 + (template.starting_attributes.Strength * 10),
       energy: 100,

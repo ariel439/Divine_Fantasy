@@ -106,48 +106,58 @@ const SleepWaitModal: FC<SleepWaitModalProps> = ({
   const renderSetupView = () => (
     <>
       <div className="text-center">
-        <p className="text-sm text-zinc-400 mb-6">{fixedDuration ? 'Sleeping until morning' : 'Select duration'}</p>
-        <div className="text-5xl font-bold font-mono my-2">{duration} <span className="text-3xl">Hour{duration > 1 ? 's' : ''}</span></div>
-        <input
-            type="range"
-            min="1"
-            max={mode === 'wait' ? 24 : 12}
-            value={duration}
-            onChange={(e) => setDuration(parseInt(e.target.value, 10))}
-            disabled={!!fixedDuration}
-            className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer range-thumb mt-4"
-        />
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 mb-6">Select duration</p>
+        <div className="text-6xl font-bold tracking-tighter text-white mb-2" style={{ fontFamily: 'Cinzel, serif' }}>
+            {duration}<span className="text-2xl ml-2 text-zinc-500 tracking-normal uppercase">hr{duration > 1 ? 's' : ''}</span>
+        </div>
+        <div className="px-4 mt-8">
+            <input
+                type="range"
+                min="1"
+                max={mode === 'wait' ? 24 : 12}
+                value={duration}
+                onChange={(e) => setDuration(parseInt(e.target.value, 10))}
+                disabled={!!fixedDuration}
+                className="w-full h-1.5 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-zinc-100 hover:accent-white transition-all"
+            />
+            <div className="flex justify-between mt-3 px-1">
+                <span className="text-[10px] font-black text-zinc-700">1H</span>
+                <span className="text-[10px] font-black text-zinc-700">{mode === 'wait' ? 24 : 12}H</span>
+            </div>
+        </div>
       </div>
 
-      <div className="my-6 p-4 bg-black/30 border border-zinc-700 rounded-lg space-y-3 text-sm">
+      <div className="my-8 p-6 bg-black/40 border border-zinc-800/50 rounded-xl space-y-4">
         <div className="flex justify-between items-center">
-            <span className="text-zinc-400 flex items-center gap-2"><Sun size={16}/> End Time:</span>
-            <span className="font-semibold text-white">
+            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 flex items-center gap-3">
+                <Sun size={12} className="text-zinc-600"/> End Time
+            </span>
+            <span className="text-xs font-bold text-white tracking-widest">
                 {formatTime(currentTimeInSeconds + duration * 3600)}
             </span>
         </div>
         <div className="flex justify-between items-start">
-            <span className="text-zinc-400 flex items-center gap-2">
-                {mode === 'sleep' ? <Zap size={16}/> : <Clock size={16}/>} Effects:
+            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 flex items-center gap-3">
+                {mode === 'sleep' ? <Zap size={12} className="text-blue-500/50"/> : <Clock size={12} className="text-zinc-600"/>} Expected Effects
             </span>
-            <span className="font-semibold text-white text-right">
+            <span className="text-[10px] font-black uppercase text-white text-right tracking-tighter">
                 {getEffectsText()}
             </span>
         </div>
       </div>
       
-      <div className="flex justify-end items-center gap-4 mt-6">
+      <div className="flex justify-end items-center gap-3">
         <button 
           onClick={onCancel}
-          className="px-5 py-2 text-sm font-semibold tracking-wide text-white/90 bg-zinc-700/80 border border-zinc-600 rounded-md transition-all duration-300 hover:bg-zinc-600/80 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+          className="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-all border border-transparent hover:border-zinc-800 rounded-lg hover:bg-white/5"
         >
           Cancel
         </button>
         <button 
           onClick={handleConfirm}
-          className="px-5 py-2 text-sm font-semibold tracking-wide text-white/90 bg-zinc-800 border border-zinc-700 rounded-md transition-all duration-300 hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+          className="px-8 py-2 text-[10px] font-black uppercase tracking-widest text-white bg-zinc-800/50 border border-zinc-700/50 rounded-lg transition-all hover:bg-white/10 hover:border-zinc-400 hover:shadow-xl active:scale-95"
         >
-          Confirm
+          Begin
         </button>
       </div>
     </>
@@ -178,46 +188,81 @@ const SleepWaitModal: FC<SleepWaitModalProps> = ({
     );
   }
 
-  return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-opacity duration-300"
-    >
-      <div 
-        className="w-full max-w-md bg-zinc-950 rounded-xl border border-zinc-700 shadow-2xl p-6 transform transition-all duration-300 scale-95 opacity-0 animate-scale-in"
-        style={{ animation: 'scaleIn 0.2s ease-out forwards' }}
-      >
-        <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center gap-3">
-                <Icon size={24} className="text-zinc-400" />
-                <h2 className="text-2xl font-bold text-white" style={{ fontFamily: 'Cinzel, serif' }}>
-                    {isProgressing ? 'Resting...' : title}
-                </h2>
-            </div>
-            <button onClick={handleCancelAction} className="text-zinc-400 hover:text-white transition-colors"><X size={24}/></button>
+    return (
+     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 transition-opacity duration-500">
+        <div 
+          role="dialog"
+          aria-modal="true"
+          className="w-full max-w-md bg-zinc-950/90 backdrop-blur-2xl rounded-2xl border border-zinc-800/50 shadow-[0_0_50px_rgba(0,0,0,0.5)] p-8 overflow-hidden relative group animate-scale-in"
+        >
+          {/* Top glass accent */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-zinc-700/20 to-transparent" />
+  
+          <div className="flex items-center gap-4 mb-8">
+              <div className="p-3 bg-zinc-800/50 rounded-xl border border-zinc-700/50">
+                  <Icon size={24} className="text-zinc-400" />
+              </div>
+              <div>
+                  <h2 className="text-xl font-bold text-white tracking-[0.1em] uppercase" style={{ fontFamily: 'Cinzel, serif' }}>
+                      {mode === 'sleep' ? 'Rest & Recovery' : 'Pass the Time'}
+                  </h2>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mt-1">{title}</p>
+              </div>
+          </div>
+          
+          {isProgressing ? (
+              <div className="text-center py-4">
+                  <div className="mb-8">
+                      <div className="flex justify-between items-end mb-3">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Current Time</span>
+                          <span className="text-2xl font-bold font-mono tracking-tighter text-white">
+                              {formatTime(currentTimeInSeconds + progressTime)}
+                          </span>
+                      </div>
+                      <div className="w-full h-1.5 bg-black/40 rounded-full border border-zinc-800/50 overflow-hidden">
+                          <div 
+                              className="h-full bg-gradient-to-r from-zinc-600 via-zinc-400 to-white transition-all duration-300"
+                              style={{ width: `${(progressTime / (duration * 3600)) * 100}%` }}
+                          />
+                      </div>
+                  </div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 animate-pulse">
+                      {mode === 'sleep' ? 'Dreaming...' : 'Waiting...'}
+                  </p>
+              </div>
+          ) : renderSetupView()}
+          
+          <style>{`
+            @keyframes scaleIn {
+              from { transform: scale(0.98) translateY(10px); opacity: 0; }
+              to { transform: scale(1) translateY(0); opacity: 1; }
+            }
+            .animate-scale-in {
+              animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+            input[type=range]::-webkit-slider-thumb {
+              -webkit-appearance: none;
+              height: 16px;
+              width: 16px;
+              border-radius: 50%;
+              background: #fff;
+              cursor: pointer;
+              box-shadow: 0 0 10px rgba(0,0,0,0.5);
+              margin-top: -6px;
+            }
+            input[type=range]::-moz-range-thumb {
+              height: 16px;
+              width: 16px;
+              border-radius: 50%;
+              background: #fff;
+              cursor: pointer;
+              box-shadow: 0 0 10px rgba(0,0,0,0.5);
+              border: none;
+            }
+          `}</style>
         </div>
-        
-        <div className="transition-opacity duration-300">
-            {isProgressing ? renderProgressView() : renderSetupView()}
-        </div>
-
-       <style>{`
-        @keyframes scaleIn {
-          from { transform: scale(0.95); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
-        }
-        .animate-scale-in {
-          animation: scaleIn 0.2s ease-out forwards;
-        }
-        .range-thumb::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: #a1a1aa; /* zinc-400 */ cursor: pointer; border-radius: 50%; border: 2px solid #3f3f46; /* zinc-700 */
-        }
-        .range-thumb::-moz-range-thumb {
-            width: 20px; height: 20px; background: #a1a1aa; /* zinc-400 */ cursor: pointer; border-radius: 50%; border: 2px solid #3f3f46; /* zinc-700 */
-        }
-      `}</style>
       </div>
-    </div>
-  );
+    );
 };
 
 export default SleepWaitModal;

@@ -224,92 +224,106 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
     };
 
     return (
-        <>
-            <div className="w-full h-full p-2 sm:p-4 flex items-center justify-center">
-                 <div className="w-full h-full max-w-[98vw] bg-zinc-950/80 backdrop-blur-lg rounded-xl border border-zinc-700 p-6 flex flex-col relative">
-                    <button onClick={onClose} className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors z-20"><X size={24} /></button>
-                    <header className="flex-shrink-0 text-center mb-4">
-                        <h1 className="text-3xl lg:text-4xl font-bold" style={{ fontFamily: 'Cinzel, serif' }}>Trading with {shop.name}</h1>
-                    </header>
+        <div className="relative w-screen h-screen bg-zinc-950 flex flex-col overflow-hidden">
+            {/* Background Layer with blur */}
+            <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 blur-md" style={{ backgroundImage: `url(/assets/backgrounds/minimal_bg.png)` }} />
+            
+            {/* Header */}
+            <header className="relative z-20 w-full h-[7vh] min-h-[56px] px-8 flex justify-between items-center border-b border-zinc-800/50 backdrop-blur-xl shrink-0 bg-zinc-950/50">
+                <button 
+                    onClick={onClose}
+                    className="flex items-center gap-2 text-zinc-400 hover:text-white transition-all group px-4 py-1.5 rounded-full hover:bg-white/5 border border-transparent hover:border-zinc-800"
+                >
+                    <X size={16} className="group-hover:rotate-90 transition-transform" />
+                    <span className="font-bold tracking-widest uppercase text-[10px]">Close Trade</span>
+                </button>
+                <div className="text-center">
+                    <h1 className="text-xl font-bold text-white tracking-[0.3em] uppercase" style={{ fontFamily: 'Cinzel, serif' }}>
+                        The Merchant's Exchange
+                    </h1>
+                </div>
+                <div className="flex items-center gap-4">
+                    <CurrencyDisplay totalCopper={playerTotalCopper} variant="minimal" />
+                </div>
+            </header>
+
+            {/* Main Content Area */}
+            <div className="relative z-10 w-full h-[86vh] flex flex-col lg:flex-row gap-6 p-6 items-stretch overflow-hidden">
+                {/* Left Panel: Merchant Inventory */}
+                <div className="w-full lg:w-[45%] h-full flex flex-col min-h-0 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+                    <div className="flex-grow bg-zinc-950/80 backdrop-blur-xl rounded-2xl border border-zinc-800/50 shadow-2xl overflow-hidden flex flex-col h-full relative">
+                        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-700/20 to-transparent" />
+                        <ItemSelectionPanel
+                            title={`${shop.name}'s Wares`}
+                            items={shop.inventory.map(si => ({ ...si.item, quantity: si.quantity }))}
+                            onItemSelect={(item) => handleItemSelect(item, 'merchant')}
+                            selectedItemId={selectedMerchantItemId}
+                            highlightedItemIds={merchantOfferIds}
+                            valueMultiplier={shop.sell_multiplier}
+                        />
+                    </div>
+                </div>
+
+                {/* Center Panel: Trade Summary */}
+                <div className="w-full lg:w-[10%] flex flex-col items-center justify-center gap-6 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
+                    <div className="p-4 bg-zinc-950/80 backdrop-blur-md rounded-full border border-zinc-800/50 shadow-xl">
+                        <ArrowRightLeft size={24} className={`text-zinc-400 ${tradeMode !== 'idle' ? 'animate-pulse text-zinc-100' : ''}`} />
+                    </div>
                     
-                    <div className="flex-grow grid grid-cols-11 gap-4 min-h-0">
-                        {/* Player Inventory */}
-                        <div className="col-span-5 flex flex-col min-h-0">
-                            <CurrencyDisplay totalCopper={playerTotalCopper} />
-                            <div className="flex-grow min-h-0 mt-1">
-                                 <ItemSelectionPanel 
-                                    title="Your Items" 
-                                    items={playerInventory
-                                        .filter(invItem => itemsMap[invItem.id]) // Filter out items not in database
-                                        .map(invItem => ({ ...itemsMap[invItem.id], quantity: invItem.quantity, uuid: invItem.uuid }))} 
-                                    onItemSelect={(item) => handleItemSelect(item, 'player')}
-                                    selectedItemId={selectedPlayerItemId}
-                                    highlightedItemIds={playerOfferIds}
-                                    valueMultiplier={shop.buy_multiplier} // Pass dynamic multiplier
-                                    acceptedCategories={shop.accepted_categories}
-                                />
-                            </div>
+                    <div className="flex flex-col items-center gap-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Balance</span>
+                        <div className={`text-xl font-bold font-mono tracking-tighter ${balance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {balance >= 0 ? `+${balance}` : balance}
                         </div>
+                    </div>
 
-                        {/* Middle Barter Section */}
-                        <div className="col-span-1 flex flex-col items-center justify-center">
-                            <ArrowRightLeft size={32} className="text-zinc-500 mb-4" />
-                            <div className="text-center my-4">
-                                <p className="text-sm text-zinc-400">Balance</p>
-                                <p className={`text-xl font-bold ${balance > 0 ? 'text-green-400' : balance < 0 ? 'text-red-400' : 'text-white'}`}>
-                                    {Math.abs(balance)}c
-                                </p>
-                                <p className={`text-xs ${balance > 0 ? 'text-green-500' : balance < 0 ? 'text-red-500' : 'text-zinc-400'}`}>
-                                    {balance > 0 ? 'You Get' : balance < 0 ? 'You Owe' : 'Even'}
-                                </p>
-                            </div>
-                            <button 
-                                onClick={() => {
-                                    setShowConfirmation(true);
-                                }}
-                                disabled={(playerOffer.length === 0 && merchantOffer.length === 0) || !canAfford}
-                                className="w-full mt-4 p-3 text-sm font-semibold tracking-wide bg-zinc-700 border border-zinc-600 rounded-md transition-all hover:bg-zinc-600/50 disabled:border-zinc-500 disabled:cursor-not-allowed disabled:text-zinc-400"
-                            >
-                                {canAfford ? "Barter" : "Can't Afford"}
-                            </button>
-                        </div>
+                    <button
+                        onClick={() => setShowConfirmation(true)}
+                        disabled={tradeMode === 'idle' || !canAfford}
+                        className="px-6 py-3 bg-zinc-100 text-black font-black uppercase tracking-[0.2em] text-[10px] rounded-lg transition-all hover:bg-white hover:scale-105 active:scale-95 disabled:opacity-20 disabled:cursor-not-allowed shadow-xl"
+                    >
+                        Review
+                    </button>
+                </div>
 
-                        {/* Merchant Inventory */}
-                        <div className="col-span-5 flex flex-col min-h-0">
-                            <CurrencyDisplay totalCopper={merchantTotalCopper} />
-                            <div className="flex-grow min-h-0 mt-1">
-                                 <ItemSelectionPanel 
-                                    title="Merchant's Wares" 
-                                    items={shop.inventory
-                                        .filter(shopItem => shopItem.item) // Filter out items that failed to load
-                                        .map(shopItem => ({ ...shopItem.item, quantity: shopItem.quantity, uuid: shopItem.item.uuid }))} 
-                                    onItemSelect={(item) => handleItemSelect(item, 'merchant')}
-                                    selectedItemId={selectedMerchantItemId}
-                                    highlightedItemIds={merchantOfferIds}
-                                    valueMultiplier={shop.sell_multiplier} // Pass dynamic multiplier
-                                />
-                            </div>
-                        </div>
+                {/* Right Panel: Player Inventory */}
+                <div className="w-full lg:w-[45%] h-full flex flex-col min-h-0 animate-fade-in-up" style={{ animationDelay: '600ms' }}>
+                    <div className="flex-grow bg-zinc-950/80 backdrop-blur-xl rounded-2xl border border-zinc-800/50 shadow-2xl overflow-hidden flex flex-col h-full relative">
+                        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-700/20 to-transparent" />
+                        <ItemSelectionPanel
+                            title="Your Belongings"
+                            items={playerInventory
+                                .filter(invItem => itemsMap[invItem.id])
+                                .map(invItem => ({ ...itemsMap[invItem.id], quantity: invItem.quantity, uuid: invItem.uuid }))}
+                            onItemSelect={(item) => handleItemSelect(item, 'player')}
+                            selectedItemId={selectedPlayerItemId}
+                            highlightedItemIds={playerOfferIds}
+                            valueMultiplier={shop.buy_multiplier}
+                            acceptedCategories={shop.accepted_categories}
+                        />
                     </div>
                 </div>
             </div>
+
             <QuantityModal
                 isOpen={quantityModalState.isOpen}
                 item={quantityModalState.item}
+                side={quantityModalState.side}
+                currentQuantity={quantityModalState.currentQuantity}
                 onConfirm={handleQuantityConfirm}
-                onClose={() => setQuantityModalState({ isOpen: false, item: null, side: null })}
+                onCancel={() => setQuantityModalState({ isOpen: false, item: null, side: null })}
             />
 
             {showConfirmation && (
                 <TradeConfirmationScreen
-                    onClose={handleFinalizeTrade}
-                    onCancel={() => setShowConfirmation(false)}
                     playerOffer={playerOffer}
                     merchantOffer={merchantOffer}
-                    tradeMode={tradeMode}
+                    balance={balance}
+                    onConfirm={handleFinalizeTrade}
+                    onCancel={() => setShowConfirmation(false)}
                 />
             )}
-        </>
+        </div>
     );
 };
 

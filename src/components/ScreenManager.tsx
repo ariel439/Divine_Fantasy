@@ -31,7 +31,8 @@ import CraftingScreen from './screens/CraftingScreen';
 import ChoiceEventScreen from './screens/ChoiceEventScreen';
 import CombatManager from './CombatManager';
 import { LootScreen } from './screens/LootScreen';
-import DebugMenuScreen from './screens/DebugMenuScreen';
+
+const DebugMenuScreen = React.lazy(() => import('./screens/DebugMenuScreen'));
 
 import npcsData from '../data/npcs.json';
 import { 
@@ -375,6 +376,7 @@ const ScreenManager: React.FC = () => {
 
         return (
           <DialogueScreen
+            npcId={npcId}
             npcName={npc?.name || 'NPC'}
             npcPortraitUrl={npc?.portrait || '/assets/icons/DivineFantasy.png'}
             playerPortraitUrl={'/assets/portraits/luke.jpg'}
@@ -382,6 +384,8 @@ const ScreenManager: React.FC = () => {
             options={options}
             onOptionSelect={handleDialogueOption}
             onEndDialogue={handleEndDialogue}
+            socialEnergy={useCharacterStore.getState().socialEnergy}
+            maxSocialEnergy={useCharacterStore.getState().maxSocialEnergy}
           />
         );
       }
@@ -415,11 +419,11 @@ const ScreenManager: React.FC = () => {
       case 'tradeConfirmation':
         return (
           <TradeConfirmationScreen
-            onClose={() => setScreen('inGame')}
+            onConfirm={() => setScreen('inGame')}
             onCancel={() => setScreen('trade')}
             playerOffer={[]}
             merchantOffer={[]}
-            tradeMode="idle"
+            balance={0}
           />
         );
       case 'crafting':
@@ -844,7 +848,12 @@ const ScreenManager: React.FC = () => {
           />
         );
       case 'debugMenu':
-        return import.meta.env.DEV ? <DebugMenuScreen /> : <MainMenu />;
+        const showDebug = import.meta.env.VITE_SHOW_DEBUG_MENU === 'true' || import.meta.env.DEV;
+        return showDebug ? (
+          <React.Suspense fallback={<div className="text-white">Loading Debug...</div>}>
+            <DebugMenuScreen />
+          </React.Suspense>
+        ) : <MainMenu />;
       default:
         return <MainMenu />;
     }

@@ -6,28 +6,22 @@ import type { OfferItem, Item } from '../../types';
 import { convertCopperToGSC } from '../../data';
 
 interface TradeConfirmationScreenProps {
-  onClose: () => void;
+  onConfirm: () => void;
   onCancel: () => void;
   playerOffer: OfferItem[];
   merchantOffer: OfferItem[];
-  tradeMode: 'selling' | 'buying' | 'bartering' | 'idle';
+  balance: number;
 }
 
-const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onClose, onCancel, playerOffer, merchantOffer, tradeMode }) => {
+const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onConfirm, onCancel, playerOffer, merchantOffer, balance }) => {
     
     const playerOfferValue = useMemo(() => playerOffer.reduce((sum, offer) => {
-        const value = tradeMode === 'selling' || tradeMode === 'bartering'
-            ? Math.floor(offer.item.base_value / 2)
-            : offer.item.base_value;
-        return sum + value * offer.quantity;
-    }, 0), [playerOffer, tradeMode]);
+        return sum + (offer.item.base_value * offer.quantity);
+    }, 0), [playerOffer]);
+
     const merchantOfferValue = useMemo(() => merchantOffer.reduce((sum, offer) => {
-        const value = tradeMode === 'buying' || tradeMode === 'bartering'
-            ? offer.item.base_value
-            : Math.floor(offer.item.base_value / 2);
-        return sum + value * offer.quantity;
-    }, 0), [merchantOffer, tradeMode]);
-    const balance = playerOfferValue - merchantOfferValue;
+        return sum + (offer.item.base_value * offer.quantity);
+    }, 0), [merchantOffer]);
 
     const BalanceDisplay: FC<{ amount: number }> = ({ amount }) => {
         if (amount === 0) {
@@ -43,15 +37,13 @@ const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onClose, on
     };
 
     const OfferList: FC<{title: string, items: OfferItem[], totalValue: number}> = ({ title, items, totalValue }) => (
-        <div className="bg-black/20 rounded-lg border border-zinc-800 p-4 flex flex-col h-full min-h-0">
+        <div className="bg-black/40 rounded-lg border border-zinc-800 p-4 flex flex-col h-full min-h-0">
             <h2 className="text-xl font-bold text-white mb-2 flex-shrink-0 border-b border-zinc-700 pb-2" style={{ fontFamily: 'Cinzel, serif' }}>{title}</h2>
              <div className="overflow-y-auto flex-grow min-h-0 custom-scrollbar pr-2 space-y-2 py-2">
                 {items.length > 0 ? items.map(offer => {
-                    const itemValue = tradeMode === 'selling' || tradeMode === 'bartering'
-                        ? Math.floor(offer.item.base_value / 2)
-                        : offer.item.base_value;
+                    const itemValue = offer.item.base_value;
                     return (
-                        <div key={offer.item.id} className="flex justify-between items-center p-2 rounded-md bg-zinc-800/50">
+                        <div key={offer.item.id} className="flex justify-between items-center p-2 rounded-md bg-zinc-900/80">
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center bg-black/40 rounded-md border border-zinc-700">
                                     {offer.item.icon || ((itemsData as any)[offer.item.id]?.image ? <img src={(itemsData as any)[offer.item.id].image} alt={offer.item.name} className="w-6 h-6" /> : null)}
@@ -77,37 +69,40 @@ const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onClose, on
     );
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-8">
-        <div className="w-full max-w-5xl bg-zinc-950/80 backdrop-blur-lg rounded-xl border border-zinc-700 p-6 relative flex flex-col max-h-[90vh]">
-            <h1 className="text-4xl font-bold text-center mb-6 flex-shrink-0" style={{ fontFamily: 'Cinzel, serif' }}>Confirm Trade</h1>
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[100] p-8 animate-fade-in backdrop-blur-md">
+        <div className="w-full max-w-5xl bg-zinc-950/90 backdrop-blur-2xl rounded-xl border border-zinc-800/50 shadow-[0_0_50px_rgba(0,0,0,0.5)] p-10 relative flex flex-col max-h-[90vh] overflow-hidden">
+            {/* Top glass accent */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-700/20 to-transparent" />
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow min-h-0">
-                <OfferList title="You Give" items={playerOffer} totalValue={playerOfferValue} />
-                <OfferList title="You Receive" items={merchantOffer} totalValue={merchantOfferValue} />
+            <h1 className="text-4xl lg:text-5xl font-bold text-center mb-10 tracking-[0.2em] uppercase text-white" style={{ fontFamily: 'Cinzel, serif' }}>Confirm Exchange</h1>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-grow min-h-0">
+                <OfferList title="Offering" items={playerOffer} totalValue={playerOfferValue} />
+                <OfferList title="Receiving" items={merchantOffer} totalValue={merchantOfferValue} />
             </div>
 
-            <div className="mt-6 p-4 rounded-lg bg-black/30 border border-zinc-800 flex flex-col items-center flex-shrink-0">
-                <h3 className="text-lg font-semibold text-zinc-300">Final Balance</h3>
-                <div className={`text-3xl my-2 ${balance > 0 ? 'text-green-400' : balance < 0 ? 'text-red-400' : 'text-white'}`}>
+            <div className="mt-8 p-6 rounded-xl bg-black/60 border border-zinc-800/50 flex flex-col items-center flex-shrink-0">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-4">Final Settlement</h3>
+                <div className={`text-4xl font-bold tracking-tighter ${balance > 0 ? 'text-green-400' : balance < 0 ? 'text-red-400' : 'text-white'}`}>
                     <BalanceDisplay amount={Math.abs(balance)} />
                 </div>
-                <p className={`text-md font-semibold ${balance > 0 ? 'text-green-500' : balance < 0 ? 'text-red-500' : 'text-zinc-400'}`}>
-                    {balance > 0 ? 'You will receive this amount' : balance < 0 ? 'You will pay this amount' : 'An even trade'}
+                <p className={`mt-4 text-[10px] font-black uppercase tracking-[0.2em] ${balance > 0 ? 'text-green-500/70' : balance < 0 ? 'text-red-500/70' : 'text-zinc-500'}`}>
+                    {balance > 0 ? 'Surplus Credit' : balance < 0 ? 'Trade Deficit' : 'Balanced Exchange'}
                 </p>
             </div>
 
-            <div className="mt-6 flex justify-center gap-4 flex-shrink-0">
+            <div className="mt-10 flex justify-center gap-6 flex-shrink-0">
                 <button 
                     onClick={onCancel} 
-                    className="px-8 py-3 text-md font-semibold tracking-wide text-white/90 bg-zinc-700/80 border border-zinc-600 rounded-md transition-all duration-300 hover:bg-zinc-600/80 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                    className="px-10 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-all border border-transparent hover:border-zinc-800 rounded-xl hover:bg-white/5"
                 >
                     Cancel
                 </button>
                  <button 
-                    onClick={onClose}
-                    className="px-8 py-3 text-md font-semibold tracking-wide text-white/90 bg-zinc-700 border border-zinc-600 rounded-md transition-all duration-300 hover:bg-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                    onClick={onConfirm}
+                    className="px-12 py-3 text-[10px] font-black uppercase tracking-widest text-white bg-zinc-800/50 border border-zinc-700/50 rounded-xl transition-all hover:bg-white/10 hover:border-zinc-400 hover:shadow-2xl active:scale-95"
                  >
-                    Confirm Trade
+                    Seal the Deal
                 </button>
             </div>
         </div>

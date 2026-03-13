@@ -12,6 +12,9 @@ import { useAudioStore } from '../../stores/useAudioStore';
 
 const MainMenu: FC = () => {
     const { setScreen, openModal } = useUIStore();
+    
+    const showDebug = import.meta.env.VITE_SHOW_DEBUG_MENU === 'true' || import.meta.env.DEV;
+
     const MenuButton: FC<{children: ReactNode, onClick?: () => void}> = ({ children, onClick }) => (
         <button 
             onClick={onClick}
@@ -39,7 +42,7 @@ const MainMenu: FC = () => {
                 </h2>
                 <div className="mt-12 flex flex-col items-center space-y-4 animate-fade-in-up delay-500">
                     <MenuButton onClick={() => setScreen('characterSelection')}>New Game</MenuButton>
-                    {import.meta.env.DEV && (
+                    {showDebug && (
                         <MenuButton onClick={() => setScreen('debugMenu')}>Debug</MenuButton>
                     )}
                     <MenuButton onClick={() => openModal('saveLoad')}>Load Game</MenuButton>

@@ -22,15 +22,21 @@ interface CombatScreenProps {
 }
 
 const TurnOrderTimeline: FC<{ combatants: CombatParticipant[]; activeId?: string }> = ({ combatants, activeId }) => (
-    <div className="w-full max-w-4xl p-2 flex justify-center items-center gap-3">
+    <div className="w-full max-w-4xl p-4 flex justify-center items-center gap-4 bg-zinc-950/50 backdrop-blur-xl rounded-full border border-zinc-800/50 shadow-2xl relative overflow-hidden">
+        {/* Top glass accent */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-700/20 to-transparent" />
+        
         {combatants.map((c, index) => {
             const isDead = c.hp <= 0;
             return (
-                <div key={`${c.id}-${index}`} className={`relative group transition-all duration-1000 ${isDead ? 'opacity-0 grayscale' : 'opacity-100'}`}>
-                    <div className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-all duration-300 ${activeId === c.id ? 'border-yellow-400 scale-110 shadow-[0_0_15px_rgba(250,204,21,0.6)]' : 'border-zinc-600'}`}>
+                <div key={`${c.id}-${index}`} className={`relative group transition-all duration-1000 ${isDead ? 'opacity-20 grayscale scale-90' : 'opacity-100'}`}>
+                    <div className={`w-14 h-14 rounded-full overflow-hidden border-2 transition-all duration-500 ${activeId === c.id ? 'border-zinc-100 scale-110 shadow-[0_0_20px_rgba(255,255,255,0.2)]' : 'border-zinc-700'}`}>
                         <img src={c.portraitUrl} alt={c.name} className="w-full h-full object-cover" />
                     </div>
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs font-semibold text-white bg-zinc-900/90 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap backdrop-blur-sm z-20">
+                    {activeId === c.id && (
+                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-zinc-100 rounded-full animate-pulse shadow-[0_0_10px_white]" />
+                    )}
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white bg-zinc-950/90 rounded-md shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap backdrop-blur-md z-20 border border-zinc-800">
                         {c.name}
                     </div>
                 </div>
@@ -129,14 +135,12 @@ const CombatScreen: FC<CombatScreenProps> = ({
     
     const CombatActionButton: FC<{ icon: React.ReactNode; text: string; onClick: () => void; disabled?: boolean }> = ({ icon, text, onClick, disabled }) => (
         <button
-            onClick={() => {
-                onClick();
-            }}
+            onClick={onClick}
             disabled={disabled}
-            className={`flex items-center justify-center gap-2 w-full max-w-[140px] px-4 py-3 bg-zinc-800/80 border ${text === 'Attack' && tutorialActive ? 'border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.6)]' : 'border-zinc-700'} rounded-lg transition-all duration-300 hover:enabled:bg-zinc-700/60 hover:enabled:${text === 'Attack' && tutorialActive ? 'border-yellow-300' : 'border-zinc-600'} disabled:opacity-50 disabled:cursor-not-allowed group`}
+            className={`flex items-center justify-center gap-3 w-full max-w-[160px] px-6 py-3 bg-zinc-950/50 backdrop-blur-md border ${text === 'Attack' && tutorialActive ? 'border-zinc-100 shadow-[0_0_20px_rgba(255,255,255,0.2)]' : 'border-zinc-800/50'} rounded-xl transition-all duration-500 hover:enabled:bg-white/10 hover:enabled:border-zinc-400 disabled:opacity-20 disabled:cursor-not-allowed group active:scale-95`}
         >
-            <div className="text-zinc-300 group-hover:enabled:text-white transition-colors">{icon}</div>
-            <span className="font-semibold text-sm text-white/90">{text}</span>
+            <div className="text-zinc-400 group-hover:enabled:text-zinc-100 transition-colors">{icon}</div>
+            <span className="font-black text-[10px] uppercase tracking-[0.2em] text-white/90">{text}</span>
         </button>
     );
     
@@ -144,13 +148,17 @@ const CombatScreen: FC<CombatScreenProps> = ({
     const isCompanionTurn = activeParticipant?.isCompanion;
 
   return (
-    <div className="w-full h-full flex flex-col relative">
+    <div className="w-full h-full flex flex-col relative bg-zinc-950">
+            {/* Background Layer with blur */}
+            <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 blur-md" style={{ backgroundImage: `url(/assets/backgrounds/minimal_bg.png)` }} />
+            
             {/* Main Combat Area */}
-            <main className="flex-grow flex flex-col lg:flex-row items-center justify-around p-4 md:p-8">
+            <main className="relative z-10 flex-grow flex flex-col lg:flex-row items-center justify-around p-4 md:p-8">
                 {/* Party Column */}
-                <div className="w-full max-w-2xl grid gap-4 lg:gap-8 mb-8 lg:mb-0" style={{ gridTemplateColumns: `repeat(${Math.min(2, party.length)}, minmax(0, 1fr))` }}>
+                <div className="flex flex-col gap-6 w-full lg:w-1/3 items-center">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-2">Vanguard</h3>
                     {party.map(member => (
-                        <div key={member.id} className="relative w-full">
+                        <div key={member.id} className="relative w-full max-w-sm">
                              <CombatantCard
                                 combatant={member}
                                 isPartyMember={true}
@@ -167,52 +175,74 @@ const CombatScreen: FC<CombatScreenProps> = ({
                 </div>
 
                 {/* Enemies Grid */}
-                <div className={`grid gap-4 lg:gap-6 w-full max-w-2xl ${tutorialActive ? 'ring-2 ring-yellow-400 rounded-lg p-2' : ''}`} style={{ gridTemplateColumns: `repeat(${Math.min(2, enemies.length)}, minmax(0, 1fr))` }}>
-                    {enemies.map(enemy => (
-                         <div key={enemy.id} className="relative">
-                            <CombatantCard
-                                combatant={enemy}
-                                isPartyMember={false}
-                                isSelected={enemy.id === selectedTargetId}
-                                onClick={() => onSelectTarget(enemy.id)}
-                                wasJustHit={enemyDamageEvents.some(e => e.targetId === enemy.id)}
-                            />
-                            {enemyDamageEvents.filter(e => e.targetId === enemy.id).map(event => (
-                                <div key={event.key} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl font-bold text-red-500 animate-float-up" style={{textShadow: '0 0 8px rgba(255, 255, 255, 0.7)'}}>
-                                  {event.damage}
-                                </div>
-                            ))}
-                        </div>
-                    ))}
+                <div className="flex flex-col gap-6 w-full lg:w-1/3 items-center">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-red-500/70 mb-2">Adversaries</h3>
+                    <div className={`grid gap-4 lg:gap-6 w-full ${tutorialActive ? 'ring-2 ring-yellow-400 rounded-lg p-2' : ''}`} style={{ gridTemplateColumns: `repeat(${Math.min(2, enemies.length)}, minmax(0, 1fr))` }}>
+                        {enemies.map(enemy => (
+                            <div key={enemy.id} className="relative">
+                                <CombatantCard
+                                    combatant={enemy}
+                                    isPartyMember={false}
+                                    isSelected={enemy.id === selectedTargetId}
+                                    onClick={() => onSelectTarget(enemy.id)}
+                                    wasJustHit={enemyDamageEvents.some(e => e.targetId === enemy.id)}
+                                />
+                                {enemyDamageEvents.filter(e => e.targetId === enemy.id).map(event => (
+                                    <div key={event.key} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl font-bold text-red-500 animate-float-up" style={{textShadow: '0 0 8px rgba(255, 255, 255, 0.7)'}}>
+                                    {event.damage}
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </main>
 
-            {/* Bottom Command Panel */}
-            <footer className="flex-shrink-0 w-full bg-zinc-950/90 backdrop-blur-sm border-t border-zinc-700 p-4 shadow-[0_-10px_30px_rgba(0,0,0,0.3)]">
-                <div className="w-full max-w-[1920px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+            {/* Bottom Command Panel - Cinematic & Minimalist */}
+            <footer className="relative z-20 flex-shrink-0 w-full h-[25vh] bg-zinc-950/50 backdrop-blur-2xl border-t border-zinc-800/50 p-6 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+                {/* Top glass accent */}
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-700/20 to-transparent" />
+
+                <div className="w-full max-w-[1920px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center h-full">
                     
                     {/* Combat Log */}
-                    <div className="md:col-span-1 h-32 bg-black/30 rounded-lg p-2 flex flex-col border border-zinc-800 order-3 md:order-1">
-                        <div className="overflow-y-auto custom-scrollbar pr-2 flex-grow">
+                    <div className="md:col-span-1 h-full flex flex-col order-3 md:order-1 min-h-0">
+                        <div className="flex items-center gap-2 mb-3 text-zinc-500 flex-shrink-0">
+                            <Swords size={12} className="animate-pulse" />
+                            <span className="text-[9px] font-black uppercase tracking-[0.3em]">Battle Chronicle</span>
+                        </div>
+                        <div className="flex-grow overflow-y-auto custom-scrollbar pr-4 space-y-2 font-light italic text-sm text-zinc-300 min-h-0">
                             {combatLog.map((entry, index) => (
-                                <p key={index} className="text-sm text-zinc-300 mb-1">{entry}</p>
+                                <div key={index} className="animate-fade-in-up border-l border-zinc-800/50 pl-4 py-1">
+                                    {entry}
+                                </div>
                             ))}
                             <div ref={logEndRef} />
                         </div>
                     </div>
                     
                     {/* Turn Indicator & Timeline */}
-                    <div className="md:col-span-1 text-center font-bold tracking-wider order-1 md:order-2 flex flex-col items-center">
-                        <h3 className={`text-xl transition-opacity duration-300 mb-2 ${isCompanionTurn ? 'text-yellow-400' : (isPlayerTurn ? 'text-blue-400' : 'text-red-400')}`}>
-                            {isCompanionTurn ? "COMPANION'S TURN" : (isPlayerTurn ? "PLAYER'S TURN" : "ENEMY'S TURN")}
-                        </h3>
+                    <div className="md:col-span-1 text-center font-bold tracking-wider order-1 md:order-2 flex flex-col items-center justify-center">
+                        <div className="mb-4">
+                            <span className={`text-[10px] font-black uppercase tracking-[0.4em] px-4 py-1 rounded-full border ${
+                                isCompanionTurn ? 'text-yellow-400 border-yellow-400/30 bg-yellow-400/5' : 
+                                (isPlayerTurn ? 'text-zinc-100 border-zinc-100/30 bg-zinc-100/5' : 'text-red-400 border-red-400/30 bg-red-400/5')
+                            }`}>
+                                {isCompanionTurn ? "Companion's Initiative" : (isPlayerTurn ? "Player's Initiative" : "Enemy's Initiative")}
+                            </span>
+                        </div>
                         <TurnOrderTimeline combatants={turnOrder} activeId={activeCharacterId} />
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="md:col-span-1 flex justify-center md:justify-end gap-2 order-2 md:order-3">
-                        <CombatActionButton icon={<Swords size={20} />} text="Attack" onClick={onAttack} disabled={!isPlayerTurn || isCompanionTurn || !selectedTargetId} />
-                        <CombatActionButton icon={<Footprints size={20} />} text="Flee" onClick={onFlee} disabled={!isPlayerTurn || isCompanionTurn} />
+                    <div className="md:col-span-1 flex flex-col justify-center items-center md:items-end gap-4 order-2 md:order-3">
+                         <div className="flex items-center gap-3 text-zinc-500 mb-1">
+                            <span className="text-[9px] font-black uppercase tracking-[0.3em]">Command Matrix</span>
+                        </div>
+                        <div className="flex gap-4">
+                            <CombatActionButton icon={<Swords size={18} />} text="Attack" onClick={onAttack} disabled={!isPlayerTurn || isCompanionTurn || !selectedTargetId} />
+                            <CombatActionButton icon={<Footprints size={18} />} text="Flee" onClick={onFlee} disabled={!isPlayerTurn || isCompanionTurn} />
+                        </div>
                     </div>
                 </div>
             </footer>

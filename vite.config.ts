@@ -18,6 +18,10 @@ export default defineConfig(({ mode }) => {
       },
       build: {
         outDir: '../dist',
+        minify: 'esbuild',
+      },
+      esbuild: {
+        drop: mode === 'production' ? ['console', 'debugger'] : [],
       },
       resolve: {
         alias: {

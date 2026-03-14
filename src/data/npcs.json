@@ -3,150 +3,222 @@
     "name": "Beryl",
     "home_location": "beryls_general_goods",
     "default_dialogue_id": "beryl_default",
-    "portrait": "/assets/portraits/Beryl.png"
-  },
-  "npc_beryl_tavern": {
-    "name": "Beryl",
-    "home_location": "salty_mug",
-    "default_dialogue_id": "beryl_tavern",
-    "portrait": "/assets/portraits/Beryl.png"
+    "portrait": "/assets/portraits/Beryl.png",
+    "schedules": [
+      { "location_id": "beryls_general_goods", "start_hour": 8, "end_hour": 18 },
+      { "location_id": "salty_mug", "start_hour": 19, "end_hour": 23 }
+    ]
   },
   "npc_kaelen": {
     "name": "Kaelen",
     "home_location": "kaelens_forge",
     "default_dialogue_id": "kaelen_default",
-    "portrait": "/assets/portraits/Kaelen.png"
+    "portrait": "/assets/portraits/Kaelen.png",
+    "schedules": [
+      { "location_id": "kaelens_forge", "start_hour": 7, "end_hour": 19 },
+      { "location_id": "salty_mug", "start_hour": 20, "end_hour": 22 }
+    ]
   },
   "npc_cyrus": {
     "name": "Cyrus",
     "home_location": "kaelens_forge",
     "default_dialogue_id": "cyrus_default",
-    "portrait": "/assets/portraits/Cyrus.png"
+    "portrait": "/assets/portraits/Cyrus.png",
+    "schedules": [
+      { "location_id": "kaelens_forge", "start_hour": 7, "end_hour": 19 }
+    ]
   },
   "npc_adalia": {
     "name": "Adalia",
     "home_location": "grand_library",
     "default_dialogue_id": "adalia_default",
-    "portrait": "/assets/portraits/Adalia.png"
+    "portrait": "/assets/portraits/Adalia.png",
+    "schedules": [
+      { "location_id": "grand_library", "start_hour": 9, "end_hour": 17 },
+      { "location_id": "driftwatch_main_street", "start_hour": 18, "end_hour": 20 }
+    ]
   },
   "npc_matthias": {
     "name": "Corporal Matthias",
     "home_location": "mosswatch_keep",
     "default_dialogue_id": "matthias_default",
-    "portrait": "/assets/portraits/Matthias.png"
+    "portrait": "/assets/portraits/Matthias.png",
+    "schedules": [
+      { "location_id": "mosswatch_keep", "start_hour": 8, "end_hour": 16 },
+      { "location_id": "tidehunter_quarter", "start_hour": 17, "end_hour": 1 }
+    ]
   },
   "npc_rodrick": {
     "name": "Sergeant Rodrick",
     "home_location": "tidehunter_quarter",
     "default_dialogue_id": "rodrick_default",
-    "portrait": "/assets/portraits/Rodrick.png"
+    "portrait": "/assets/portraits/Rodrick.png",
+    "schedules": [
+      { "location_id": "tidehunter_quarter", "start_hour": 8, "end_hour": 20 }
+    ]
   },
   "npc_boric": {
     "name": "Boric",
     "home_location": "driftwatch_docks",
     "default_dialogue_id": "boric_default",
-    "portrait": "/assets/portraits/Boric.png"
+    "portrait": "/assets/portraits/Boric.png",
+    "schedules": [
+      { "location_id": "driftwatch_docks", "start_hour": 8, "end_hour": 18 }
+    ]
   },
   "npc_elias_captain": {
     "name": "Captain Elias",
     "home_location": "driftwatch_docks",
     "default_dialogue_id": "elias_default",
-    "portrait": "/assets/portraits/Elias.png"
+    "portrait": "/assets/portraits/Elias.png",
+    "schedules": [
+      { "location_id": "driftwatch_docks", "start_hour": 18, "end_hour": 23 }
+    ]
   },
   "npc_roberta": {
     "name": "Roberta",
     "home_location": "tide_trade",
     "default_dialogue_id": "roberta_default",
-    "portrait": "/assets/portraits/Roberta.png"
+    "portrait": "/assets/portraits/Roberta.png",
+    "schedules": [
+      { "location_id": "tide_trade", "start_hour": 9, "end_hour": 19 }
+    ]
   },
   "npc_finn": {
     "name": "Finn",
     "home_location": "salty_mug",
     "default_dialogue_id": "finn_default",
-    "portrait": "/assets/portraits/OldManFinn.png"
+    "portrait": "/assets/portraits/OldManFinn.png",
+    "schedules": [
+      { "location_id": "salty_mug", "start_hour": 6, "end_hour": 18 }
+    ]
   },
   "npc_old_crank": {
     "name": "Old Crank",
     "home_location": "salty_mug",
     "default_dialogue_id": "old_crank_default",
-    "portrait": "/assets/portraits/OldCrank.png"
+    "portrait": "/assets/portraits/OldCrank.png",
+    "schedules": [
+      { "location_id": "salty_mug", "start_hour": 14, "end_hour": 0 }
+    ]
   },
   "npc_elara": {
     "name": "Elara",
     "home_location": "herbalists_hovel",
     "default_dialogue_id": "elara_default",
-    "portrait": "/assets/portraits/Elara.png"
+    "portrait": "/assets/portraits/Elara.png",
+    "schedules": [
+      { "location_id": "herbalists_hovel", "start_hour": 8, "end_hour": 18 },
+      { "location_id": "salty_mug", "start_hour": 19, "end_hour": 22 }
+    ]
   },
   "npc_crawler": {
     "name": "Crawler",
     "home_location": "sawmill",
     "default_dialogue_id": "crawler_default",
-    "portrait": "/assets/portraits/Crawler.png"
+    "portrait": "/assets/portraits/Crawler.png",
+    "schedules": [
+      { "location_id": "sawmill", "start_hour": 7, "end_hour": 19 }
+    ]
   },
   "npc_ben": {
     "name": "Ben",
     "home_location": "homestead_farm",
     "default_dialogue_id": "ben_default",
-    "portrait": "/assets/portraits/Ben.png"
+    "portrait": "/assets/portraits/Ben.png",
+    "schedules": [
+      { "location_id": "homestead_farm", "start_hour": 6, "end_hour": 18 },
+      { "location_id": "salty_mug", "start_hour": 19, "end_hour": 23 }
+    ]
   },
   "npc_elisa": {
     "name": "Elisa",
     "home_location": "homestead_farm",
     "default_dialogue_id": "elisa_default",
-    "portrait": "/assets/portraits/Elisa.png"
+    "portrait": "/assets/portraits/Elisa.png",
+    "schedules": [
+      { "location_id": "homestead_farm", "start_hour": 6, "end_hour": 23 }
+    ]
   },
   "npc_rowan": {
     "name": "Rowan",
     "home_location": "homestead_farm",
     "default_dialogue_id": "rowan_default",
-    "portrait": "/assets/portraits/Rowan.png"
-  },
-  "npc_old_leo": {
-    "name": "Old Leo",
-    "home_location": "leo_lighthouse",
-    "default_dialogue_id": "old_leo_default",
-    "portrait": "/assets/portraits/Leo.png"
-  },
-  "npc_sarah": {
-    "name": "Sarah",
-    "home_location": "leo_lighthouse",
-    "default_dialogue_id": "sarah_default",
-    "portrait": "/assets/portraits/Sarah.png"
-  },
-  "npc_robert": {
-    "name": "Robert",
-    "home_location": "leo_lighthouse",
-    "default_dialogue_id": "robert_default",
-    "portrait": "/assets/portraits/Robert.png"
-  },
-  "npc_kyle": {
-    "name": "Kyle",
-    "home_location": "leo_lighthouse",
-    "default_dialogue_id": "kyle_default",
-    "portrait": "/assets/portraits/Kyle.png"
-  },
-  "npc_barkip": {
-    "name": "Barkip",
-    "home_location": "salty_mug",
-    "default_dialogue_id": "barkip_default",
-    "portrait": "/assets/portraits/Barkip.png"
+    "portrait": "/assets/portraits/Rowan.png",
+    "schedules": [
+      { "location_id": "homestead_farm", "start_hour": 8, "end_hour": 20 }
+    ]
   },
   "npc_stan": {
     "name": "Private Stan",
     "home_location": "mosswatch_keep",
     "default_dialogue_id": "stan_default",
-    "portrait": "/assets/portraits/Guard_Generic.png"
+    "portrait": "/assets/portraits/Stan.png",
+    "schedules": [
+      { "location_id": "mosswatch_keep", "start_hour": 19, "end_hour": 6 }
+    ]
+  },
+  "npc_old_leo": {
+    "name": "Old Leo",
+    "home_location": "leo_lighthouse",
+    "default_dialogue_id": "old_leo_default",
+    "portrait": "/assets/portraits/Leo.png",
+    "schedules": [
+      { "location_id": "leo_lighthouse", "start_hour": 7, "end_hour": 22 }
+    ]
+  },
+  "npc_sarah": {
+    "name": "Sarah",
+    "home_location": "leo_lighthouse",
+    "default_dialogue_id": "sarah_default",
+    "portrait": "/assets/portraits/Sarah.png",
+    "schedules": [
+      { "location_id": "leo_lighthouse", "start_hour": 7, "end_hour": 22 }
+    ]
+  },
+  "npc_robert": {
+    "name": "Robert",
+    "home_location": "leo_lighthouse",
+    "default_dialogue_id": "robert_default",
+    "portrait": "/assets/portraits/Robert.png",
+    "schedules": [
+      { "location_id": "leo_lighthouse", "start_hour": 7, "end_hour": 22 }
+    ]
+  },
+  "npc_kyle": {
+    "name": "Kyle",
+    "home_location": "leo_lighthouse",
+    "default_dialogue_id": "kyle_default",
+    "portrait": "/assets/portraits/Kyle.png",
+    "schedules": [
+      { "location_id": "leo_lighthouse", "start_hour": 7, "end_hour": 22 }
+    ]
+  },
+  "npc_barkip": {
+    "name": "Barkip",
+    "home_location": "salty_mug",
+    "default_dialogue_id": "barkip_default",
+    "portrait": "/assets/portraits/Barkip.png",
+    "schedules": [
+      { "location_id": "salty_mug", "start_hour": 17, "end_hour": 7 }
+    ]
   },
   "npc_shaky_jace": {
     "name": "Shaky Jace",
     "home_location": "driftwatch_slums",
     "default_dialogue_id": "shaky_jace_default",
-    "portrait": "/assets/portraits/ShakyJace.png"
+    "portrait": "/assets/portraits/ShakyJace.png",
+    "schedules": [
+      { "location_id": "driftwatch_slums", "start_hour": 18, "end_hour": 4 }
+    ]
   },
   "npc_ronald": {
     "name": "Ronald",
     "home_location": "hunters_cabin",
     "default_dialogue_id": "ronald_default",
-    "portrait": "/assets/portraits/Ronald.png"
+    "portrait": "/assets/portraits/Ronald.png",
+    "schedules": [
+      { "location_id": "hunters_cabin", "start_hour": 6, "end_hour": 20 }
+    ]
   }
 }

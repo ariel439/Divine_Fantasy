@@ -20,6 +20,7 @@ import { useJobStore } from '../../stores/useJobStore';
 import type { ActionSummary, Slide } from '../../types';
 import { ExplorationService } from '../../services/ExplorationService';
 import { mockBooks } from '../../data';
+import npcsData from '../../data/npcs.json';
 import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, rebelRaidIntroSlides, sellLocketSlides, elaraDeliverySlides, berylDeliverySlides, benCheatEventSlides } from '../../data/events';
 
 const LocationScreen: React.FC = () => {
@@ -42,6 +43,26 @@ const LocationScreen: React.FC = () => {
   const season = getSeason();
   const weather = getWeather();
   
+  const dynamicNpcs = Object.entries(npcsData).filter(([id, npc]) => {
+    if (!(npc as any).schedules) return false;
+    const schedule = (npc as any).schedules.find((s: any) => {
+      if (s.location_id !== currentLocation.id) return false;
+      if (s.start_hour <= s.end_hour) {
+        return hour >= s.start_hour && hour < s.end_hour;
+      } else {
+        // Overnight schedule (e.g. 22:00 - 04:00)
+        return hour >= s.start_hour || hour < s.end_hour;
+      }
+    });
+    return !!schedule;
+  }).map(([id, npc]) => ({
+    id,
+    name: npc.name,
+    type: 'dialogue',
+    target: id,
+    text: `Talk to ${npc.name}`
+  }));
+
   // Travel state
   const [travelModalOpen, setTravelModalOpen] = useState(false);
   const [travelProgressModalOpen, setTravelProgressModalOpen] = useState(false);
@@ -788,6 +809,15 @@ const LocationScreen: React.FC = () => {
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-zinc-700/20 to-transparent" />
             
             <div className="overflow-y-auto flex-grow pr-2 space-y-3 custom-scrollbar mt-2">
+              {dynamicNpcs.map((npc) => (
+                <ActionButton
+                  key={`dynamic-${npc.id}`}
+                  onClick={() => handleAction(npc)}
+                  category="dialogue"
+                  icon={<MessageSquare size={20} className="text-sky-300" />}
+                  text={npc.text}
+                />
+              ))}
               {currentLocation.actions
                 .slice()
                 .sort((a: any, b: any) => {

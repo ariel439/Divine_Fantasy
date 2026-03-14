@@ -38,13 +38,10 @@
     "music_track": "/assets/musics/Whisper of the Pines.mp3",
     "is_indoor": true,
     "actions": [
-      { "text": "Talk to Old Leo", "type": "dialogue", "target": "npc_old_leo" },
-      { "text": "Talk to Sarah", "type": "dialogue", "target": "npc_sarah" },
-      { "text": "Talk to Kyle", "type": "dialogue", "target": "npc_kyle" },
       { "text": "Eat Breakfast", "type": "tutorial_breakfast", "target": "breakfast", "condition": "world_flags.intro_completed==false" },
       { "text": "Play Alone", "type": "tutorial_play_alone", "target": "alone", "condition": "world_flags.intro_completed==false" },
       { "text": "End the Day", "type": "end_intro", "target": "end_intro", "condition": "world_flags.intro_completed==false" },
-      { "text": "Return to Room", "type": "navigate", "target": "orphanage_room", "condition": "world_flags.intro_completed==false" },
+      { "text": "Return to Room", "type": "navigate", "target": "orphanage_room" },
       { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
     ]
   },
@@ -68,7 +65,6 @@
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": true,
     "actions": [
-      { "text": "Talk to Beryl", "type": "dialogue", "target": "npc_beryl", "condition": "time.is_day==true" },
       { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
     ]
   },
@@ -80,8 +76,6 @@
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": true,
     "actions": [
-      { "text": "Talk to Kaelen", "type": "dialogue", "target": "npc_kaelen", "condition": "time.is_day==true" },
-      { "text": "Talk to Cyrus", "type": "dialogue", "target": "npc_cyrus", "condition": "time.is_day==true" },
       { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
     ]
   },
@@ -101,30 +95,25 @@
     ]
   },
   "mosswatch_keep": {
-    "name": "Mosswatch Keep (Outside)",
-    "day_description": "An imposing stone fortress that houses the Driftwatch city guard.",
-    "night_description": "The keep stands vigilant in the night.",
-    "day_background": "/assets/locations/mosswatch_keep_day.png",
-    "night_background": "/assets/locations/mosswatch_keep_night.png",
+    "name": "Mosswatch Keep",
+    "day_description": "The imposing stone fortress that serves as the regional seat of power.",
+    "night_description": "The keep's silhouette is stark against the night sky, guarded by vigilant sentries.",
+    "day_background": "/assets/locations/mosswatch_keep.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
+    "is_indoor": true,
     "actions": [
-      { "text": "Talk to Corporal Matthias", "type": "dialogue", "target": "npc_matthias", "condition": "time.is_day==true" },
-      { "text": "Talk to Private Stan", "type": "dialogue", "target": "npc_stan", "condition": "time.is_day==false" },
-      { "text": "Travel to Tidehunter Quarter", "type": "navigate", "target": "tidehunter_quarter", "condition": "quest.rebel_path.stage>=3" },
-      { "text": "Travel to Noble Quarter", "type": "navigate", "target": "driftwatch_noble_quarter" }
+      { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
     ]
   },
   "grand_library": {
     "name": "The Grand Library",
-    "day_description": "A quiet repository of knowledge, moved to the Noble Quarter.",
-    "night_description": "The library is dimly lit by candles.",
+    "day_description": "A vast repository of knowledge, filled with towering bookshelves and the smell of old parchment.",
+    "night_description": "The library is quiet and shadowy, illuminated by a few lingering candles.",
     "day_background": "/assets/locations/grand_library.png",
-    "music_track": "/assets/musics/Whisper of the Pines.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": true,
     "actions": [
-      { "text": "Talk to Adalia", "type": "dialogue", "target": "npc_adalia" },
-      { "text": "Read Books", "type": "library", "target": "library_driftwatch" },
-      { "text": "Travel to Noble Quarter", "type": "navigate", "target": "driftwatch_noble_quarter" }
+      { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
     ]
   },
   "tidehunter_quarter": {
@@ -187,25 +176,14 @@
     ]
   },
   "salty_mug": {
-    "name": "Salty Mug",
-    "day_description": "A dimly lit, rowdy tavern frequented by sailors and the city's underbelly.",
-    "night_description": "The tavern is lively even at night.",
+    "name": "The Salty Mug",
+    "day_description": "A dim and rowdy tavern where sailors and locals gather to share stories and spirits.",
+    "night_description": "The tavern is alive with music, laughter, and the clinking of mugs.",
     "day_background": "/assets/locations/salty_mug.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": true,
     "actions": [
-      { "text": "Talk to Finn", "type": "dialogue", "target": "npc_finn", "condition": "time.is_day==true" },
-      { "text": "Talk to Barkip", "type": "dialogue", "target": "npc_barkip", "condition": "time.is_night==true" },
-      { "text": "Talk to Barkip", "type": "dialogue", "target": "npc_barkip", "condition": "time.is_day==true" },
-      { "text": "Talk to Old Crank", "type": "dialogue", "target": "npc_old_crank" },
-      { "text": "Talk to Beryl", "type": "dialogue", "target": "npc_beryl_tavern", "condition": "time.hour_gte==20&&time.hour_lt==24" },
-      { "text": "Talk to Ben", "type": "dialogue", "target": "npc_ben", "condition": "time.hour_gte==19&&time.hour_lt==23" },
-      { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.is_night==true&&time.weekday==Saturday" },
-      { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.is_night==true&&time.weekday==Sunday" },
-      { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.weekday==Monday&&time.hour_lt==6" },
-      { "text": "Help Ben Cheat", "type": "trigger_event", "eventId": "ben_cheat_event", "condition": "time.is_night==true && world_flags.ben_cheat_agreed==true && world_flags.debt_paid_by_ben==false" },
-      { "text": "Raid the Salty Mug", "type": "trigger_event", "eventId": "raid_salty_mug_intro", "condition": "world_flags.raid_ready==true" },
-      { "text": "Travel to Driftwatch Slums", "type": "navigate", "target": "driftwatch_slums" }
+      { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
     ]
   },
   "salty_mug_rented_room": {
@@ -236,15 +214,14 @@
     ]
   },
   "herbalists_hovel": {
-    "name": "Herbalist's Hovel",
-    "day_description": "A small, strange hut filled with drying herbs and mysterious potions.",
-    "night_description": "The hovel is eerie in the moonlight.",
+    "name": "The Herbalist's Hovel",
+    "day_description": "A small, fragrant cottage filled with drying herbs and bubbling cauldrons.",
+    "night_description": "The hovel is filled with the scent of night-blooming jasmine.",
     "day_background": "/assets/locations/herbalists_hovel.png",
-    "music_track": "/assets/musics/Whisper of the Pines.mp3",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": true,
     "actions": [
-      { "text": "Talk to Elara", "type": "dialogue", "target": "npc_elara" },
-      { "text": "Travel to Driftwatch Slums", "type": "navigate", "target": "driftwatch_slums" }
+      { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
     ]
   },
   "the_crossroads": {
@@ -307,16 +284,13 @@
   },
   "homestead_farm": {
     "name": "Homestead Farm",
-    "day_description": "A simple, hardworking farm that supplies much of the town's food.",
-    "night_description": "The farm is peaceful under the stars.",
-    "day_background": "/assets/locations/homestead_farm_day.png",
-    "night_background": "/assets/locations/homestead_farm_night.png",
+    "day_description": "A bustling farm with rows of crops and the sound of livestock.",
+    "night_description": "The farm is quiet, the fields bathed in moonlight.",
+    "day_background": "/assets/locations/homestead_farm.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
+    "is_indoor": false,
     "actions": [
-      { "text": "Talk to Ben", "type": "dialogue", "target": "npc_ben", "condition": "time.hour_gte==6 && time.hour_lt==19" },
-      { "text": "Talk to Elisa", "type": "dialogue", "target": "npc_elisa", "condition": "time.hour_gte==6 && time.hour_lt==23" },
-      { "text": "Talk to Rowan", "type": "dialogue", "target": "npc_rowan", "condition": "time.hour_gte==8 && time.hour_lt==20" },
-      { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads" }
+      { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
     ]
   }
 }

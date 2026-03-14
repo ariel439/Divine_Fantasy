@@ -88,14 +88,14 @@
     - **Task**: Use environment variables to remove debug menus and `console.log`s from the production build.
 - [x] **Asset Preloading**:
     - **Task**: Create an `AssetManager` to preload images and audio for adjacent locations, reducing stutter and pop-in.
-- [ ] **UI Responsiveness Audit**:
+- [x] **UI Responsiveness Audit**:
     - **Task**: Review all major UI components to ensure they adapt correctly to different screen sizes and aspect ratios.
 - [x] **Advanced Audio Ducking**:
     - **Task**: Implement audio ducking in `AudioManager.tsx` to lower ambient/music volume during dialogue and modal pop-ups.
 
 ## 🌍 Phase 8: The "Alive" World
 *This phase is about adding content and dynamism to make the world feel less static.*
-- [ ] **Dynamic NPC Schedules**:
+- [x] **Dynamic NPC Schedules**:
     - **Task**: Implement daily schedules for at least 3-4 key NPCs who are currently static.
 - [ ] **Add New Side Quests**:
     - **Task**: Add 2-3 new side quests to encourage exploration and interaction with the new NPC schedules.

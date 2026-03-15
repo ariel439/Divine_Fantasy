@@ -21,7 +21,9 @@ import type { ActionSummary, Slide } from '../../types';
 import { ExplorationService } from '../../services/ExplorationService';
 import { mockBooks } from '../../data';
 import npcsData from '../../data/npcs.json';
+import locationsData from '../../data/locations.json';
 import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, rebelRaidIntroSlides, sellLocketSlides, elaraDeliverySlides, berylDeliverySlides, benCheatEventSlides } from '../../data/events';
+import { useToastStore } from '../../stores/useToastStore';
 
 const LocationScreen: React.FC = () => {
   const { hp, energy, hunger } = useCharacterStore();
@@ -42,8 +44,13 @@ const LocationScreen: React.FC = () => {
 
   const season = getSeason();
   const weather = getWeather();
+
+  const worldState = useWorldStateStore.getState();
+  const introMode = worldState.introMode;
+  const tutorialStep = worldState.tutorialStep;
   
   const dynamicNpcs = Object.entries(npcsData).filter(([id, npc]) => {
+    if (introMode) return false; // Firewall: No dynamic schedules during intro
     if (!(npc as any).schedules) return false;
     const schedule = (npc as any).schedules.find((s: any) => {
       if (s.location_id !== currentLocation.id) return false;
@@ -128,9 +135,6 @@ const LocationScreen: React.FC = () => {
   };
 
   const { temp, weatherText, WeatherIcon } = getWeatherDisplay();
-  const worldState = useWorldStateStore.getState();
-  const introMode = worldState.introMode;
-  const tutorialStep = worldState.tutorialStep;
 
   const berylSecretMeetingSlides: Slide[] = [
     {
@@ -492,21 +496,39 @@ const LocationScreen: React.FC = () => {
         }
         break;
       }
-      case 'navigate':
+      case 'navigate': {
+        const targetId = action.target;
+        const targetLoc = (locationsData as any)[targetId];
+        
+        // Check for closing hours (only outside intro)
+        if (!introMode && targetLoc && targetLoc.opening_hour !== undefined) {
+          const currentHour = useWorldTimeStore.getState().hour;
+          const { opening_hour, closing_hour } = targetLoc;
+          const isClosed = opening_hour <= closing_hour
+            ? (currentHour < opening_hour || currentHour >= closing_hour)
+            : (currentHour >= closing_hour && currentHour < opening_hour);
+
+          if (isClosed) {
+            useToastStore.getState().addToast(`${targetLoc.name} is currently closed. It opens at ${opening_hour}:00.`, 'warning');
+            break;
+          }
+        }
+
         if (action.time_cost && action.time_cost > 0) {
           setPendingTravelAction(action);
           setTravelModalOpen(true);
         } else {
-          useLocationStore.getState().setLocation(action.target);
-          if (introMode && action.target === 'leo_lighthouse' && tutorialStep === 0) {
+          useLocationStore.getState().setLocation(targetId);
+          if (introMode && targetId === 'leo_lighthouse' && tutorialStep === 0) {
             useWorldStateStore.getState().setTutorialStep(1);
           }
-          if (introMode && action.target === 'orphanage_room' && tutorialStep === 6) {
+          if (introMode && targetId === 'orphanage_room' && tutorialStep === 6) {
             useWorldStateStore.getState().setTutorialStep(7);
           }
           setPendingTravelAction(null);
         }
         break;
+      }
       default:
         console.log('Action not implemented:', action);
     }
@@ -840,6 +862,19 @@ const LocationScreen: React.FC = () => {
                   return 0;
                 })
                 .filter((action: any) => {
+                  // NEW: Filter out navigation to closed shops
+                  if (action.type === 'navigate') {
+                    const targetLoc = (locationsData as any)[action.target];
+                    if (targetLoc && targetLoc.opening_hour !== undefined) {
+                      const currentHour = useWorldTimeStore.getState().hour;
+                      const { opening_hour, closing_hour } = targetLoc;
+                      const isClosed = opening_hour <= closing_hour
+                        ? (currentHour < opening_hour || currentHour >= closing_hour)
+                        : (currentHour >= closing_hour && currentHour < opening_hour);
+                      if (isClosed) return false;
+                    }
+                  }
+
                   if (action.type === 'job') {
                     const js = useJobStore.getState();
                     const activeJob = js.activeJob;
@@ -957,6 +992,10 @@ const LocationScreen: React.FC = () => {
                     if (tutorialStep === 3) return action.type === 'tutorial_breakfast';
                     if (tutorialStep === 5) return (action.type === 'dialogue' && (action.target === 'npc_sarah' || action.target === 'npc_kyle')) || action.type === 'tutorial_play_alone';
                     if (tutorialStep === 6) return (action.type === 'navigate' && action.target === 'orphanage_room');
+                  }
+                  if (locId === 'driftwatch_main_street' || locId === 'beryls_general_goods' || locId === 'kaelens_forge') {
+                    // Allow navigation during intro
+                    return action.type === 'navigate';
                   }
                   return false;
                 })

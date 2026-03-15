@@ -18,14 +18,13 @@ const ToastIcon = ({ type }: { type: ToastType }) => {
 const getToastStyles = (type: ToastType) => {
   switch (type) {
     case 'success':
-      // Dark green, almost black theme
       return 'border-emerald-900/40 bg-zinc-950/95 shadow-2xl ring-1 ring-emerald-500/20';
     case 'error':
-      return 'border-red-500/50 bg-red-950/90 shadow-red-900/20';
+      return 'border-red-900/40 bg-zinc-950/95 shadow-2xl ring-1 ring-red-500/20';
     case 'warning':
-      return 'border-amber-500/50 bg-amber-950/90 shadow-amber-900/20';
+      return 'border-amber-900/40 bg-zinc-950/95 shadow-2xl ring-1 ring-amber-500/20';
     default:
-      return 'border-sky-500/50 bg-slate-900/90 shadow-sky-900/20';
+      return 'border-sky-900/40 bg-zinc-950/95 shadow-2xl ring-1 ring-sky-500/20';
   }
 };
 
@@ -45,6 +44,11 @@ const ToastItem = ({
   onClose: () => void 
 }) => {
   const styles = getToastStyles(type);
+  const progressBarColor = 
+    type === 'success' ? 'bg-emerald-500/30' :
+    type === 'error' ? 'bg-red-500/30' :
+    type === 'warning' ? 'bg-amber-500/30' :
+    'bg-sky-500/30';
 
   return (
     <div className={`
@@ -99,7 +103,7 @@ const ToastItem = ({
       </div>
 
       {/* Progress bar effect at bottom */}
-      <div className="absolute bottom-0 left-0 h-[2px] bg-emerald-500/30 animate-[progress_3s_linear_forwards]" style={{ width: '100%' }} />
+      <div className={`absolute bottom-0 left-0 h-[2px] ${progressBarColor} animate-[progress_3s_linear_forwards]`} style={{ width: '100%' }} />
     </div>
   );
 };

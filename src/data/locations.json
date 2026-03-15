@@ -22,11 +22,11 @@
     "night_background": "/assets/locations/driftwatch_main_street_night.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
-      { "text": "Travel to Leo's Lighthouse", "type": "navigate", "target": "leo_lighthouse", "condition": "time.is_day==true" },
-      { "text": "Travel to Beryl's General Goods", "type": "navigate", "target": "beryls_general_goods", "condition": "time.is_day==true" },
+      { "text": "Travel to Leo's Lighthouse", "type": "navigate", "target": "leo_lighthouse" },
+      { "text": "Travel to Beryl's General Goods", "type": "navigate", "target": "beryls_general_goods" },
       { "text": "Investigate Noise", "type": "trigger_event", "eventId": "beryl_secret_meeting", "condition": "time.is_night==true&&world_flags.finn_debt_collection_active==true&&world_flags.debt_paid_by_beryl==false&&world_flags.beryl_secret_meeting_seen==false" },
       { "text": "Inspect Crumpled Letter", "type": "trigger_event", "eventId": "beryl_letter_pickup", "condition": "world_flags.beryl_secret_meeting_seen==true&&world_flags.beryl_letter_found==false" },
-      { "text": "Travel to Kaelen's Forge", "type": "navigate", "target": "kaelens_forge", "condition": "world_flags.intro_completed==true&&time.is_day==true" },
+      { "text": "Travel to Kaelen's Forge", "type": "navigate", "target": "kaelens_forge", "condition": "world_flags.intro_completed==true" },
       { "text": "Travel to Hub", "type": "navigate", "target": "driftwatch", "condition": "world_flags.intro_completed==true" }
     ]
   },
@@ -37,7 +37,13 @@
     "day_background": "/assets/locations/leo_lighthouse.png",
     "music_track": "/assets/musics/Whisper of the Pines.mp3",
     "is_indoor": true,
+    "opening_hour": 7,
+    "closing_hour": 22,
+    "exit_location": "driftwatch_main_street",
     "actions": [
+      { "text": "Talk to Old Leo", "type": "dialogue", "target": "npc_old_leo", "condition": "world_flags.intro_completed==false" },
+      { "text": "Talk to Sarah", "type": "dialogue", "target": "npc_sarah", "condition": "world_flags.intro_completed==false" },
+      { "text": "Talk to Kyle", "type": "dialogue", "target": "npc_kyle", "condition": "world_flags.intro_completed==false" },
       { "text": "Eat Breakfast", "type": "tutorial_breakfast", "target": "breakfast", "condition": "world_flags.intro_completed==false" },
       { "text": "Play Alone", "type": "tutorial_play_alone", "target": "alone", "condition": "world_flags.intro_completed==false" },
       { "text": "End the Day", "type": "end_intro", "target": "end_intro", "condition": "world_flags.intro_completed==false" },
@@ -52,6 +58,7 @@
     "day_background": "/assets/locations/leo_lighthouse_room.png",
     "music_track": "/assets/musics/Whisper of the Pines.mp3",
     "is_indoor": true,
+    "exit_location": "leo_lighthouse",
     "actions": [
       { "text": "Leave the Room", "type": "navigate", "target": "leo_lighthouse" },
       { "text": "Sleep", "type": "tutorial_sleep", "target": "sleep_confirm" }
@@ -64,6 +71,9 @@
     "day_background": "/assets/locations/beryls_general_goods.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": true,
+    "opening_hour": 8,
+    "closing_hour": 18,
+    "exit_location": "driftwatch_main_street",
     "actions": [
       { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
     ]
@@ -75,6 +85,9 @@
     "day_background": "/assets/locations/kaelens_forge.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": true,
+    "opening_hour": 7,
+    "closing_hour": 19,
+    "exit_location": "driftwatch_main_street",
     "actions": [
       { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
     ]
@@ -89,7 +102,7 @@
     "actions": [
       { "text": "Travel to Mosswatch Keep", "type": "navigate", "target": "mosswatch_keep" },
       { "text": "Sell Antique Locket", "type": "trigger_event", "eventId": "sell_locket_event", "condition": "has_item:antique_locket && time.is_day==true" },
-      { "text": "Travel to The Grand Library", "type": "navigate", "target": "grand_library", "condition": "time.is_day==true" },
+      { "text": "Travel to The Grand Library", "type": "navigate", "target": "grand_library" },
       { "text": "Deliver Parcel", "type": "trigger_event", "eventId": "beryl_delivery_event", "condition": "inventory.beryl_noble_parcel>0" },
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" }
     ]
@@ -101,8 +114,11 @@
     "day_background": "/assets/locations/mosswatch_keep.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": true,
+    "opening_hour": 8,
+    "closing_hour": 20,
+    "exit_location": "driftwatch_noble_quarter",
     "actions": [
-      { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
+      { "text": "Travel to Noble Quarter", "type": "navigate", "target": "driftwatch_noble_quarter" }
     ]
   },
   "grand_library": {
@@ -112,8 +128,11 @@
     "day_background": "/assets/locations/grand_library.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": true,
+    "opening_hour": 9,
+    "closing_hour": 17,
+    "exit_location": "driftwatch_noble_quarter",
     "actions": [
-      { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
+      { "text": "Travel to Noble Quarter", "type": "navigate", "target": "driftwatch_noble_quarter" }
     ]
   },
   "tidehunter_quarter": {
@@ -123,7 +142,6 @@
     "day_background": "/assets/locations/tidehunter_quarter.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
-      { "text": "Talk to Sergeant Rodrick", "type": "dialogue", "target": "npc_rodrick" },
       { "text": "Travel to Mosswatch Keep", "type": "navigate", "target": "mosswatch_keep" }
     ]
   },
@@ -135,13 +153,10 @@
     "night_background": "/assets/locations/driftwatch_docks_night.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
-      { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.is_day==true&&time.weekday==Saturday" },
-      { "text": "Talk to Captain Elias", "type": "dialogue", "target": "npc_elias_captain", "condition": "time.is_day==true&&time.weekday==Sunday" },
-      { "text": "Talk to Boric", "type": "dialogue", "target": "npc_boric", "condition": "time.is_day==true" },
       { "text": "Help Robert", "type": "trigger_event", "eventId": "smuggler_combat_start", "condition": "world_flags.smuggler_help_available==true" },
       { "text": "Fish", "type": "fish", "target": "fish_docks" },
       { "text": "Work", "type": "job", "target": "job_dockhand" },
-      { "text": "Travel to Tide & Trade", "type": "navigate", "target": "tide_trade", "condition": "time.is_day==true" },
+      { "text": "Travel to Tide & Trade", "type": "navigate", "target": "tide_trade" },
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" }
     ]
   },
@@ -151,8 +166,10 @@
     "night_description": "The shop is closed, but the smell of fish lingers.",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": true,
+    "opening_hour": 9,
+    "closing_hour": 19,
+    "exit_location": "driftwatch_docks",
     "actions": [
-      { "text": "Talk to Roberta", "type": "dialogue", "target": "npc_roberta" },
       { "text": "Repair Wall", "type": "use", "target": "repair_wall", "condition": "quest.roberta_planks_for_the_past.stage==3" },
       { "text": "Travel to Driftwatch Docks", "type": "navigate", "target": "driftwatch_docks" }
     ]
@@ -168,10 +185,9 @@
       { "text": "Sleep on the Floor", "type": "sleep", "target": "sleep_floor" },
       { "text": "Cook on Firepit", "type": "cook", "target": "cook_firepit" },
       { "text": "Raid Salty Mug", "type": "trigger_event", "eventId": "raid_salty_mug_intro", "condition": "world_flags.raid_ready==true" },
-      { "text": "Talk to Shaky Jace", "type": "dialogue", "target": "npc_shaky_jace" },
       { "text": "Deliver Medicine", "type": "trigger_event", "eventId": "elara_delivery_event", "condition": "inventory.elara_medicine_parcel>0 && world_flags.debt_paid_by_elara==false && time.is_day==true" },
       { "text": "Travel to Salty Mug", "type": "navigate", "target": "salty_mug" },
-      { "text": "Travel to Herbalist's Hovel", "type": "navigate", "target": "herbalists_hovel", "condition": "time.is_day==true" },
+      { "text": "Travel to Herbalist's Hovel", "type": "navigate", "target": "herbalists_hovel" },
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" }
     ]
   },
@@ -182,8 +198,9 @@
     "day_background": "/assets/locations/salty_mug.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": true,
+    "exit_location": "driftwatch_slums",
     "actions": [
-      { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
+      { "text": "Travel to The Slums", "type": "navigate", "target": "driftwatch_slums" }
     ]
   },
   "salty_mug_rented_room": {
@@ -193,6 +210,7 @@
     "day_background": "/assets/locations/salty_mug_rented_room.png",
     "music_track": "/assets/musics/Whisper of the Pines.mp3",
     "is_indoor": true,
+    "exit_location": "salty_mug",
     "actions": [
       { "text": "Sleep", "type": "sleep", "target": "sleep_bed" },
       { "text": "Craft Items", "type": "craft", "target": "craft_basic" },
@@ -208,7 +226,6 @@
     "is_indoor": false,
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
-      { "text": "Talk to Ronald", "type": "dialogue", "target": "npc_ronald", "condition": "time.is_day==true" },
       { "text": "Use Workbench", "type": "craft", "target": "craft_basic", "condition": "world_flags.hunter_crafting_unlocked==true" },
       { "text": "Travel to Driftwatch Woods", "type": "navigate", "target": "driftwatch_woods" }
     ]
@@ -220,8 +237,11 @@
     "day_background": "/assets/locations/herbalists_hovel.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": true,
+    "opening_hour": 8,
+    "closing_hour": 18,
+    "exit_location": "driftwatch_slums",
     "actions": [
-      { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
+      { "text": "Travel to The Slums", "type": "navigate", "target": "driftwatch_slums" }
     ]
   },
   "the_crossroads": {
@@ -262,6 +282,7 @@
     "day_background": "/assets/locations/secret_cabin_interior.png",
     "night_background": "/assets/locations/secret_cabin_interior.png",
     "is_indoor": true,
+    "exit_location": "driftwatch_woods",
     "music_track": "/assets/musics/Whisper of the Pines.mp3",
     "actions": [
       { "text": "Sleep", "type": "sleep", "target": "sleep_bed" },
@@ -277,7 +298,6 @@
     "night_background": "/assets/locations/sawmill_night.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
-      { "text": "Talk to Crawler", "type": "dialogue", "target": "npc_crawler", "condition": "time.is_day==true" },
       { "text": "Make Planks", "type": "craft", "target": "craft_planks", "condition": "world_flags.sawmill_unlocked==true" },
       { "text": "Travel to Driftwatch Woods", "type": "navigate", "target": "driftwatch_woods" }
     ]
@@ -289,8 +309,9 @@
     "day_background": "/assets/locations/homestead_farm.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": false,
+    "exit_location": "the_crossroads",
     "actions": [
-      { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
+      { "text": "Travel to The Crossroads", "type": "navigate", "target": "the_crossroads" }
     ]
   }
 }

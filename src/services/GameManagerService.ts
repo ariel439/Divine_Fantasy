@@ -17,6 +17,7 @@ import enemiesJson from '../data/enemies.json';
 import itemsJson from '../data/items.json';
 import type { CombatParticipant, Item } from '../types';
 import { DataValidator } from './DataValidator';
+import { WorldEventManager } from './WorldEventManager';
 import { timeoutSlides, starvationSlides, gameOverSlides } from '../data/events';
 
 export class GameManagerService {
@@ -26,6 +27,8 @@ export class GameManagerService {
   static init(): void {
     if (GameManagerService.initialized) return;
     GameManagerService.initialized = true;
+
+    WorldEventManager.init();
 
       // Subscribe to world time changes
     useWorldTimeStore.subscribe(

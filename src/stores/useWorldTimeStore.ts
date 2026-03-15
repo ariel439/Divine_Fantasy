@@ -19,7 +19,7 @@ interface WorldTimeState {
   temperatureC: number;
   dailyMinTemp?: number;
   dailyMaxTemp?: number;
-  nextWeatherChangeAt?: number;
+  nextWeatherChangeMinutes?: number;
   instanceMode?: boolean;
   backupYear?: number;
   backupMonth?: number;
@@ -53,6 +53,7 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
   season: 'Spring',
   temperatureC: 15,
   instanceMode: false,
+  nextWeatherChangeMinutes: 180,
   passTime: (minutes) => {
     set((state) => {
       const prevYear = state.year;
@@ -66,29 +67,25 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
       let y = state.year;
 
       while (m >= 60) { m -= 60; h += 1; }
-      let crossedHour = false;
-      while (h >= 24) { h -= 24; d += 1; dom += 1; crossedHour = true; }
+      while (h >= 24) { h -= 24; d += 1; dom += 1; }
       if (dom > 30) { dom = 1; mo += 1; }
       if (mo > 12) { mo = 1; y += 1; }
 
       const season = ((mo >= 3 && mo <= 5) ? 'Spring' : (mo >= 6 && mo <= 8) ? 'Summer' : (mo >= 9 && mo <= 11) ? 'Autumn' : 'Winter') as Season;
 
-      let temperatureC = state.temperatureC;
-      const totalMinutes = h * 60 + m;
       let weather = state.weather;
-      let nextWeatherChangeAt = state.nextWeatherChangeAt;
+      let nextWeatherChangeMinutes = (state.nextWeatherChangeMinutes ?? 180) - minutes;
 
-      // Hunger drain moved to TimeManagerService subscription
-
-
-      if (typeof state.nextWeatherChangeAt === 'number' && totalMinutes >= state.nextWeatherChangeAt) {
+      // Handle weather change via countdown
+      if (nextWeatherChangeMinutes <= 0) {
         const introMode = useWorldStateStore.getState().introMode;
         
         if (introMode) {
             weather = 'Rainy';
+            nextWeatherChangeMinutes = 1440; // Don't re-roll during intro
         } else {
             const w = season;
-            weather = (() => {
+            const newWeather = (() => {
               if (w === 'Spring') {
                 const r = Math.random();
                 return r < 0.4 ? 'Sunny' : r < 0.75 ? 'Cloudy' : 'Rainy';
@@ -103,25 +100,24 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
                 return r < 0.25 ? 'Sunny' : r < 0.6 ? 'Cloudy' : r < 0.95 ? 'Snowy' : 'Rainy';
               }
             })();
+            
+            weather = newWeather as Weather;
+            // Set next change between 2 and 6 hours
+            nextWeatherChangeMinutes = 120 + Math.floor(Math.random() * 241);
         }
-        
-        const block = 120 + Math.floor(Math.random() * 241);
-        nextWeatherChangeAt = (totalMinutes + block) % 1440;
       }
 
-      const dailyMin = state.dailyMinTemp ?? get().dailyMinTemp ?? 10;
-      const dailyMax = state.dailyMaxTemp ?? get().dailyMaxTemp ?? 20;
+      const dailyMin = state.dailyMinTemp ?? 10;
+      const dailyMax = state.dailyMaxTemp ?? 20;
       const phi = ((h - 6 + (m / 60)) / 24) * Math.PI * 2;
       const factor = 0.5 - 0.5 * Math.cos(phi);
-      temperatureC = dailyMin + (dailyMax - dailyMin) * factor;
+      let temperatureC = dailyMin + (dailyMax - dailyMin) * factor;
       const wMod = weather === 'Cloudy' ? -3 : weather === 'Rainy' ? -2 : weather === 'Snowy' ? -6 : 0;
       temperatureC = Math.round(temperatureC + wMod);
 
-      // End-of-day processing: mark missed shifts if applicable (skip in temporal instances)
+      // End-of-day processing
       if (!state.instanceMode && (prevDay !== dom || prevMonth !== mo || prevYear !== y)) {
-        try {
-          useJobStore.getState().ensureAttendanceForDay(prevYear, prevMonth, prevDay);
-        } catch {}
+        try { useJobStore.getState().ensureAttendanceForDay(prevYear, prevMonth, prevDay); } catch {}
         try {
           const maxSocial = useCharacterStore.getState().maxSocialEnergy;
           useCharacterStore.setState({ socialEnergy: maxSocial });
@@ -138,10 +134,9 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
         season,
         temperatureC,
         weather,
-        nextWeatherChangeAt,
+        nextWeatherChangeMinutes,
       };
     });
-    const s = get();
   },
   setClockPaused: (paused: boolean) => set({ clockPaused: paused }),
   getFormattedTime: () => {
@@ -159,9 +154,7 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
     const { month } = get();
     return ((month >= 3 && month <= 5) ? 'Spring' : (month >= 6 && month <= 8) ? 'Summer' : (month >= 9 && month <= 11) ? 'Autumn' : 'Winter') as Season;
   },
-  getWeather: () => {
-    return get().weather;
-  },
+  getWeather: () => get().weather,
   setWeather: (weather) => set({ weather }),
   rollDailyEnvironment: () => {
     const { month } = get();
@@ -185,10 +178,8 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
     const ranges = season === 'Spring' ? [8, 20] : season === 'Summer' ? [18, 32] : season === 'Autumn' ? [5, 18] : [-10, 6];
     const min = ranges[0] + Math.floor(Math.random() * Math.max(1, ranges[1] - ranges[0] - 5));
     const max = min + 5 + Math.floor(Math.random() * 5);
-    const block = 120 + Math.floor(Math.random() * 241);
-    const { hour, minute } = get();
-    const next = ((hour * 60 + minute) + block) % 1440;
-    set({ season, weather, dailyMinTemp: min, dailyMaxTemp: max, nextWeatherChangeAt: next });
+    const next = 120 + Math.floor(Math.random() * 241);
+    set({ season, weather, dailyMinTemp: min, dailyMaxTemp: max, nextWeatherChangeMinutes: next });
   },
   applyHourlyEnvironment: () => {
     const { hour, minute, dailyMinTemp, dailyMaxTemp } = get();
@@ -200,35 +191,20 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
   },
   enterTemporalInstance: (t) => {
     set((state) => ({
-      backupYear: state.year,
-      backupMonth: state.month,
-      backupDayOfMonth: state.dayOfMonth,
-      backupDay: state.day,
-      backupHour: state.hour,
-      backupMinute: state.minute,
-      year: t.year,
-      month: t.month,
-      dayOfMonth: t.dayOfMonth,
+      backupYear: state.year, backupMonth: state.month, backupDayOfMonth: state.dayOfMonth,
+      backupDay: state.day, backupHour: state.hour, backupMinute: state.minute,
+      year: t.year, month: t.month, dayOfMonth: t.dayOfMonth,
       day: typeof t.day === 'number' ? t.day : state.day,
-      hour: t.hour,
-      minute: t.minute,
-      instanceMode: true,
+      hour: t.hour, minute: t.minute, instanceMode: true,
     }));
   },
   exitTemporalInstance: () => {
     set((state) => ({
-      year: state.backupYear ?? state.year,
-      month: state.backupMonth ?? state.month,
-      dayOfMonth: state.backupDayOfMonth ?? state.dayOfMonth,
-      day: state.backupDay ?? state.day,
-      hour: state.backupHour ?? state.hour,
-      minute: state.backupMinute ?? state.minute,
-      backupYear: undefined,
-      backupMonth: undefined,
-      backupDayOfMonth: undefined,
-      backupDay: undefined,
-      backupHour: undefined,
-      backupMinute: undefined,
+      year: state.backupYear ?? state.year, month: state.backupMonth ?? state.month,
+      dayOfMonth: state.backupDayOfMonth ?? state.dayOfMonth, day: state.backupDay ?? state.day,
+      hour: state.backupHour ?? state.hour, minute: state.backupMinute ?? state.minute,
+      backupYear: undefined, backupMonth: undefined, backupDayOfMonth: undefined,
+      backupDay: undefined, backupHour: undefined, backupMinute: undefined,
       instanceMode: false,
     }));
   },

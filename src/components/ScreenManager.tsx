@@ -372,6 +372,8 @@ const ScreenManager: React.FC = () => {
         const options = (dialogueNode.player_choices || []).map((c: any) => ({
           text: c.text,
           closesDialogue: c.closes_dialogue,
+          disabled: c.disabled,
+          nextPortraitUrl: c.next_portrait_url || c.nextPortraitUrl,
         }));
 
         return (

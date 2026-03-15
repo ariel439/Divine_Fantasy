@@ -97,10 +97,10 @@
 *This phase is about adding content and dynamism to make the world feel less static.*
 - [x] **Dynamic NPC Schedules**:
     - **Task**: Implement daily schedules for at least 3-4 key NPCs who are currently static.
-- [ ] **Add New Side Quests**:
-    - **Task**: Add 2-3 new side quests to encourage exploration and interaction with the new NPC schedules.
 - [ ] **Global Event Listener**:
     - **Task**: Implement a centralized `WorldEventManager` to trigger events based on time, location, or flags, independent of player actions.
+- [ ] **Night Transition & Store Logic**:
+    - **Task**: Implement the "Closing Time" logic to kick players out of shops at 18:00.
 
 ## 🧩 Phase 9: UI & Quest System Integration
 *This phase is about improving the user experience by consolidating information and automating tedious checks.*
@@ -120,5 +120,5 @@
 *These are the final touches that set the stage for future updates.*
 - [ ] **Roberta's Wall Quest Improvement**:
     - **Task**: Convert the simple modal interaction into a more immersive, event-based sequence.
-- [ ] **Night Transition & Store Logic**:
-    - **Task**: Implement the "Closing Time" logic to kick players out of shops at 18:00.
+- [ ] **Add New Side Quests**:
+    - **Task**: Add 2-3 new side quests to encourage exploration and interaction with the new NPC schedules.

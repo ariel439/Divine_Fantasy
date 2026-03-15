@@ -78,9 +78,6 @@ const DialogueScreen: FC<DialogueScreenProps> = ({
     }, [history]);
 
     const handleOptionSelect = (option: DialogueOption, index: number) => {
-        if (option.closesDialogue) {
-            onEndDialogue();
-        }
         onOptionSelect(option, index);
     };
 

@@ -7,6 +7,8 @@ import { useDiaryStore } from '../../stores/useDiaryStore';
 import { useJournalStore } from '../../stores/useJournalStore';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import { GameManagerService } from '../../services/GameManagerService';
+import { NPCService } from '../../services/NPCService';
+import { LocationService } from '../../services/LocationService';
 import { Sun, Moon, MessageSquare, Hammer, Fish, MapPin, ShoppingCart, CookingPot, Bed, Search, Swords, Leaf, Snowflake, Sprout, Cloud, CloudRain, BookOpen, User, Package, Briefcase, Heart, Library, Zap, Award, Utensils, Clock } from 'lucide-react';
 import ProgressBar from '../ui/ProgressBar';
 import ActionButton from '../ui/ActionButton';
@@ -20,7 +22,6 @@ import { useJobStore } from '../../stores/useJobStore';
 import type { ActionSummary, Slide } from '../../types';
 import { ExplorationService } from '../../services/ExplorationService';
 import { mockBooks } from '../../data';
-import npcsData from '../../data/npcs.json';
 import locationsData from '../../data/locations.json';
 import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, rebelRaidIntroSlides, sellLocketSlides, elaraDeliverySlides, berylDeliverySlides, benCheatEventSlides } from '../../data/events';
 import { useToastStore } from '../../stores/useToastStore';
@@ -49,26 +50,7 @@ const LocationScreen: React.FC = () => {
   const introMode = worldState.introMode;
   const tutorialStep = worldState.tutorialStep;
   
-  const dynamicNpcs = Object.entries(npcsData).filter(([id, npc]) => {
-    if (introMode) return false; // Firewall: No dynamic schedules during intro
-    if (!(npc as any).schedules) return false;
-    const schedule = (npc as any).schedules.find((s: any) => {
-      if (s.location_id !== currentLocation.id) return false;
-      if (s.start_hour <= s.end_hour) {
-        return hour >= s.start_hour && hour < s.end_hour;
-      } else {
-        // Overnight schedule (e.g. 22:00 - 04:00)
-        return hour >= s.start_hour || hour < s.end_hour;
-      }
-    });
-    return !!schedule;
-  }).map(([id, npc]) => ({
-    id,
-    name: npc.name,
-    type: 'dialogue',
-    target: id,
-    text: `Talk to ${npc.name}`
-  }));
+  const dynamicNpcs = NPCService.getPresentNPCs(currentLocation.id);
 
   // Travel state
   const [travelModalOpen, setTravelModalOpen] = useState(false);
@@ -498,20 +480,11 @@ const LocationScreen: React.FC = () => {
       }
       case 'navigate': {
         const targetId = action.target;
-        const targetLoc = (locationsData as any)[targetId];
         
-        // Check for closing hours (only outside intro)
-        if (!introMode && targetLoc && targetLoc.opening_hour !== undefined) {
-          const currentHour = useWorldTimeStore.getState().hour;
-          const { opening_hour, closing_hour } = targetLoc;
-          const isClosed = opening_hour <= closing_hour
-            ? (currentHour < opening_hour || currentHour >= closing_hour)
-            : (currentHour >= closing_hour && currentHour < opening_hour);
-
-          if (isClosed) {
-            useToastStore.getState().addToast(`${targetLoc.name} is currently closed. It opens at ${opening_hour}:00.`, 'warning');
-            break;
-          }
+        if (!LocationService.isLocationOpen(targetId)) {
+          const name = LocationService.getLocationName(targetId);
+          useToastStore.getState().addToast(`${name} is currently closed.`, 'warning');
+          break;
         }
 
         if (action.time_cost && action.time_cost > 0) {
@@ -864,15 +837,7 @@ const LocationScreen: React.FC = () => {
                 .filter((action: any) => {
                   // NEW: Filter out navigation to closed shops
                   if (action.type === 'navigate') {
-                    const targetLoc = (locationsData as any)[action.target];
-                    if (targetLoc && targetLoc.opening_hour !== undefined) {
-                      const currentHour = useWorldTimeStore.getState().hour;
-                      const { opening_hour, closing_hour } = targetLoc;
-                      const isClosed = opening_hour <= closing_hour
-                        ? (currentHour < opening_hour || currentHour >= closing_hour)
-                        : (currentHour >= closing_hour && currentHour < opening_hour);
-                      if (isClosed) return false;
-                    }
+                    if (!LocationService.isLocationOpen(action.target)) return false;
                   }
 
                   if (action.type === 'job') {
@@ -1024,25 +989,6 @@ const LocationScreen: React.FC = () => {
                     />
                   );
                 })}
-
-              {currentLocation.id === 'driftwatch_docks' && useWorldStateStore.getState().getFlag('smuggler_help_available') && (
-                <ActionButton
-                  key="help_robert_action"
-                  onClick={() => {
-                    if (isProcessing) return;
-                    setIsProcessing(true);
-                    useWorldStateStore.getState().setFlag('smuggler_help_available', false);
-                    setTimeout(() => {
-                      try { GameManagerService.startSmugglerCombat(); } 
-                      catch (e) { useWorldStateStore.getState().setFlag('smuggler_help_available', true); setIsProcessing(false); }
-                    }, 50);
-                  }}
-                  category="highlighted"
-                  icon={<Swords size={24} />}
-                  text={isProcessing ? "Engaging..." : "Help Robert"}
-                  highlight={true}
-                />
-              )}
             </div>
           </div>
         </div>

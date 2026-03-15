@@ -3,6 +3,7 @@ import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useLocationStore } from '../stores/useLocationStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useToastStore } from '../stores/useToastStore';
+import { LocationService } from './LocationService';
 import locationsData from '../data/locations.json';
 
 export class WorldEventManager {
@@ -92,25 +93,13 @@ export class WorldEventManager {
 
     const locationStore = useLocationStore.getState();
     const currentLocationId = locationStore.currentLocationId;
-    const locationData = (locationsData as any)[currentLocationId];
 
-    if (!locationData || !locationData.is_indoor) return;
-
-    const { opening_hour, closing_hour, exit_location } = locationData;
-
-    // If no hours defined, it's 24/7
-    if (opening_hour === undefined || closing_hour === undefined) return;
-
-    const currentHour = timeState.hour;
-    const isClosed = opening_hour <= closing_hour
-      ? (currentHour < opening_hour || currentHour >= closing_hour)
-      : (currentHour >= closing_hour && currentHour < opening_hour);
-
-    if (isClosed) {
+    if (!LocationService.isLocationOpen(currentLocationId)) {
+      const locationName = LocationService.getLocationName(currentLocationId);
       const toastStore = useToastStore.getState();
-      toastStore.addToast(`${locationData.name} is closing.`, 'warning');
+      toastStore.addToast(`${locationName} is closing.`, 'warning');
       
-      const targetExit = exit_location || 'driftwatch_main_street';
+      const targetExit = LocationService.getExitLocation(currentLocationId);
       locationStore.setLocation(targetExit);
     }
   }

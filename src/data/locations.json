@@ -22,7 +22,7 @@
     "night_background": "/assets/locations/driftwatch_main_street_night.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
-      { "text": "Travel to Leo's Lighthouse", "type": "navigate", "target": "leo_lighthouse" },
+      { "text": "Travel to Leo's Lighthouse", "type": "navigate", "target": "leo_lighthouse", "condition": "time.is_day==true" },
       { "text": "Travel to Beryl's General Goods", "type": "navigate", "target": "beryls_general_goods" },
       { "text": "Investigate Noise", "type": "trigger_event", "eventId": "beryl_secret_meeting", "condition": "time.is_night==true&&world_flags.finn_debt_collection_active==true&&world_flags.debt_paid_by_beryl==false&&world_flags.beryl_secret_meeting_seen==false" },
       { "text": "Inspect Crumpled Letter", "type": "trigger_event", "eventId": "beryl_letter_pickup", "condition": "world_flags.beryl_secret_meeting_seen==true&&world_flags.beryl_letter_found==false" },
@@ -47,7 +47,7 @@
       { "text": "Eat Breakfast", "type": "tutorial_breakfast", "target": "breakfast", "condition": "world_flags.intro_completed==false" },
       { "text": "Play Alone", "type": "tutorial_play_alone", "target": "alone", "condition": "world_flags.intro_completed==false" },
       { "text": "End the Day", "type": "end_intro", "target": "end_intro", "condition": "world_flags.intro_completed==false" },
-      { "text": "Return to Room", "type": "navigate", "target": "orphanage_room" },
+      { "text": "Return to Room", "type": "navigate", "target": "orphanage_room", "condition": "world_flags.intro_completed==false" },
       { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
     ]
   },
@@ -153,7 +153,6 @@
     "night_background": "/assets/locations/driftwatch_docks_night.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
-      { "text": "Help Robert", "type": "trigger_event", "eventId": "smuggler_combat_start", "condition": "world_flags.smuggler_help_available==true" },
       { "text": "Fish", "type": "fish", "target": "fish_docks" },
       { "text": "Work", "type": "job", "target": "job_dockhand" },
       { "text": "Travel to Tide & Trade", "type": "navigate", "target": "tide_trade" },

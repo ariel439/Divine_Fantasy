@@ -176,15 +176,6 @@
       { "location_id": "leo_lighthouse", "start_hour": 7, "end_hour": 22 }
     ]
   },
-  "npc_robert": {
-    "name": "Robert",
-    "home_location": "leo_lighthouse",
-    "default_dialogue_id": "robert_default",
-    "portrait": "/assets/portraits/Robert.png",
-    "schedules": [
-      { "location_id": "leo_lighthouse", "start_hour": 7, "end_hour": 22 }
-    ]
-  },
   "npc_kyle": {
     "name": "Kyle",
     "home_location": "leo_lighthouse",

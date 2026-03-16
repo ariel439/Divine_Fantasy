@@ -8,11 +8,17 @@ import locationsData from '../data/locations.json';
 
 export class WorldEventManager {
   private static lastCheckedHour: number = -1;
+  private static lastProcessedMinute: string = '';
   private static lastWeather: string = '';
   private static isInitialState: boolean = true;
+  private static isInitialized: boolean = false;
 
   static init() {
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
     this.isInitialState = true; // Reset on init
+    this.lastProcessedMinute = '';
     // Subscribe to time changes
     useWorldTimeStore.subscribe((state) => {
       this.checkAll(state);
@@ -23,9 +29,14 @@ export class WorldEventManager {
     this.isInitialState = true;
     this.lastWeather = '';
     this.lastCheckedHour = -1;
+    this.lastProcessedMinute = '';
   }
 
   private static checkAll(timeState: any) {
+    const currentMinuteId = `${timeState.dayOfMonth}-${timeState.hour}-${timeState.minute}-${timeState.weather}`;
+    if (currentMinuteId === this.lastProcessedMinute) return;
+    this.lastProcessedMinute = currentMinuteId;
+
     const worldState = useWorldStateStore.getState();
     const introMode = worldState.introMode;
 
@@ -39,7 +50,7 @@ export class WorldEventManager {
   }
 
   private static checkWeather(timeState: any) {
-    const weather = timeState.getWeather();
+    const weather = timeState.weather; // Use property directly instead of getter
 
     // If it's the very first weather state we've seen, just record it and exit.
     if (this.isInitialState) {
@@ -48,7 +59,7 @@ export class WorldEventManager {
       return;
     }
 
-    if (weather !== this.lastWeather) {
+    if (weather && weather !== this.lastWeather) {
       const introMode = useWorldStateStore.getState().introMode;
       
       // Don't toast during intro

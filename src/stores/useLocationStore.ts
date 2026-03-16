@@ -42,32 +42,13 @@ export const useLocationStore = create<LocationState>((set, get) => ({
     const locationData: any = locations[locationId as keyof typeof locations] as any;
     if (!locationData) return null;
 
-    // Use in-game clock instead of system time
-    const { hour } = useWorldTimeStore.getState();
-    const isNight = hour >= 18 || hour < 6;
-    const description = isNight ? locationData.night_description : locationData.day_description;
-    let background = '';
-
-    if (locationId === 'tide_trade') {
-      const isWallRepaired = useWorldStateStore.getState().worldFlags['tide_trade_wall_repaired'];
-      if (isWallRepaired) {
-        background = '/assets/locations/tide_trade_repaired.png';
-      } else {
-        background = '/assets/locations/tide_trade.png';
-      }
-    } else if (locationData.is_indoor) {
-      background = isNight && locationData.night_background
-        ? locationData.night_background
-        : (locationData.day_background || '');
-    } else {
-      background = (isNight ? locationData.night_background : locationData.day_background) || '';
-    }
-
+    // The component using this should handle reactivity for description/background
+    // based on time and flags.
     return {
       id: locationId,
       name: locationData.name,
-      description,
-      background,
+      description: locationData.day_description, // Default
+      background: locationData.day_background || locationData.background || '',
       music_track: locationData.music_track,
       is_indoor: locationData.is_indoor || false,
       actions: locationData.actions,

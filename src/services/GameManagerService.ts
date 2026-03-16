@@ -34,21 +34,20 @@ export class GameManagerService {
 
       // Subscribe to world time changes
     useWorldTimeStore.subscribe(
-      (state, prevState) => {
-        // Simple delta calculation to trigger time-based effects
-        // Assuming year doesn't change drastically in one tick for now, simplified logic:
-        const prevMinutes = (prevState.day * 1440) + (prevState.hour * 60) + prevState.minute;
-        const currMinutes = (state.day * 1440) + (state.hour * 60) + state.minute;
-        
-        const delta = currMinutes - prevMinutes;
-        
-        if (delta > 0) {
-            // Apply Hunger
-            useCharacterStore.getState().tickHunger(delta);
+      (state) => {
+        // Since Zustand 5 subscribe doesn't give prevState, we track it manually or use current state
+        const day = state.dayOfMonth;
+        const hour = state.hour;
+        const minute = state.minute;
+
+        // Use local static variables to track changes across subscription fires
+        if (GameManagerService.currentDay === 0) {
+            GameManagerService.currentDay = day;
+            return;
         }
 
-        const day = state.day;
         if (day !== GameManagerService.currentDay) {
+          console.log(`Day changed from ${GameManagerService.currentDay} to ${day}`);
           GameManagerService.currentDay = day;
           
           // Check for weekly reset (e.g., every 7 days)
@@ -57,19 +56,28 @@ export class GameManagerService {
             useShopStore.getState().resetAllShops();
           }
 
-          // 7-Day Demo Timeout Check (End of Day 7 -> Day 8)
-          // If we reach Day 8, trigger game over immediately
-          if (day > 7) {
-             const ui = useUIStore.getState();
-             const world = useWorldStateStore.getState();
-             // Only trigger if intro is done and not already over, AND not in sandbox mode
-             if (world.introCompleted && world.gameMode !== 'sandbox' && ui.currentEventId !== 'game_over' && ui.currentEventId !== 'timeout_game_over') {
-                console.log('Game Over: 7-Day Timeout Reached');
-                ui.setEventSlides(timeoutSlides);
-                ui.setCurrentEventId('timeout_game_over');
-                ui.setScreen('event');
-             }
-          }
+          // Apply daily hunger penalty/regen
+          // (Previously this was delta-based, but since we lost delta, we can do it daily or just keep it simple)
+          // For now, hunger tick is handled below every minute.
+        }
+
+        // Hunger tick every minute
+        // We use a simple static variable to track the last minute we ticked hunger
+        if ((GameManagerService as any).lastHungerTickMinute !== `${day}-${hour}-${minute}`) {
+            (GameManagerService as any).lastHungerTickMinute = `${day}-${hour}-${minute}`;
+            useCharacterStore.getState().tickHunger(1);
+        }
+
+        // 7-Day Demo Timeout Check (End of Day 7 -> Day 8)
+        if (day > 7) {
+           const ui = useUIStore.getState();
+           const world = useWorldStateStore.getState();
+           if (world.introCompleted && world.gameMode !== 'sandbox' && ui.currentEventId !== 'game_over' && ui.currentEventId !== 'timeout_game_over') {
+              console.log('Game Over: 7-Day Timeout Reached');
+              ui.setEventSlides(timeoutSlides);
+              ui.setCurrentEventId('timeout_game_over');
+              ui.setScreen('event');
+           }
         }
       }
     );

@@ -7,6 +7,7 @@ import ModalManager from './ModalManager';
 import AudioManager from './AudioManager';
 import AssetManager from './AssetManager';
 import { ToastContainer } from './ToastContainer';
+import locationsData from '../data/locations.json';
 
 interface GameLayoutProps {
   children: React.ReactNode;
@@ -14,7 +15,20 @@ interface GameLayoutProps {
 
 const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
   const { currentScreen, setScreen, setSleepWaitMode, openModal, activeModal, closeModal } = useUIStore();
-  const { getCurrentLocation } = useLocationStore();
+  const { currentLocationId } = useLocationStore();
+  const { hour } = useWorldTimeStore();
+
+  const getDynamicBackground = React.useCallback(() => {
+    if (currentScreen === 'mainMenu') return '/assets/backgrounds/main_menu.png';
+    if (currentScreen !== 'inGame') return '/assets/backgrounds/minimal_bg.png';
+
+    const loc = (locationsData as any)[currentLocationId];
+    if (!loc) return '/assets/backgrounds/minimal_bg.png';
+
+    const isNight = hour >= 18 || hour < 6;
+    if (isNight && loc.night_background) return loc.night_background;
+    return loc.day_background || loc.background || '';
+  }, [currentScreen, currentLocationId, hour]);
 
   const handleOpenSleepWaitModal = React.useCallback((mode: 'sleep' | 'wait') => {
     setSleepWaitMode(mode);
@@ -101,10 +115,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
           isSolidBg
             ? {}
             : {
-                backgroundImage: `url(${currentScreen === 'inGame'
-                  ? getCurrentLocation().background
-                  : (currentScreen === 'mainMenu' ? '/assets/backgrounds/main_menu.png' : '/assets/backgrounds/minimal_bg.png')
-                })`,
+                backgroundImage: `url(${getDynamicBackground()})`,
                 // Zoom slightly on wide screens, fill on others
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',

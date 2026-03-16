@@ -9,6 +9,7 @@ import { useUIStore } from '../../stores/useUIStore';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import { useLocationStore } from '../../stores/useLocationStore';
 import { useJournalStore } from '../../stores/useJournalStore';
+import { useCharacterStore } from '../../stores/useCharacterStore';
 import { GameManagerService } from '../../services/GameManagerService';
 import { DialogueService } from '../../services/DialogueService';
 import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
@@ -67,6 +68,11 @@ const CharacterSelection: FC = () => {
         GameManagerService.startNewGame('luke_orphan');
 
         if (mode === 'sandbox') {
+            useCharacterStore.setState((state) => ({
+                ...state,
+                energy: 100,
+                hunger: 100,
+            }));
             useWorldStateStore.getState().setIntroMode(false);
             useWorldStateStore.getState().setIntroCompleted(true);
             useWorldStateStore.getState().setFlag('intro_completed', true);

@@ -12,20 +12,19 @@ export const convertCopperToGSC = (totalCopper: number) => {
 };
 
 export const attributeLabels: { [key: string]: string[] } = {
-    strength: ['Weak', 'Average', 'Strong', 'Mighty'],
-    attack: ['Feeble', 'Average', 'Strong', 'Herculean'],
-    dexterity: ['Clumsy', 'Nimble', 'Graceful', 'Ethereal'],
-    intelligence: ['Dull', 'Clever', 'Brilliant', 'Genius'],
-    charisma: ['Repulsive', 'Personable', 'Charismatic', 'Magnetic'],
-    defence: ['Fragile', 'Sturdy', 'Resilient', 'Indomitable'],
+    strength: ['Weak', 'Average', 'Sturdy', 'Strong', 'Mighty'],
+    dexterity: ['Clumsy', 'Nimble', 'Agile', 'Graceful', 'Ethereal'],
+    intelligence: ['Dull', 'Clever', 'Sharp', 'Brilliant', 'Genius'],
+    charisma: ['Awkward', 'Reserved', 'Personable', 'Charismatic', 'Magnetic'],
 };
 
 export const getDescriptiveAttributeLabel = (attribute: keyof typeof attributeLabels, value: number): string => {
     const labels = attributeLabels[attribute];
     if (value <= 2) return labels[0];
-    if (value <= 5) return labels[1];
-    if (value <= 8) return labels[2];
-    return labels[3];
+    if (value <= 4) return labels[1];
+    if (value <= 6) return labels[2];
+    if (value <= 8) return labels[3];
+    return labels[4];
 };
 
 export const skillProficiencyLabels: { [key: number]: string } = {
@@ -73,7 +72,7 @@ export const characters = [
         title: 'The Driftwatch Orphan',
         image: 'https://i.imgur.com/gUNzyBA.jpeg',
         description: "Born to a tragic fate, Luke's mother died in childbirth and his fisherman father was lost to the unforgiving sea. He was raised in Leo's Lighthouse, an orphanage in the salt-sprayed city of Driftwatch, alongside his only friends, Sarah, Robert, and Kyle. His past is a tapestry of loss, but his sharp mind is a beacon of potential, promising a future far grander than his humble beginnings in the Whispers region.",
-        attributes: { strength: 5, dexterity: 6, intelligence: 8, charisma: 3 }
+        attributes: { strength: 3, dexterity: 4, intelligence: 6, charisma: 2 }
     }
 ];
 

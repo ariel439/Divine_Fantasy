@@ -147,8 +147,8 @@ export class GameManagerService {
       charisma: template.starting_attributes.Charisma,
       },
       hp: 50 + (template.starting_attributes.Strength * 10),
-      energy: 100,
-      hunger: 60,
+      energy: 80,
+      hunger: 20,
       currency: { ...template.starting_bonuses.currency },
       maxWeight: 50,
       bio: {
@@ -221,10 +221,6 @@ export class GameManagerService {
 
     // After all items are added, recalculate currentWeight
     useInventoryStore.getState().getCurrentWeight();
-
-    // Developer convenience: seed 10 wolf pelts to start
-    // This helps quickly verify Roberta's quest progression and completion.
-    useInventoryStore.getState().addItem('wolf_pelt', 10);
 
     WorldEventManager.reset();
 

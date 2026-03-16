@@ -97,9 +97,9 @@
 *This phase is about adding content and dynamism to make the world feel less static.*
 - [x] **Dynamic NPC Schedules**:
     - **Task**: Implement daily schedules for at least 3-4 key NPCs who are currently static.
-- [ ] **Global Event Listener**:
+- [x] **Global Event Listener**:
     - **Task**: Implement a centralized `WorldEventManager` to trigger events based on time, location, or flags, independent of player actions.
-- [ ] **Night Transition & Store Logic**:
+- [x] **Night Transition & Store Logic**:
     - **Task**: Implement the "Closing Time" logic to kick players out of shops at 18:00.
 
 ## 🧩 Phase 9: UI & Quest System Integration
@@ -107,7 +107,7 @@
 - [x] **UI Consolidation**:
     - [x] **Task**: Integrate the Job UI into the Journal UI.
     - [x] **Task**: Transform the Pet UI into a more comprehensive Party UI within the Diary.
-- [ ] **Quest System Automation (The "Observer")**:
+- [x] **Quest System Automation (The "Observer")**:
     - **Task**: Refactor `useJournalStore` to automatically listen for inventory and location changes and update quest objectives reactively.
 
 ## 🗣️ Phase 10: Advanced Social Dynamics

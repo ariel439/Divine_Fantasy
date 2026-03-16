@@ -153,6 +153,7 @@
     "night_background": "/assets/locations/driftwatch_docks_night.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
+      { "text": "Help Robert", "type": "trigger_event", "eventId": "smuggler_combat_start", "condition": "world_flags.smuggler_help_available==true" },
       { "text": "Fish", "type": "fish", "target": "fish_docks" },
       { "text": "Work", "type": "job", "target": "job_dockhand" },
       { "text": "Travel to Tide & Trade", "type": "navigate", "target": "tide_trade" },

@@ -19,6 +19,12 @@ export class WorldEventManager {
     });
   }
 
+  static reset() {
+    this.isInitialState = true;
+    this.lastWeather = '';
+    this.lastCheckedHour = -1;
+  }
+
   private static checkAll(timeState: any) {
     const worldState = useWorldStateStore.getState();
     const introMode = worldState.introMode;

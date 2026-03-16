@@ -18,6 +18,7 @@ import itemsJson from '../data/items.json';
 import type { CombatParticipant, Item } from '../types';
 import { DataValidator } from './DataValidator';
 import { WorldEventManager } from './WorldEventManager';
+import { QuestObserverService } from './QuestObserverService';
 import { timeoutSlides, starvationSlides, gameOverSlides } from '../data/events';
 
 export class GameManagerService {
@@ -29,6 +30,7 @@ export class GameManagerService {
     GameManagerService.initialized = true;
 
     WorldEventManager.init();
+    QuestObserverService.init();
 
       // Subscribe to world time changes
     useWorldTimeStore.subscribe(
@@ -215,6 +217,8 @@ export class GameManagerService {
     // Developer convenience: seed 10 wolf pelts to start
     // This helps quickly verify Roberta's quest progression and completion.
     useInventoryStore.getState().addItem('wolf_pelt', 10);
+
+    WorldEventManager.reset();
 
     // If the quest is already accepted before seeding (e.g., dev flows), sync progress
     try {

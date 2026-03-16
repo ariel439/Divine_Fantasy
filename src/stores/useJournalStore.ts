@@ -45,12 +45,40 @@ export const useJournalStore = create<JournalState>((set, get) => ({
   quests: {},
   questsList: [],
   addQuest: (quest) => {
-    set((state) => ({
-      quests: {
-        ...state.quests,
-        [quest.id]: { ...quest, currentStage: 0, completed: false, active: true },
-      },
-    }));
+    set((state) => {
+      // Smart initial objective check
+      const world = useWorldStateStore.getState();
+      const inv = useInventoryStore.getState();
+      const questDef = (questsData as any)[quest.id];
+      
+      const objectives = (questDef?.stages || []).map((stageDef: any) => {
+        let isDone = false;
+        if (stageDef.type === 'collect' || stageDef.type === 'flag') {
+          if (world.getFlag(stageDef.target)) isDone = true;
+        } else if (stageDef.type === 'gather') {
+          if (inv.getItemQuantity(stageDef.target) >= (stageDef.quantity || 0)) isDone = true;
+        }
+        return { text: stageDef.text, completed: isDone };
+      });
+
+      const uiQuest: UiQuest = {
+        id: quest.id,
+        title: quest.title,
+        giver: npcsData[questDef?.giver_id as keyof typeof npcsData]?.name || 'Unknown',
+        description: quest.description,
+        objectives,
+        rewards: [],
+        status: 'active' as const,
+      };
+
+      return {
+        quests: {
+          ...state.quests,
+          [quest.id]: { ...quest, currentStage: 0, completed: false, active: true },
+        },
+        questsList: [...state.questsList.filter(q => q.id !== quest.id), uiQuest],
+      };
+    });
   },
   updateQuest: (questId, updates) => {
     set((state) => ({
@@ -137,16 +165,35 @@ export const useJournalStore = create<JournalState>((set, get) => ({
     set((state) => {
       const quest = state.quests[questId];
       if (!quest) return {} as any;
+      const questDef = (questsData as any)[questId];
       const stageCount = Array.isArray(quest.stages) ? quest.stages.length : 0;
       const nextStage = Math.max(0, Math.min(stageIndex, stageCount));
       const updatedQuest = { ...quest, currentStage: nextStage };
 
       const updatedQuestsList = state.questsList.map(q => {
         if (q.id !== questId) return q;
-        const updatedObjectives = q.objectives.map((obj, idx) => ({
-          ...obj,
-          completed: idx < nextStage || (idx === nextStage && nextStage >= stageCount),
-        }));
+        
+        const world = useWorldStateStore.getState();
+        const inv = useInventoryStore.getState();
+
+        const updatedObjectives = q.objectives.map((obj, idx) => {
+          const stageDef = questDef?.stages[idx];
+          let isActuallyDone = idx < nextStage;
+
+          if (stageDef) {
+            if (stageDef.type === 'collect' || stageDef.type === 'flag') {
+              if (world.getFlag(stageDef.target)) isActuallyDone = true;
+            } else if (stageDef.type === 'gather') {
+              if (inv.getItemQuantity(stageDef.target) >= (stageDef.quantity || 0)) isActuallyDone = true;
+            }
+          }
+
+          return {
+            ...obj,
+            completed: isActuallyDone,
+          };
+        });
+
         const status = nextStage >= stageCount ? 'completed' : 'active';
         // Only show rewards on completion
         const buildGenericRewards = (rewards: any): string[] => {
@@ -237,34 +284,8 @@ export const useJournalStore = create<JournalState>((set, get) => ({
     set(() => ({ questsList: quests }));
   },
   syncQuestProgress: (questId) => {
-    // Generic quest progress synchronization
-    const state = get();
-    const inventory = useInventoryStore.getState();
-
-    // If a specific questId is provided, only check that one
-    // Otherwise, check ALL active quests
-    const questsToCheck = questId 
-      ? [state.quests[questId]].filter(q => q && q.active && !q.completed)
-      : Object.values(state.quests).filter(q => q.active && !q.completed);
-
-    questsToCheck.forEach(quest => {
-      const currentStageIndex = quest.currentStage || 0;
-      // Get the quest definition from static data to check stage type
-      // We need to look up the quest in questsData to get the full stage definition including 'type' and 'target'
-      const questDef = questsData[quest.id as keyof typeof questsData];
-      
-      if (!questDef || !questDef.stages || !questDef.stages[currentStageIndex]) return;
-
-      const currentStageDef = questDef.stages[currentStageIndex] as QuestStage;
-
-      // Check for 'gather' type objectives
-      if (currentStageDef.type === 'gather' && currentStageDef.target && currentStageDef.quantity) {
-        const currentQty = inventory.getItemQuantity(currentStageDef.target);
-        if (currentQty >= currentStageDef.quantity) {
-          // Objective met, advance stage
-          get().setQuestStage(quest.id, currentStageIndex + 1);
-        }
-      }
-    });
+    // We now use QuestObserverService for reactive updates.
+    // This method can remain for manual triggers if needed,
+    // but the observer will handle it automatically on store changes.
   },
 }));

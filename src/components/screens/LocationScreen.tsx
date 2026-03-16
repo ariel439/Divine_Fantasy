@@ -946,23 +946,47 @@ const LocationScreen: React.FC = () => {
                 })
                 .filter((action: any) => {
                   if (!introMode) return !String(action.type).startsWith('tutorial_') && action.type !== 'end_intro';
+                  
                   const locId = currentLocation.id;
-                  if (locId === 'orphanage_room') {
-                    if (tutorialStep === 0) return action.type === 'navigate' && action.target === 'leo_lighthouse';
-                    if (tutorialStep === 6 || tutorialStep === 7) return action.type === 'tutorial_sleep';
-                    return false;
+                  const world = useWorldStateStore.getState();
+
+                  // 🛡️ INTRO FIREWALL: Strict action filtering for the Year 775 tutorial
+                  switch (locId) {
+                    case 'orphanage_room':
+                      if (tutorialStep === 0) return action.type === 'navigate' && action.target === 'leo_lighthouse';
+                      if (tutorialStep === 6 || tutorialStep === 7) return action.type === 'tutorial_sleep';
+                      return false;
+
+                    case 'leo_lighthouse':
+                      if (tutorialStep <= 2) return action.type === 'dialogue' && action.target === 'npc_old_leo';
+                      if (tutorialStep === 3) return action.type === 'tutorial_breakfast';
+                      if (tutorialStep === 5) return (action.type === 'dialogue' && (action.target === 'npc_sarah' || action.target === 'npc_kyle')) || action.type === 'tutorial_play_alone';
+                      if (tutorialStep === 6) return (action.type === 'navigate' && action.target === 'orphanage_room');
+                      return false;
+
+                    case 'driftwatch_main_street':
+                      // Only allow moving to Docks (for the quest) or back to Lighthouse
+                      return action.type === 'navigate' && (action.target === 'driftwatch_docks' || action.target === 'leo_lighthouse');
+
+                    case 'driftwatch_docks':
+                      // If the smuggler event is active, you MUST help Robert. 
+                      // No wandering off to Tide & Trade or the Hub as a child.
+                      const combatAvailable = world.getFlag('smuggler_help_available');
+                      if (combatAvailable) {
+                        return action.type === 'trigger_event' && action.eventId === 'smuggler_combat_start';
+                      }
+                      // After the fight, you can leave back to the main Hub area
+                      return action.type === 'navigate' && action.target === 'driftwatch';
+
+                    case 'beryls_general_goods':
+                    case 'kaelens_forge':
+                      // In case the player wanders into shops, only allow leaving
+                      return action.type === 'navigate' && action.target === 'driftwatch_main_street';
+
+                    default:
+                      // Block all other locations during intro
+                      return false;
                   }
-                  if (locId === 'leo_lighthouse') {
-                    if (tutorialStep <= 2) return action.type === 'dialogue' && action.target === 'npc_old_leo';
-                    if (tutorialStep === 3) return action.type === 'tutorial_breakfast';
-                    if (tutorialStep === 5) return (action.type === 'dialogue' && (action.target === 'npc_sarah' || action.target === 'npc_kyle')) || action.type === 'tutorial_play_alone';
-                    if (tutorialStep === 6) return (action.type === 'navigate' && action.target === 'orphanage_room');
-                  }
-                  if (locId === 'driftwatch_main_street' || locId === 'beryls_general_goods' || locId === 'kaelens_forge') {
-                    // Allow navigation during intro
-                    return action.type === 'navigate';
-                  }
-                  return false;
                 })
                 .map((action: any, index: number) => {
                   let highlight = false;
@@ -976,6 +1000,8 @@ const LocationScreen: React.FC = () => {
                       else if (tutorialStep === 6) highlight = (action.type === 'navigate' && action.target === 'orphanage_room');
                     } else if (locId === 'orphanage_room') {
                       if (tutorialStep === 6 || tutorialStep === 7) highlight = action.type === 'tutorial_sleep';
+                    } else if (locId === 'driftwatch_docks') {
+                      if (action.eventId === 'smuggler_combat_start') highlight = true;
                     }
                   }
                   return (

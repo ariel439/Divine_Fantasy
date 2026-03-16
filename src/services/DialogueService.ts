@@ -130,7 +130,6 @@ export class DialogueService {
     if (!overrideDialogueId && introMode) {
       if (npcId === 'npc_old_leo') dialogueId = 'old_leo_intro';
       if (npcId === 'npc_sarah') dialogueId = 'sarah_intro';
-      if (npcId === 'npc_robert') dialogueId = 'robert_intro';
       if (npcId === 'npc_kyle') dialogueId = 'kyle_intro';
     }
 
@@ -388,33 +387,21 @@ export class DialogueService {
           journalStore.addQuest(canonicalQuest);
 
           // UI quest (journal list)
-          const giverId = q.giver_id;
-          const giverName = typedNpcsData[giverId]?.name || 'Unknown';
-          const objectives = (q.stages || []).map((s: any) => ({ text: s.text, completed: false }));
-
-          const uiQuest = {
+          useJournalStore.getState().addQuest({
             id: questId,
             title: q.title,
-            giver: giverName,
             description: q.description,
-            objectives,
-            rewards: [],
-            status: 'active' as const,
-          };
-          const currentList = useJournalStore.getState().questsList || [];
-          if (!currentList.some(q => q.id === questId)) {
-            useJournalStore.getState().setQuestsList([...currentList, uiQuest]);
-          }
+            stages: q.stages,
+            currentStage: 0,
+            completed: false,
+            active: true,
+            rewards: q.rewards
+          });
+
           // For intro quest, keep all objectives visible without auto-completing the first stage
           if (questId !== 'luke_tutorial' && questId !== 'rebel_path') {
             // Move to stage 1 after acceptance (talk stage completed)
             useJournalStore.getState().setQuestStage(questId, 1);
-          }
-          // If player already has required items (e.g., 10 planks), auto-sync to stage 2
-          try {
-            useJournalStore.getState().syncQuestProgress(questId);
-          } catch (e) {
-            // Journal store may not expose sync yet; ignore
           }
           console.log('Quest started via dialogue:', questId);
         }
@@ -629,13 +616,6 @@ export class DialogueService {
           }
           useCharacterStore.getState().addCurrency('silver', amount);
           world.setFlag(flag, true);
-          try { 
-            const q = useJournalStore.getState().quests['finn_debt_collection'];
-            // Prevent auto-completion (stage 5) by only advancing if < 4 (Bring 30 silvers is stage 4)
-            if (q && (q.currentStage || 0) < 4) {
-              useJournalStore.getState().advanceQuestStage('finn_debt_collection'); 
-            }
-          } catch {}
           diaryStore.addInteraction('Collected ' + amount + ' silvers from ' + (typedNpcsData[targetNpcId]?.name || targetNpcId) + '.');
         }
         break;

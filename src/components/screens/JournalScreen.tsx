@@ -14,11 +14,17 @@ import Stat from '../ui/Stat';
 
 const JournalScreen: FC = () => {
     const { setScreen } = useUIStore();
-    const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
+    const [selectedQuestId, setSelectedQuestId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [mainTab, setMainTab] = useState<'quests' | 'job'>('quests');
     const [questStatusTab, setQuestStatusTab] = useState<'active' | 'completed'>('active');
     const { questsList, quests } = useJournalStore();
+
+    // Derive selected quest from store to ensure it's always up to date
+    const selectedQuest = useMemo(() => {
+        if (!selectedQuestId) return null;
+        return questsList.find(q => q.id === selectedQuestId) || null;
+    }, [selectedQuestId, questsList]);
 
     // Job Data
     const { activeJob, jobs, attendance } = useJobStore();
@@ -39,17 +45,17 @@ const JournalScreen: FC = () => {
     
     // Set initial quest on tab change or first load
     useEffect(() => {
-        if (filteredQuests.length > 0 && !selectedQuest) {
-            setSelectedQuest(filteredQuests[0]);
+        if (filteredQuests.length > 0 && !selectedQuestId) {
+            setSelectedQuestId(filteredQuests[0].id);
         }
-    }, [filteredQuests]);
+    }, [filteredQuests, selectedQuestId]);
 
     // Update selected quest if it's filtered out
     useEffect(() => {
-        if (selectedQuest && !filteredQuests.some(q => q.id === selectedQuest.id)) {
-            setSelectedQuest(filteredQuests[0] || null);
+        if (selectedQuestId && !filteredQuests.some(q => q.id === selectedQuestId)) {
+            setSelectedQuestId(filteredQuests[0]?.id || null);
         }
-    }, [filteredQuests, selectedQuest]);
+    }, [filteredQuests, selectedQuestId]);
 
     // Job Logic
     const [currentMonthIndex, setCurrentMonthIndex] = useState(month - 1);
@@ -218,20 +224,20 @@ const JournalScreen: FC = () => {
                                     ) : filteredQuests.map(quest => (
                                         <button
                                             key={quest.id}
-                                            onClick={() => setSelectedQuest(quest)}
+                                            onClick={() => setSelectedQuestId(quest.id)}
                                             className={`w-full text-left p-3.5 rounded-xl transition-all group ${
-                                                selectedQuest?.id === quest.id 
+                                                selectedQuestId === quest.id 
                                                 ? 'bg-zinc-100 text-black shadow-[0_0_15px_rgba(255,255,255,0.1)]' 
                                                 : 'hover:bg-white/5 text-zinc-400 hover:text-white border border-transparent hover:border-zinc-800/50'
                                             }`}
                                         >
                                             <div className="flex justify-between items-center">
-                                                <span className={`text-sm font-bold tracking-tight ${selectedQuest?.id === quest.id ? 'font-black' : ''}`}>
+                                                <span className={`text-sm font-bold tracking-tight ${selectedQuestId === quest.id ? 'font-black' : ''}`}>
                                                     {quest.title}
                                                 </span>
-                                                {selectedQuest?.id === quest.id && <BookOpen size={12} />}
+                                                {selectedQuestId === quest.id && <BookOpen size={12} />}
                                             </div>
-                                            <p className={`text-[9px] uppercase font-black tracking-tighter mt-1 opacity-50 ${selectedQuest?.id === quest.id ? 'text-zinc-900' : 'text-zinc-500'}`}>
+                                            <p className={`text-[9px] uppercase font-black tracking-tighter mt-1 opacity-50 ${selectedQuestId === quest.id ? 'text-zinc-900' : 'text-zinc-500'}`}>
                                                 From: {quest.giver}
                                             </p>
                                         </button>
@@ -279,88 +285,43 @@ const JournalScreen: FC = () => {
                                             </p>
                                         </div>
 
-                                        {/* Objectives Section */}
                                         <div className="space-y-4">
                                             <div className="flex items-center gap-3">
                                                 <Target size={16} className="text-zinc-500" />
                                                 <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-200">Progress Tracker</h3>
                                             </div>
-                                            {(() => {
-                                                const isActive = selectedQuest.status === 'active';
-                                                const isLukeTutorial = selectedQuest.id === 'luke_tutorial';
-                                                const coreQuest = quests[selectedQuest.id];
-                                                const currentStage = coreQuest?.currentStage ?? 0;
-                                                const coreStagesRaw = (coreQuest?.stages || []);
-                                                const coreStages = coreStagesRaw.filter((s: any) => {
-                                                    if (isLukeTutorial && (s.id === 0 || s.id === 3)) return false;
-                                                    return true;
-                                                });
-                                                const world = useWorldStateStore.getState();
-
-                                                const displayStages = (() => {
-                                                    if (!isActive) return coreStages.map(s => ({ ...s, __completed: true }));
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-6">
+                                                {selectedQuest.objectives.map((obj, index) => {
+                                                    const isBeryl = selectedQuest.id === 'finn_debt_collection' && index === 2; // Beryl is stage 2
+                                                    const world = useWorldStateStore.getState();
+                                                    const failed = isBeryl && world.getFlag('beryl_debt_forgiven');
                                                     
-                                                    const collectStages = coreStages.filter((s: any) => s.type === 'collect');
-                                                    if (collectStages.length >= 2) {
-                                                        return coreStages.map((s: any) => {
-                                                            const flagMap: Record<string, string> = {
-                                                                'npc_ben': 'debt_paid_by_ben',
-                                                                'npc_beryl': 'debt_paid_by_beryl',
-                                                                'npc_elara': 'debt_paid_by_elara',
-                                                            };
-                                                            const flag = flagMap[s.target];
-                                                            const isBeryl = s.target === 'npc_beryl';
-                                                            const failed = isBeryl && world.getFlag('beryl_debt_forgiven');
-                                                            const completed = flag ? world.getFlag(flag) : ((s.id ?? 0) < currentStage);
-                                                            return { ...s, __completed: completed, __failed: failed };
-                                                        });
-                                                    }
-                                                    
-                                                    const seq = coreStages.filter((s: any) => (s.id ?? 0) <= currentStage).map((s: any) => ({ ...s, __completed: (s.id ?? 0) < currentStage }));
-                                                    if (seq.length === 0) {
-                                                        const nextIdx = coreStages.findIndex((s: any) => (s.id ?? 0) > currentStage);
-                                                        if (nextIdx !== -1) seq.push({ ...coreStages[nextIdx], __completed: false });
-                                                    }
-                                                    if (!seq.some((s: any) => (s.id ?? 0) === currentStage)) {
-                                                        const current = coreStages.find((s: any) => (s.id ?? 0) === currentStage);
-                                                        if (current) seq.push({ ...current, __completed: false });
-                                                    }
-                                                    return seq;
-                                                })();
-
-                                                return (
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-6">
-                                                        {displayStages.map((s: any, index: number) => {
-                                                            const stageId = s.id ?? index;
-                                                            const completed = s.__completed;
-                                                            return (
-                                                                <div key={`${stageId}-${index}`} className={`flex items-center gap-3 p-3 rounded-xl bg-black/40 border transition-all ${
-                                                                    s.__failed ? 'border-red-900/50 bg-red-950/10' : 
-                                                                    completed ? 'border-emerald-900/50 bg-emerald-950/5' : 
-                                                                    'border-zinc-800 group hover:border-zinc-700'
-                                                                }`}>
-                                                                    <div className="flex-shrink-0">
-                                                                        {s.__failed ? (
-                                                                            <XCircle size={16} className="text-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]" />
-                                                                        ) : completed ? (
-                                                                            <CheckSquare size={16} className="text-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" />
-                                                                        ) : (
-                                                                            <Square size={16} className="text-zinc-600 group-hover:text-zinc-400 transition-colors" />
-                                                                        )}
-                                                                    </div>
-                                                                    <p className={`text-xs font-medium tracking-wide ${
-                                                                        s.__failed ? 'text-red-400/70 line-through' : 
-                                                                        completed ? 'text-zinc-500 line-through' : 
-                                                                        'text-zinc-200'
-                                                                    }`}>
-                                                                        {s.text}
-                                                                    </p>
-                                                                </div>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                );
-                                            })()}
+                                                    return (
+                                                        <div key={index} className={`flex items-center gap-3 p-3 rounded-xl bg-black/40 border transition-all ${
+                                                            failed ? 'border-red-900/50 bg-red-950/10' : 
+                                                            obj.completed ? 'border-emerald-900/50 bg-emerald-950/5' : 
+                                                            'border-zinc-800 group hover:border-zinc-700'
+                                                        }`}>
+                                                            <div className="flex-shrink-0">
+                                                                {failed ? (
+                                                                    <XCircle size={16} className="text-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]" />
+                                                                ) : obj.completed ? (
+                                                                    <CheckSquare size={16} className="text-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" />
+                                                                ) : (
+                                                                    <Square size={16} className="text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+                                                                )}
+                                                            </div>
+                                                            <p className={`text-xs font-medium tracking-wide ${
+                                                                failed ? 'text-red-400/70 line-through' : 
+                                                                obj.completed ? 'text-zinc-500 line-through' : 
+                                                                'text-zinc-200'
+                                                            }`}>
+                                                                {obj.text}
+                                                            </p>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
 
                                         {/* Rewards Section */}

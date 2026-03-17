@@ -148,7 +148,7 @@ export class GameManagerService {
       },
       hp: 50 + (template.starting_attributes.Strength * 10),
       energy: 80,
-      hunger: 20,
+      hunger: 100,
       currency: { ...template.starting_bonuses.currency },
       maxWeight: 50,
       bio: {

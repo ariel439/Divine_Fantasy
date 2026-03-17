@@ -187,6 +187,7 @@ const ScreenManager: React.FC = () => {
           <EventScreen
             slides={lukePrologueSlides}
             onComplete={() => {
+              useCharacterStore.setState((state) => ({ ...state, hunger: 20 }));
               useWorldStateStore.getState().setIntroCompleted(true);
               useWorldStateStore.getState().setFlag('intro_completed', true);
               useWorldStateStore.getState().setIntroMode(false);

@@ -134,6 +134,11 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     const itemData = itemsData[itemId as keyof typeof itemsData];
     if (!itemData) return false;
 
+    const rawFoodBlocked = ['raw_meat', 'fish_sardine', 'fish_trout', 'fish_pike'];
+    if (rawFoodBlocked.includes(itemId)) {
+      return false;
+    }
+
     // For consumables, use the eat action
     if (itemData.type === 'consumable') {
       const removed = get().removeItem(itemId, 1);

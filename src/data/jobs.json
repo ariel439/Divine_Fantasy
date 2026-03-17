@@ -4,7 +4,7 @@
     "description": "Perform manual labor at the bustling Driftwatch Docks. Tasks include loading and unloading cargo, cleaning, and other physically demanding duties.",
     "location_id": "driftwatch_docks",
     "supervisor_id": "npc_boric",
-    "pay_per_shift": 20,
+    "pay_per_shift": 18,
     "energy_cost": 60,
     "late_pay_factor": 0.75,
     "min_energy_to_start": 30,

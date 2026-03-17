@@ -32,9 +32,9 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.5,
-    "base_value": 5,
+    "base_value": 3,
     "effects": {
-      "hunger": 5
+      "hunger": 3
     },
     "image": "/assets/items/raw_meat.png"
   },
@@ -86,9 +86,9 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.3,
-    "base_value": 3,
+    "base_value": 2,
     "effects": {
-      "hunger": 5
+      "hunger": 2
     },
     "image": "/assets/items/raw_sardine.png"
   },
@@ -98,9 +98,9 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.6,
-    "base_value": 6,
+    "base_value": 5,
     "effects": {
-      "hunger": 6
+      "hunger": 3
     },
     "image": "/assets/items/raw_trout.png"
   },
@@ -110,9 +110,9 @@
     "type": "consumable",
     "stackable": true,
     "weight": 1.2,
-    "base_value": 9,
+    "base_value": 6,
     "effects": {
-      "hunger": 10
+      "hunger": 5
     },
     "image": "/assets/items/raw_pike.png"
   },
@@ -134,7 +134,7 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.6,
-    "base_value": 7,
+    "base_value": 10,
     "effects": {
       "hunger": 15
     },
@@ -213,7 +213,10 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.5,
-    "base_value": 5,
+    "base_value": 6,
+    "effects": {
+      "hunger": 1
+    },
     "image": "/assets/items/beer.png"
   },
   "wolf_tooth": {
@@ -413,8 +416,18 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.5,
-    "base_value": 3,
+    "base_value": 4,
     "effects": { "hunger": 10 },
+    "image": "/assets/items/bread.png"
+  },
+  "stale_bread": {
+    "name": "Stale Bread",
+    "description": "A hard, dry heel of bread. Barely edible, but it fills the stomach.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.5,
+    "base_value": 3,
+    "effects": { "hunger": 6 },
     "image": "/assets/items/bread.png"
   },
   "cheese": {
@@ -424,7 +437,7 @@
     "stackable": true,
     "weight": 0.3,
     "base_value": 5,
-    "effects": { "hunger": 8 },
+    "effects": { "hunger": 10 },
     "image": "/assets/items/cheese.png"
   },
   "burned_food": {

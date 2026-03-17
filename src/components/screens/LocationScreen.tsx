@@ -415,6 +415,7 @@ const LocationScreen: React.FC = () => {
         break;
       }
       case 'end_intro': {
+        useCharacterStore.setState((state) => ({ ...state, hunger: 20 }));
         useWorldStateStore.getState().setIntroCompleted(true);
         useWorldStateStore.getState().setFlag('intro_completed', true);
         useWorldStateStore.getState().setIntroMode(false);
@@ -601,8 +602,8 @@ const LocationScreen: React.FC = () => {
       const energyCost = iterations * 5;
       const loc = pendingSkillAction.target;
       const rewardsSummary = loc === 'fish_docks'
-        ? `~${iterations} casts; mainly Sardines; XP per catch`
-        : `~${iterations} casts; Trout (lvl 3+), Pike (lvl 5+); XP per catch`;
+        ? `~${iterations} casts; Sardines scale with Fishing level`
+        : `~${iterations} casts; Trout (lvl 5+), Pike (lvl 7+); lower catch rate`;
       return { energyCost, rewardsSummary };
     }
     return { energyCost: 0, rewardsSummary: '' };
@@ -701,18 +702,19 @@ const LocationScreen: React.FC = () => {
       for (let i = 0; i < iterations; i++) {
         const roll = Math.random();
         if (pendingSkillAction.target === 'fish_docks') {
-          if (roll < 0.9) {
+          const sardineChance = fishingLevel >= 7 ? 0.75 : fishingLevel >= 5 ? 0.7 : fishingLevel >= 3 ? 0.65 : 0.6;
+          if (roll < sardineChance) {
             if (inventory.addItem('fish_sardine', 1)) { sardines += 1; skills.addXp('fishing', 15); }
             else { skills.addXp('fishing', 2); }
           } else { skills.addXp('fishing', 2); }
         } else {
-          if (roll < 0.7) {
-            if (fishingLevel >= 3) {
+          if (roll < 0.35) {
+            if (fishingLevel >= 5) {
                 if (inventory.addItem('fish_trout', 1)) { trout += 1; skills.addXp('fishing', 15); }
                 else { skills.addXp('fishing', 5); }
             } else { skills.addXp('fishing', 5); }
-          } else if (roll < 0.9) {
-            if (fishingLevel >= 5) {
+          } else if (roll < 0.45) {
+            if (fishingLevel >= 7) {
               if (inventory.addItem('fish_pike', 1)) { pike += 1; skills.addXp('fishing', 40); }
               else { skills.addXp('fishing', 10); }
             } else { skills.addXp('fishing', 10); }

@@ -75,6 +75,7 @@ const ModalManager: React.FC = () => {
                 
                 if (useWorldStateStore.getState().getFlag('start_finn_debt_on_sleep')) {
                   useWorldStateStore.getState().setFlag('start_finn_debt_on_sleep', false);
+                  useCharacterStore.setState((state) => ({ ...state, hunger: 20 }));
                   useWorldTimeStore.setState({ hour: 8, minute: 0, year: 780 });
                   useLocationStore.getState().setLocation('salty_mug');
                   useWorldStateStore.getState().setFlag('finn_debt_intro_pending', true);

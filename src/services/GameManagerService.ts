@@ -12,6 +12,7 @@ import { useCompanionStore } from '../stores/useCompanionStore';
 import { useShopStore } from '../stores/useShopStore';
 import { useCombatStore } from '../stores/useCombatStore';
 import { useUIStore } from '../stores/useUIStore';
+import { useLocationStore } from '../stores/useLocationStore';
 import characterTemplates from '../data/character_templates.json';
 import enemiesJson from '../data/enemies.json';
 import itemsJson from '../data/items.json';
@@ -19,6 +20,7 @@ import type { CombatParticipant, Item } from '../types';
 import { DataValidator } from './DataValidator';
 import { WorldEventManager } from './WorldEventManager';
 import { QuestObserverService } from './QuestObserverService';
+import { DialogueService } from './DialogueService';
 import { timeoutSlides, starvationSlides, gameOverSlides } from '../data/events';
 import { getMaxSocialEnergy } from '../utils/socialEnergy';
 
@@ -140,8 +142,8 @@ export class GameManagerService {
       intelligence: template.starting_attributes.Intelligence,
       charisma: template.starting_attributes.Charisma,
       },
-      hp: 50 + (template.starting_attributes.Strength * 10),
-      energy: 80,
+      hp: 100,
+      energy: 100,
       hunger: 100,
       currency: { ...template.starting_bonuses.currency },
       maxWeight: 50,
@@ -245,6 +247,42 @@ export class GameManagerService {
     }
 
     console.log('New game started successfully with template:', templateId);
+  }
+
+  static applyMainGameStoryVitals(): void {
+    useCharacterStore.setState((state) => ({
+      ...state,
+      hp: Math.min(state.maxHp || 100, 80),
+      energy: 60,
+    }));
+  }
+
+  static skipStoryIntroToFinnWeek(): void {
+    useWorldStateStore.getState().setIntroMode(false);
+    useWorldStateStore.getState().setIntroCompleted(true);
+    useWorldStateStore.getState().setFlag('intro_completed', true);
+    useWorldStateStore.getState().setTutorialStep(100);
+    useWorldStateStore.getState().removeKnownNpc('npc_robert');
+
+    useWorldTimeStore.setState({
+      year: 780,
+      month: 5,
+      dayOfMonth: 3,
+      day: 1,
+      hour: 8,
+      minute: 0,
+    });
+
+    useLocationStore.getState().setLocation('salty_mug');
+    DialogueService.executeAction('start_quest:finn_debt_collection');
+    DialogueService.executeAction('start_debt_collection');
+    useWorldStateStore.getState().setFlag('finn_debt_intro_pending', true);
+
+    useCharacterStore.setState((state) => ({
+      ...state,
+      hunger: 20,
+    }));
+    GameManagerService.applyMainGameStoryVitals();
   }
 
   static endGame(): void {

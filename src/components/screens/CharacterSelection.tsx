@@ -59,7 +59,7 @@ const CharacterSelection: FC = () => {
         setIsGameModeModalOpen(true);
     };
 
-    const handleStartGame = (mode: 'story' | 'sandbox') => {
+    const handleStartGame = (mode: 'story' | 'sandbox', options?: { skipIntro?: boolean }) => {
         setIsGameModeModalOpen(false);
         const setGameMode = useWorldStateStore.getState().setGameMode;
         setGameMode(mode);
@@ -81,12 +81,16 @@ const CharacterSelection: FC = () => {
             useWorldTimeStore.setState({ year: 780, month: 5, day: 1, hour: 8, minute: 0 });
             useLocationStore.getState().setLocation('driftwatch');
         } else {
-            useWorldStateStore.getState().setIntroMode(true);
-            useWorldStateStore.getState().setIntroCompleted(false);
-            useWorldStateStore.getState().setTutorialStep(0);
-            useWorldTimeStore.setState({ year: 775 });
-            DialogueService.executeAction('start_quest:luke_tutorial');
-            useLocationStore.getState().setLocation('orphanage_room');
+            if (options?.skipIntro) {
+                GameManagerService.skipStoryIntroToFinnWeek();
+            } else {
+                useWorldStateStore.getState().setIntroMode(true);
+                useWorldStateStore.getState().setIntroCompleted(false);
+                useWorldStateStore.getState().setTutorialStep(0);
+                useWorldTimeStore.setState({ year: 775 });
+                DialogueService.executeAction('start_quest:luke_tutorial');
+                useLocationStore.getState().setLocation('orphanage_room');
+            }
         }
 
         setScreen('inGame');

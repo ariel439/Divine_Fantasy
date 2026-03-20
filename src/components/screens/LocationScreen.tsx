@@ -422,6 +422,7 @@ const LocationScreen: React.FC = () => {
         useWorldStateStore.getState().removeKnownNpc('npc_robert');
         useWorldTimeStore.setState({ year: 780 });
         useLocationStore.getState().setLocation('salty_mug');
+        GameManagerService.applyMainGameStoryVitals();
         useWorldStateStore.getState().setFlag('finn_debt_intro_pending', true);
         useUIStore.getState().setEventSlides(rebelRaidIntroSlides); // Corrected to use a placeholder or relevant slides
         useUIStore.getState().setCurrentEventId('finn_debt_intro');

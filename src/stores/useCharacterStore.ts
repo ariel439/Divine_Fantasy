@@ -113,13 +113,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     });
   },
   sleep: (hours: number, quality: number = 1.0) => {
-    // Drain hunger while sleeping (1 per hour)
-    const hungerDrain = hours;
-
     set((state) => {
-      // Calculate new hunger
-      let newHunger = Math.max(0, state.hunger - hungerDrain);
-      
       // Calculate regen
       const canHeal = state.hunger > 0;
       
@@ -132,8 +126,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
       
       return {
         hp: Math.min(100, state.hp + hpRegen),
-        energy: Math.min(100, state.energy + energyRegen),
-        hunger: newHunger
+        energy: Math.min(100, state.energy + energyRegen)
       };
     });
   },

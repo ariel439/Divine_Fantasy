@@ -9,6 +9,7 @@ import rodrickData from './driftwatch/rodrick.json';
 import boricData from './driftwatch/boric.json';
 import eliasData from './driftwatch/elias.json';
 import robertaData from './driftwatch/roberta.json';
+import marenClothierData from './driftwatch/maren_clothier.json';
 import finnData from './driftwatch/finn.json';
 import oldCrankData from './driftwatch/old_crank.json';
 import crawlerData from './driftwatch/crawler.json';
@@ -35,6 +36,7 @@ const dialogueData = {
   ...boricData,
   ...eliasData,
   ...robertaData,
+  ...marenClothierData,
   ...finnData,
   ...oldCrankData,
   ...crawlerData,

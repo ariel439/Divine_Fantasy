@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { useWorldStateStore } from './useWorldStateStore';
 import { useJobStore } from './useJobStore';
 import { useCharacterStore } from './useCharacterStore';
+import { useSkillStore } from './useSkillStore';
+import { getMaxSocialEnergy } from '../utils/socialEnergy';
 
 type Weather = 'Sunny' | 'Cloudy' | 'Rainy' | 'Snowy';
 type Season = 'Spring' | 'Summer' | 'Autumn' | 'Winter';
@@ -119,7 +121,12 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
       if (!state.instanceMode && (prevDay !== dom || prevMonth !== mo || prevYear !== y)) {
         try { useJobStore.getState().ensureAttendanceForDay(prevYear, prevMonth, prevDay); } catch {}
         try {
-          const maxSocial = useCharacterStore.getState().maxSocialEnergy;
+          const character = useCharacterStore.getState();
+          const maxSocial = getMaxSocialEnergy(
+            character.attributes.charisma,
+            useSkillStore.getState().getSkillLevel('persuasion'),
+            useSkillStore.getState().getSkillLevel('coercion')
+          );
           useCharacterStore.setState({ socialEnergy: maxSocial });
         } catch {}
       }
@@ -137,6 +144,10 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
         nextWeatherChangeMinutes,
       };
     });
+
+    try {
+      useCharacterStore.getState().tickHunger(minutes);
+    } catch {}
   },
   setClockPaused: (paused: boolean) => set({ clockPaused: paused }),
   getFormattedTime: () => {

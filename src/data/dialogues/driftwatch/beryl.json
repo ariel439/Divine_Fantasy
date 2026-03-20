@@ -103,7 +103,7 @@
           {
             "text": "Smart choice.",
             "closes_dialogue": true,
-            "action": "collect_debt_from:npc_beryl|add_xp:coercion:25|update_relationship:npc_beryl:-30|set_flag:beryl_intimidated:true"
+            "action": "collect_debt_from:npc_beryl|social_action:npc_beryl:coerce:threaten|set_flag:beryl_intimidated:true"
           }
         ]
       },
@@ -135,7 +135,7 @@
           {
             "text": "Pleasure doing business.",
             "closes_dialogue": true,
-            "action": "collect_debt_from:npc_beryl|remove_item:beryl_noble_letter:1|add_xp:coercion:20|update_relationship:npc_beryl:-10"
+            "action": "collect_debt_from:npc_beryl|remove_item:beryl_noble_letter:1|social_action:npc_beryl:coerce:threaten"
           }
         ]
       },
@@ -145,7 +145,7 @@
           {
             "text": "Pleasure doing business.",
             "closes_dialogue": true,
-            "action": "collect_debt_from:npc_beryl|add_money:50|remove_item:beryl_noble_letter:1|add_xp:coercion:40|update_relationship:npc_beryl:-20"
+            "action": "collect_debt_from:npc_beryl|add_money:50|remove_item:beryl_noble_letter:1|social_action:npc_beryl:coerce:threaten"
           }
         ]
       }
@@ -192,7 +192,7 @@
           {
             "text": "Pleasure doing business.",
             "closes_dialogue": true,
-            "action": "collect_debt_from:npc_beryl|remove_item:beryl_noble_letter:1|add_xp:coercion:20|update_relationship:npc_beryl:-10"
+            "action": "collect_debt_from:npc_beryl|remove_item:beryl_noble_letter:1|social_action:npc_beryl:coerce:threaten"
           }
         ]
       },

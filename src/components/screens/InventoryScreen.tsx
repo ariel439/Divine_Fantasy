@@ -19,48 +19,65 @@ const InventoryScreen: FC = () => {
     const [selectedItem, setSelectedItem] = useState<Item | null>(null);
     const [rightPanelView, setRightPanelView] = useState<'equipment' | 'details'>('equipment');
 
+    const buildDisplayItem = (baseItem: { id: string; quantity?: number }): Item | null => {
+        const itemData = itemsData[baseItem.id as keyof typeof itemsData];
+        if (!itemData) return null;
+
+        const equipSlot = (itemData as any).equipmentSlot as EquipmentSlot | undefined;
+        const iconSrc = (itemData as any).image as string | undefined;
+
+        let category: FilterCategory = 'Misc';
+        const itemType = (itemData as any).type as string;
+
+        if (itemType === 'weapon' || itemType === 'armor' || itemType === 'accessory') {
+            category = 'Equipment';
+        } else if (itemType === 'resource') {
+            category = 'Resource';
+        } else if (itemType === 'consumable') {
+            category = 'Consumable';
+        } else if (itemType === 'tool') {
+            category = 'Tool';
+        } else if (itemType === 'key_item' || itemType === 'quest') {
+            category = 'Quest';
+        }
+
+        return {
+            id: baseItem.id,
+            name: itemData.name,
+            description: itemData.description,
+            icon: iconSrc ? (<img src={iconSrc} alt={itemData.name} className="w-6 h-6" />) : undefined,
+            category,
+            type: itemType,
+            weight: itemData.weight,
+            base_value: itemData.base_value,
+            quantity: baseItem.quantity ?? 1,
+            stackable: itemData.stackable,
+            effects: (itemData as any).effects,
+            actions: equipSlot ? ['Equip', 'Use', 'Drop'] : ['Use', 'Drop'],
+            equipmentSlot: equipSlot,
+            stats: (itemData as any).stats || {}
+        } as Item;
+    };
+
     // Map inventoryItems to Item[] with data from items.json
     const inventory = useMemo(() => {
         return inventoryItems.map(invItem => {
-            const itemData = itemsData[invItem.id as keyof typeof itemsData];
-            if (!itemData) return null;
-            const equipSlot = (itemData as any).equipmentSlot as EquipmentSlot | undefined;
-            const iconSrc = (itemData as any).image as string | undefined;
-            
-            // Map JSON types to FilterCategory
-            let category: FilterCategory = 'Misc';
-            const itemType = (itemData as any).type as string;
-            
-            if (itemType === 'weapon' || itemType === 'armor' || itemType === 'accessory') {
-                category = 'Equipment';
-            } else if (itemType === 'resource') {
-                category = 'Resource';
-            } else if (itemType === 'consumable') {
-                category = 'Consumable';
-            } else if (itemType === 'tool') {
-                category = 'Tool';
-            } else if (itemType === 'key_item' || itemType === 'quest') {
-                category = 'Quest';
-            }
-
-            return {
-                id: invItem.id,
-                name: itemData.name,
-                description: itemData.description,
-                icon: iconSrc ? (<img src={iconSrc} alt={itemData.name} className="w-6 h-6" />) : undefined,
-                category: category, 
-                type: itemType, // Keep original type for other checks
-                weight: itemData.weight,
-                base_value: itemData.base_value,
-                quantity: invItem.quantity,
-                stackable: itemData.stackable,
-                effects: (itemData as any).effects,
-                actions: (('equipmentSlot' in itemData) && (itemData as any).equipmentSlot) ? ['Equip', 'Use', 'Drop'] : ['Use', 'Drop'],
-                equipmentSlot: equipSlot,
-                stats: (itemData as any).stats || {}
-            } as Item;
+            return buildDisplayItem(invItem);
         }).filter(Boolean) as Item[];
     }, [inventoryItems]);
+
+    const enrichedEquippedItems = useMemo(() => {
+        const enriched: Partial<Record<EquipmentSlot, Item>> = {};
+
+        (Object.entries(equippedItems) as [EquipmentSlot, Item | undefined][]).forEach(([slot, item]) => {
+            if (!item) return;
+            const displayItem = buildDisplayItem({ id: item.id, quantity: item.quantity });
+            if (!displayItem) return;
+            enriched[slot] = displayItem;
+        });
+
+        return enriched;
+    }, [equippedItems]);
 
     const totalWeight = useMemo(() => {
         return getCurrentWeight();
@@ -70,13 +87,13 @@ const InventoryScreen: FC = () => {
         if (!selectedItem || !selectedItem.equipmentSlot || rightPanelView !== 'details') {
             return null;
         }
-        return equippedItems[selectedItem.equipmentSlot] || null;
-    }, [selectedItem, equippedItems, rightPanelView]);
+        return enrichedEquippedItems[selectedItem.equipmentSlot] || null;
+    }, [selectedItem, enrichedEquippedItems, rightPanelView]);
 
     const isSelectedItemEquipped = useMemo(() => {
         if (!selectedItem) return false;
-        return Object.values(equippedItems).filter((item): item is Item => !!item).some(item => item.id === selectedItem.id);
-    }, [selectedItem, equippedItems]);
+        return Object.values(enrichedEquippedItems).filter((item): item is Item => !!item).some(item => item.id === selectedItem.id);
+    }, [selectedItem, enrichedEquippedItems]);
 
     const handleSelectItem = (item: Item) => {
         setSelectedItem(item);
@@ -152,7 +169,7 @@ const InventoryScreen: FC = () => {
                        <div className="flex-grow bg-zinc-900/40 backdrop-blur-xl rounded-2xl border border-zinc-800/50 shadow-2xl overflow-hidden flex flex-col h-full">
                             {rightPanelView === 'equipment' ? (
                                 <EquippedGearPanel
-                                    equippedItems={equippedItems}
+                                    equippedItems={enrichedEquippedItems}
                                     onItemSelect={handleSelectItem}
                                 />
                             ) : (

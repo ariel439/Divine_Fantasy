@@ -187,7 +187,7 @@ const DialogueScreen: FC<DialogueScreenProps> = ({
                     </div>
 
                     {/* Options */}
-                    <div className="flex-shrink-0 mt-auto space-y-3">
+                    <div className="flex-shrink-0 mt-auto max-h-[14rem] overflow-y-auto custom-scrollbar pr-2 space-y-3">
                         {options.map((option, index) => {
                             const isUnavailable = option.disabled ?? false;
                             return (

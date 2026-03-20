@@ -61,7 +61,7 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
     }, [selectedItem, equippedItem]);
 
     const renderActions = () => {
-        const actionsToShow = [...selectedItem.actions];
+        const actionsToShow = [...(selectedItem.actions || [])];
         if (selectedItem.equipmentSlot) {
             const equipIndex = actionsToShow.indexOf('Equip');
             if (equipIndex !== -1) {

@@ -21,12 +21,40 @@ These values are for the **first route-complete alpha pass**, not final release 
 
 The alpha social menu uses:
 
+- `Quest`
 - `Ask`
 - `Friendly`
 - `Flirt`
 - `Coerce`
-- `Quest`
-- `Leave`
+- `Back`
+
+Standard interaction-menu order:
+
+1. `Quest`
+2. `Ask`
+3. `Friendly`
+4. `Flirt`
+5. `Coerce`
+6. `Back`
+
+`Trade` should be handled outside the interaction menu from the NPC's opening node.
+
+### Opening Node Standard
+
+Major social NPCs should use:
+
+- optional `first_meet_node`
+- optional `repeat_meet_node`
+- `Show me your stock.` first if the NPC has a shop
+- `I'd like to talk.` to open the interaction menu
+- `Back.` or equivalent to exit cleanly
+
+If an opening node would only be:
+
+- `I'd like to talk.`
+- `Back.`
+
+the game should skip it and open directly on the interaction menu.
 
 ### Relationship Stats
 
@@ -72,6 +100,7 @@ Recommended first implementation:
 
 - allow 2 meaningful Friendly/Flirt/Coerce gains per NPC per day
 - after that, no further relationship gain until next day
+- if possible, disable those choices visibly with a `No more today` style message
 
 ## Social XP Matrix
 
@@ -181,17 +210,24 @@ The alpha should begin with a small but meaningful clothing layer.
 
 ### Presentation Rating
 
-Each clothing set contributes a presentation tag and numeric modifier.
+Presentation and intimidation should be built from actual equipped pieces.
 
 Recommended first pass:
 
-| Clothing | Buy Value | Presentation | Social Modifier Summary |
-|---|---:|---:|---|
-| Rags | 0 | -2 | Bad first impression, some nobles refuse to engage, hurts romance and respectable quest access |
-| Worn Work Clothes | 18 | -1 | Better with workers, accepted in practical spaces, still weak with nobles |
-| Clean Common Clothes | 35 | +1 | Best all-round social baseline for merchants and townsfolk |
-| Fine Town Clothes | 70 | +2 | Best with merchants/nobles, may look suspicious in rough districts |
-| Rough Hunter Gear | 45 | 0 | Neutral overall, better for coercive presence, worse for romance and upper-class access |
+| Item | Slot | Buy Value | Presentation | Intimidation |
+|---|---|---:|---:|---:|
+| Ragged Shirt | Chest | 0 | -1 | 0 |
+| Ragged Trousers | Legs | 0 | -1 | 0 |
+| Common Shirt | Chest | 16 | +1 | 0 |
+| Common Trousers | Legs | 14 | +1 | 0 |
+| Common Shoes | Boots | 10 | +1 | 0 |
+| Fine Shirt | Chest | 28 | +2 | 0 |
+| Fine Trousers | Legs | 24 | +1 | 0 |
+| Fine Shoes | Boots | 18 | +1 | 0 |
+| Wolf Leather pieces | Armor | existing | 0 | +1 to +2 each |
+| Iron pieces | Armor | existing | +1 each | +1 to +2 each |
+| Crude Knife | Weapon | existing | 0 | +1 |
+| Iron Sword | Weapon | existing | 0 | +2 |
 
 ### Equipment Presentation Modifier
 
@@ -201,6 +237,7 @@ Visible equipment should also affect social outcomes.
 |---|---|
 | No visible weapon | neutral |
 | Crude knife visible | +1 coercive feel, -1 friendly/flirt with cautious NPCs |
+| Iron weapon visible | stronger coercive feel, more social friction with cautious NPCs |
 | Work tool visible | +1 with practical/working NPCs |
 
 ### Alpha Implementation Rule
@@ -214,7 +251,7 @@ For the first pass:
 
 ### Dedicated Clothier
 
-The alpha should plan for a dedicated clothier NPC/store rather than hiding all presentation upgrades inside general goods.
+The alpha should use a dedicated clothier/store rather than hiding all presentation upgrades inside general goods.
 
 That store should be:
 
@@ -436,6 +473,7 @@ For implementation, each social-capable NPC should eventually define:
 - social class tag
 - personality tags
 - optional `first_meet_node`
+- optional `repeat_meet_node`
 - romance enabled or disabled
 - daily interaction limits
 - topic unlock thresholds
@@ -460,9 +498,10 @@ Build in this order:
 3. relationship stat support for Friendship / Love / Fear
 4. per-NPC menu availability
 5. authored first-meet node support
-6. Roberta conversion
-7. Beryl and Finn conversion
-8. clothing/presentation first pass
+6. authored repeat-meet node support
+7. Roberta conversion
+8. Beryl and Finn conversion
+9. clothing/presentation first pass
 
 ## Open Questions
 

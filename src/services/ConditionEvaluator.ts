@@ -8,6 +8,7 @@ import { useJournalStore } from '../stores/useJournalStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useJobStore } from '../stores/useJobStore';
+import { getEquippedPresentation, getPresentationSummary } from '../utils/socialPresentation';
 
 type ConditionOperator = '==' | '!=' | '>' | '<' | '>=' | '<=';
 
@@ -82,6 +83,11 @@ export class ConditionEvaluator {
     // 7. Stats
     if (lhs.startsWith('stats.')) {
         return this.evaluateStatsCondition(lhs, op, rhsNum);
+    }
+
+    // 8. Presentation
+    if (lhs.startsWith('presentation.')) {
+        return this.evaluatePresentationCondition(lhs, op, rhs, rhsBool, rhsNum);
     }
 
     console.warn(`[ConditionEvaluator] Unknown condition type: "${lhs}"`);
@@ -183,8 +189,11 @@ export class ConditionEvaluator {
   }
 
   private static evaluateRelationshipCondition(lhs: string, op: ConditionOperator, rhsNum?: number): boolean {
-      const npcId = lhs.replace('relationship.', '');
-      const val = useDiaryStore.getState().relationships[npcId]?.friendship?.value ?? 0;
+      const parts = lhs.split('.');
+      const npcId = parts[1];
+      const stat = (parts[2] || 'friendship') as 'friendship' | 'love' | 'fear';
+      const relationships = useDiaryStore.getState().relationships[npcId];
+      const val = relationships?.[stat]?.value ?? 0;
       return this.compare(val, op, rhsNum ?? 0);
   }
 
@@ -235,5 +244,28 @@ export class ConditionEvaluator {
       const statName = lhs.replace('stats.', '') as keyof typeof attributes;
       const val = attributes[statName] || 0;
       return this.compare(val, op, rhsNum ?? 0);
+  }
+
+  private static evaluatePresentationCondition(lhs: string, op: ConditionOperator, rhsRaw: string, rhsBool?: boolean, rhsNum?: number): boolean {
+      const presentation = getEquippedPresentation();
+      const summary = getPresentationSummary();
+
+      if (lhs === 'presentation.score') {
+          return this.compare(summary.score, op, rhsNum ?? 0);
+      }
+      if (lhs === 'presentation.label') {
+          return this.compare(summary.label, op, rhsRaw);
+      }
+      if (lhs === 'presentation.is_underdressed') {
+          return this.compare(presentation.isUnderdressed, op, rhsBool ?? true);
+      }
+      if (lhs === 'presentation.has_visible_armor') {
+          return this.compare(presentation.hasVisibleArmor, op, rhsBool ?? true);
+      }
+      if (lhs === 'presentation.has_visible_weapon') {
+          return this.compare(Boolean(presentation.visibleWeapon), op, rhsBool ?? true);
+      }
+
+      return false;
   }
 }

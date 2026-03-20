@@ -84,6 +84,15 @@
       { "location_id": "tide_trade", "start_hour": 9, "end_hour": 19 }
     ]
   },
+  "npc_maren_clothier": {
+    "name": "Maren",
+    "home_location": "harbor_clothier",
+    "default_dialogue_id": "maren_clothier_default",
+    "portrait": "/assets/portraits/Maren.png",
+    "schedules": [
+      { "location_id": "harbor_clothier", "start_hour": 8, "end_hour": 18 }
+    ]
+  },
   "npc_finn": {
     "name": "Finn",
     "home_location": "salty_mug",
@@ -153,7 +162,7 @@
     "name": "Private Stan",
     "home_location": "mosswatch_keep",
     "default_dialogue_id": "stan_default",
-    "portrait": "/assets/portraits/Stan.png",
+    "portrait": "/assets/portraits/Guard_Generic.png",
     "schedules": [
       { "location_id": "mosswatch_keep", "start_hour": 19, "end_hour": 6 }
     ]

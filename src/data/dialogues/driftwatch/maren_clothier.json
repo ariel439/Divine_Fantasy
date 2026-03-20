@@ -1,0 +1,19 @@
+{
+  "maren_clothier_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Need something sturdier than rags, or are you only here to stare at the stitching?",
+        "player_choices": [
+          {
+            "text": "Show me what you have for sale.",
+            "action": "open_shop:harbor_clothier"
+          },
+          {
+            "text": "Just looking around.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  }
+}

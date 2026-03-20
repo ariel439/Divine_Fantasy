@@ -1,6 +1,38 @@
 {
   "finn_default": {
+    "trade_shop_id": "salty_mug",
+    "interaction_roots": {
+      "trade": "finn_trade_root",
+      "quest": "finn_quest_root"
+    },
     "nodes": {
+      "finn_trade_root": {
+        "npc_text": "If you are buying, buy. If you are talking, make it quick.",
+        "player_choices": [
+          {
+            "text": "Let me see your stock.",
+            "action": "open_shop:salty_mug"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "finn_quest_root": {
+        "npc_text": "What is it?",
+        "player_choices": [
+          {
+            "text": "About the collection job.",
+            "next_node": "job_progress",
+            "condition": "world_flags.finn_debt_collection_active==true"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
       "0": {
         "npc_text": "Welcome to the Salty Mug.",
         "player_choices": [

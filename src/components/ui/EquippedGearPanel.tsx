@@ -31,7 +31,15 @@ const Slot: FC<{
         >
             {item ? (
                 <div className="text-zinc-100 group-hover:text-black transition-colors">
-                    {React.cloneElement(item.icon as ReactElement<{ size: number }>, { size: 36 })}
+                    {(() => {
+                        const iconEl = item.icon as ReactElement<any> | undefined;
+                        if (iconEl && typeof iconEl.type === 'string' && iconEl.type === 'img') {
+                            const src = (iconEl.props && (iconEl.props as any).src) || '';
+                            const alt = (iconEl.props && (iconEl.props as any).alt) || item.name;
+                            return <img src={src} alt={alt} className="w-10 h-10 object-contain rounded transition-transform group-hover:scale-110" />;
+                        }
+                        return iconEl ? React.cloneElement(iconEl, { size: 36 }) : null;
+                    })()}
                 </div>
             ) : (
                 <div className="opacity-20 group-hover:opacity-40 transition-opacity">

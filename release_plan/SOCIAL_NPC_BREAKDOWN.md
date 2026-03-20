@@ -38,6 +38,7 @@ It is a route-design breakdown for what each NPC should do in the social system.
 ## Global Rules For This Set
 
 - major NPCs should support optional authored `first_meet_node`
+- major NPCs should support optional authored `repeat_meet_node`
 - `Ask` is for discovery
 - `Quest` is for progression
 - `Friendly`, `Flirt`, and `Coerce` should be authored, not spam loops
@@ -75,6 +76,12 @@ He should:
 Yes, authored.
 
 The intro node already effectively serves this function and should remain fully authored.
+
+### Repeat-Meet Node
+
+Yes.
+
+Old Leo should still open with a short authored line before any talk menu if he is ever converted to the full interaction structure.
 
 ### Ask Topics
 
@@ -153,6 +160,17 @@ Goals:
 - establish Roberta as capable but burdened
 - let Luke make a first impression
 - seed her connection to practical survival and the docks
+
+### Repeat-Meet Node
+
+Yes, authored.
+
+Roberta is now the standard model:
+
+- she opens with a short repeat line
+- `I'd like to talk.` opens the interaction menu
+- `Show me your stock.` opens trade directly
+- the deeper social categories stay inside the talk flow
 
 ### Ask Topics
 
@@ -234,6 +252,12 @@ He should feel like:
 Yes, authored.
 
 The debt intro already fills this role and should remain authored.
+
+### Repeat-Meet Node
+
+Yes, authored if Finn later adopts the full interaction structure.
+
+It should be short, guarded, and functional.
 
 ### Ask Topics
 
@@ -328,6 +352,12 @@ Goals:
 - make him feel like someone with secrets
 - support both soft and hard routes later
 
+### Repeat-Meet Node
+
+Yes, recommended.
+
+He should feel immediately uneasy before the player enters `Ask`, `Quest`, or `Coerce`.
+
 ### Ask Topics
 
 Should include:
@@ -411,6 +441,10 @@ He represents:
 
 Optional authored node recommended.
 
+### Repeat-Meet Node
+
+Recommended if Ben receives the full interaction structure.
+
 Goals:
 
 - make him feel immediately unreliable but likable
@@ -491,6 +525,10 @@ She helps the route show:
 
 Optional authored node recommended if she becomes more important.
 
+### Repeat-Meet Node
+
+Optional.
+
 ### Ask Topics
 
 Could include:
@@ -568,6 +606,12 @@ Goals:
 - suggest hidden layers
 - make her hovel feel like a social/intellectual route space
 
+### Repeat-Meet Node
+
+Yes, recommended.
+
+She should open with short, restrained dialogue before the player chooses how to proceed.
+
 ### Ask Topics
 
 Should include:
@@ -644,6 +688,10 @@ He is useful because he already models:
 
 Optional.
 
+### Repeat-Meet Node
+
+Not required.
+
 ### Ask Use
 
 He should become one of the clearest examples of:
@@ -685,6 +733,10 @@ He is useful because he shows:
 - no real `Quest`
 
 ### First-Meet Node
+
+Not needed.
+
+### Repeat-Meet Node
 
 Not needed.
 

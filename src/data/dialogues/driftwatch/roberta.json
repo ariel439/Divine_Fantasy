@@ -1,12 +1,69 @@
 {
   "roberta_default": {
+    "first_meet_node": "rb_first_meet",
+    "repeat_meet_node": "rb_repeat_meet",
+    "trade_shop_id": "tide_and_trade",
+    "interaction_roots": {
+      "trade": "rb_trade_root",
+      "ask": "rb_ask_root",
+      "friendly": "rb_friendly_root",
+      "flirt": "rb_flirt_root",
+      "coerce": "rb_coerce_root",
+      "quest": "rb_quest_root"
+    },
     "nodes": {
-      "0": {
-        "npc_text": "Tide & Trade, finest goods in Port Kael. What can I get you?",
+      "rb_first_meet": {
+        "npc_text": "Tide & Trade, finest goods in Port Kael. First time in my shop?",
         "player_choices": [
           {
-            "text": "What's for sale?",
+            "text": "Looks like you've got your hands full.",
+            "action": "update_relationship:npc_roberta:2|add_xp:persuasion:5|set_flag:roberta_first_meet_done:true",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Just looking around.",
+            "action": "set_flag:roberta_first_meet_done:true",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "rb_repeat_meet": {
+        "npc_text": "Back again? If you're here to browse, browse. If you're here to talk, be quick about it.",
+        "player_choices": [
+          {
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Show me your stock.",
             "action": "open_shop:tide_and_trade"
+          },
+          {
+            "text": "Just passing through.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "rb_trade_root": {
+        "npc_text": "Business first, then stories. What are you after?",
+        "player_choices": [
+          {
+            "text": "Show me your stock.",
+            "action": "open_shop:tide_and_trade"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "rb_ask_root": {
+        "npc_text": "Ask what you want. I prefer direct customers.",
+        "player_choices": [
+          {
+            "text": "Tell me about Tide & Trade.",
+            "next_node": "rb_lore_tide_trade1",
+            "condition": "world_flags.roberta_lore_seen==false"
           },
           {
             "text": "What happened to the wall?",
@@ -16,32 +73,104 @@
           {
             "text": "How is the wall repair going?",
             "next_node": "rb_help_gate",
-            "condition": "quest.roberta_planks_for_the_past.active==true && quest.roberta_planks_for_the_past.stage == 1 && inventory.wooden_plank < 10"
+            "condition": "quest.roberta_planks_for_the_past.active==true && quest.roberta_planks_for_the_past.stage==1 && inventory.wooden_plank<10"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "rb_friendly_root": {
+        "npc_text": "Friendly, are we? Keep it brief if there is a line forming.",
+        "player_choices": [
+          {
+            "text": "Make small talk.",
+            "next_node": "rb_friendly_check_in",
+            "social_cost": 1
+          },
+          {
+            "text": "Offer practical help.",
+            "next_node": "rb_friendly_offer_help",
+            "social_cost": 1
+          },
+          {
+            "text": "Be direct and honest.",
+            "next_node": "rb_friendly_honest",
+            "social_cost": 1
+          },
+          {
+            "text": "Compliment her work.",
+            "next_node": "rb_friendly_compliment",
+            "social_cost": 1
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "rb_flirt_root": {
+        "npc_text": "Careful. I sell wares here, not promises.",
+        "player_choices": [
+          {
+            "text": "Compliment her composure.",
+            "next_node": "rb_flirt_compliment",
+            "social_cost": 2,
+            "condition": "relationship.npc_roberta>=20"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "rb_coerce_root": {
+        "npc_text": "If you're going to start making threats, say it plainly.",
+        "player_choices": [
+          {
+            "text": "Press her and see if she backs down.",
+            "next_node": "rb_coerce_discount",
+            "social_cost": 2
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "rb_quest_root": {
+        "npc_text": "If this is about work, say so plainly.",
+        "player_choices": [
+          {
+            "text": "I can help with the wall.",
+            "next_node": "rb_help_gate",
+            "condition": "quest.roberta_planks_for_the_past.active==false && quest.roberta_planks_for_the_past.completed==false && relationship.npc_roberta>=20"
+          },
+          {
+            "text": "How is the wall repair going?",
+            "next_node": "rb_help_gate",
+            "condition": "quest.roberta_planks_for_the_past.active==true && quest.roberta_planks_for_the_past.stage==1 && inventory.wooden_plank<10"
           },
           {
             "text": "I have the planks.",
             "next_node": "rb_give_materials",
-            "condition": "quest.roberta_planks_for_the_past.active==true && inventory.wooden_plank >= 10 && quest.roberta_planks_for_the_past.stage <= 2"
+            "condition": "quest.roberta_planks_for_the_past.active==true && inventory.wooden_plank>=10 && quest.roberta_planks_for_the_past.stage<=2"
           },
           {
             "text": "I have the materials.",
             "next_node": "rb_materials_check",
-            "condition": "quest.roberta_planks_for_the_past.active==true && quest.roberta_planks_for_the_past.stage == 3"
+            "condition": "quest.roberta_planks_for_the_past.active==true && quest.roberta_planks_for_the_past.stage==3"
           },
           {
             "text": "I repaired the wall.",
             "action": "complete_quest:roberta_planks_for_the_past",
             "next_node": "rb_quest_complete",
-            "condition": "quest.roberta_planks_for_the_past.active==true && quest.roberta_planks_for_the_past.stage == 4"
+            "condition": "quest.roberta_planks_for_the_past.active==true && quest.roberta_planks_for_the_past.stage==4"
           },
           {
-            "text": "Tell me about Tide & Trade.",
-            "next_node": "rb_lore_tide_trade1",
-            "condition": "world_flags.roberta_lore_seen==false"
-          },
-          {
-            "text": "Goodbye, Roberta.",
-            "closes_dialogue": true
+            "text": "Back.",
+            "next_node": "__social_root__"
           }
         ]
       },
@@ -59,48 +188,48 @@
             "condition": "relationship.npc_roberta<20"
           },
           {
-            "text": "Sorry to hear that. (Back)",
-            "next_node": "0"
+            "text": "Sorry to hear that. Back.",
+            "next_node": "rb_ask_root"
           }
         ]
       },
       "rb_trust_refusal": {
-        "npc_text": "I appreciate the offer, but I don't know you well enough to trust you with my shop's repairs yet. Maybe stick around, trade a bit, and we'll see.",
+        "npc_text": "I appreciate the offer, but I do not know you well enough to trust you with my shop's repairs yet. Stick around. Trade a bit. We will see.",
         "player_choices": [
           {
-            "text": "Understood. (Back)",
-            "next_node": "0"
+            "text": "Understood.",
+            "next_node": "__social_root__"
           }
         ]
       },
       "rb_help_gate": {
-        "npc_text": "I'll pay you for the trouble. I need 10 Wood Planks. If you can bring me those, I'll provide the rest.",
+        "npc_text": "I will pay you for the trouble. I need 10 Wood Planks. Bring me those and I will provide the rest.",
         "player_choices": [
           {
             "text": "I'll find them.",
-            "action": "start_quest:roberta_planks_for_the_past | set_quest_stage:roberta_planks_for_the_past:1",
-            "next_node": "0",
+            "action": "start_quest:roberta_planks_for_the_past|set_quest_stage:roberta_planks_for_the_past:1",
+            "next_node": "rb_quest_root",
             "condition": "quest.roberta_planks_for_the_past.active==false"
           },
           {
             "text": "I already have them.",
-            "action": "start_quest:roberta_planks_for_the_past | set_quest_stage:roberta_planks_for_the_past:2",
+            "action": "start_quest:roberta_planks_for_the_past|set_quest_stage:roberta_planks_for_the_past:2",
             "next_node": "rb_give_materials",
-            "condition": "quest.roberta_planks_for_the_past.active==false && inventory.wooden_plank >= 10"
+            "condition": "quest.roberta_planks_for_the_past.active==false && inventory.wooden_plank>=10"
           },
           {
             "text": "I'm still looking.",
-            "next_node": "0",
+            "next_node": "rb_quest_root",
             "condition": "quest.roberta_planks_for_the_past.active==true"
           }
         ]
       },
       "rb_give_materials": {
-        "npc_text": "Good work getting these planks. Here, take these nails and a hammer I have lying around. Now go fix it.",
+        "npc_text": "Good work getting these planks. Here, take these nails and a hammer I had lying around. Now go fix it.",
         "player_choices": [
           {
             "text": "I'll get to work.",
-            "action": "add_item:iron_nails:20 | add_item:hammer:1 | set_quest_stage:roberta_planks_for_the_past:3",
+            "action": "add_item:iron_nails:20|add_item:hammer:1|set_quest_stage:roberta_planks_for_the_past:3",
             "closes_dialogue": true
           }
         ]
@@ -109,22 +238,22 @@
         "npc_text": "The hole is on the east side. Use the hammer and nails I gave you to patch it up.",
         "player_choices": [
           {
-            "text": "Right, I'm on it. (Back)",
-            "next_node": "0"
+            "text": "Right. I'm on it.",
+            "next_node": "rb_quest_root"
           }
         ]
       },
       "rb_quest_complete": {
-        "npc_text": "You did a fine job! The draft is gone. Here's your payment, as promised.",
+        "npc_text": "You did a fine job. The draft is gone. Here is your payment, as promised.",
         "player_choices": [
           {
             "text": "Glad I could help.",
-            "next_node": "0"
+            "next_node": "__social_root__"
           }
         ]
       },
       "rb_lore_tide_trade1": {
-        "npc_text": "Tide & Trade is one of Driftwatch’s oldest shops. It’s stood through lean years and storms.",
+        "npc_text": "Tide & Trade is one of Driftwatch's oldest shops. It has stood through lean years and storms.",
         "player_choices": [
           {
             "text": "And your family?",
@@ -133,21 +262,258 @@
         ]
       },
       "rb_lore_tide_trade2": {
-        "npc_text": "My father ran it for decades. He passed recently… I'm still learning to handle everything.",
+        "npc_text": "My father ran it for decades. He passed recently. I am still learning to handle everything.",
         "player_choices": [
           {
-            "text": "Back to counter",
-            "next_node": "0",
-            "action": "set_flag:roberta_lore_seen:true"
+            "text": "Back.",
+            "next_node": "rb_ask_root",
+            "action": "set_flag:roberta_lore_seen:true|add_xp:persuasion:8"
           }
         ]
       },
-      "rb_lore_family": {
-        "npc_text": "It's just me now. The shop is all I have left of them.",
+      "rb_friendly_check_in": {
+        "npc_text": "Some days I feel like I inherited a shop and a storm on the same morning. Still, the shutters open and the ledgers need balancing.",
         "player_choices": [
           {
-            "text": "Back to counter",
-            "next_node": "0"
+            "text": "You are handling it better than most would.",
+            "action": "social_action:npc_roberta:friendly:smalltalk",
+            "social_result_nodes": {
+              "strong": "rb_friendly_check_in_strong",
+              "weak": "rb_friendly_check_in_weak",
+              "fail": "rb_friendly_check_in_fail"
+            }
+          }
+        ]
+      },
+      "rb_friendly_offer_help": {
+        "npc_text": "Maybe you mean that. Most people only offer help when they want cheaper prices.",
+        "player_choices": [
+          {
+            "text": "I said it because I meant it.",
+            "action": "social_action:npc_roberta:friendly:helpful",
+            "social_result_nodes": {
+              "strong": "rb_friendly_offer_help_strong",
+              "weak": "rb_friendly_offer_help_weak",
+              "fail": "rb_friendly_offer_help_fail"
+            }
+          }
+        ]
+      },
+      "rb_flirt_compliment": {
+        "npc_text": "That is either smooth or dangerous, and I am still deciding which.",
+        "player_choices": [
+          {
+            "text": "Maybe a little of both.",
+            "action": "social_action:npc_roberta:flirt:compliment",
+            "social_result_nodes": {
+              "strong": "rb_flirt_compliment_strong",
+              "weak": "rb_flirt_compliment_weak",
+              "fail": "rb_flirt_compliment_fail"
+            }
+          }
+        ]
+      },
+      "rb_friendly_honest": {
+        "npc_text": "You work hard. I can see that much. I would rather say it plainly than dress it up.",
+        "player_choices": [
+          {
+            "text": "I figured you'd prefer that.",
+            "action": "social_action:npc_roberta:friendly:honest",
+            "social_result_nodes": {
+              "strong": "rb_friendly_honest_strong",
+              "weak": "rb_friendly_honest_weak",
+              "fail": "rb_friendly_honest_fail"
+            }
+          }
+        ]
+      },
+      "rb_friendly_compliment": {
+        "npc_text": "If this is flattery, make it quick. If it is not, say what you mean.",
+        "player_choices": [
+          {
+            "text": "Tide & Trade is still standing because you keep it standing.",
+            "action": "social_action:npc_roberta:friendly:compliment",
+            "social_result_nodes": {
+              "strong": "rb_friendly_compliment_strong",
+              "weak": "rb_friendly_compliment_weak",
+              "fail": "rb_friendly_compliment_fail"
+            }
+          }
+        ]
+      },
+      "rb_coerce_discount": {
+        "npc_text": "Go on, then. Show me what kind of man you are.",
+        "player_choices": [
+          {
+            "text": "Careful. I can make this shop a lot less comfortable for you.",
+            "action": "social_action:npc_roberta:coerce:threaten",
+            "social_result_nodes": {
+              "strong": "rb_coerce_discount_strong",
+              "weak": "rb_coerce_discount_weak",
+              "fail": "rb_coerce_discount_fail"
+            }
+          }
+        ]
+      },
+      "rb_friendly_check_in_strong": {
+        "npc_text": "That is kinder than most people bother being. Thank you.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_friendly_root"
+          }
+        ]
+      },
+      "rb_friendly_check_in_weak": {
+        "npc_text": "Maybe. I am still standing, at least.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_friendly_root"
+          }
+        ]
+      },
+      "rb_friendly_check_in_fail": {
+        "npc_text": "Flattery does not patch walls, but I suppose it costs less than timber.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_friendly_root"
+          }
+        ]
+      },
+      "rb_friendly_offer_help_strong": {
+        "npc_text": "Then maybe I judged you too quickly.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_friendly_root"
+          }
+        ]
+      },
+      "rb_friendly_offer_help_weak": {
+        "npc_text": "We will see. Driftwatch is full of promises that do not survive the tide.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_friendly_root"
+          }
+        ]
+      },
+      "rb_friendly_offer_help_fail": {
+        "npc_text": "If you are trying to charm me into a discount, save your breath.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_friendly_root"
+          }
+        ]
+      },
+      "rb_friendly_honest_strong": {
+        "npc_text": "Plain words are rarer than they should be. I can respect that.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_friendly_root"
+          }
+        ]
+      },
+      "rb_friendly_honest_weak": {
+        "npc_text": "At least you did not waste my time dressing it up.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_friendly_root"
+          }
+        ]
+      },
+      "rb_friendly_honest_fail": {
+        "npc_text": "Blunt is not the same as sincere, Luke.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_friendly_root"
+          }
+        ]
+      },
+      "rb_friendly_compliment_strong": {
+        "npc_text": "That sounded almost thoughtful. I will give you that.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_friendly_root"
+          }
+        ]
+      },
+      "rb_friendly_compliment_weak": {
+        "npc_text": "Hm. I have heard worse attempts at flattery.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_friendly_root"
+          }
+        ]
+      },
+      "rb_friendly_compliment_fail": {
+        "npc_text": "If you are trying to sweeten me up, you should be subtler about it.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_friendly_root"
+          }
+        ]
+      },
+      "rb_flirt_compliment_strong": {
+        "npc_text": "Careful, Luke. You almost made that sound sincere.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_flirt_root"
+          }
+        ]
+      },
+      "rb_flirt_compliment_weak": {
+        "npc_text": "You should work on that line before you use it twice.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_flirt_root"
+          }
+        ]
+      },
+      "rb_flirt_compliment_fail": {
+        "npc_text": "That sounded better in your head, did it not?",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_flirt_root"
+          }
+        ]
+      },
+      "rb_coerce_discount_strong": {
+        "npc_text": "Get out of my face. Fine. Take what little satisfaction you came for and leave me be.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_coerce_root"
+          }
+        ]
+      },
+      "rb_coerce_discount_weak": {
+        "npc_text": "That tone might work on someone softer. Don't mistake caution for weakness.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_coerce_root"
+          }
+        ]
+      },
+      "rb_coerce_discount_fail": {
+        "npc_text": "Try bullying me again and you can get out of my shop.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_coerce_root"
           }
         ]
       }
@@ -231,7 +597,7 @@
         ]
       },
       "rb_lore_tide_trade1": {
-        "npc_text": "Tide & Trade is one of Driftwatch’s oldest shops. It’s stood through lean years and storms.",
+        "npc_text": "Tide & Trade is one of Driftwatch's oldest shops. It's stood through lean years and storms.",
         "player_choices": [
           {
             "text": "And your family?",
@@ -240,21 +606,12 @@
         ]
       },
       "rb_lore_tide_trade2": {
-        "npc_text": "My father ran it for decades. He passed recently… I'm still learning to handle everything.",
+        "npc_text": "My father ran it for decades. He passed recently. I'm still learning to handle everything.",
         "player_choices": [
           {
             "text": "Back to counter",
             "next_node": "0",
             "action": "set_flag:roberta_lore_seen:true"
-          }
-        ]
-      },
-      "rb_lore_family": {
-        "npc_text": "It's just me now. The shop is all I have left of them.",
-        "player_choices": [
-          {
-            "text": "Back to counter",
-            "next_node": "0"
           }
         ]
       }
@@ -263,7 +620,7 @@
   "roberta_planks_completed": {
     "nodes": {
       "0": {
-        "npc_text": "The patch held through the last squall. I couldn’t have done it without you.",
+        "npc_text": "The patch held through the last squall. I could not have done it without you.",
         "player_choices": [
           {
             "text": "What's for sale?",
@@ -281,7 +638,7 @@
         ]
       },
       "tide_trade_lore": {
-        "npc_text": "This shop has been in my family for generations. We've weathered worse storms than this.",
+        "npc_text": "This shop has been in my family for generations. We have weathered worse storms than this.",
         "player_choices": [
           {
             "text": "Good to hear. (Back)",

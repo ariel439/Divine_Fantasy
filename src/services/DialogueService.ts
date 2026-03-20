@@ -19,6 +19,9 @@ import { benCheatEventSlides, rebelRaidIntroSlides, evilEndingSlides, hybridEndi
 import type { ConversationEntry } from '../types';
 import { GameManagerService } from './GameManagerService';
 import { ConditionEvaluator } from './ConditionEvaluator';
+import { getMaxSocialEnergy } from '../utils/socialEnergy';
+import { resolveSocialAction, type SocialActionType, type SocialStyle } from '../utils/socialResolver';
+import { getSocialNpcConfig } from '../utils/socialNpcConfig';
 
 interface DialogueNode {
   npc_text: string;
@@ -28,10 +31,22 @@ interface DialogueNode {
     closes_dialogue?: boolean;
     action?: string;
     condition?: string;
+    req_skill_level?: {
+      skill: string;
+      level?: number;
+    };
+    fail_node?: string;
+    social_cost?: number;
+    disabled?: boolean;
+    social_result_nodes?: Partial<Record<'fail' | 'weak' | 'strong', string>>;
   }[];
 }
 
 interface DialogueEntry {
+  first_meet_node?: string;
+  repeat_meet_node?: string;
+  interaction_roots?: Partial<Record<'trade' | 'ask' | 'friendly' | 'flirt' | 'coerce' | 'quest', string>>;
+  trade_shop_id?: string;
   nodes: Record<string, DialogueNode>;
 }
 
@@ -80,30 +95,239 @@ interface DialogueState {
 export class DialogueService {
   private static currentDialogueId: string | null = null;
   private static currentNodeId: string = '0';
+  private static currentNpcId: string | null = null;
   private static dialogueHistory: ConversationEntry[] = [];
+  private static readonly SOCIAL_ROOT_NODE_ID = '__social_root__';
+  private static readonly SOCIAL_RETURN_NODE_ID = '__social_return__';
+  private static socialReturnNodeId: string | null = null;
+  private static lastSocialOutcome: 'fail' | 'weak' | 'strong' | null = null;
+
+  private static getSocialCategoryLabel(category: keyof NonNullable<DialogueEntry['interaction_roots']>): string {
+    switch (category) {
+      case 'ask': return 'Ask';
+      case 'friendly': return 'Friendly';
+      case 'flirt': return 'Flirt';
+      case 'coerce': return 'Coerce';
+      case 'quest': return 'Quest';
+      case 'trade': return 'Trade';
+      default: return category;
+    }
+  }
+
+  private static buildSocialRootNode(dialogueEntry: DialogueEntry): DialogueNode {
+    const interactionRoots = dialogueEntry.interaction_roots || {};
+    const orderedCategories: (keyof NonNullable<DialogueEntry['interaction_roots']>)[] = [
+      'quest',
+      'ask',
+      'friendly',
+      'flirt',
+      'coerce',
+    ];
+
+    const player_choices = orderedCategories
+      .filter((category) => {
+        const nodeId = interactionRoots[category];
+        if (!nodeId || !dialogueEntry.nodes[nodeId]) {
+          return false;
+        }
+
+        const categoryNode = this.applyConditionsToNode(dialogueEntry.nodes[nodeId]);
+        const categoryChoices = categoryNode.player_choices || [];
+        return categoryChoices.some((choice) => !this.isNavigationChoice(choice) && !choice.disabled);
+      })
+      .map((category) => {
+        return {
+          text: this.getSocialCategoryLabel(category),
+          next_node: interactionRoots[category],
+        };
+      });
+
+    player_choices.push({
+      text: 'Back',
+      next_node: this.SOCIAL_RETURN_NODE_ID,
+    });
+
+    return {
+      npc_text: 'How do you want to approach this conversation?',
+      player_choices,
+    };
+  }
+
+  private static reorderOpeningNodeChoices(node: DialogueNode): DialogueNode {
+    const choices = node.player_choices || [];
+    if (choices.length <= 1) {
+      return node;
+    }
+
+    const sorted = [...choices].sort((a, b) => {
+      const aIsTrade = (a.action || '').startsWith('open_shop:') ? 1 : 0;
+      const bIsTrade = (b.action || '').startsWith('open_shop:') ? 1 : 0;
+      return bIsTrade - aIsTrade;
+    });
+
+    return { ...node, player_choices: sorted };
+  }
+
+  private static getNode(dialogueEntry: DialogueEntry, nodeId: string): DialogueNode | null {
+    if (nodeId === this.SOCIAL_ROOT_NODE_ID) {
+      return this.buildSocialRootNode(dialogueEntry);
+    }
+
+    const node = dialogueEntry.nodes[nodeId] || null;
+    if (!node) {
+      return null;
+    }
+
+    if (nodeId === dialogueEntry.first_meet_node || nodeId === dialogueEntry.repeat_meet_node) {
+      const reorderedNode = this.reorderOpeningNodeChoices(node);
+      return reorderedNode;
+    }
+
+    return node;
+  }
+
+  private static isMenuNodeId(dialogueEntry: DialogueEntry, nodeId: string): boolean {
+    if (nodeId === this.SOCIAL_ROOT_NODE_ID) {
+      return true;
+    }
+
+    const interactionRoots = Object.values(dialogueEntry.interaction_roots || {});
+    return interactionRoots.includes(nodeId as any);
+  }
+
+  private static isNavigationChoice(choice: {
+    text: string;
+    next_node?: string;
+    closes_dialogue?: boolean;
+  }): boolean {
+    const normalizedText = choice.text.toLowerCase();
+    return (
+      choice.next_node === this.SOCIAL_ROOT_NODE_ID ||
+      choice.next_node === this.SOCIAL_RETURN_NODE_ID ||
+      normalizedText === 'back.' ||
+      normalizedText === 'back' ||
+      normalizedText === 'leave' ||
+      normalizedText === 'leave.'
+    );
+  }
+
+  private static shouldLogChoice(choice: {
+    text: string;
+    next_node?: string;
+    closes_dialogue?: boolean;
+  }): boolean {
+    const currentDialogue = this.currentDialogueId ? typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData] : null;
+    if (currentDialogue && this.isMenuNodeId(currentDialogue, this.currentNodeId)) {
+      return false;
+    }
+
+    return !this.isNavigationChoice(choice);
+  }
+
+  private static getSocialActionMeta(action?: string): { npcId: string; type: SocialActionType } | null {
+    if (!action || !action.startsWith('social_action:')) {
+      return null;
+    }
+
+    const [, npcId, type] = action.split(':');
+    if (!npcId || !type) {
+      return null;
+    }
+
+    return { npcId, type: type as SocialActionType };
+  }
+
+  private static shouldSkipOpeningNode(dialogueEntry: DialogueEntry, nodeId: string, node: DialogueNode): boolean {
+    if (!dialogueEntry.interaction_roots) {
+      return false;
+    }
+
+    if (nodeId !== dialogueEntry.first_meet_node && nodeId !== dialogueEntry.repeat_meet_node) {
+      return false;
+    }
+
+    const choices = (node.player_choices || []).filter((choice) => !choice.condition || ConditionEvaluator.evaluate(choice.condition));
+    if (choices.length !== 2) {
+      return false;
+    }
+
+    const talkChoice = choices.find((choice) => choice.next_node === this.SOCIAL_ROOT_NODE_ID);
+    const exitChoice = choices.find((choice) =>
+      choice.closes_dialogue ||
+      choice.next_node === this.SOCIAL_RETURN_NODE_ID ||
+      this.isNavigationChoice(choice)
+    );
+
+    return Boolean(talkChoice && exitChoice);
+  }
+
+  private static getCurrentSocialDayKey(): string {
+    const { year, month, dayOfMonth } = useWorldTimeStore.getState();
+    return `${year}-${month}-${dayOfMonth}`;
+  }
+
+  private static getNpcDailySocialUsesKey(npcId: string): string {
+    return `social_uses:${npcId}:${this.getCurrentSocialDayKey()}`;
+  }
+
+  private static getNpcDailySocialUses(npcId: string): number {
+    const raw = useWorldStateStore.getState().getData(this.getNpcDailySocialUsesKey(npcId));
+    return raw ? Number(raw) || 0 : 0;
+  }
+
+  private static incrementNpcDailySocialUses(npcId: string): void {
+    useWorldStateStore.getState().setData(
+      this.getNpcDailySocialUsesKey(npcId),
+      String(this.getNpcDailySocialUses(npcId) + 1)
+    );
+  }
+
+  private static hasNpcReachedDailySocialLimit(npcId: string): boolean {
+    return this.getNpcDailySocialUses(npcId) >= (getSocialNpcConfig(npcId).dailyMeaningfulActions ?? 2);
+  }
 
   public static applyConditionsToNode(node: DialogueNode): DialogueNode {
     const choices = node.player_choices || [];
-    
-    const filtered = choices.filter((choice) => {
-      const condition = choice.condition;
-      // console.log(`[DialogueService] Evaluating choice: "${choice.text}"`);
-      
-      if (!condition) {
-        return true;
-      }
-      
-      // console.log(`  -> Condition: "${condition}"`);
-      const result = ConditionEvaluator.evaluate(condition);
-      
-      if (!result) {
-        // console.log(`    -> Condition FAILED. Excluding choice.`);
-      } else {
-        // console.log(`    -> Condition PASSED.`);
-      }
-      
-      return result;
-    });
+    const socialEnergy = useCharacterStore.getState().socialEnergy;
+    const currentNpcId = this.currentNpcId;
+
+    const filtered = choices
+      .filter((choice) => {
+        if (!choice.condition) {
+          return true;
+        }
+
+        return ConditionEvaluator.evaluate(choice.condition);
+      })
+      .map((choice) => {
+        const socialCost = choice.social_cost || 0;
+        const socialActionMeta = this.getSocialActionMeta(choice.action);
+        const isMeaningfulSocialAction = Boolean(socialActionMeta);
+        const socialNpcId = socialActionMeta?.npcId || currentNpcId || '';
+        const dailyLimitReached = Boolean(socialNpcId && isMeaningfulSocialAction && this.hasNpcReachedDailySocialLimit(socialNpcId));
+        const flirtRequirement = socialActionMeta?.type === 'flirt' ? getSocialNpcConfig(socialNpcId) : null;
+        const friendshipValue = socialNpcId ? (useDiaryStore.getState().relationships[socialNpcId]?.friendship?.value ?? 0) : 0;
+        const flirtLocked = Boolean(
+          flirtRequirement &&
+          (!flirtRequirement.flirtable || friendshipValue < (flirtRequirement.flirtFriendshipRequired ?? 999))
+        );
+        const disabled = Boolean(choice.disabled) || socialCost > socialEnergy || dailyLimitReached || flirtLocked;
+        let text = socialCost > 0 ? `${choice.text} (${socialCost} Social)` : choice.text;
+
+        if (dailyLimitReached) {
+          text = `${text} (No more today)`;
+        }
+        if (flirtLocked) {
+          text = `${text} (Need ${flirtRequirement?.flirtFriendshipRequired ?? 0} Friendship)`;
+        }
+
+        return {
+          ...choice,
+          disabled,
+          text,
+        };
+      });
+
     return { ...node, player_choices: filtered };
   }
 
@@ -166,22 +390,47 @@ export class DialogueService {
     }
 
     this.currentDialogueId = dialogueId;
-    this.currentNodeId = '0';
-    const firstNode = dialogueEntry.nodes['0'];
-    const greetedFlag = `greeted_${npcId}`;
-    const shouldGreet = !useWorldStateStore.getState().getFlag(greetedFlag);
-    console.log('[DialogueService][start] selected dialogueId=', dialogueId, 'shouldGreet=', shouldGreet);
-    if (shouldGreet) {
-      useWorldStateStore.getState().setFlag(greetedFlag, true);
-    }
-    const npcName = typedNpcsData[npcId]?.name || 'Unknown';
-    const effectiveFirstNode = (() => {
-      if (npcId === 'npc_boric') return firstNode; // Use custom intro/default nodes without auto-greeting
-      return shouldGreet ? { ...firstNode, npc_text: `Hello. I'm ${npcName}. ${firstNode.npc_text}` } : firstNode;
+    this.currentNpcId = npcId;
+    this.socialReturnNodeId = null;
+
+    const startingNodeId = (() => {
+      if (!overrideDialogueId && !wasKnown && dialogueEntry.first_meet_node && dialogueEntry.nodes[dialogueEntry.first_meet_node]) {
+        return dialogueEntry.first_meet_node;
+      }
+
+      if (!overrideDialogueId && wasKnown && dialogueEntry.repeat_meet_node && dialogueEntry.nodes[dialogueEntry.repeat_meet_node]) {
+        return dialogueEntry.repeat_meet_node;
+      }
+
+      if (dialogueEntry.interaction_roots) {
+        return this.SOCIAL_ROOT_NODE_ID;
+      }
+
+      return '0';
     })();
-    // Initial NPC line prepared
-    this.dialogueHistory = [{ speaker: 'npc', text: effectiveFirstNode.npc_text }];
-    return DialogueService.applyConditionsToNode(effectiveFirstNode);
+
+    this.currentNodeId = startingNodeId;
+    const firstNode = this.getNode(dialogueEntry, startingNodeId);
+
+    if (!firstNode) {
+      console.error('Starting dialogue node not found:', dialogueId, startingNodeId);
+      return null;
+    }
+
+    if (this.shouldSkipOpeningNode(dialogueEntry, startingNodeId, firstNode)) {
+      this.currentNodeId = this.SOCIAL_ROOT_NODE_ID;
+      const rootNode = this.getNode(dialogueEntry, this.SOCIAL_ROOT_NODE_ID);
+      if (!rootNode) {
+        return null;
+      }
+      this.dialogueHistory = [];
+      return DialogueService.applyConditionsToNode(rootNode);
+    }
+
+    this.dialogueHistory = this.isMenuNodeId(dialogueEntry, startingNodeId)
+      ? []
+      : [{ speaker: 'npc', text: firstNode.npc_text }];
+    return DialogueService.applyConditionsToNode(firstNode);
   }
 
   static selectResponse(responseIndex: number): DialogueNode | null {
@@ -190,7 +439,7 @@ export class DialogueService {
     const currentDialogue = typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData];
     if (!currentDialogue) return null;
 
-    const rawNode = currentDialogue.nodes[this.currentNodeId as keyof typeof currentDialogue.nodes];
+    const rawNode = this.getNode(currentDialogue, this.currentNodeId);
     if (!rawNode) return null;
 
     // Apply conditions to ensure we match the index to the filtered list the user saw
@@ -201,9 +450,18 @@ export class DialogueService {
     }
 
     const response = filteredNode.player_choices[responseIndex];
+    if (response.disabled) {
+      return this.getCurrentDialogue();
+    }
 
-    // Log player choice
-    this.dialogueHistory.push({ speaker: 'player', text: response.text });
+    const shouldLogChoice = this.shouldLogChoice(response);
+    if (shouldLogChoice) {
+      this.dialogueHistory.push({ speaker: 'player', text: response.text.replace(/\s+\(\d+\s+Social\)$/, '') });
+    }
+
+    if (response.social_cost) {
+      useCharacterStore.getState().updateStats({ socialEnergy: -response.social_cost });
+    }
 
     // Handle Skill Check Logic
     const anyChoice = response as any;
@@ -221,13 +479,19 @@ export class DialogueService {
             if (currentDialogue.nodes[failNodeId]) {
                 this.currentNodeId = failNodeId;
                 const nextNode = currentDialogue.nodes[failNodeId];
-                this.dialogueHistory.push({ speaker: 'npc', text: nextNode.npc_text });
+                if (!this.isMenuNodeId(currentDialogue, failNodeId)) {
+                  this.dialogueHistory.push({ speaker: 'npc', text: nextNode.npc_text });
+                }
                 return DialogueService.applyConditionsToNode(nextNode);
             } else {
                  this.dialogueHistory.push({ speaker: 'npc', text: "[Skill Check Failed] (You are not skilled enough to do that.)" });
                  return this.getCurrentDialogue();
             }
         }
+    }
+
+    if (response.next_node === this.SOCIAL_ROOT_NODE_ID && !this.isMenuNodeId(currentDialogue, this.currentNodeId)) {
+      this.socialReturnNodeId = this.currentNodeId;
     }
 
     // Execute actions
@@ -237,11 +501,22 @@ export class DialogueService {
     }
 
     // Handle next dialogue
-    if (response.next_node) {
-      const nextNode = currentDialogue.nodes[response.next_node as keyof typeof currentDialogue.nodes];
+    let nextNodeId = response.next_node;
+    if (response.social_result_nodes && this.lastSocialOutcome) {
+      nextNodeId = response.social_result_nodes[this.lastSocialOutcome] || nextNodeId;
+    }
+
+    if (nextNodeId === this.SOCIAL_RETURN_NODE_ID) {
+      nextNodeId = this.socialReturnNodeId || undefined;
+    }
+
+    if (nextNodeId) {
+      const nextNode = this.getNode(currentDialogue, nextNodeId);
       if (nextNode) {
-        this.currentNodeId = response.next_node;
-        this.dialogueHistory.push({ speaker: 'npc', text: nextNode.npc_text });
+        this.currentNodeId = nextNodeId;
+        if (shouldLogChoice && !this.isMenuNodeId(currentDialogue, nextNodeId)) {
+          this.dialogueHistory.push({ speaker: 'npc', text: nextNode.npc_text });
+        }
         return DialogueService.applyConditionsToNode(nextNode);
       }
     } else if (response.closes_dialogue) {
@@ -259,7 +534,7 @@ export class DialogueService {
     const dialogueEntry = typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData];
     if (!dialogueEntry) return null;
 
-    const node = dialogueEntry.nodes[this.currentNodeId as keyof typeof dialogueEntry.nodes] || null;
+    const node = this.getNode(dialogueEntry, this.currentNodeId);
     return node ? DialogueService.applyConditionsToNode(node) : null;
   }
 
@@ -268,9 +543,16 @@ export class DialogueService {
   }
 
   static endDialogue(): void {
+    if (this.currentNpcId) {
+      const npcName = typedNpcsData[this.currentNpcId]?.name || this.currentNpcId;
+      useDiaryStore.getState().addInteraction(`${this.currentNpcId}: Spoke with ${npcName}.`);
+    }
     this.currentDialogueId = null;
     this.currentNodeId = '0';
+    this.currentNpcId = null;
     this.dialogueHistory = [];
+    this.socialReturnNodeId = null;
+    this.lastSocialOutcome = null;
   }
 
   static executeAction(action: string): void {
@@ -745,6 +1027,15 @@ export class DialogueService {
           useCharacterStore.setState({ attributes });
           // Recalculate derived stats (maxWeight, socialEnergy)
           useCharacterStore.getState().recalculateStats();
+          const maxSocial = getMaxSocialEnergy(
+            attributes.charisma,
+            useSkillStore.getState().getSkillLevel('persuasion'),
+            useSkillStore.getState().getSkillLevel('coercion')
+          );
+          useCharacterStore.setState((state) => ({
+            maxSocialEnergy: maxSocial,
+            socialEnergy: Math.min(state.socialEnergy, maxSocial),
+          }));
           
           diaryStore.addInteraction(`Set attribute ${attr} to ${val}`);
           console.log(`[DialogueService] Set attribute ${attr} to ${val}. New attributes:`, attributes);
@@ -770,11 +1061,39 @@ export class DialogueService {
         }
         break;
 
+      case 'social_action':
+        {
+          const npcId = params[0];
+          const socialType = (params[1] || 'friendly') as SocialActionType;
+          const socialStyle = (params[2] || 'honest') as SocialStyle;
+          if (this.hasNpcReachedDailySocialLimit(npcId)) {
+            this.lastSocialOutcome = 'fail';
+            diaryStore.addInteraction(`${npcId}: They have had enough of you for today.`);
+            break;
+          }
+
+          const result = resolveSocialAction({
+            npcId,
+            type: socialType,
+            style: socialStyle,
+            persuasionLevel: useSkillStore.getState().getSkillLevel('persuasion'),
+            coercionLevel: useSkillStore.getState().getSkillLevel('coercion'),
+          });
+
+          this.incrementNpcDailySocialUses(npcId);
+          this.lastSocialOutcome = result.outcome;
+          useDiaryStore.getState().updateRelationship(npcId, result.relationshipChanges);
+          useSkillStore.getState().addXp(result.xpSkill, result.xpAmount);
+          diaryStore.addInteraction(`${npcId}: ${result.diaryText}`);
+        }
+        break;
+
       case 'update_relationship':
         {
           const npcId = params[0];
           const delta = Number(params[1] || '0');
-          useDiaryStore.getState().updateRelationship(npcId, { friendship: delta });
+          const stat = (params[2] || 'friendship') as 'friendship' | 'love' | 'fear';
+          useDiaryStore.getState().updateRelationship(npcId, { [stat]: delta });
           diaryStore.addInteraction('Relationship changed with ' + (typedNpcsData[npcId]?.name || npcId));
         }
         break;

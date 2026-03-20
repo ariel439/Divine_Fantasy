@@ -15,7 +15,7 @@
     "stackable": false,
     "weight": 1.0,
     "base_value": 0,
-    "image": "/assets/items/sack.png"
+    "image": "/assets/events/elara_delivery.png"
   },
   "beryl_noble_parcel": {
     "name": "Noble's Parcel",
@@ -24,7 +24,7 @@
     "stackable": false,
     "weight": 1.0,
     "base_value": 0,
-    "image": "/assets/items/sack.png"
+    "image": "/assets/events/beryl_delivery.png"
   },
   "raw_meat": {
     "name": "Raw Meat",
@@ -205,7 +205,7 @@
     "stackable": true,
     "weight": 0.0,
     "base_value": 1,
-    "image": "/assets/items/coins.png"
+    "image": "/assets/icons/game_icon.png"
   },
   "beer": {
     "name": "Beer",
@@ -381,7 +381,7 @@
     "stackable": false,
     "weight": 1.0,
     "base_value": 0,
-    "image": "/assets/items/shadow_blade.png"
+    "image": "/assets/items/prototype_blade.png"
   },
   "nails": {
     "name": "Iron Nails",
@@ -400,6 +400,86 @@
     "weight": 0.2,
     "base_value": 3,
     "image": "/assets/items/cloth.png"
+  },
+  "ragged_shirt": {
+    "name": "Ragged Shirt",
+    "description": "A threadbare shirt held together by habit and stubbornness.",
+    "type": "clothing",
+    "stackable": false,
+    "weight": 0.6,
+    "base_value": 0,
+    "image": "/assets/items/ragged_shirt.png",
+    "equipmentSlot": "chest"
+  },
+  "ragged_legs": {
+    "name": "Ragged Trousers",
+    "description": "Frayed trousers that mark Luke as poor at a glance.",
+    "type": "clothing",
+    "stackable": false,
+    "weight": 0.6,
+    "base_value": 0,
+    "image": "/assets/items/ragged_legs.png",
+    "equipmentSlot": "legs"
+  },
+  "common_shirt": {
+    "name": "Common Shirt",
+    "description": "A simple clean shirt that helps Luke look more respectable.",
+    "type": "clothing",
+    "stackable": false,
+    "weight": 0.6,
+    "base_value": 16,
+    "image": "/assets/items/common_shirt.png",
+    "equipmentSlot": "chest"
+  },
+  "common_legs": {
+    "name": "Common Trousers",
+    "description": "Plain but decent trousers suited to everyday life in town.",
+    "type": "clothing",
+    "stackable": false,
+    "weight": 0.7,
+    "base_value": 14,
+    "image": "/assets/items/common_legs.png",
+    "equipmentSlot": "legs"
+  },
+  "common_shoes": {
+    "name": "Common Shoes",
+    "description": "Sturdy shoes that make Luke look less like a stray.",
+    "type": "clothing",
+    "stackable": false,
+    "weight": 0.5,
+    "base_value": 10,
+    "image": "/assets/items/common_shoes.png",
+    "equipmentSlot": "boots"
+  },
+  "fine_shirt": {
+    "name": "Fine Shirt",
+    "description": "A neatly tailored shirt meant to leave a good impression.",
+    "type": "clothing",
+    "stackable": false,
+    "weight": 0.6,
+    "base_value": 28,
+    "image": "/assets/items/fine_shirt.png",
+    "equipmentSlot": "chest"
+  },
+  "fine_legs": {
+    "name": "Fine Trousers",
+    "description": "Well-cut trousers fit for merchant streets and polite company.",
+    "type": "clothing",
+    "stackable": false,
+    "weight": 0.7,
+    "base_value": 24,
+    "image": "/assets/items/fine_legs.png",
+    "equipmentSlot": "legs"
+  },
+  "fine_shoes": {
+    "name": "Fine Shoes",
+    "description": "Polished shoes that push Luke toward respectability.",
+    "type": "clothing",
+    "stackable": false,
+    "weight": 0.5,
+    "base_value": 18,
+    "image": "/assets/items/fine_shoes.png",
+    "equipmentSlot": "boots"
   },
   "spade": {
     "name": "Spade",

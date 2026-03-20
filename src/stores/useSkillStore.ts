@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { useCharacterStore } from './useCharacterStore';
 import xpTable from '../data/xp_table.json';
+import { getMaxSocialEnergy } from '../utils/socialEnergy';
 
 interface Skill {
   level: number;
@@ -13,6 +14,21 @@ interface SkillState {
   getSkillLevel: (skill: string) => number;
   getXpToNextLevel: (skill: string) => number;
   setSkillLevel: (skill: string, level: number) => void;
+}
+
+function refreshSocialEnergyCap() {
+  const character = useCharacterStore.getState();
+  const skillState = useSkillStore.getState();
+  const maxSocialEnergy = getMaxSocialEnergy(
+    character.attributes.charisma,
+    skillState.getSkillLevel('persuasion'),
+    skillState.getSkillLevel('coercion')
+  );
+
+  useCharacterStore.setState((state) => ({
+    maxSocialEnergy,
+    socialEnergy: Math.min(state.socialEnergy, maxSocialEnergy),
+  }));
 }
 
 // Attribute to skill links removed in favor of global Intelligence scaling
@@ -54,6 +70,7 @@ export const useSkillStore = create<SkillState>((set, get) => ({
         }
       };
     });
+    refreshSocialEnergyCap();
   },
   getSkillLevel: (skill) => {
     return get().skills[skill]?.level || 1;
@@ -73,5 +90,6 @@ export const useSkillStore = create<SkillState>((set, get) => ({
         [skill]: { level, xp: levelData.total_xp }
       }
     }));
+    refreshSocialEnergyCap();
   },
 }));

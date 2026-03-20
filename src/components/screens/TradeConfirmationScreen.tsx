@@ -11,9 +11,10 @@ interface TradeConfirmationScreenProps {
   playerOffer: OfferItem[];
   merchantOffer: OfferItem[];
   balance: number;
+  canAfford: boolean;
 }
 
-const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onConfirm, onCancel, playerOffer, merchantOffer, balance }) => {
+const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onConfirm, onCancel, playerOffer, merchantOffer, balance, canAfford }) => {
     
     const playerOfferValue = useMemo(() => playerOffer.reduce((sum, offer) => {
         return sum + (offer.item.base_value * offer.quantity);
@@ -91,7 +92,15 @@ const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onConfirm, 
                 </p>
             </div>
 
-            <div className="mt-10 flex justify-center gap-6 flex-shrink-0">
+            <div className="mt-6 text-center flex-shrink-0">
+                {!canAfford && (
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-red-400">
+                        You do not have enough money to complete this exchange.
+                    </p>
+                )}
+            </div>
+
+            <div className="mt-4 flex justify-center gap-6 flex-shrink-0">
                 <button 
                     onClick={onCancel} 
                     className="px-10 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-all border border-transparent hover:border-zinc-800 rounded-xl hover:bg-white/5"
@@ -100,7 +109,8 @@ const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onConfirm, 
                 </button>
                  <button 
                     onClick={onConfirm}
-                    className="px-12 py-3 text-[10px] font-black uppercase tracking-widest text-white bg-zinc-800/50 border border-zinc-700/50 rounded-xl transition-all hover:bg-white/10 hover:border-zinc-400 hover:shadow-2xl active:scale-95"
+                    disabled={!canAfford}
+                    className="px-12 py-3 text-[10px] font-black uppercase tracking-widest text-white bg-zinc-800/50 border border-zinc-700/50 rounded-xl transition-all hover:bg-white/10 hover:border-zinc-400 hover:shadow-2xl active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
                  >
                     Seal the Deal
                 </button>

@@ -4,13 +4,14 @@ import { useShopStore } from '../../stores/useShopStore';
 import { useInventoryStore, InventoryState } from '../../stores/useInventoryStore';
 import { useCharacterStore } from '../../stores/useCharacterStore';
 import { Item, OfferItem } from '../../types';
-import { shallow } from 'zustand/shallow';
-import CurrencyDisplay from '../ui/CurrencyDisplay';
 import ItemSelectionPanel from '../ui/ItemSelectionPanel';
 import { QuantityModal } from '../modals/QuantityModal';
 import TradeConfirmationScreen from './TradeConfirmationScreen';
 import itemsData from '../../data/items.json';
 import { X, ArrowRightLeft } from 'lucide-react';
+import locationsData from '../../data/locations.json';
+import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
+import { useLocationStore } from '../../stores/useLocationStore';
 
 interface TradeScreenProps {
   shopId: string;
@@ -24,11 +25,13 @@ Object.entries(itemsData).forEach(([id, item]) => {
 });
 
 const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) => {
-    const { getShop, updateShopInventory } = useShopStore();
+    const updateShopInventory = useShopStore((state) => state.updateShopInventory);
     const inventoryState = useInventoryStore((state) => state) as InventoryState;
     const playerInventory = inventoryState.items;
     const { addCurrency, removeCurrency, currency } = useCharacterStore();
     const shop = useShopStore((state) => state.shops[shopId]);
+    const { hour } = useWorldTimeStore();
+    const currentLocationId = useLocationStore((state) => state.currentLocationId);
 
     const [playerOffer, setPlayerOffer] = useState<OfferItem[]>([]);
     const [merchantOffer, setMerchantOffer] = useState<OfferItem[]>([]);
@@ -40,17 +43,23 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
         isOpen: boolean;
         item: Item | null;
         side: 'player' | 'merchant' | null;
-        currentQuantity?: number; // Add this line
+        currentQuantity?: number;
     }>({ isOpen: false, item: null, side: null });
 
     if (!shop) {
         return <div className="text-white">Shop not found!</div>;
     }
 
+    const locationData = (locationsData as any)[currentLocationId] || (locationsData as any)[shop.location_id];
+    const tradeBackground = (() => {
+        if (!locationData) return '/assets/backgrounds/minimal_bg.png';
+        const isNight = hour < 6 || hour >= 18;
+        if (isNight && locationData.night_background) return locationData.night_background;
+        return locationData.day_background || locationData.background || '/assets/backgrounds/minimal_bg.png';
+    })();
+
     const playerTotalCopper = currency.copper + currency.silver * 100 + currency.gold * 10000;
     const merchantTotalCopper = shop.currency; // Use actual shop currency
-
-    const SELL_PRICE_MULTIPLIER = 0.5; // Player sells items for half their base value
 
     const tradeMode = useMemo(() => {
         if (playerOffer.length > 0 && merchantOffer.length === 0) return 'selling';
@@ -61,15 +70,15 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
 
     const playerOfferValue = useMemo(() => playerOffer.reduce((sum, offer) => {
         const value = tradeMode === 'selling' || tradeMode === 'bartering'
-            ? Math.floor(offer.item.base_value * shop.buy_multiplier) // Use shop's buy multiplier
+            ? Math.floor(offer.item.base_value * shop.buy_multiplier)
             : offer.item.base_value; // If buying, player's items are valued at full price
         return sum + value * offer.quantity;
     }, 0), [playerOffer, tradeMode, shop.buy_multiplier]);
 
     const merchantOfferValue = useMemo(() => merchantOffer.reduce((sum, offer) => {
         const value = tradeMode === 'buying' || tradeMode === 'bartering'
-            ? Math.floor(offer.item.base_value * shop.sell_multiplier) // Use shop's sell multiplier
-            : Math.floor(offer.item.base_value * shop.buy_multiplier); // If selling, merchant's items are valued at buy price
+            ? Math.floor(offer.item.base_value * shop.sell_multiplier)
+            : Math.floor(offer.item.base_value * shop.buy_multiplier);
         return sum + value * offer.quantity;
     }, 0), [merchantOffer, tradeMode, shop.sell_multiplier, shop.buy_multiplier]);
     
@@ -133,7 +142,7 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
     };
     
     const handleQuantityConfirm = (quantity: number) => {
-        const { item, side, currentQuantity } = quantityModalState;
+        const { item, side } = quantityModalState;
         if (!item || !side) return;
 
         const offer = side === 'player' ? playerOffer : merchantOffer;
@@ -148,17 +157,23 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
             const newOffer = [...offer];
             if (quantity === 0) {
                 newOffer.splice(existingOfferIndex, 1); // Remove if quantity is 0
+                if (side === 'player') setSelectedPlayerItemId(null);
+                else setSelectedMerchantItemId(null);
             } else {
                 newOffer[existingOfferIndex] = { ...newOffer[existingOfferIndex], quantity };
             }
             setOffer(newOffer);
         } else {
             // Add new item to offer
-            setOffer([...offer, { item, quantity }]);
+            if (quantity > 0) {
+                setOffer([...offer, { item, quantity }]);
+            }
         }
 
-        if (side === 'player') setSelectedPlayerItemId(item.uuid || item.id);
-        else setSelectedMerchantItemId(item.uuid || item.id);
+        if (quantity > 0) {
+            if (side === 'player') setSelectedPlayerItemId(item.uuid || item.id);
+            else setSelectedMerchantItemId(item.uuid || item.id);
+        }
 
         setQuantityModalState({ isOpen: false, item: null, side: null, currentQuantity: undefined });
     };
@@ -226,7 +241,7 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
     return (
         <div className="relative w-screen h-screen bg-zinc-950 flex flex-col overflow-hidden">
             {/* Background Layer with blur */}
-            <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 blur-md" style={{ backgroundImage: `url(/assets/backgrounds/minimal_bg.png)` }} />
+            <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 blur-md" style={{ backgroundImage: `url(${tradeBackground})` }} />
             
             {/* Header */}
             <header className="relative z-20 w-full h-[7vh] min-h-[56px] px-8 flex justify-between items-center border-b border-zinc-800/50 backdrop-blur-xl shrink-0 bg-zinc-950/50">
@@ -242,9 +257,7 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
                         The Merchant's Exchange
                     </h1>
                 </div>
-                <div className="flex items-center gap-4">
-                    <CurrencyDisplay totalCopper={playerTotalCopper} variant="minimal" />
-                </div>
+                <div className="w-[120px]" />
             </header>
 
             {/* Main Content Area */}
@@ -260,6 +273,11 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
                             selectedItemId={selectedMerchantItemId}
                             highlightedItemIds={merchantOfferIds}
                             valueMultiplier={shop.sell_multiplier}
+                            currency={{
+                                gold: Math.floor(merchantTotalCopper / 10000),
+                                silver: Math.floor((merchantTotalCopper % 10000) / 100),
+                                copper: merchantTotalCopper % 100,
+                            }}
                         />
                     </div>
                 </div>
@@ -279,7 +297,7 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
 
                     <button
                         onClick={() => setShowConfirmation(true)}
-                        disabled={tradeMode === 'idle' || !canAfford}
+                        disabled={tradeMode === 'idle'}
                         className="px-6 py-3 bg-zinc-100 text-black font-black uppercase tracking-[0.2em] text-[10px] rounded-lg transition-all hover:bg-white hover:scale-105 active:scale-95 disabled:opacity-20 disabled:cursor-not-allowed shadow-xl"
                     >
                         Review
@@ -300,6 +318,7 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
                             highlightedItemIds={playerOfferIds}
                             valueMultiplier={shop.buy_multiplier}
                             acceptedCategories={shop.accepted_categories}
+                            currency={currency}
                         />
                     </div>
                 </div>
@@ -310,6 +329,7 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
                 item={quantityModalState.item}
                 side={quantityModalState.side}
                 currentQuantity={quantityModalState.currentQuantity}
+                maxQuantity={quantityModalState.item?.quantity ?? 1}
                 onConfirm={handleQuantityConfirm}
                 onCancel={() => setQuantityModalState({ isOpen: false, item: null, side: null })}
             />
@@ -319,6 +339,7 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
                     playerOffer={playerOffer}
                     merchantOffer={merchantOffer}
                     balance={balance}
+                    canAfford={canAfford}
                     onConfirm={handleFinalizeTrade}
                     onCancel={() => setShowConfirmation(false)}
                 />

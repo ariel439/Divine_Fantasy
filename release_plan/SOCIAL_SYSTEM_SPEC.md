@@ -15,6 +15,7 @@ It is a full game system involving:
 - NPC personality and class
 - clothing and presentation
 - authored first-meet scenes
+- authored repeat-meet scenes
 - route-specific progression through the Finn week
 
 The goal is to make the social route mechanically real, readable, and useful inside the 7-day demo.
@@ -104,24 +105,53 @@ The player uses information and relationships to:
 
 The social system should use a two-layer dialogue model.
 
-### Layer A: Interaction Menu
+### Layer A: Opening Conversation Node
 
-Every NPC dialogue starts at a root interaction menu.
+Social-capable NPCs should not drop the player directly into the interaction menu.
+
+They should first use an authored opening node.
+
+For major NPCs, the standard should be:
+
+- first-meet node for the first conversation
+- repeat-meet node for later conversations
+- if the NPC trades, one explicit line such as `Show me your stock.` from this opening node, shown first
+- one explicit line such as `I'd like to talk.` that opens the interaction menu
+- an exit line such as `Back.` instead of `Leave`
+
+This keeps the conversation feeling like dialogue first and UI second.
+
+### Layer B: Interaction Menu
+
+Once the player chooses to talk, the interaction menu opens.
 
 Possible menu categories are:
 
+- `Quest`
 - `Ask`
 - `Friendly`
 - `Flirt`
 - `Coerce`
-- `Quest`
-- `Leave`
+- `Back`
+
+The standard interaction-menu order should be:
+
+1. `Quest`
+2. `Ask`
+3. `Friendly`
+4. `Flirt`
+5. `Coerce`
+6. `Back`
+
+`Trade` should not live inside this interaction menu anymore.
+
+Trade should be exposed from the opening conversation node if the NPC has a shop.
 
 These categories are not universal.
 
 Each NPC can expose only the categories that fit them.
 
-### Layer B: Dialogue Nodes
+### Layer C: Dialogue Nodes
 
 Inside each category, the game still uses the existing node/choice system.
 
@@ -131,22 +161,25 @@ This means:
 - the new system wraps the old one instead of replacing it
 - category roots become entry points into the deeper node trees
 
-### First-Meet Dialogue Rule
+### First-Meet / Repeat-Meet Dialogue Rule
 
 The current generic auto-greeting behavior should be removed.
 
-Instead, NPCs should support an optional authored first-meet node.
+Instead, NPCs should support optional authored opening nodes.
 
 Rules:
 
 - if an NPC has a first-meet node, the game uses it once
 - that node can include unique choices, lore, quest hooks, or route clues
-- if an NPC does not have a first-meet node, the game uses the normal repeat/root node
+- if an NPC has a repeat-meet node, the game uses it on later visits before the interaction menu
+- if that opening node would only contain `I'd like to talk.` and `Back.`, the game should skip it and open the interaction menu directly
+- if an NPC does not have a first-meet or repeat-meet node, the game can fall back to the interaction menu directly
 - simple NPCs do not need custom first-meet content
 
 This allows:
 
 - important NPCs to feel authored and memorable
+- repeat visits to still feel like conversations
 - tutorial/introduction scenes to stay natural
 - lightweight NPCs to remain cheap to write
 
@@ -237,7 +270,7 @@ Rules:
 
 Purpose:
 
-- clean exit
+- clean exit from the opening node or dialogue flow
 
 ## Important Category Rule
 
@@ -301,6 +334,12 @@ Charisma should represent:
 For the alpha, charisma should:
 
 - set `maxSocialEnergy`
+
+NPC social config should also define:
+
+- romance enabled or disabled
+- flirt friendship threshold
+- daily meaningful interaction cap
 
 Charisma should **not** be the main scaler for relationship gains.
 
@@ -489,6 +528,8 @@ Luke's clothing and visible loadout should influence social outcomes.
 
 This should be the alpha-facing presentation layer.
 
+Presentation and intimidation should be visible to the player as separate character-sheet readouts so the effect of gear is readable.
+
 ## Clothing / Social Presentation
 
 ### Goal
@@ -503,7 +544,8 @@ He should begin with poor presentation.
 
 Luke starts in:
 
-- rags or visibly low-status clothing
+- a ragged shirt
+- ragged trousers
 
 This should give:
 
@@ -542,7 +584,7 @@ Examples:
 This naturally supports:
 
 - clothing purchases
-- a dedicated clothier NPC/store
+- a dedicated clothier/store
 - social route investment through presentation rather than only food/tools
 
 ## NPC Menu Availability
@@ -648,6 +690,8 @@ For the alpha:
 
 - important social gains should be authored
 - repeated actions should have limited or diminishing value
+- social energy should not be the only limiter
+- each NPC should only support a small number of meaningful Friendly / Flirt / Coerce actions per day
 - one-time questions should often give one-time XP
 - meaningful route progress should come from good choices, not button grinding
 
@@ -658,6 +702,20 @@ The system should prioritize:
 over:
 
 - infinite repeatable farming
+
+### Daily NPC Bandwidth Rule
+
+For the alpha, social energy is Luke's overall social stamina.
+
+It is not a license to spam one NPC all day.
+
+Recommended live rule:
+
+- each NPC supports **2 meaningful relationship-shaping actions per day**
+- this cap applies to `Friendly`, `Flirt`, and `Coerce`
+- after that, those actions should be disabled or return low-value fallback responses until the next day
+
+This keeps the route believable and prevents high-social-energy Luke from farming one person endlessly.
 
 ## How This Fits the Finn Week
 
@@ -692,9 +750,10 @@ The social system should be built in this order:
 3. define social energy usage rules
 4. define NPC menu availability and depth tiers
 5. define authored first-meet nodes for major NPCs
-6. convert major NPCs to the new social structure
-7. add social route support to the Finn week
-8. add clothing/presentation as a social modifier layer
+6. define authored repeat-meet nodes for major NPCs
+7. convert major NPCs to the new social structure
+8. add social route support to the Finn week
+9. add clothing/presentation as a social modifier layer
 
 ## Major NPC Conversion Targets
 

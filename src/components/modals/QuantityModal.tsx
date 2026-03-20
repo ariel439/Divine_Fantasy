@@ -10,35 +10,35 @@ interface QuantityModalProps {
   item: Item | null;
   side?: 'player' | 'merchant' | null;
   currentQuantity?: number;
+  maxQuantity?: number;
   onConfirm: (quantity: number) => void;
   onCancel: () => void;
 }
 
 // FIX: Changed to a named export to resolve module issue.
-export const QuantityModal: FC<QuantityModalProps> = ({ isOpen, item, onConfirm, onCancel }) => {
+export const QuantityModal: FC<QuantityModalProps> = ({ isOpen, item, currentQuantity = 0, maxQuantity, onConfirm, onCancel }) => {
   const [quantity, setQuantity] = useState(1);
-  const maxQuantity = item?.quantity || 1;
+  const effectiveMaxQuantity = maxQuantity ?? item?.quantity ?? 1;
+  const minQuantity = currentQuantity > 0 ? 0 : 1;
 
   useEffect(() => {
     if (isOpen) {
-      setQuantity(1);
+      setQuantity(currentQuantity > 0 ? currentQuantity : Math.min(1, effectiveMaxQuantity));
     }
-  }, [isOpen]);
+  }, [isOpen, currentQuantity, effectiveMaxQuantity]);
 
   if (!isOpen || !item) {
     return null;
   }
 
   const handleConfirm = () => {
-    if (quantity > 0) {
-      onConfirm(quantity);
-    }
+    onConfirm(quantity);
   };
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value, 10);
     if (!isNaN(value)) {
-        setQuantity(Math.max(1, Math.min(maxQuantity, value)));
+        setQuantity(Math.max(minQuantity, Math.min(effectiveMaxQuantity, value)));
     }
   };
 
@@ -68,7 +68,7 @@ export const QuantityModal: FC<QuantityModalProps> = ({ isOpen, item, onConfirm,
         <div className="my-10 space-y-8">
             <div className="flex items-center justify-between gap-6 px-4">
                 <button 
-                  onClick={() => setQuantity(q => Math.max(1, q - 1))} 
+                  onClick={() => setQuantity(q => Math.max(minQuantity, q - 1))} 
                   className="p-3 rounded-full bg-zinc-800/50 border border-zinc-700/50 hover:bg-zinc-700 hover:border-zinc-500 transition-all active:scale-95"
                 >
                   <Minus size={20} className="text-zinc-400" />
@@ -77,7 +77,7 @@ export const QuantityModal: FC<QuantityModalProps> = ({ isOpen, item, onConfirm,
                     <div className="text-6xl font-bold font-mono tracking-tighter text-white">{quantity}</div>
                 </div>
                 <button 
-                  onClick={() => setQuantity(q => Math.min(maxQuantity, q + 1))} 
+                  onClick={() => setQuantity(q => Math.min(effectiveMaxQuantity, q + 1))} 
                   className="p-3 rounded-full bg-zinc-800/50 border border-zinc-700/50 hover:bg-zinc-700 hover:border-zinc-500 transition-all active:scale-95"
                 >
                   <Plus size={20} className="text-zinc-400" />
@@ -85,17 +85,30 @@ export const QuantityModal: FC<QuantityModalProps> = ({ isOpen, item, onConfirm,
             </div>
              <input
                 type="range"
-                min="1"
-                max={maxQuantity}
+                min={minQuantity}
+                max={effectiveMaxQuantity}
                 value={quantity}
                 onChange={handleQuantityChange}
                 className="w-full h-1.5 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-zinc-100 hover:accent-white transition-all"
             />
+            <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-zinc-500 px-1">
+              {minQuantity === 0 ? (
+                <button
+                  onClick={() => setQuantity(0)}
+                  className="text-red-400 hover:text-red-300 transition-colors"
+                >
+                  Remove
+                </button>
+              ) : (
+                <span>Min 1</span>
+              )}
+              <span>Available {effectiveMaxQuantity}</span>
+            </div>
         </div>
 
         <div className="flex justify-between items-center gap-4 mt-10">
           <button 
-            onClick={() => setQuantity(maxQuantity)}
+            onClick={() => setQuantity(effectiveMaxQuantity)}
             className="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-all border border-transparent hover:border-zinc-800 rounded-lg hover:bg-white/5"
           >
             Offer All

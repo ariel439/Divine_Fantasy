@@ -1,7 +1,7 @@
 {
   "raidVictorySlides": [
     {
-      "image": "/assets/locations/salty_mug_rented_room.png",
+      "image": "/assets/events/raid_victory_barracks.png",
       "text": "The battle is won! Finn lies defeated, his reign of terror ended. Rodrick claps you on the shoulder. 'Not bad, kid. Not bad at all.'"
     },
     {
@@ -15,17 +15,17 @@
   ],
   "lukePrologueSlides": [
     {
-      "image": "https://i.imgur.com/tYATeUX.jpeg",
+      "image": "/assets/events/luke_breakfast.png",
       "text": "The story of Luke begins, as many in the Whispers do, with the sea's cruel embrace. His mother, Elara, succumbed to childbirth's fevered grip, and his father, a fisherman named Gareth, was claimed by a sudden squall that showed no mercy. Orphaned before he could even speak his name, he was brought to Leo's Lighthouse, a beacon of hope standing defiant against the salt-sprayed cliffs of Driftwatch. Here, under the watchful eye of the kindly Old Leo, his life truly began."
     },
     {
-      "image": "https://i.imgur.com/Hy0z6aZ.jpeg",
+      "image": "/assets/events/luke_play_together.png",
       "text": "In the orphanage's quiet halls, he forged a family not of blood, but of bond. There was Sarah, whose sweet nature made her the steadfast 'mother' of their small group; Robert, the strong, serious boy who dreamed of a life beyond the docks; and young Kyle, whose mischievous grin was a constant source of trouble and laughter. Surrounded by his only friends, Luke's tragic past became a foundation, not an anchor. His sharp mind, a gift from a life of observation, became his tool—a beacon of potential promising a future far grander than his humble beginnings."
     }
   ],
   "wakeupEventSlides": [
     {
-      "image": "/assets/locations/salty_mug_rented_room.png",
+      "image": "/assets/events/finn_waking_you_up.png",
       "text": "You wake in a cramped room at the Salty Mug. Old Man Finn bangs on the door: ‘Two months without rent, kid. Out.’ The lesson ends. The day begins."
     },
     {
@@ -35,7 +35,7 @@
   ],
   "finnDebtIntroSlides": [
     {
-      "image": "/assets/locations/salty_mug_rented_room.png",
+      "image": "/assets/events/finn_waking_you_up.png",
       "text": "You wake to Old Man Finn staring down, a guard idling beside him—knife glinting."
     }
   ],
@@ -89,7 +89,7 @@
       "text": "The smugglers overwhelm Robert, blades flashing in the dark. He takes blow after blow, but refuses to fall. With a desperate shout, he throws himself at the attackers. 'Run! Get Kyle out of here!' he screams, sacrificing himself. You grab Kyle and sprint into the night, the sounds of the struggle fading behind you."
     },
     {
-      "image": "/assets/locations/leo_lighthouse_room.png",
+      "image": "/assets/events/kids_crying_in_room.png",
       "text": "Back in the safety of the lighthouse, you and Kyle collapse, gasping for air. The silence is heavy, broken only by Kyle's quiet sobs. Robert is gone."
     }
   ],
@@ -141,7 +141,7 @@
   ],
   "rebelVictorySlides": [
     {
-      "image": "/assets/locations/salty_mug_night.png",
+      "image": "/assets/events/raid_victory_barracks.png",
       "text": "Finn falls, his reign over the slums ended. Rodrick nods at you. 'You've got guts, kid. Maybe the Guard could use someone like you.' The Shadow Hand retreats... for now."
     }
   ],
@@ -165,17 +165,13 @@
   ],
   "sellLocketSlides": [
     {
-      "image": "/assets/locations/driftwatch_noble_quarter_day.png",
-      "text": "You present the antique locket to the noble collector. His eyes widen as he inspects the craftsmanship. 'Remarkable,' he murmurs. 'A rare find indeed.'"
-    },
-    {
-      "image": "/assets/locations/driftwatch_noble_quarter_day.png",
-      "text": "Without hesitation, he counts out ten silver coins and places them in your hand. 'A fair price for such history,' he says, pocketing the locket. The debt payment is secured."
+      "image": "/assets/events/selling_locket.png",
+      "text": "You present the antique locket to the noble collector. He studies it for a long moment, then counts out ten silver coins into your hand without hesitation. 'A fair price for such history,' he says, pocketing the locket. The debt payment is secured."
     }
   ],
   "evilEndingSlides": [
     {
-      "image": "/assets/locations/driftwatch_slums_night.png",
+      "image": "/assets/events/demo_end_screen.png",
       "text": "You take the key and head deep into the slums, finding the hidden grate Finn mentioned. The air is thick with rot as you descend into the darkness."
     },
     {
@@ -189,11 +185,11 @@
   ],
   "hybridEndingSlides": [
     {
-      "image": "/assets/locations/salty_mug_slums_outside.png",
+      "image": "/assets/events/demo_end_screen.png",
       "text": "You step out of the Salty Mug with thirty silvers lighter in your pouch and Finn's words heavier in your head. You were hard when you had to be, soft when you chose to be, and Driftwatch is still standing either way."
     },
     {
-      "image": "/assets/locations/driftwatch_slums_day.png",
+      "image": "/assets/events/demo_end_screen.png",
       "text": "The slums swallow you back up. Debtors, guards, smugglers, saints in rags – none of them know what kind of man you are yet. Maybe you don't either. But for now, you're alive, and the city is wide open."
     },
     {

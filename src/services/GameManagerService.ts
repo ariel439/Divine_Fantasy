@@ -20,6 +20,7 @@ import { DataValidator } from './DataValidator';
 import { WorldEventManager } from './WorldEventManager';
 import { QuestObserverService } from './QuestObserverService';
 import { timeoutSlides, starvationSlides, gameOverSlides } from '../data/events';
+import { getMaxSocialEnergy } from '../utils/socialEnergy';
 
 export class GameManagerService {
   private static currentDay: number = 0;
@@ -59,13 +60,6 @@ export class GameManagerService {
           // Apply daily hunger penalty/regen
           // (Previously this was delta-based, but since we lost delta, we can do it daily or just keep it simple)
           // For now, hunger tick is handled below every minute.
-        }
-
-        // Hunger tick every minute
-        // We use a simple static variable to track the last minute we ticked hunger
-        if ((GameManagerService as any).lastHungerTickMinute !== `${day}-${hour}-${minute}`) {
-            (GameManagerService as any).lastHungerTickMinute = `${day}-${hour}-${minute}`;
-            useCharacterStore.getState().tickHunger(1);
         }
 
         // 7-Day Demo Timeout Check (End of Day 7 -> Day 8)
@@ -161,10 +155,17 @@ export class GameManagerService {
         born: '10th of July, 760', // TODO: Add to template
       },
     });
+    useSkillStore.setState({
+      skills: {},
+    });
     try {
       useCharacterStore.getState().recalculateStats();
-      const maxSocial = useCharacterStore.getState().maxSocialEnergy;
-      useCharacterStore.setState({ socialEnergy: maxSocial });
+      const maxSocial = getMaxSocialEnergy(
+        template.starting_attributes.Charisma,
+        useSkillStore.getState().getSkillLevel('persuasion'),
+        useSkillStore.getState().getSkillLevel('coercion')
+      );
+      useCharacterStore.setState({ maxSocialEnergy: maxSocial, socialEnergy: maxSocial });
     } catch {}
 
     useDiaryStore.setState({
@@ -217,6 +218,15 @@ export class GameManagerService {
     // Add starting items to inventory (after stores are initialized)
     template.starting_bonuses.items.forEach((itemId: string) => {
       useInventoryStore.getState().addItem(itemId, 1);
+    });
+
+    // Luke starts in a proper ragged outfit instead of abstract "nothing"
+    ['ragged_shirt', 'ragged_legs'].forEach((itemId) => {
+      useInventoryStore.getState().addItem(itemId, 1);
+      const itemData = itemsJson[itemId as keyof typeof itemsJson] as any;
+      if (itemData) {
+        useCharacterStore.getState().equipItem({ ...itemData, id: itemId } as unknown as Item);
+      }
     });
 
     // After all items are added, recalculate currentWeight

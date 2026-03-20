@@ -103,6 +103,17 @@ export interface CombatParticipant {
   attack_sound?: string;
 }
 
+export type CombatEncounterType = 'standard' | 'brawl';
+export type CombatDefeatMode = 'standard' | 'knockout';
+
+export interface CombatEncounterConfig {
+  encounterType?: CombatEncounterType;
+  victoryActions?: string[];
+  victoryToast?: string;
+  defeatMode?: CombatDefeatMode;
+  defeatToast?: string;
+}
+
 // Dialogue
 export interface DialogueOption {
   text: string;

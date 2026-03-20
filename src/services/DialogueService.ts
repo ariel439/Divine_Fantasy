@@ -960,6 +960,15 @@ export class DialogueService {
         }
         break;
 
+      case 'start_brawl':
+        {
+          const target = params[0];
+          if (target === 'ben') {
+            GameManagerService.startBenBrawl();
+          }
+        }
+        break;
+
       case 'enter_temporal_instance':
         {
           const locationId = params[0];

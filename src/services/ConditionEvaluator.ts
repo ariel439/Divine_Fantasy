@@ -8,7 +8,7 @@ import { useJournalStore } from '../stores/useJournalStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useJobStore } from '../stores/useJobStore';
-import { getEquippedPresentation, getPresentationSummary } from '../utils/socialPresentation';
+import { getEquippedPresentation, getPresentationSummary, getIntimidationSummary } from '../utils/socialPresentation';
 
 type ConditionOperator = '==' | '!=' | '>' | '<' | '>=' | '<=';
 
@@ -249,6 +249,7 @@ export class ConditionEvaluator {
   private static evaluatePresentationCondition(lhs: string, op: ConditionOperator, rhsRaw: string, rhsBool?: boolean, rhsNum?: number): boolean {
       const presentation = getEquippedPresentation();
       const summary = getPresentationSummary();
+      const intimidation = getIntimidationSummary();
 
       if (lhs === 'presentation.score') {
           return this.compare(summary.score, op, rhsNum ?? 0);
@@ -264,6 +265,9 @@ export class ConditionEvaluator {
       }
       if (lhs === 'presentation.has_visible_weapon') {
           return this.compare(Boolean(presentation.visibleWeapon), op, rhsBool ?? true);
+      }
+      if (lhs === 'presentation.intimidation') {
+          return this.compare(intimidation.score, op, rhsNum ?? 0);
       }
 
       return false;

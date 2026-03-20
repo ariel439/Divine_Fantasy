@@ -45,8 +45,60 @@
             "condition": "world_flags.ben_cheat_agreed==false"
           },
           {
+            "text": "Look at me, Ben. You don't want this getting ugly.",
+            "next_node": "ben_intimidate",
+            "condition": "presentation.intimidation>=2",
+            "req_skill_level": { "skill": "coercion", "level": 2 }
+          },
+          {
+            "text": "You've got tavern coin for drink, but not for Finn? Careful, Ben.",
+            "next_node": "ben_brawl_pressure",
+            "condition": "time.is_night==true"
+          },
+          {
             "text": "No. Pay now.",
             "closes_dialogue": true
+          }
+        ]
+      },
+      "ben_brawl_pressure": {
+        "npc_text": "Don't try that with me. You think you can loom over me in front of half the Mug and walk away smiling?",
+        "player_choices": [
+          {
+            "text": "Pay, or I drag it out of you.",
+            "next_node": "ben_brawl_offer"
+          },
+          {
+            "text": "Then prove me wrong.",
+            "next_node": "ben_brawl_offer"
+          },
+          {
+            "text": "Forget it.",
+            "next_node": "0"
+          }
+        ]
+      },
+      "ben_intimidate": {
+        "npc_text": "Ben glances at your gear, then at the room around you, and the drink seems to leave him all at once. \"Fine. Fine, damn you. Take it and get out before Finn decides I need a second lesson.\"",
+        "player_choices": [
+          {
+            "text": "Smart choice.",
+            "action": "collect_debt_from:npc_ben|add_xp:coercion:12",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "ben_brawl_offer": {
+        "npc_text": "Fine. Outside, now. If you can put me on the floor, you can take the silver and crawl back to Finn with it.",
+        "player_choices": [
+          {
+            "text": "Stand up, then.",
+            "action": "start_brawl:ben",
+            "closes_dialogue": true
+          },
+          {
+            "text": "Forget it.",
+            "next_node": "0"
           }
         ]
       },

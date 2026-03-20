@@ -26,19 +26,29 @@ const DebugMenuScreen: FC = () => {
   const [playerSetup, setPlayerSetup] = useState<'naked' | 'naked_dagger' | 'wolf_dagger' | 'iron_sword' | 'iron_sword_wolf'>('naked');
   const [wolfCount, setWolfCount] = useState<number>(1);
 
+  const ensureDebugCharacter = () => {
+    const state = useCharacterStore.getState();
+    if (!state.characterId || !state.bio?.name) {
+      GameManagerService.startNewGame('luke_orphan');
+    }
+  };
+
   const handleBackToMenu = () => {
     setScreen('mainMenu');
   };
 
   const handleFullRestore = () => {
+    ensureDebugCharacter();
+    const maxHp = useCharacterStore.getState().maxHp || 100;
+    const maxEnergy = useCharacterStore.getState().getMaxEnergy();
     useCharacterStore.setState({
-      energy: 100,
-      hp: 100,
+      energy: maxEnergy,
+      hp: maxHp,
       hunger: 100,
     });
     // Ensure we aren't dead
     if (characterStore.hp <= 0) {
-       useCharacterStore.setState({ hp: 100 });
+       useCharacterStore.setState({ hp: maxHp });
     }
   };
 
@@ -61,6 +71,7 @@ const DebugMenuScreen: FC = () => {
   };
 
   const handleStartCombatTest = () => {
+    ensureDebugCharacter();
     // 0. Disable Tutorial
     worldStateStore.setFlag('combat_tutorial_seen', true);
     worldStateStore.setFlag('combat_tutorial_active', false);
@@ -137,11 +148,22 @@ const DebugMenuScreen: FC = () => {
         break;
     }
 
+    charStore.recalculateStats();
+
     // 2. Start Combat
     GameManagerService.startWoodsCombat(wolfCount);
   };
 
+  const handleStartBenBrawlTest = () => {
+    ensureDebugCharacter();
+    worldStateStore.setFlag('combat_tutorial_seen', true);
+    worldStateStore.setFlag('combat_tutorial_active', false);
+    locationStore.setLocation('salty_mug');
+    GameManagerService.startBenBrawl();
+  };
+
   const handleStartSmugglerIntroFight = () => {
+    ensureDebugCharacter();
     // 1. Ensure intro mode is active and set up Luke's basic info
     worldStateStore.setIntroMode(true);
     worldStateStore.setIntroCompleted(false);
@@ -286,6 +308,12 @@ const DebugMenuScreen: FC = () => {
                 className="flex-1 px-4 py-2 rounded-md bg-red-900/40 hover:bg-red-800/60 text-red-100 text-sm font-semibold border border-red-800/50 transition-all hover:shadow-[0_0_10px_rgba(220,38,38,0.2)]"
               >
                 Start Test Combat
+              </button>
+              <button
+                onClick={handleStartBenBrawlTest}
+                className="flex-1 px-4 py-2 rounded-md bg-orange-900/40 hover:bg-orange-800/60 text-orange-100 text-sm font-semibold border border-orange-800/50 transition-all hover:shadow-[0_0_10px_rgba(234,88,12,0.2)]"
+              >
+                Start Ben Brawl
               </button>
               <button
                 onClick={handleFullRestore}

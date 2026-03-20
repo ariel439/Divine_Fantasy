@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { CombatParticipant } from '../types';
+import type { CombatParticipant, CombatEncounterType, CombatDefeatMode, CombatEncounterConfig } from '../types';
 
 export type CombatPhase = 'setup' | 'player-turn' | 'enemy-turn' | 'victory' | 'defeat' | 'fled';
 
@@ -20,6 +20,11 @@ export interface CombatState {
   
   // Rewards
   rewards: CombatReward;
+  encounterType: CombatEncounterType;
+  victoryActions: string[];
+  victoryToast?: string;
+  defeatMode: CombatDefeatMode;
+  defeatToast?: string;
   
   // Log
   log: string[];
@@ -27,7 +32,7 @@ export interface CombatState {
 
 export interface CombatStore extends CombatState {
   // Actions
-  startCombat: (player: CombatParticipant, companion: CombatParticipant | CombatParticipant[] | null | undefined, enemies: CombatParticipant[]) => void;
+  startCombat: (player: CombatParticipant, companion: CombatParticipant | CombatParticipant[] | null | undefined, enemies: CombatParticipant[], config?: CombatEncounterConfig) => void;
   endCombat: () => void;
   nextTurn: () => void;
   setPhase: (phase: CombatPhase) => void;
@@ -50,13 +55,18 @@ const initialState: CombatState = {
   phase: 'setup',
   round: 1,
   rewards: { xp: 0, loot: [] },
+  encounterType: 'standard',
+  victoryActions: [],
+  victoryToast: undefined,
+  defeatMode: 'standard',
+  defeatToast: undefined,
   log: [],
 };
 
 export const useCombatStore = create<CombatStore>((set, get) => ({
   ...initialState,
 
-  startCombat(player, companion, enemies) {
+  startCombat(player, companion, enemies, config) {
     const participants: CombatParticipant[] = [player, ...enemies];
     if (companion) {
       if (Array.isArray(companion)) {
@@ -91,6 +101,11 @@ export const useCombatStore = create<CombatStore>((set, get) => ({
       phase: initialPhase,
       round: 1,
       rewards: { xp: 0, loot: [] },
+      encounterType: config?.encounterType || 'standard',
+      victoryActions: config?.victoryActions || [],
+      victoryToast: config?.victoryToast,
+      defeatMode: config?.defeatMode || 'standard',
+      defeatToast: config?.defeatToast,
       log: ['Combat begins!'],
     });
   },

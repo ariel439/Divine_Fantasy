@@ -125,7 +125,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
       const energyRegen = 10 * hours * quality;
       
       return {
-        hp: Math.min(100, state.hp + hpRegen),
+        hp: Math.min(state.maxHp, state.hp + hpRegen),
         energy: Math.min(100, state.energy + energyRegen)
       };
     });
@@ -183,6 +183,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
         [equipmentSlot]: item,
       },
     }));
+    get().recalculateStats();
   },
   unequipItem: (item) => {
     const { equipmentSlot } = item;
@@ -198,6 +199,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
       delete newEquippedItems[equipmentSlot];
       return { equippedItems: newEquippedItems };
     });
+    get().recalculateStats();
   },
   tickHunger: (minutes) => {
     // Prevent drain during intro mode

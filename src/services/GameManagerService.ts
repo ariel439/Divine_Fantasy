@@ -425,6 +425,48 @@ export class GameManagerService {
     useUIStore.getState().setScreen('combat');
   }
 
+  static startBenBrawl(): void {
+    const character = useCharacterStore.getState();
+    const template = enemiesJson['drunk_tavern'];
+
+    const enemy: CombatParticipant = {
+      id: `ben_brawl_${Date.now()}`,
+      name: 'Ben',
+      hp: template?.stats.hp || 45,
+      maxHp: template?.stats.hp || 45,
+      attack: template?.stats.attack || 7,
+      defence: template?.stats.defence || 1,
+      dexterity: template?.stats.dexterity || 3,
+      portraitUrl: '/assets/portraits/Ben.png',
+      isPlayer: false,
+      isCompanion: false,
+      attack_sound: template?.attack_sound || '/assets/sfx/combat_punch.mp3',
+    };
+
+    const playerStats = GameManagerService.calculatePlayerStats(character);
+    const player: CombatParticipant = {
+      id: 'player',
+      name: character.bio?.name || 'Luke',
+      hp: character.hp,
+      maxHp: character.maxHp || 100,
+      attack: playerStats.attack,
+      defence: playerStats.defence,
+      dexterity: playerStats.dexterity,
+      portraitUrl: character.bio?.image || '/assets/portraits/luke.jpg',
+      isPlayer: true,
+      isCompanion: false,
+    };
+
+    useCombatStore.getState().startCombat(player, null, [enemy], {
+      encounterType: 'brawl',
+      defeatMode: 'knockout',
+      victoryActions: ['collect_debt_from:npc_ben'],
+      victoryToast: 'You rough Ben up and take Finn\'s silver.',
+      defeatToast: 'Ben leaves you bruised and throws you out of the fight.',
+    });
+    useUIStore.getState().setScreen('combat');
+  }
+
   static startRaidCombat(): void {
     const character = useCharacterStore.getState();
     const inventory = useInventoryStore.getState();

@@ -111,16 +111,15 @@
       { "location_id": "salty_mug", "start_hour": 14, "end_hour": 0 }
     ]
   },
-  "npc_elara": {
-    "name": "Elara",
-    "home_location": "herbalists_hovel",
-    "default_dialogue_id": "elara_default",
-    "portrait": "/assets/portraits/Elara.png",
-    "schedules": [
-      { "location_id": "herbalists_hovel", "start_hour": 8, "end_hour": 18 },
-      { "location_id": "salty_mug", "start_hour": 19, "end_hour": 22 }
-    ]
-  },
+    "npc_elara": {
+      "name": "Elara",
+      "home_location": "herbalists_hovel",
+      "default_dialogue_id": "elara_default",
+      "portrait": "/assets/portraits/Elara.png",
+      "schedules": [
+        { "location_id": "herbalists_hovel", "start_hour": 8, "end_hour": 18 }
+      ]
+    },
   "npc_crawler": {
     "name": "Crawler",
     "home_location": "sawmill",

@@ -9,9 +9,14 @@ import { useAudioStore } from '../stores/useAudioStore';
 import { useInventoryStore } from '../stores/useInventoryStore';
 import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
+import { useToastStore } from '../stores/useToastStore';
 import { COMBAT_CONFIG } from '../config/combat';
 import CombatScreen from './screens/CombatScreen';
 import { robertCaughtSlides, gameOverSlides, raidVictorySlides } from '../data/events';
+import { DialogueService } from '../services/DialogueService';
+
+type DamageType = 'slash' | 'pierce' | 'blunt';
+type ArmorClass = 'none' | 'light' | 'heavy';
 
 const CombatManager: React.FC = () => {
   const {
@@ -20,6 +25,11 @@ const CombatManager: React.FC = () => {
     currentTurnIndex,
     phase,
     rewards,
+    encounterType,
+    victoryActions,
+    victoryToast,
+    defeatMode,
+    defeatToast,
     log,
     getCurrentParticipant,
     getAliveEnemies,
@@ -37,6 +47,7 @@ const CombatManager: React.FC = () => {
   const { addItem } = useInventoryStore();
   const { addXp: addSkillXp, getSkillLevel } = useSkillStore();
   const { sfxEnabled, sfxVolume } = useAudioStore();
+  const addToast = useToastStore.getState().addToast;
 
   const playSfx = (src: string) => {
     if (sfxEnabled && src) {
@@ -101,6 +112,78 @@ const CombatManager: React.FC = () => {
   const aliveEnemies = React.useMemo(() => getAliveEnemies(), [participants, getAliveEnemies]);
   const aliveParty = React.useMemo(() => getAliveParty(), [participants, getAliveParty]);
   const sortedTurnOrder = React.useMemo(() => turnOrder.map(id => participants.find(p => p.id === id)).filter(Boolean) as CombatParticipant[], [turnOrder, participants]);
+  const syncPlayerVitalsFromCombat = React.useCallback((fallbackHp?: number) => {
+    const playerCombatant = participants.find((p) => p.isPlayer);
+    useCharacterStore.setState((state) => ({
+      ...state,
+      hp: fallbackHp !== undefined
+        ? Math.max(1, Math.min(state.maxHp || 100, fallbackHp))
+        : Math.max(1, Math.min(state.maxHp || 100, playerCombatant?.hp ?? state.hp)),
+    }));
+  }, [participants]);
+  const getBaseHitChance = React.useCallback((attacker: CombatParticipant) => {
+    let chance = attacker.isPlayer
+      ? COMBAT_CONFIG.BASE_HIT_CHANCE.PLAYER
+      : attacker.isCompanion
+        ? COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION
+        : COMBAT_CONFIG.BASE_HIT_CHANCE.ENEMY;
+
+    const attackerName = attacker.name.toLowerCase();
+    if (attackerName.includes('wolf')) chance += 0.12;
+    if (attackerName.includes('drunk')) chance -= 0.05;
+
+    return Math.max(0.1, Math.min(0.95, chance));
+  }, []);
+  const getAttackType = React.useCallback((attacker: CombatParticipant, isBrawl: boolean): DamageType => {
+    if (isBrawl) return 'blunt';
+
+    if (attacker.isPlayer) {
+      const weaponId = useCharacterStore.getState().equippedItems.weapon?.id?.toLowerCase() || '';
+      if (weaponId.includes('knife') || weaponId.includes('dagger')) return 'pierce';
+      if (weaponId.includes('sword') || weaponId.includes('blade') || weaponId.includes('axe')) return 'slash';
+      if (weaponId.includes('mace') || weaponId.includes('club') || weaponId.includes('hammer')) return 'blunt';
+    }
+
+    const attackerName = attacker.name.toLowerCase();
+    if (attackerName.includes('wolf')) return 'slash';
+    if (attackerName.includes('drunk') || attackerName.includes('brawler')) return 'blunt';
+    if (attackerName.includes('knife')) return 'pierce';
+    if (attackerName.includes('smuggler') || attackerName.includes('thug') || attackerName.includes('finn')) return 'slash';
+
+    return 'blunt';
+  }, []);
+  const getArmorClass = React.useCallback((target: CombatParticipant): ArmorClass => {
+    if (!target.isPlayer && !target.isCompanion) return 'none';
+
+    const equipped = useCharacterStore.getState().equippedItems;
+    const equippedIds = Object.values(equipped).map((item) => item?.id || '');
+    const hasHeavy = equippedIds.some((id) => id.startsWith('iron_'));
+    const hasLight = equippedIds.some((id) => id.startsWith('wolf_'));
+
+    if (hasHeavy) return 'heavy';
+    if (hasLight) return 'light';
+    return 'none';
+  }, []);
+  const getTypeMultiplier = React.useCallback((damageType: DamageType, armorClass: ArmorClass) => {
+    if (armorClass === 'none') {
+      if (damageType === 'pierce') return 1.15;
+      if (damageType === 'slash') return 1.05;
+      return 1;
+    }
+    if (armorClass === 'light') {
+      if (damageType === 'slash') return 0.82;
+      if (damageType === 'pierce') return 0.95;
+      return 0.72;
+    }
+    if (damageType === 'slash') return 0.68;
+    if (damageType === 'pierce') return 0.78;
+    return 0.45;
+  }, []);
+  const getBrawlProfile = React.useCallback((target: CombatParticipant) => {
+    if (target.defence >= 10) return { multiplier: 0.95, defenceFactor: 1.1, minDamage: 1 };
+    if (target.defence >= 5) return { multiplier: 1.15, defenceFactor: 0.85, minDamage: 3 };
+    return { multiplier: 1.55, defenceFactor: 0.25, minDamage: 8 };
+  }, []);
 
   // Auto-select first enemy if none selected
   useEffect(() => {
@@ -117,6 +200,30 @@ const CombatManager: React.FC = () => {
     if (aliveEnemies.length === 0 && phase !== 'victory' && phase !== 'defeat' && phase !== 'fled') {
       setPhase('victory');
       addLogEntry('Victory!');
+
+      if (encounterType === 'brawl') {
+        victoryActions.forEach((action) => DialogueService.executeAction(action));
+        getAliveParty().forEach((p) => {
+          if (p.isPlayer || p.isCompanion) {
+            addSkillXp('attack', 10);
+            addSkillXp('agility', 2);
+          }
+        });
+        setTimeout(() => {
+          if (victoryToast) {
+            addToast(victoryToast, 'success', 3500, 'Brawl Won');
+          }
+          syncPlayerVitalsFromCombat();
+          useCharacterStore.setState((state) => ({
+            ...state,
+            energy: Math.max(0, state.energy - 10),
+          }));
+          endCombat();
+          setScreen('inGame');
+          passTime(10);
+        }, 1000);
+        return;
+      }
       
       // Check if this was the Finn Raid
       const finnWasPresent = participants.some(p => p.name === 'Finn' || p.id.startsWith('finn_'));
@@ -135,12 +242,28 @@ const CombatManager: React.FC = () => {
         
         // Show victory screen after short delay
         setTimeout(() => {
+          syncPlayerVitalsFromCombat();
           setScreen('combatVictory');
         }, 1000);
       }
     } else if (aliveParty.length === 0) {
       setPhase('defeat');
       setTimeout(() => {
+        if (defeatMode === 'knockout') {
+          syncPlayerVitalsFromCombat(12);
+          useCharacterStore.setState((state) => ({
+            ...state,
+            energy: Math.max(0, state.energy - 15),
+          }));
+          if (defeatToast) {
+            addToast(defeatToast, 'warning', 3500, 'Brawl Lost');
+          }
+          endCombat();
+          setScreen('inGame');
+          passTime(15);
+          return;
+        }
+
         const ui = useUIStore.getState();
         const isIntroMode = useWorldStateStore.getState().introMode;
         
@@ -155,11 +278,12 @@ const CombatManager: React.FC = () => {
         }
         
         // End combat after setting screen to avoid empty combat screen flash
+        syncPlayerVitalsFromCombat(1);
         endCombat();
         passTime(5);
       }, 1500);
     }
-  }, [aliveEnemies.length, aliveParty.length, phase, rewards, setPhase, endCombat, setScreen, passTime, addItem]);
+  }, [aliveEnemies.length, aliveParty.length, phase, rewards, setPhase, endCombat, setScreen, passTime, addItem, encounterType, victoryActions, victoryToast, defeatMode, defeatToast, syncPlayerVitalsFromCombat]);
 
   const handleAttack = () => {
     if (!isPlayerTurn() || !selectedTargetId) return;
@@ -168,11 +292,9 @@ const CombatManager: React.FC = () => {
     const target = participants.find(p => p.id === selectedTargetId);
     if (!attacker || !target || target.hp <= 0) return;
 
-    const baseHitChance = attacker.isPlayer 
-      ? COMBAT_CONFIG.BASE_HIT_CHANCE.PLAYER 
-      : attacker.isCompanion 
-        ? COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION 
-        : COMBAT_CONFIG.BASE_HIT_CHANCE.ENEMY;
+    const isBrawl = encounterType === 'brawl';
+
+    const baseHitChance = getBaseHitChance(attacker);
 
     if (Math.random() > baseHitChance) {
       addLogEntry(`${attacker.name} attacks ${target.name} but misses!`);
@@ -180,23 +302,38 @@ const CombatManager: React.FC = () => {
       // Brief delay so the miss is visible/audible before next turn
       setTimeout(() => {
         nextTurn();
-      }, 800);
+      }, 450);
       return;
     }
 
     const attackPower = attacker.attack;
     const defencePower = Math.max(0, target.defence);
+    const damageType = getAttackType(attacker, isBrawl);
+    const armorClass = getArmorClass(target);
+    const typeMultiplier = getTypeMultiplier(damageType, armorClass);
     
     let damage = 0;
     if (attacker.isPlayer) {
-        damage = Math.floor(attackPower * COMBAT_CONFIG.DAMAGE_FORMULA.PLAYER_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.PLAYER_DEFENCE_FACTOR);
-        damage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.PLAYER, damage);
+        const brawlProfile = isBrawl ? getBrawlProfile(target) : null;
+        const multiplier = isBrawl ? brawlProfile!.multiplier : COMBAT_CONFIG.DAMAGE_FORMULA.PLAYER_MULTIPLIER;
+        const defenceFactor = isBrawl ? brawlProfile!.defenceFactor : COMBAT_CONFIG.DAMAGE_FORMULA.PLAYER_DEFENCE_FACTOR;
+        const minDamage = isBrawl ? brawlProfile!.minDamage : COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.PLAYER;
+        damage = Math.floor((attackPower * multiplier - defencePower * defenceFactor) * typeMultiplier);
+        damage = Math.max(minDamage, damage);
     } else if (attacker.isCompanion) {
-        damage = Math.floor(attackPower * COMBAT_CONFIG.DAMAGE_FORMULA.COMPANION_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.COMPANION_DEFENCE_FACTOR);
-        damage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.COMPANION, damage);
+        const brawlProfile = isBrawl ? getBrawlProfile(target) : null;
+        const multiplier = isBrawl ? Math.max(0.9, brawlProfile!.multiplier - 0.2) : COMBAT_CONFIG.DAMAGE_FORMULA.COMPANION_MULTIPLIER;
+        const defenceFactor = isBrawl ? brawlProfile!.defenceFactor : COMBAT_CONFIG.DAMAGE_FORMULA.COMPANION_DEFENCE_FACTOR;
+        const minDamage = isBrawl ? Math.max(1, brawlProfile!.minDamage - 2) : COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.COMPANION;
+        damage = Math.floor((attackPower * multiplier - defencePower * defenceFactor) * typeMultiplier);
+        damage = Math.max(minDamage, damage);
     } else {
-        damage = Math.floor(attackPower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_DEFENCE_FACTOR);
-        damage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY, damage);
+        const brawlProfile = isBrawl ? getBrawlProfile(target) : null;
+        const multiplier = isBrawl ? Math.max(0.9, brawlProfile!.multiplier - 0.1) : COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_MULTIPLIER;
+        const defenceFactor = isBrawl ? brawlProfile!.defenceFactor : COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_DEFENCE_FACTOR;
+        const minDamage = isBrawl ? brawlProfile!.minDamage : COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY;
+        damage = Math.floor((attackPower * multiplier - defencePower * defenceFactor) * typeMultiplier);
+        damage = Math.max(minDamage, damage);
     }
 
     const newHp = Math.max(0, target.hp - damage);
@@ -208,7 +345,7 @@ const CombatManager: React.FC = () => {
       addSkillXp('attack', Math.floor(damage * 2));
     }
 
-    playSfx(getAttackSound(attacker));
+    playSfx(isBrawl ? COMBAT_CONFIG.DEFAULT_SFX.ATTACK : getAttackSound(attacker));
 
     if ((target.isPlayer || target.isCompanion) && newHp > 0) {
       addSkillXp('defence', Math.floor(damage * 2));
@@ -251,6 +388,7 @@ const CombatManager: React.FC = () => {
       });
       setPhase('fled');
       setTimeout(() => {
+        syncPlayerVitalsFromCombat();
         endCombat();
         setScreen('inGame');
         passTime(5); // Combat takes 5 minutes even if fled
@@ -295,23 +433,32 @@ const CombatManager: React.FC = () => {
         } else {
           target = aliveParty[Math.floor(Math.random() * aliveParty.length)];
 
-          const baseHitChance = COMBAT_CONFIG.BASE_HIT_CHANCE.ENEMY;
+          const baseHitChance = getBaseHitChance(currentEnemy);
           if (Math.random() > baseHitChance) {
             addLogEntry(`${currentEnemy.name} attacks ${target.name} but misses!`);
             playSfx(COMBAT_CONFIG.DEFAULT_SFX.MISS);
             setTimeout(() => {
               nextTurn();
-            }, 800);
+            }, 450);
             return;
           }
 
           const attackPower = currentEnemy.attack;
           const defencePower = Math.max(0, target.defence);
+          const damageType = getAttackType(currentEnemy, encounterType === 'brawl');
+          const armorClass = getArmorClass(target);
+          const typeMultiplier = getTypeMultiplier(damageType, armorClass);
           // Enemies deal slightly less multiplier damage, armor is more effective
-          damage = Math.floor(attackPower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_DEFENCE_FACTOR);
-          damage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY, damage);
+          if (encounterType === 'brawl') {
+            const brawlProfile = getBrawlProfile(target);
+            damage = Math.floor((attackPower * Math.max(0.9, brawlProfile.multiplier - 0.1) - defencePower * brawlProfile.defenceFactor) * typeMultiplier);
+            damage = Math.max(brawlProfile.minDamage, damage);
+          } else {
+            damage = Math.floor((attackPower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_DEFENCE_FACTOR) * typeMultiplier);
+            damage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY, damage);
+          }
           
-          playSfx(getAttackSound(currentEnemy));
+          playSfx(encounterType === 'brawl' ? COMBAT_CONFIG.DEFAULT_SFX.ATTACK : getAttackSound(currentEnemy));
         }
         
         if (target) {
@@ -340,7 +487,7 @@ const CombatManager: React.FC = () => {
         }
 
         nextTurn();
-      }, 1000);
+      }, 650);
       return () => clearTimeout(timer);
     }
     
@@ -356,23 +503,33 @@ const CombatManager: React.FC = () => {
             
             const target = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
 
-            const baseHitChance = COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION;
+            const baseHitChance = getBaseHitChance(current);
             if (Math.random() > baseHitChance) {
               addLogEntry(`${current.name} attacks ${target.name} but misses!`);
               playSfx(COMBAT_CONFIG.DEFAULT_SFX.MISS);
               setTimeout(() => {
                 nextTurn();
-              }, 800);
+              }, 450);
               return;
             }
 
             const attackPower = current.attack;
             const defencePower = Math.max(0, target.defence);
+            const damageType = getAttackType(current, encounterType === 'brawl');
+            const armorClass = getArmorClass(target);
+            const typeMultiplier = getTypeMultiplier(damageType, armorClass);
             // Balanced companion damage
-            let damage = Math.floor(attackPower * COMBAT_CONFIG.DAMAGE_FORMULA.COMPANION_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.COMPANION_DEFENCE_FACTOR);
-            damage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.COMPANION, damage);
+            let damage = 0;
+            if (encounterType === 'brawl') {
+              const brawlProfile = getBrawlProfile(target);
+              damage = Math.floor((attackPower * Math.max(0.9, brawlProfile.multiplier - 0.2) - defencePower * brawlProfile.defenceFactor) * typeMultiplier);
+              damage = Math.max(Math.max(1, brawlProfile.minDamage - 2), damage);
+            } else {
+              damage = Math.floor((attackPower * COMBAT_CONFIG.DAMAGE_FORMULA.COMPANION_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.COMPANION_DEFENCE_FACTOR) * typeMultiplier);
+              damage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.COMPANION, damage);
+            }
             
-            playSfx(getAttackSound(current));
+            playSfx(encounterType === 'brawl' ? COMBAT_CONFIG.DEFAULT_SFX.ATTACK : getAttackSound(current));
             
             const newHp = Math.max(0, target.hp - damage);
             updateParticipant(target.id, { hp: newHp });
@@ -383,10 +540,10 @@ const CombatManager: React.FC = () => {
             }
             
             nextTurn();
-         }, 1000);
+         }, 650);
          return () => clearTimeout(timer);
     }
-  }, [phase, currentTurnIndex, participants, isPlayerTurn, getCurrentParticipant, nextTurn, addLogEntry, getAliveEnemies, getAliveParty, addSkillXp, getSkillLevel, updateParticipant]);
+  }, [phase, currentTurnIndex, participants, isPlayerTurn, getCurrentParticipant, nextTurn, addLogEntry, getAliveEnemies, getAliveParty, addSkillXp, getSkillLevel, updateParticipant, encounterType, getBrawlProfile, getBaseHitChance, getAttackType, getArmorClass, getTypeMultiplier]);
 
   return (
     <CombatScreen

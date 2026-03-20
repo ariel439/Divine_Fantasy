@@ -27,7 +27,7 @@ import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, play
 import { useToastStore } from '../../stores/useToastStore';
 
 const LocationScreen: React.FC = () => {
-  const { hp, energy, hunger } = useCharacterStore();
+  const { hp, maxHp, energy, hunger } = useCharacterStore();
   const { month, dayOfMonth, hour, getFormattedTime, getFormattedDate, getSeason, getWeather, temperatureC } = useWorldTimeStore();
   const { getCurrentLocation } = useLocationStore();
   const { setScreen } = useUIStore();
@@ -750,7 +750,7 @@ const LocationScreen: React.FC = () => {
         <div className="flex items-center gap-6 w-1/3">
           <div className="flex items-center gap-3 w-40">
             <Heart size={14} className="text-red-500 shrink-0" />
-            <ProgressBar label="" value={Math.floor(hp)} max={100} colorClass="bg-red-500" variant="weight" showText={false} />
+            <ProgressBar label="" value={Math.floor(hp)} max={Math.floor(maxHp)} colorClass="bg-red-500" variant="weight" showText={false} />
           </div>
           <div className="flex items-center gap-3 w-40">
             <Zap size={14} className="text-blue-500 shrink-0" />

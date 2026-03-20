@@ -2,7 +2,7 @@
   "wolf_forest": {
     "name": "Forest Wolf",
     "attack_sound": "/assets/sfx/wolf_bite.mp3",
-    "stats": { "hp": 60, "attack": 10, "defence": 0, "dexterity": 4 },
+    "stats": { "hp": 60, "attack": 13, "defence": 1, "dexterity": 7 },
     "loot_table": [
       { "item_id": "wolf_pelt", "quantity": 1, "chance": 1 },
       { "item_id": "wolf_tooth", "quantity": 1, "chance": 0.5 },
@@ -31,6 +31,29 @@
     "stats": { "hp": 80, "attack": 12, "defence": 4, "dexterity": 5 },
     "loot_table": [
       { "item_id": "coins", "quantity": 10, "chance": 0.5 }
+    ]
+  },
+  "drunk_tavern": {
+    "name": "Drunk",
+    "image": "/assets/portraits/Ben.png",
+    "attack_sound": "/assets/sfx/combat_punch.mp3",
+    "stats": { "hp": 60, "attack": 8, "defence": 1, "dexterity": 3 },
+    "loot_table": []
+  },
+  "brawler_pit": {
+    "name": "Brawler",
+    "image": "/assets/portraits/Thug.png",
+    "attack_sound": "/assets/sfx/combat_punch.mp3",
+    "stats": { "hp": 65, "attack": 10, "defence": 3, "dexterity": 5 },
+    "loot_table": []
+  },
+  "knife_thug": {
+    "name": "Knife Thug",
+    "image": "/assets/portraits/Thug.png",
+    "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
+    "stats": { "hp": 90, "attack": 15, "defence": 4, "dexterity": 6 },
+    "loot_table": [
+      { "item_id": "coins", "quantity": 12, "chance": 0.5 }
     ]
   },
   "finn_boss": {

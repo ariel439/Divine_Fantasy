@@ -71,6 +71,10 @@
     "sell_multiplier": 1.4,
     "accepted_categories": ["weapon", "armor", "tool", "resource"],
     "inventory": [
+        { "item_id": "leather_cap", "quantity": 2 },
+        { "item_id": "padded_gambeson", "quantity": 2 },
+        { "item_id": "leather_leg_wraps", "quantity": 2 },
+        { "item_id": "wooden_club", "quantity": 3 },
         { "item_id": "iron_helmet", "quantity": 2 },
         { "item_id": "iron_chainmail", "quantity": 2 },
         { "item_id": "iron_leggings", "quantity": 2 },

@@ -201,11 +201,28 @@
     "actions": [
       { "text": "Sleep on the Floor", "type": "sleep", "target": "sleep_floor" },
       { "text": "Cook on Firepit", "type": "cook", "target": "cook_firepit" },
+      { "text": "Work the Alleys", "type": "explore", "target": "explore_slums", "condition": "time.is_night==true && world_flags.intro_completed==true" },
       { "text": "Raid Salty Mug", "type": "trigger_event", "eventId": "raid_salty_mug_intro", "condition": "world_flags.raid_ready==true" },
       { "text": "Deliver Medicine", "type": "trigger_event", "eventId": "elara_delivery_event", "condition": "inventory.elara_medicine_parcel>0 && world_flags.debt_paid_by_elara==false && time.is_day==true" },
+      { "text": "Travel to the Rat Pit", "type": "navigate", "target": "slum_fight_pit", "condition": "world_flags.slum_pit_unlocked==true && time.is_night==true" },
       { "text": "Travel to Salty Mug", "type": "navigate", "target": "salty_mug" },
       { "text": "Travel to Herbalist's Hovel", "type": "navigate", "target": "herbalists_hovel" },
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" }
+    ]
+  },
+  "slum_fight_pit": {
+    "name": "The Rat Pit",
+    "day_description": "In daylight the entrance just looks like another collapsed cellar. The fighting only breathes after dark.",
+    "night_description": "A cramped, torchlit cellar where desperate men trade fists for copper while the crowd snarls around them.",
+    "day_background": "/assets/locations/driftwatch_slums_night.png",
+    "night_background": "/assets/locations/driftwatch_slums_night.png",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
+    "is_indoor": true,
+    "opening_hour": 19,
+    "closing_hour": 4,
+    "exit_location": "driftwatch_slums",
+    "actions": [
+      { "text": "Travel to The Slums", "type": "navigate", "target": "driftwatch_slums" }
     ]
   },
   "salty_mug": {

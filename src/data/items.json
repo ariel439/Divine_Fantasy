@@ -356,6 +356,59 @@
       "attack": 6
     }
   },
+  "wooden_club": {
+    "name": "Wooden Club",
+    "description": "A thick hardwood club. Crude, brutal, and useful in a back-alley fight.",
+    "type": "weapon",
+    "stackable": false,
+    "weight": 1.8,
+    "base_value": 18,
+    "image": "/assets/items/hammer.png",
+    "equipmentSlot": "weapon",
+    "attack_sound": "/assets/sfx/combat_punch.mp3",
+    "stats": {
+      "attack": 3
+    }
+  },
+  "leather_cap": {
+    "name": "Leather Cap",
+    "description": "A simple leather cap that takes the edge off a hard blow.",
+    "type": "armor",
+    "stackable": false,
+    "weight": 1.0,
+    "base_value": 20,
+    "image": "/assets/items/common_shoes.png",
+    "equipmentSlot": "head",
+    "stats": {
+      "defence": 1
+    }
+  },
+  "padded_gambeson": {
+    "name": "Padded Gambeson",
+    "description": "Layered cloth armor. Not elegant, but far better than a shirt in a fight.",
+    "type": "armor",
+    "stackable": false,
+    "weight": 3.5,
+    "base_value": 38,
+    "image": "/assets/items/common_shirt.png",
+    "equipmentSlot": "chest",
+    "stats": {
+      "defence": 3
+    }
+  },
+  "leather_leg_wraps": {
+    "name": "Leather Leg Wraps",
+    "description": "Tough wraps and patches that help keep your legs intact in a dirty fight.",
+    "type": "armor",
+    "stackable": false,
+    "weight": 1.8,
+    "base_value": 26,
+    "image": "/assets/items/common_legs.png",
+    "equipmentSlot": "legs",
+    "stats": {
+      "defence": 2
+    }
+  },
   "vanessas_charm": {
     "name": "Vanessa's Charm",
     "description": "A silver charm shaped like a fox. It feels warm to the touch.",

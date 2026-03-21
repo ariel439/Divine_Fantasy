@@ -34,7 +34,12 @@ type ChoiceEventId =
   | 'fallen_log_event'
   | 'abandoned_campsite_event'
   | 'hollow_stump_event'
-  | 'overgrown_path_event';
+  | 'overgrown_path_event'
+  | 'arena_desperate_brawler'
+  | 'arena_brawler'
+  | 'arena_pit_brawler'
+  | 'slum_thug_ambush'
+  | 'slum_knife_thug_ambush';
 
 export interface ChoiceEventConfig {
   id: ChoiceEventId;
@@ -84,5 +89,40 @@ export const choiceEvents: Record<ChoiceEventId, ChoiceEventConfig> = {
     imageUrl: '/assets/locations/driftwatch_woods_day.png',
     text:
       'A tangle of thick vines and branches chokes what looks like an old path leading deeper into the woods. With the right tool, you could probably clear a way through.',
+  },
+  arena_desperate_brawler: {
+    id: 'arena_desperate_brawler',
+    title: 'Rat Pit: Desperate Brawler',
+    imageUrl: '/assets/locations/driftwatch_slums_night.png',
+    text:
+      'A hollow-eyed man steps into the sawdust ring. This is low-stakes work: fists only, no blades, and a few copper changing hands in the dark.',
+  },
+  arena_brawler: {
+    id: 'arena_brawler',
+    title: 'Rat Pit: Brawler',
+    imageUrl: '/assets/locations/driftwatch_slums_night.png',
+    text:
+      'A hard-built brawler rolls his shoulders across the ring while the crowd leans in. The purse is better here, and the blows come heavier.',
+  },
+  arena_pit_brawler: {
+    id: 'arena_pit_brawler',
+    title: 'Rat Pit: Pit Brawler',
+    imageUrl: '/assets/locations/driftwatch_slums_night.png',
+    text:
+      'The pit champion is all scars and bad intent. The room quiets when he steps up. If you take this fight, you are taking it for real.',
+  },
+  slum_thug_ambush: {
+    id: 'slum_thug_ambush',
+    title: 'Slum Ambush',
+    imageUrl: '/assets/locations/driftwatch_slums_night.png',
+    text:
+      'A broad-shouldered thug drifts out of the dark with two more shapes hanging back. He wants easy copper and thinks you look like easy prey.',
+  },
+  slum_knife_thug_ambush: {
+    id: 'slum_knife_thug_ambush',
+    title: 'Knife in the Dark',
+    imageUrl: '/assets/locations/driftwatch_slums_night.png',
+    text:
+      'A lean thug steps close enough for you to catch the glint of a knife. His smile says he has done this before, and often.',
   },
 };

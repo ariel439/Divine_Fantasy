@@ -22,7 +22,8 @@ export type GameState =
   | 'combat'
   | 'combatVictory'
   | 'companion'
-  | 'debugMenu';
+  | 'debugMenu'
+  | 'combatDebug';
 
 export type NavVariant = 'default' | 'compact' | 'floating';
 

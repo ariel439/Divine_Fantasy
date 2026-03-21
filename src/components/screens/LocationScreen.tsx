@@ -175,6 +175,32 @@ const LocationScreen: React.FC = () => {
           useUIStore.getState().setEventSlides(sellLocketSlides);
           useUIStore.getState().setCurrentEventId('sell_locket_event');
           setScreen('event');
+        } else if (eventId === 'slum_night_roam') {
+          useWorldTimeStore.getState().passTime(15);
+          const roll = Math.random();
+          if (roll < 0.28) {
+            useUIStore.getState().setCurrentEventId('slum_thug_ambush');
+            setScreen('choiceEvent');
+          } else if (roll < 0.42) {
+            useUIStore.getState().setCurrentEventId('slum_knife_thug_ambush');
+            setScreen('choiceEvent');
+          } else if (roll < 0.62) {
+            const foundCopper = Math.floor(Math.random() * 7) + 3;
+            useCharacterStore.getState().addCurrency('copper', foundCopper);
+            useDiaryStore.getState().addInteraction(`You work the alleys and come away with ${foundCopper} copper.`);
+            useToastStore.getState().addToast(`You scrounge up ${foundCopper} copper in the dark.`, 'success', 2600, 'Street Luck');
+          } else if (roll < 0.78) {
+            const hungerLoss = Math.random() < 0.5 ? 1 : 2;
+            useCharacterStore.getState().updateStats({ hunger: -hungerLoss });
+            useDiaryStore.getState().addInteraction('You drift through the slums, hear scraps of rumor, and learn nothing you can sell.');
+            useToastStore.getState().addToast('You hear rumors, but nothing useful comes of them.', 'info', 2600, 'Loose Talk');
+          } else {
+            useDiaryStore.getState().addInteraction('You work the alleys for a while and keep your head low. Nothing breaks your way tonight.');
+            useToastStore.getState().addToast('Nothing comes of the alley run tonight.', 'info', 2600, 'Quiet Night');
+          }
+        } else {
+          useUIStore.getState().setCurrentEventId(eventId);
+          setScreen('choiceEvent');
         }
         break;
       }

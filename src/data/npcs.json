@@ -211,6 +211,15 @@
       { "location_id": "driftwatch_slums", "start_hour": 18, "end_hour": 4 }
     ]
   },
+  "npc_pit_booker": {
+    "name": "Pit Booker",
+    "home_location": "slum_fight_pit",
+    "default_dialogue_id": "pit_booker_default",
+    "portrait": "/assets/portraits/Thug.png",
+    "schedules": [
+      { "location_id": "slum_fight_pit", "start_hour": 19, "end_hour": 4 }
+    ]
+  },
   "npc_ronald": {
     "name": "Ronald",
     "home_location": "hunters_cabin",

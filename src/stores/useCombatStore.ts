@@ -77,17 +77,13 @@ export const useCombatStore = create<CombatStore>((set, get) => ({
       }
     }
 
-    // Sort by dexterity descending for initial turn order, but ensure player party goes first
-    // This prevents early game frustration where enemies always go first due to higher dexterity
+    // Sort by dexterity descending for honest initiative.
+    // Break ties by giving the player side a slight readability advantage only when stats are equal.
     const sorted = participants.sort((a, b) => {
-      // Player and companion always get priority regardless of dexterity
-      if (a.isPlayer && !b.isPlayer) return -1;
-      if (!a.isPlayer && b.isPlayer) return 1;
-      if (a.isCompanion && !b.isCompanion && !b.isPlayer) return -1;
-      if (!a.isCompanion && b.isCompanion && !a.isPlayer) return 1;
-      
-      // Among same faction (player/enemy), sort by dexterity
-      return b.dexterity - a.dexterity;
+      if (b.dexterity !== a.dexterity) return b.dexterity - a.dexterity;
+      if ((a.isPlayer || a.isCompanion) && !(b.isPlayer || b.isCompanion)) return -1;
+      if (!(a.isPlayer || a.isCompanion) && (b.isPlayer || b.isCompanion)) return 1;
+      return 0;
     });
     const turnOrder = sorted.map(p => p.id);
 

@@ -27,6 +27,38 @@ import { getMaxSocialEnergy } from '../utils/socialEnergy';
 export class GameManagerService {
   private static currentDay: number = 0;
   private static initialized: boolean = false;
+  
+  private static getEnemyPortrait(templateId: string, template: any): string {
+    if (template?.image) return template.image;
+    if (templateId.includes('wolf')) return '/assets/portraits/Wolf.png';
+    if (templateId.includes('smuggler')) return '/assets/portraits/Smuggler.png';
+    if (templateId.includes('finn')) return '/assets/portraits/OldManFinn.png';
+    if (templateId.includes('guard')) return '/assets/portraits/Guard_Generic.png';
+    return '/assets/portraits/Thug.png';
+  }
+
+  private static buildEnemyCombatant(templateId: string, index: number): CombatParticipant | null {
+    const template = enemiesJson[templateId as keyof typeof enemiesJson];
+    if (!template) return null;
+
+    return {
+      id: `${templateId}_${index}_${Date.now()}`,
+      name: template.name,
+      hp: template.stats.hp,
+      maxHp: template.stats.hp,
+      attack: template.stats.attack,
+      defence: template.stats.defence,
+      dexterity: template.stats.dexterity,
+      portraitUrl: this.getEnemyPortrait(templateId, template),
+      isPlayer: false,
+      isCompanion: false,
+      attack_sound: template.attack_sound,
+      attackType: template.attack_type,
+      combatTags: template.combat_tags,
+      accuracyModifier: template.accuracy_modifier,
+      lootTable: template.loot_table,
+    };
+  }
 
   static init(): void {
     if (GameManagerService.initialized) return;
@@ -309,27 +341,8 @@ export class GameManagerService {
     const wolfId = 'wolf_forest'; // Only forest wolves for now
     const selectedWolves: CombatParticipant[] = [];
     for (let i = 0; i < finalWolfCount; i++) {
-
-      const wolfTemplate = enemiesJson[wolfId];
-      if (wolfTemplate) {
-        selectedWolves.push({
-          id: `wolf_${i}_${Date.now()}`,
-          name: wolfTemplate.name,
-          hp: wolfTemplate.stats.hp,
-          maxHp: wolfTemplate.stats.hp,
-          attack: wolfTemplate.stats.attack,
-          defence: wolfTemplate.stats.defence,
-          dexterity: wolfTemplate.stats.dexterity,
-          portraitUrl: '/assets/portraits/Wolf.png',
-          isPlayer: false,
-          isCompanion: false,
-          attack_sound: wolfTemplate.attack_sound,
-          attackType: wolfTemplate.attack_type,
-          combatTags: wolfTemplate.combat_tags,
-          accuracyModifier: wolfTemplate.accuracy_modifier,
-          lootTable: wolfTemplate.loot_table,
-        });
-      }
+      const wolfCombatant = this.buildEnemyCombatant(wolfId, i);
+      if (wolfCombatant) selectedWolves.push(wolfCombatant);
     }
 
     const playerStats = GameManagerService.calculatePlayerStats(character);
@@ -403,7 +416,7 @@ export class GameManagerService {
       id: 'player',
       name: character.bio?.name || 'Luke',
       hp: character.hp,
-      maxHp: 100,
+      maxHp: character.maxHp || 100,
       attack: playerStats.attack,
       defence: playerStats.defence,
       dexterity: playerStats.dexterity,
@@ -461,7 +474,7 @@ export class GameManagerService {
       name: character.bio?.name || 'Luke',
       hp: character.hp,
       maxHp: character.maxHp || 100,
-      attack: playerStats.attack,
+      attack: GameManagerService.calculateBrawlAttack(character),
       defence: playerStats.defence,
       dexterity: playerStats.dexterity,
       portraitUrl: character.bio?.image || '/assets/portraits/luke.jpg',
@@ -475,6 +488,126 @@ export class GameManagerService {
       victoryActions: ['collect_debt_from:npc_ben'],
       victoryToast: 'You rough Ben up and take Finn\'s silver.',
       defeatToast: 'Ben leaves you bruised and throws you out of the fight.',
+    });
+    useUIStore.getState().setScreen('combat');
+  }
+
+  static startArenaBrawl(enemyTemplateId: string, config: { purseCopper: number; victoryToast: string; defeatToast: string }): void {
+    const character = useCharacterStore.getState();
+    const enemy = this.buildEnemyCombatant(enemyTemplateId, 0);
+    if (!enemy) return;
+
+    const playerStats = GameManagerService.calculatePlayerStats(character);
+    const player: CombatParticipant = {
+      id: 'player',
+      name: character.bio?.name || 'Luke',
+      hp: character.hp,
+      maxHp: character.maxHp || 100,
+      attack: GameManagerService.calculateBrawlAttack(character),
+      defence: playerStats.defence,
+      dexterity: playerStats.dexterity,
+      portraitUrl: character.bio?.image || '/assets/portraits/luke.jpg',
+      isPlayer: true,
+      isCompanion: false,
+    };
+
+    useCombatStore.getState().startCombat(player, null, [enemy], {
+      encounterType: 'brawl',
+      defeatMode: 'knockout',
+      victoryActions: [`add_money:${config.purseCopper}:copper`],
+      victoryToast: config.victoryToast,
+      defeatToast: config.defeatToast,
+    });
+    useUIStore.getState().setScreen('combat');
+  }
+
+  static startStreetAmbush(enemyTemplateIds: string[]): void {
+    const character = useCharacterStore.getState();
+    const companion = useCompanionStore.getState().activeCompanion;
+
+    const enemies = enemyTemplateIds
+      .map((templateId, index) => this.buildEnemyCombatant(templateId, index))
+      .filter(Boolean) as CombatParticipant[];
+
+    if (enemies.length === 0) return;
+
+    const playerStats = GameManagerService.calculatePlayerStats(character);
+    const player: CombatParticipant = {
+      id: 'player',
+      name: character.bio?.name || 'Luke',
+      hp: character.hp,
+      maxHp: character.maxHp || 100,
+      attack: playerStats.attack,
+      defence: playerStats.defence,
+      dexterity: playerStats.dexterity,
+      portraitUrl: character.bio?.image || '/assets/portraits/luke.jpg',
+      isPlayer: true,
+      isCompanion: false,
+    };
+
+    let companionCombatant: CombatParticipant | null = null;
+    if (companion) {
+      companionCombatant = {
+        id: companion.id,
+        name: companion.name,
+        hp: companion.stats.hp,
+        maxHp: companion.stats.maxHp,
+        attack: companion.stats.attack,
+        defence: companion.stats.defence,
+        dexterity: companion.stats.dexterity,
+        portraitUrl: companion.type === 'wolf' ? '/assets/portraits/WolfPuppy.png' : '/assets/portraits/Robert.png',
+        isPlayer: false,
+        isCompanion: true,
+      };
+    }
+
+    useCombatStore.getState().startCombat(player, companionCombatant, enemies);
+    useUIStore.getState().setScreen('combat');
+  }
+
+  static startDebugCombat(enemyTemplateIds: string[], config?: { encounterType?: 'standard' | 'brawl'; knockoutOnDefeat?: boolean }): void {
+    const character = useCharacterStore.getState();
+    const companion = useCompanionStore.getState().activeCompanion;
+
+    const enemies = enemyTemplateIds
+      .map((templateId, index) => this.buildEnemyCombatant(templateId, index))
+      .filter(Boolean) as CombatParticipant[];
+
+    if (enemies.length === 0) return;
+
+    const playerStats = GameManagerService.calculatePlayerStats(character);
+    const player: CombatParticipant = {
+      id: 'player',
+      name: character.bio?.name || 'Luke',
+      hp: character.hp,
+      maxHp: character.maxHp || 100,
+      attack: playerStats.attack,
+      defence: playerStats.defence,
+      dexterity: playerStats.dexterity,
+      portraitUrl: character.bio?.image || '/assets/portraits/luke.jpg',
+      isPlayer: true,
+      isCompanion: false,
+    };
+
+    let companionCombatant: CombatParticipant | null = null;
+    if (companion) {
+      companionCombatant = {
+        id: companion.id,
+        name: companion.name,
+        hp: companion.stats.hp,
+        maxHp: companion.stats.maxHp,
+        attack: companion.stats.attack,
+        defence: companion.stats.defence,
+        dexterity: companion.stats.dexterity,
+        portraitUrl: companion.type === 'wolf' ? '/assets/portraits/WolfPuppy.png' : '/assets/portraits/Robert.png',
+        isPlayer: false,
+        isCompanion: true,
+      };
+    }
+
+    useCombatStore.getState().startCombat(player, companionCombatant, enemies, {
+      encounterType: config?.encounterType || 'standard',
+      defeatMode: config?.knockoutOnDefeat ? 'knockout' : 'standard',
     });
     useUIStore.getState().setScreen('combat');
   }
@@ -768,5 +901,24 @@ export class GameManagerService {
     });
 
     return { attack: totalAttack, defence: totalDefence, dexterity: totalDexterity };
+  }
+
+  private static calculateBrawlAttack(character: any): number {
+    let totalAttack = character.attributes.strength || 0;
+
+    if (character.equippedItems) {
+      Object.entries(character.equippedItems).forEach(([slot, item]: any) => {
+        if (!item || !item.stats || slot === 'weapon') return;
+        const stats = Object.keys(item.stats).reduce((acc: any, key) => {
+          acc[key.toLowerCase()] = item.stats[key];
+          return acc;
+        }, {});
+
+        if (typeof stats.attack === 'number') totalAttack += stats.attack;
+        if (typeof stats.strength === 'number') totalAttack += stats.strength;
+      });
+    }
+
+    return totalAttack;
   }
 }

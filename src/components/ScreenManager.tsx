@@ -33,6 +33,7 @@ import CombatManager from './CombatManager';
 import { LootScreen } from './screens/LootScreen';
 
 const DebugMenuScreen = React.lazy(() => import('./screens/DebugMenuScreen'));
+const CombatDebugScreen = React.lazy(() => import('./screens/CombatDebugScreen'));
 
 import npcsData from '../data/npcs.json';
 import { 
@@ -47,6 +48,7 @@ import {
   berylDeliverySlides, 
   rebelVictorySlides 
 } from '../data/events';
+import { getIntimidationSummary } from '../utils/socialPresentation';
 
 const ScreenManager: React.FC = () => {
   const { currentScreen, setScreen, shopId, dialogueNpcId } = useUIStore();
@@ -558,6 +560,21 @@ const ScreenManager: React.FC = () => {
         }
 
         const cfg = choiceEvents[eventId];
+        const closeChoiceEvent = () => {
+          setEventResult(null);
+          useUIStore.getState().setCurrentEventId(null);
+          setScreen('inGame');
+        };
+        const launchArenaBrawl = (enemyId: string, purseCopper: number, victoryToast: string, defeatToast: string) => {
+          setEventResult(null);
+          useUIStore.getState().setCurrentEventId(null);
+          GameManagerService.startArenaBrawl(enemyId, { purseCopper, victoryToast, defeatToast });
+        };
+        const launchAmbushCombat = (enemyIds: string[]) => {
+          setEventResult(null);
+          useUIStore.getState().setCurrentEventId(null);
+          GameManagerService.startStreetAmbush(enemyIds);
+        };
 
         // RENDER EVENT RESULT IF EXISTS
         if (eventResult) {
@@ -819,6 +836,192 @@ const ScreenManager: React.FC = () => {
           );
         }
 
+        if (eventId === 'arena_desperate_brawler') {
+          const currency = useCharacterStore.getState().currency;
+          const totalCopper = currency.copper + currency.silver * 100 + currency.gold * 10000;
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Fight for 12 copper',
+                  onSelect: () => launchArenaBrawl(
+                    'desperate_brawler',
+                    12,
+                    'You stay on your feet and leave the pit 12 copper richer.',
+                    'The crowd laughs as you drag yourself up from the sawdust.'
+                  ),
+                },
+                {
+                  text: 'Bet 5 copper on yourself',
+                  disabled: totalCopper < 5,
+                  onSelect: () => {
+                    useCharacterStore.getState().removeCurrency(5);
+                    launchArenaBrawl(
+                      'desperate_brawler',
+                      20,
+                      'You win the purse and your own bet back with profit to spare.',
+                      'You lose the fight and the 5 copper goes with it.'
+                    );
+                  },
+                },
+                {
+                  text: 'Back off',
+                  onSelect: closeChoiceEvent,
+                },
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'arena_brawler') {
+          const currency = useCharacterStore.getState().currency;
+          const totalCopper = currency.copper + currency.silver * 100 + currency.gold * 10000;
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Fight for 20 copper',
+                  onSelect: () => launchArenaBrawl(
+                    'brawler_pit',
+                    20,
+                    'You grind out the win and pocket 20 copper from the ring.',
+                    'The brawler folds you up and leaves you seeing stars.'
+                  ),
+                },
+                {
+                  text: 'Bet 10 copper on yourself',
+                  disabled: totalCopper < 10,
+                  onSelect: () => {
+                    useCharacterStore.getState().removeCurrency(10);
+                    launchArenaBrawl(
+                      'brawler_pit',
+                      34,
+                      'You take the purse and the side bet after a hard, ugly win.',
+                      'You lose the bout and your 10 copper vanishes into the crowd.'
+                    );
+                  },
+                },
+                {
+                  text: 'Back off',
+                  onSelect: closeChoiceEvent,
+                },
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'arena_pit_brawler') {
+          const currency = useCharacterStore.getState().currency;
+          const totalCopper = currency.copper + currency.silver * 100 + currency.gold * 10000;
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Fight for 32 copper',
+                  onSelect: () => launchArenaBrawl(
+                    'pit_brawler',
+                    32,
+                    'The pit goes quiet when you put the big man down. The purse is yours.',
+                    'The pit brawler batters you senseless and takes the night with him.'
+                  ),
+                },
+                {
+                  text: 'Bet 15 copper on yourself',
+                  disabled: totalCopper < 15,
+                  onSelect: () => {
+                    useCharacterStore.getState().removeCurrency(15);
+                    launchArenaBrawl(
+                      'pit_brawler',
+                      53,
+                      'You smash the house favorite and walk away with a fistful of copper.',
+                      'You lose the fight and the 15 copper besides.'
+                    );
+                  },
+                },
+                {
+                  text: 'Back off',
+                  onSelect: closeChoiceEvent,
+                },
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'slum_thug_ambush' || eventId === 'slum_knife_thug_ambush') {
+          const character = useCharacterStore.getState();
+          const totalCopper = character.currency.copper + character.currency.silver * 100 + character.currency.gold * 10000;
+          const skillStore = useSkillStore.getState();
+          const intimidation = getIntimidationSummary().score;
+          const coercion = skillStore.getSkillLevel('coercion');
+          const intimidationScore = coercion + intimidation;
+          const isKnife = eventId === 'slum_knife_thug_ambush';
+          const payout = isKnife ? 8 : 5;
+          const payoff = isKnife ? 8 : 4;
+          const threshold = isKnife ? 6 : 4;
+          const enemies = isKnife ? ['knife_thug'] : ['thug_generic'];
+
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Intimidate him',
+                  onSelect: () => {
+                    if (intimidationScore >= threshold) {
+                      character.addCurrency('copper', payout);
+                      skillStore.addXp('coercion', isKnife ? 14 : 10);
+                      useDiaryStore.getState().addInteraction(`You stared down a ${isKnife ? 'knife thug' : 'slum thug'} and walked away with ${payout} copper.`);
+                      setEventResult({
+                        text: isKnife
+                          ? `You let him see your nerve and the shape of your gear. He reconsiders, spits on the stones, and backs off. In his rush, he drops ${payout} copper.`
+                          : `The thug takes one good look at you and decides you are not easy prey after all. He backs off, leaving ${payout} copper behind in the mud.`,
+                        choices: [{ text: 'Continue', onSelect: closeChoiceEvent }],
+                      });
+                    } else {
+                      skillStore.addXp('coercion', 4);
+                      setEventResult({
+                        text: isKnife
+                          ? 'He sees through the threat and draws the knife for real.'
+                          : 'The thug grins. You did not scare him. Now he wants to make an example of you.',
+                        choices: [{ text: 'Fight', onSelect: () => launchAmbushCombat(enemies) }],
+                      });
+                    }
+                  },
+                },
+                {
+                  text: 'Fight',
+                  onSelect: () => launchAmbushCombat(enemies),
+                },
+                {
+                  text: `Hand over ${payoff} copper`,
+                  disabled: totalCopper < payoff,
+                  onSelect: () => {
+                    character.removeCurrency(payoff);
+                    useDiaryStore.getState().addInteraction(`You paid ${payoff} copper to avoid a ${isKnife ? 'knife thug' : 'thug'} fight.`);
+                    setEventResult({
+                      text: isKnife
+                        ? `You give him ${payoff} copper. He pockets it, taps the knife against his thigh once, and melts back into the dark.`
+                        : `You throw him ${payoff} copper and he lets you pass with a mocking smile.`,
+                      choices: [{ text: 'Continue', onSelect: closeChoiceEvent }],
+                    });
+                  },
+                },
+              ]}
+            />
+          );
+        }
+
         return (
           <ChoiceEventScreen
             eventText={"An event occurs."}
@@ -857,6 +1060,12 @@ const ScreenManager: React.FC = () => {
             <DebugMenuScreen />
           </React.Suspense>
         ) : <MainMenu />;
+      case 'combatDebug':
+        return (
+          <React.Suspense fallback={<div className="text-white">Loading Combat Debug...</div>}>
+            <CombatDebugScreen />
+          </React.Suspense>
+        );
       default:
         return <MainMenu />;
     }

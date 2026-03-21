@@ -24,6 +24,7 @@ import elaraData from './driftwatch/elara.json';
 import barkipData from './driftwatch/barkip.json';
 import stanData from './driftwatch/stan.json';
 import shakyJaceData from './driftwatch/shaky_jace.json';
+import pitBookerData from './driftwatch/pit_booker.json';
 
 const dialogueData = {
   ...berylData,
@@ -50,7 +51,8 @@ const dialogueData = {
   ...elaraData,
   ...barkipData,
   ...stanData,
-  ...shakyJaceData
+  ...shakyJaceData,
+  ...pitBookerData
 };
 
 export default dialogueData;

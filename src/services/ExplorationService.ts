@@ -25,6 +25,7 @@ export interface ExplorationResult {
 interface ExplorationEventDefinition {
   id: string;
   weight: number;
+  locations?: string[];
   condition?: string;
   result: ExplorationResult;
 }
@@ -44,7 +45,7 @@ export class ExplorationService {
     if (result.type === 'resource' || result.type === 'item') {
       if (result.data?.itemId) {
          if (result.data.itemId === 'coins') {
-             // Future: invStore.addGold(result.data.quantity || 0);
+             charStore.addCurrency('copper', result.data.quantity || 0);
          } else {
              invStore.addItem(result.data.itemId, result.data.quantity || 1);
          }
@@ -82,6 +83,9 @@ export class ExplorationService {
 
     // 2. Filter valid events based on conditions
     const validEvents = events.filter(event => {
+      if (event.locations && !event.locations.includes(locationId)) return false;
+      if (!event.locations && locationId !== 'driftwatch_woods') return false;
+
       if (!event.condition) return true;
       
       // Simple condition parsing

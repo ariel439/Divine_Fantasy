@@ -1,0 +1,53 @@
+{
+  "pit_booker_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "You here to watch, wager, or get your face broken?",
+        "player_choices": [
+          {
+            "text": "I'm here to fight.",
+            "next_node": "fight_menu"
+          },
+          {
+            "text": "How does the betting work?",
+            "next_node": "betting_info"
+          },
+          {
+            "text": "Nothing tonight.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "fight_menu": {
+        "npc_text": "Three rungs tonight. Desperate dog, proper brawler, or the pit brute. You choose how much pain you're buying.",
+        "player_choices": [
+          {
+            "text": "Set me up with the desperate one.",
+            "action": "trigger_event:arena_desperate_brawler"
+          },
+          {
+            "text": "Put me in with the brawler.",
+            "action": "trigger_event:arena_brawler"
+          },
+          {
+            "text": "I want the pit brawler.",
+            "action": "trigger_event:arena_pit_brawler"
+          },
+          {
+            "text": "Back.",
+            "next_node": "0"
+          }
+        ]
+      },
+      "betting_info": {
+        "npc_text": "You can back yourself before the bell if you've got the copper. Win and the house pays. Lose and your coin is gone with your pride.",
+        "player_choices": [
+          {
+            "text": "Got it.",
+            "next_node": "0"
+          }
+        ]
+      }
+    }
+  }
+}

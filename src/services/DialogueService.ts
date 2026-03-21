@@ -601,7 +601,8 @@ export class DialogueService {
           useUIStore.getState().setScreen('event');
           this.endDialogue();
         } else {
-          console.warn(`[DialogueService] trigger_event: No slides mapped for ${eventId}`);
+          useUIStore.getState().setScreen('choiceEvent');
+          this.endDialogue();
         }
         break;
       }

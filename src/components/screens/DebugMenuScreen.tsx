@@ -1,18 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { FC } from 'react';
 import { useUIStore } from '../../stores/useUIStore';
 import { useInventoryStore } from '../../stores/useInventoryStore';
 import { useCharacterStore } from '../../stores/useCharacterStore';
-import { useSkillStore } from '../../stores/useSkillStore';
 import { GameManagerService } from '../../services/GameManagerService';
-import itemsJson from '../../data/items.json';
-import type { Item, EquipmentSlot } from '../../types';
 import { useCompanionStore } from '../../stores/useCompanionStore';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import { useLocationStore } from '../../stores/useLocationStore';
 import { useDiaryStore } from '../../stores/useDiaryStore';
 import { useJournalStore } from '../../stores/useJournalStore';
-import { smugglerTrapSlides } from '../../data/events';
 
 const DebugMenuScreen: FC = () => {
   const { setScreen } = useUIStore();
@@ -22,9 +18,6 @@ const DebugMenuScreen: FC = () => {
   const locationStore = useLocationStore();
   const diaryStore = useDiaryStore();
   const journalStore = useJournalStore();
-
-  const [playerSetup, setPlayerSetup] = useState<'naked' | 'naked_dagger' | 'wolf_dagger' | 'iron_sword' | 'iron_sword_wolf'>('naked');
-  const [wolfCount, setWolfCount] = useState<number>(1);
 
   const ensureDebugCharacter = () => {
     const state = useCharacterStore.getState();
@@ -46,144 +39,41 @@ const DebugMenuScreen: FC = () => {
       hp: maxHp,
       hunger: 100,
     });
-    // Ensure we aren't dead
     if (characterStore.hp <= 0) {
-       useCharacterStore.setState({ hp: maxHp });
+      useCharacterStore.setState({ hp: maxHp });
     }
   };
 
   const handleCraftingSetup = () => {
-    // 1. Add Materials (Do NOT unlock flag, so user can test dialogue)
     const inv = useInventoryStore.getState();
-    // inv.addItem('log', 10); // Removed per user request
     inv.addItem('wolf_pelt', 10);
     inv.addItem('wolf_tooth', 10);
     inv.addItem('rope', 2);
-    
-    // 2. Add Copper (for planks if needed elsewhere)
     useCharacterStore.getState().addCurrency('copper', 100);
-    
-    // 3. Move to Hunter's Cabin
     locationStore.setLocation('hunters_cabin');
-    
-    // 4. Close Menu
     setScreen('inGame');
-  };
-
-  const handleStartCombatTest = () => {
-    ensureDebugCharacter();
-    // 0. Disable Tutorial
-    worldStateStore.setFlag('combat_tutorial_seen', true);
-    worldStateStore.setFlag('combat_tutorial_active', false);
-
-    // 1. Apply Player Setup
-    const charStore = useCharacterStore.getState();
-    const invStore = useInventoryStore.getState();
-
-    // Unequip all current items
-    if (charStore.equippedItems) {
-      Object.values(charStore.equippedItems).forEach((item: any) => {
-        charStore.unequipItem(item);
-      });
-    }
-
-    // Helper to add and equip
-    const equip = (itemId: string) => {
-      invStore.addItem(itemId, 1);
-      const itemDef = itemsJson[itemId as keyof typeof itemsJson];
-      if (itemDef) {
-        // Construct the item object as expected by equipItem (needs id and stats from json)
-        // Explicitly cast equipmentSlot and ensure icon exists to prevent UI crashes
-        const item = {
-          ...itemDef,
-          id: itemId,
-          equipmentSlot: (itemDef as any).equipmentSlot as EquipmentSlot,
-          icon: <img src={itemDef.image} alt={itemDef.name} className="w-full h-full object-contain" />,
-          category: itemDef.type as any,
-        } as unknown as Item;
-        
-        charStore.equipItem(item);
-      }
-    };
-
-    // Reset skills to 1 by default
-    const skillStore = useSkillStore.getState();
-    skillStore.setSkillLevel('attack', 1);
-    skillStore.setSkillLevel('defense', 1);
-    skillStore.setSkillLevel('agility', 1);
-
-    switch (playerSetup) {
-      case 'naked':
-        // Already unequipped
-        break;
-      case 'naked_dagger':
-        equip('crude_knife');
-        break;
-      case 'wolf_dagger':
-        equip('wolf_leather_helmet');
-        equip('wolf_leather_armor');
-        equip('wolf_leather_legs');
-        equip('wolf_tooth_amulet');
-        equip('crude_knife');
-        break;
-      case 'iron_sword':
-        equip('iron_helmet');
-        equip('iron_chainmail');
-        equip('iron_leggings');
-        equip('iron_sword');
-        break;
-      case 'iron_sword_wolf':
-        equip('iron_helmet');
-        equip('iron_chainmail');
-        equip('iron_leggings');
-        equip('iron_sword');
-        // Add wolf companion
-        useCompanionStore.getState().setCompanion({
-          id: 'wolf_puppy',
-          name: 'Wolf Puppy',
-          type: 'wolf',
-          stats: { hp: 40, maxHp: 40, attack: 5, defence: 2, dexterity: 12 },
-          equippedItems: [],
-        });
-        break;
-    }
-
-    charStore.recalculateStats();
-
-    // 2. Start Combat
-    GameManagerService.startWoodsCombat(wolfCount);
-  };
-
-  const handleStartBenBrawlTest = () => {
-    ensureDebugCharacter();
-    worldStateStore.setFlag('combat_tutorial_seen', true);
-    worldStateStore.setFlag('combat_tutorial_active', false);
-    locationStore.setLocation('salty_mug');
-    GameManagerService.startBenBrawl();
   };
 
   const handleStartSmugglerIntroFight = () => {
     ensureDebugCharacter();
-    // 1. Ensure intro mode is active and set up Luke's basic info
     worldStateStore.setIntroMode(true);
     worldStateStore.setIntroCompleted(false);
-    
+
     const charStore = useCharacterStore.getState();
     if (!charStore.bio) {
-        useCharacterStore.setState({
-            bio: {
-                name: 'Luke',
-                image: '/assets/portraits/luke.jpg',
-                description: 'Driftwatch Orphan',
-                gender: 'Male',
-                race: 'Human',
-                birthplace: 'Driftwatch',
-                born: '762'
-            }
-        });
+      useCharacterStore.setState({
+        bio: {
+          name: 'Luke',
+          image: '/assets/portraits/luke.jpg',
+          description: 'Driftwatch Orphan',
+          gender: 'Male',
+          race: 'Human',
+          birthplace: 'Driftwatch',
+          born: '762'
+        }
+      });
     }
 
-    // 2. Setup Robert companion if not already there
     const companionStore = useCompanionStore.getState();
     if (!companionStore.activeCompanion) {
       companionStore.setCompanion({
@@ -195,44 +85,35 @@ const DebugMenuScreen: FC = () => {
       });
     }
 
-    // 3. Teleport to Docks and start combat immediately (Luke + Robert vs 4 Smugglers)
     locationStore.setLocation('driftwatch_docks');
     GameManagerService.startSmugglerCombat();
   };
 
   const handleDebugRobertaQuest = () => {
-    // 1. Reset Quest
     journalStore.updateQuest('roberta_planks_for_the_past', { active: false, completed: false, currentStage: 0 });
-    // Also remove from questsList so it doesn't show up
     useJournalStore.setState((state) => ({
       questsList: state.questsList.filter(q => q.id !== 'roberta_planks_for_the_past')
     }));
 
-    // 2. Set Relationship to 20
     const currentRel = diaryStore.relationships['npc_roberta']?.friendship?.value || 0;
     const diff = 20 - currentRel;
     if (diff !== 0) {
-        diaryStore.updateRelationship('npc_roberta', { friendship: diff });
+      diaryStore.updateRelationship('npc_roberta', { friendship: diff });
     }
 
-    // 3. Add 10 Planks
-    // First clear existing planks to avoid duplicate adding if user clicks multiple times
     const currentPlanks = inventoryStore.getItemQuantity('wooden_plank');
     if (currentPlanks > 0) {
-        inventoryStore.removeItem('wooden_plank', currentPlanks);
+      inventoryStore.removeItem('wooden_plank', currentPlanks);
     }
     inventoryStore.addItem('wooden_plank', 10);
 
-    // 4. Teleport
     locationStore.setLocation('tide_trade');
-    
-    // 5. Close Debug Menu
     setScreen('inGame');
   };
 
   return (
     <div className="w-full h-full flex items-center justify-center bg-black/80">
-      <div className="w-full max-w-2xl mx-auto bg-zinc-950/95 border border-zinc-700 rounded-xl p-6 shadow-lg overflow-y-auto max-h-[90vh]">
+      <div className="w-full max-w-3xl mx-auto bg-zinc-950/95 border border-zinc-700 rounded-xl p-6 shadow-lg overflow-y-auto max-h-[90vh]">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-white" style={{ fontFamily: 'Cinzel, serif' }}>
             Debug Menu
@@ -246,6 +127,24 @@ const DebugMenuScreen: FC = () => {
         </div>
 
         <div className="space-y-6">
+          <section className="bg-zinc-900/50 p-4 rounded-lg border border-zinc-800">
+            <h2 className="text-lg font-semibold text-white mb-3">Combat Debug</h2>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setScreen('combatDebug')}
+                className="flex-1 px-4 py-3 rounded-md bg-red-900/40 hover:bg-red-800/60 text-red-100 text-sm font-semibold border border-red-800/50 transition-all hover:shadow-[0_0_10px_rgba(220,38,38,0.2)]"
+              >
+                Open Combat Debug Workspace
+              </button>
+              <button
+                onClick={handleFullRestore}
+                className="flex-1 px-4 py-3 rounded-md bg-emerald-900/40 hover:bg-emerald-800/60 text-emerald-100 text-sm font-semibold border border-emerald-800/50 transition-all hover:shadow-[0_0_10px_rgba(5,150,105,0.2)]"
+              >
+                Heal & Restore Stats
+              </button>
+            </div>
+          </section>
+
           <section className="bg-zinc-900/50 p-4 rounded-lg border border-zinc-800">
             <h2 className="text-lg font-semibold text-white mb-3">Quest Testing</h2>
             <div className="flex flex-col gap-3">
@@ -269,58 +168,6 @@ const DebugMenuScreen: FC = () => {
                   Unlock Hunter Crafting & Materials
                 </button>
               </div>
-            </div>
-          </section>
-
-          <section className="bg-zinc-900/50 p-4 rounded-lg border border-zinc-800">
-            <h2 className="text-lg font-semibold text-white mb-3">Combat Testing Suite</h2>
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-xs text-zinc-400 uppercase tracking-wider">Player Setup</label>
-                <select
-                  value={playerSetup}
-                  onChange={(e) => setPlayerSetup(e.target.value as any)}
-                  className="bg-zinc-950 border border-zinc-700 text-white text-sm rounded-md p-2 focus:ring-1 focus:ring-amber-500 outline-none"
-                >
-                  <option value="naked">Luke Naked</option>
-                  <option value="naked_dagger">Luke Naked + Dagger</option>
-                  <option value="wolf_dagger">Wolf Set + Dagger</option>
-                  <option value="iron_sword">Iron Set + Sword</option>
-                  <option value="iron_sword_wolf">Iron Set + Sword + Wolf</option>
-                </select>
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-xs text-zinc-400 uppercase tracking-wider">Enemy Setup</label>
-                <select
-                  value={wolfCount}
-                  onChange={(e) => setWolfCount(Number(e.target.value))}
-                  className="bg-zinc-950 border border-zinc-700 text-white text-sm rounded-md p-2 focus:ring-1 focus:ring-amber-500 outline-none"
-                >
-                  <option value={1}>1 Forest Wolf</option>
-                  <option value={2}>2 Forest Wolves</option>
-                  <option value={4}>4 Forest Wolves</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={handleStartCombatTest}
-                className="flex-1 px-4 py-2 rounded-md bg-red-900/40 hover:bg-red-800/60 text-red-100 text-sm font-semibold border border-red-800/50 transition-all hover:shadow-[0_0_10px_rgba(220,38,38,0.2)]"
-              >
-                Start Test Combat
-              </button>
-              <button
-                onClick={handleStartBenBrawlTest}
-                className="flex-1 px-4 py-2 rounded-md bg-orange-900/40 hover:bg-orange-800/60 text-orange-100 text-sm font-semibold border border-orange-800/50 transition-all hover:shadow-[0_0_10px_rgba(234,88,12,0.2)]"
-              >
-                Start Ben Brawl
-              </button>
-              <button
-                onClick={handleFullRestore}
-                className="flex-1 px-4 py-2 rounded-md bg-emerald-900/40 hover:bg-emerald-800/60 text-emerald-100 text-sm font-semibold border border-emerald-800/50 transition-all hover:shadow-[0_0_10px_rgba(5,150,105,0.2)]"
-              >
-                Heal & Restore Stats
-              </button>
             </div>
           </section>
         </div>

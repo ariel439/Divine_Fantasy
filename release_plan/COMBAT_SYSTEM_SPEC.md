@@ -158,7 +158,7 @@ Brawls should reward:
 
 - Attack XP
 - Agility XP in some cases
-- small money through bets or winnings
+- small money through bets or winnings, usually in copper at this stage
 - local fear/reputation in rough spaces later if desired
 
 ### Brawl Content Ideas
@@ -167,8 +167,8 @@ For the alpha, brawls could include:
 
 - Ben drunk in the tavern
 - a new tavern fighter NPC
-- a hidden or semi-hidden arena/pit
-- betting on fights
+- a hidden slum arena unlocked through someone like Shaky Jace
+- low-stakes copper betting on fights
 - harder brawlers as a progression ladder
 
 This is likely the most important combat addition for making the route feel believable.
@@ -399,9 +399,10 @@ Weapons should feel different by enemy type.
 
 Example:
 
-- fists are good for brawls
+- fists are for brawls
 - a dagger helps a lot against humans
 - a dagger does not make Luke suddenly good against wolves
+- blunt weapons belong to real street fights, not standard brawls
 
 ### Armor Role
 
@@ -435,9 +436,9 @@ The current live combat implementation now uses a simple typed-damage layer.
 
 ### Live First-Pass Logic
 
-- `Blunt` is strongest into unarmored targets and much weaker into armor
-- `Pierce` gets through armor better than fists
-- `Slash` sits between the two and is the current beast/blade default
+- `Blunt` is the impact damage type and should remain most relevant for fists and clubs
+- `Pierce` gets through protection better than fists
+- `Slash` is the current beast/blade default and works best into soft or lightly protected targets
 
 ### Live Armor Classes
 
@@ -462,7 +463,7 @@ The better direction is:
 - intimidation as dialogue check
 - intimidation as event choice
 - intimidation as pre-combat or ambush resolution
-- intimidation modified by coercion, clothes, armor, and visible weapons
+- intimidation resolved through coercion plus intimidation/presentation value, modified by clothes, armor, and visible weapons
 
 ### Why
 
@@ -625,6 +626,8 @@ Important current gaps:
 - street-violence content is still very thin
 - intimidation exists in a first authored branch, but is not broadly integrated yet
 - equipment progression is not yet clearly framed around combat survival
+- no repeatable slum arena loop yet
+- no thug/knife-thug ambush events yet
 
 ## Alpha Build Priorities
 
@@ -643,12 +646,13 @@ The combat system should be built in this order:
 
 The most valuable first additions would be:
 
-- a tavern fighter NPC
-- one repeatable or semi-repeatable brawl loop
+- a tavern fighter NPC or shady unlock NPC like Shaky Jace
+- one repeatable or semi-repeatable slum brawl loop
+- one hidden slum arena using copper-scale payouts
+- low-stakes betting for those fights
 - one first real street-violence encounter using thug / knife thug content
-- one hidden or rumor-discovered arena/pit later
-- betting for brawls later
 - early armor pieces that noticeably matter
+- one blunt weapon for street fighting
 - movement/agility training activity or job
 
 ## Long-Term Growth Vision

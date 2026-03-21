@@ -1,6 +1,7 @@
 [
   {
     "id": "quiet_woods",
+    "locations": ["driftwatch_woods"],
     "weight": 10,
     "result": {
       "type": "nothing",
@@ -11,6 +12,7 @@
   },
   {
     "id": "fallen_log",
+    "locations": ["driftwatch_woods"],
     "weight": 15,
     "result": {
       "type": "unique",
@@ -22,6 +24,7 @@
   },
   {
     "id": "apple_tree",
+    "locations": ["driftwatch_woods"],
     "weight": 15,
     "result": {
       "type": "unique",
@@ -33,6 +36,7 @@
   },
   {
     "id": "abandoned_campsite",
+    "locations": ["driftwatch_woods"],
     "weight": 10,
     "result": {
       "type": "unique",
@@ -44,6 +48,7 @@
   },
   {
     "id": "hollow_stump",
+    "locations": ["driftwatch_woods"],
     "weight": 10,
     "result": {
       "type": "unique",
@@ -55,6 +60,7 @@
   },
   {
     "id": "wolf_pack",
+    "locations": ["driftwatch_woods"],
     "weight": 25,
     "result": {
       "type": "combat",
@@ -69,6 +75,7 @@
   },
   {
     "id": "overgrown_path",
+    "locations": ["driftwatch_woods"],
     "weight": 10,
     "condition": "!loc_cabin_unlocked",
     "result": {
@@ -81,12 +88,71 @@
   },
   {
     "id": "nothing_fallback",
+    "locations": ["driftwatch_woods"],
     "weight": 5,
     "result": {
       "type": "nothing",
       "title": "Quiet Woods",
       "description": "You explored for 30 minutes and found nothing interesting.",
       "image": "/assets/locations/driftwatch_woods_day.png"
+    }
+  },
+  {
+    "id": "slum_quiet_run",
+    "locations": ["driftwatch_slums"],
+    "weight": 22,
+    "result": {
+      "type": "nothing",
+      "title": "Quiet Night",
+      "description": "You work the alleys for a while and keep your head low. Nothing breaks your way tonight.",
+      "image": "/assets/locations/driftwatch_slums_night.png"
+    }
+  },
+  {
+    "id": "slum_scrounged_copper",
+    "locations": ["driftwatch_slums"],
+    "weight": 20,
+    "result": {
+      "type": "item",
+      "title": "Street Luck",
+      "description": "You work the alleys and come away with a few hard-earned copper coins.",
+      "image": "/assets/locations/driftwatch_slums_night.png",
+      "data": { "itemId": "coins", "quantity": 6 }
+    }
+  },
+  {
+    "id": "slum_loose_talk",
+    "locations": ["driftwatch_slums"],
+    "weight": 18,
+    "result": {
+      "type": "nothing",
+      "title": "Loose Talk",
+      "description": "You drift between cookfires and broken walls, hearing scraps of rumor that never quite turn into money.",
+      "image": "/assets/locations/driftwatch_slums_night.png"
+    }
+  },
+  {
+    "id": "slum_thug_ambush",
+    "locations": ["driftwatch_slums"],
+    "weight": 25,
+    "result": {
+      "type": "unique",
+      "title": "Slum Ambush",
+      "description": "A broad-shouldered thug drifts out of the dark and blocks your path.",
+      "image": "/assets/locations/driftwatch_slums_night.png",
+      "data": { "eventId": "slum_thug_ambush" }
+    }
+  },
+  {
+    "id": "slum_knife_ambush",
+    "locations": ["driftwatch_slums"],
+    "weight": 15,
+    "result": {
+      "type": "unique",
+      "title": "Knife in the Dark",
+      "description": "A lean thug slides close enough for you to see the knife in his hand.",
+      "image": "/assets/locations/driftwatch_slums_night.png",
+      "data": { "eventId": "slum_knife_thug_ambush" }
     }
   }
 ]

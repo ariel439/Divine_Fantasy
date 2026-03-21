@@ -115,7 +115,7 @@ Brawls are the most important new combat content for the alpha.
 
 | Rule | First-Pass Direction |
 |---|---|
-| Weapons | disabled by default |
+| Weapons | disabled by default; brawls are punch-only |
 | Armor | allowed, but should feel less dominant than in knife fights |
 | Damage | lower than lethal combat |
 | Death | avoided by default; defeat means knockdown, humiliation, loss, or payout loss |
@@ -147,10 +147,10 @@ Current live status:
 
 | Brawl Tier | Attack XP | Agility XP | Money | Notes |
 |---|---:|---:|---:|---|
-| Easy drunk | 10 | 2 | 3-6 | intro-level training fight |
-| Standard brawler | 18 | 4 | 6-12 | reliable early combat growth |
-| Pit fighter | 25 | 6 | 10-20 | stronger repeatable progression |
-| Featured pit challenger | 35 | 8 | 20-40 | should not be always available |
+| Easy drunk | 10 | 2 | 12-20 copper | intro-level training fight |
+| Standard brawler | 18 | 4 | 20-35 copper | reliable early combat growth |
+| Pit fighter | 25 | 6 | 35-60 copper | stronger repeatable progression |
+| Featured pit challenger | 35 | 8 | 60-100 copper | should not be always available |
 
 ### Design Rule
 
@@ -360,7 +360,7 @@ Luke needs a clearer early combat gear ladder.
 |---|---|---|
 | Fists | baseline | brawls only |
 | Crude Knife | critical | early human threat |
-| Club / improvised weapon | add later | brawl/street crossover |
+| Club / improvised weapon | add later | street-fight blunt weapon |
 | Rusty Blade / better knife | optional | mid alpha or post-demo |
 
 ### Existing Armor Ladder
@@ -398,9 +398,9 @@ Armor should be one of the biggest early combat progression levers in the game.
 
 | Type | Current Role |
 |---|---|
-| Blunt | fists, brawls, much weaker into armor |
-| Pierce | knives/daggers, better into armor |
-| Slash | wolves and blade-default damage |
+| Blunt | fists and clubs, impact damage, strongest into soft targets and strongly reduced by armor |
+| Pierce | knives/daggers, gets through protection better than blunt |
+| Slash | wolves and blade-default damage, best into soft or lightly protected targets |
 
 ### Live Armor Classes
 
@@ -490,18 +490,22 @@ These are the most valuable first combat additions.
 
 ### Tier 1
 
-- tavern fighter NPC
+- shady unlock NPC such as Shaky Jace leading to a slum arena
 - Ben tavern brawl
 - Drunk enemy
 - Brawler enemy
+- first clandestine slum arena loop
+- copper stakes / low betting for arena fights
 - early padded/leather armor
+- first blunt weapon sold in Kaelen's store
 - more honest initiative based on agility/dexterity
 
 ### Tier 2
 
-- hidden pit / clandestine arena
-- betting system for brawls
+- thug night ambush event
+- knife-thug night ambush event
 - Knife Thug enemy
+- coercion + intimidation resolution in ambushes
 - first agility job such as courier
 
 ### Tier 3
@@ -554,6 +558,11 @@ Current live state:
 
 - one intimidation branch exists in Ben's debt scene
 - intimidation can already read presentation/intimidation from the social presentation layer
+
+Planned next direction:
+
+- intimidation checks should resolve from `coercion + intimidation value`
+- thug ambushes are the best first repeatable authored use
 
 ## Success Standard
 

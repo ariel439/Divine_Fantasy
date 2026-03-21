@@ -6,7 +6,6 @@ import { useCompanionStore } from '../stores/useCompanionStore';
 import { useUIStore } from '../stores/useUIStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useAudioStore } from '../stores/useAudioStore';
-import { useInventoryStore } from '../stores/useInventoryStore';
 import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useToastStore } from '../stores/useToastStore';
@@ -24,7 +23,6 @@ const CombatManager: React.FC = () => {
     turnOrder,
     currentTurnIndex,
     phase,
-    rewards,
     encounterType,
     victoryActions,
     victoryToast,
@@ -37,6 +35,7 @@ const CombatManager: React.FC = () => {
     isPlayerTurn,
     nextTurn,
     setPhase,
+    setRewards,
     updateParticipant,
     addLogEntry,
     endCombat,
@@ -44,7 +43,6 @@ const CombatManager: React.FC = () => {
 
   const { setScreen } = useUIStore();
   const { passTime } = useWorldTimeStore();
-  const { addItem } = useInventoryStore();
   const { addXp: addSkillXp, getSkillLevel } = useSkillStore();
   const { sfxEnabled, sfxVolume } = useAudioStore();
   const addToast = useToastStore.getState().addToast;
@@ -122,36 +120,30 @@ const CombatManager: React.FC = () => {
     }));
   }, [participants]);
   const getBaseHitChance = React.useCallback((attacker: CombatParticipant) => {
-    let chance = attacker.isPlayer
-      ? COMBAT_CONFIG.BASE_HIT_CHANCE.PLAYER
-      : attacker.isCompanion
-        ? COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION
-        : COMBAT_CONFIG.BASE_HIT_CHANCE.ENEMY;
+      let chance = attacker.isPlayer
+        ? COMBAT_CONFIG.BASE_HIT_CHANCE.PLAYER
+        : attacker.isCompanion
+          ? COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION
+          : COMBAT_CONFIG.BASE_HIT_CHANCE.ENEMY;
 
-    const attackerName = attacker.name.toLowerCase();
-    if (attackerName.includes('wolf')) chance += 0.12;
-    if (attackerName.includes('drunk')) chance -= 0.05;
-
-    return Math.max(0.1, Math.min(0.95, chance));
-  }, []);
+      chance += attacker.accuracyModifier ?? 0;
+  
+      return Math.max(0.1, Math.min(0.95, chance));
+    }, []);
   const getAttackType = React.useCallback((attacker: CombatParticipant, isBrawl: boolean): DamageType => {
-    if (isBrawl) return 'blunt';
+      if (isBrawl) return 'blunt';
 
-    if (attacker.isPlayer) {
-      const weaponId = useCharacterStore.getState().equippedItems.weapon?.id?.toLowerCase() || '';
-      if (weaponId.includes('knife') || weaponId.includes('dagger')) return 'pierce';
-      if (weaponId.includes('sword') || weaponId.includes('blade') || weaponId.includes('axe')) return 'slash';
-      if (weaponId.includes('mace') || weaponId.includes('club') || weaponId.includes('hammer')) return 'blunt';
-    }
-
-    const attackerName = attacker.name.toLowerCase();
-    if (attackerName.includes('wolf')) return 'slash';
-    if (attackerName.includes('drunk') || attackerName.includes('brawler')) return 'blunt';
-    if (attackerName.includes('knife')) return 'pierce';
-    if (attackerName.includes('smuggler') || attackerName.includes('thug') || attackerName.includes('finn')) return 'slash';
-
-    return 'blunt';
-  }, []);
+      if (attacker.attackType) return attacker.attackType;
+  
+      if (attacker.isPlayer) {
+        const weaponId = useCharacterStore.getState().equippedItems.weapon?.id?.toLowerCase() || '';
+        if (weaponId.includes('knife') || weaponId.includes('dagger')) return 'pierce';
+        if (weaponId.includes('sword') || weaponId.includes('blade') || weaponId.includes('axe')) return 'slash';
+        if (weaponId.includes('mace') || weaponId.includes('club') || weaponId.includes('hammer')) return 'blunt';
+      }
+  
+      return 'blunt';
+    }, []);
   const getArmorClass = React.useCallback((target: CombatParticipant): ArmorClass => {
     if (!target.isPlayer && !target.isCompanion) return 'none';
 
@@ -184,10 +176,34 @@ const CombatManager: React.FC = () => {
     if (target.defence >= 5) return { multiplier: 1.15, defenceFactor: 0.85, minDamage: 3 };
     return { multiplier: 1.55, defenceFactor: 0.25, minDamage: 8 };
   }, []);
+  const rollCombatLoot = React.useCallback(() => {
+    const lootMap = new Map<string, number>();
 
-  // Auto-select first enemy if none selected
+    participants
+      .filter((p) => !p.isPlayer && !p.isCompanion && p.hp <= 0)
+      .forEach((enemy) => {
+        enemy.lootTable?.forEach((drop) => {
+          if (Math.random() <= drop.chance) {
+            lootMap.set(drop.item_id, (lootMap.get(drop.item_id) || 0) + drop.quantity);
+          }
+        });
+      });
+
+    return Array.from(lootMap.entries()).map(([itemId, quantity]) => ({ itemId, quantity }));
+  }, [participants]);
+
+  // Keep target selection sane as enemy counts change
   useEffect(() => {
-    if (!selectedTargetId && aliveEnemies.length > 0) {
+    if (aliveEnemies.length === 1) {
+      const loneEnemy = aliveEnemies[0];
+      if (loneEnemy && selectedTargetId !== loneEnemy.id) {
+        setSelectedTargetId(loneEnemy.id);
+      }
+      return;
+    }
+
+    const currentTargetStillAlive = aliveEnemies.some((enemy) => enemy.id === selectedTargetId);
+    if ((!selectedTargetId || !currentTargetStillAlive) && aliveEnemies.length > 0) {
       const firstEnemy = aliveEnemies[0];
       if (firstEnemy) setSelectedTargetId(firstEnemy.id);
     }
@@ -237,8 +253,7 @@ const CombatManager: React.FC = () => {
             endCombat();
           }, 1500);
       } else {
-        // Grant rewards - XP goes to skills, handled elsewhere
-        // Loot is now handled by the LootScreen, not auto-added
+        setRewards({ xp: 0, loot: rollCombatLoot() });
         
         // Show victory screen after short delay
         setTimeout(() => {
@@ -283,7 +298,7 @@ const CombatManager: React.FC = () => {
         passTime(5);
       }, 1500);
     }
-  }, [aliveEnemies.length, aliveParty.length, phase, rewards, setPhase, endCombat, setScreen, passTime, addItem, encounterType, victoryActions, victoryToast, defeatMode, defeatToast, syncPlayerVitalsFromCombat]);
+  }, [aliveEnemies.length, aliveParty.length, phase, setPhase, setRewards, endCombat, setScreen, passTime, encounterType, victoryActions, victoryToast, defeatMode, defeatToast, syncPlayerVitalsFromCombat, participants, rollCombatLoot]);
 
   const handleAttack = () => {
     if (!isPlayerTurn() || !selectedTargetId) return;
@@ -545,13 +560,13 @@ const CombatManager: React.FC = () => {
     }
   }, [phase, currentTurnIndex, participants, isPlayerTurn, getCurrentParticipant, nextTurn, addLogEntry, getAliveEnemies, getAliveParty, addSkillXp, getSkillLevel, updateParticipant, encounterType, getBrawlProfile, getBaseHitChance, getAttackType, getArmorClass, getTypeMultiplier]);
 
-  return (
-    <CombatScreen
-      party={participants.filter(p => p.isPlayer || p.isCompanion)}
-      enemies={participants.filter(p => !p.isPlayer && !p.isCompanion)}
-      turnOrder={turnOrder.map(id => participants.find(p => p.id === id)).filter(Boolean) as CombatParticipant[]}
-      activeCharacterId={getCurrentParticipant()?.id}
-      selectedTargetId={selectedTargetId}
+    return (
+      <CombatScreen
+        party={participants.filter(p => (p.isPlayer || p.isCompanion) && p.hp > 0)}
+        enemies={participants.filter(p => !p.isPlayer && !p.isCompanion && p.hp > 0)}
+        turnOrder={turnOrder.map(id => participants.find(p => p.id === id)).filter(Boolean) as CombatParticipant[]}
+        activeCharacterId={getCurrentParticipant()?.id}
+        selectedTargetId={selectedTargetId}
       isPlayerTurn={isPlayerTurn()}
       onSelectTarget={setSelectedTargetId}
       onAttack={handleAttack}

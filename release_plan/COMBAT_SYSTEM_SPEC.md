@@ -423,6 +423,36 @@ Armor should sharply affect:
 - survivability against beasts
 - intimidation potential in social/event resolution
 
+## Damage Types And Armor Classes
+
+The current live combat implementation now uses a simple typed-damage layer.
+
+### Live Damage Types
+
+- `Blunt`
+- `Pierce`
+- `Slash`
+
+### Live First-Pass Logic
+
+- `Blunt` is strongest into unarmored targets and much weaker into armor
+- `Pierce` gets through armor better than fists
+- `Slash` sits between the two and is the current beast/blade default
+
+### Live Armor Classes
+
+- `None`
+- `Light`
+- `Heavy`
+
+Current practical read:
+
+- no armor = Luke gets mauled and beaten up fast
+- light armor = meaningfully better survival
+- heavy armor = strongest protection, especially against fists
+
+This is intentionally a simple alpha layer, not a full resistance matrix yet.
+
 ## Intimidation
 
 Intimidation should exist, but it does not necessarily need to be a direct combat button.
@@ -582,14 +612,18 @@ Important existing supports:
 - Finn confrontation
 - coercive dialogue branches
 - attack/defence/agility XP hooks
+- typed damage (`blunt`, `pierce`, `slash`)
+- practical armor classes (`none`, `light`, `heavy`)
+- first real brawl implementation
+- combat loot screen and loot roll support
 
 Important current gaps:
 
-- no real brawl category yet
-- no dedicated pit/arena content
-- initiative is too player-favored
-- dialogue-to-combat escalation is inconsistent
-- intimidation/presentation logic is not yet integrated
+- only one real authored brawl exists so far
+- no dedicated pit/arena content yet
+- initiative is still too player-favored
+- street-violence content is still very thin
+- intimidation exists in a first authored branch, but is not broadly integrated yet
 - equipment progression is not yet clearly framed around combat survival
 
 ## Alpha Build Priorities
@@ -599,10 +633,11 @@ The combat system should be built in this order:
 1. define combat as scrappy survival, not dominance
 2. add brawl content as the main early combat training lane
 3. rebalance wolves and other beasts to be genuinely dangerous
-4. make agility/initiative more meaningful
-5. add or tune early armor progression
-6. improve dialogue/event intimidation using coercion + presentation
-7. expand combat opportunities in sandbox/full-game directions later
+4. expand beyond the first Ben brawl into a real early brawl lane
+5. make agility/initiative more meaningful
+6. add or tune early armor progression
+7. improve dialogue/event intimidation using coercion + presentation
+8. expand combat opportunities in sandbox/full-game directions later
 
 ## Recommended First Content Additions
 
@@ -610,9 +645,9 @@ The most valuable first additions would be:
 
 - a tavern fighter NPC
 - one repeatable or semi-repeatable brawl loop
-- one hidden or rumor-discovered arena/pit
-- betting for brawls
-- one or two weak-human enemy types
+- one first real street-violence encounter using thug / knife thug content
+- one hidden or rumor-discovered arena/pit later
+- betting for brawls later
 - early armor pieces that noticeably matter
 - movement/agility training activity or job
 

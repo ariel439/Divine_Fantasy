@@ -2,17 +2,21 @@
   "wolf_forest": {
     "name": "Forest Wolf",
     "attack_sound": "/assets/sfx/wolf_bite.mp3",
-    "stats": { "hp": 60, "attack": 13, "defence": 1, "dexterity": 7 },
+    "attack_type": "slash",
+    "combat_tags": ["beast", "wolf"],
+    "accuracy_modifier": 0.12,
+    "stats": { "hp": 60, "attack": 12, "defence": 1, "dexterity": 7 },
     "loot_table": [
       { "item_id": "wolf_pelt", "quantity": 1, "chance": 1 },
-      { "item_id": "wolf_tooth", "quantity": 1, "chance": 0.5 },
-      { "item_id": "raw_meat", "quantity": 1, "chance": 0.8 }
+      { "item_id": "wolf_tooth", "quantity": 1, "chance": 0.2 }
     ]
   },
   "smuggler_dockhand": {
     "name": "Smuggler",
     "image": "/assets/portraits/Smuggler.png",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
+    "attack_type": "slash",
+    "combat_tags": ["human", "armed"],
     "stats": { "hp": 150, "attack": 15, "defence": 6, "dexterity": 6 },
     "loot_table": [
       { "item_id": "coins", "quantity": 5, "chance": 0.5 }
@@ -21,6 +25,8 @@
   "elite_guard": {
     "name": "Elite Guard",
     "image": "/assets/portraits/Guard_Generic.png",
+    "attack_type": "slash",
+    "combat_tags": ["human", "armed", "guard"],
     "stats": { "hp": 500, "attack": 50, "defence": 20, "dexterity": 15 },
     "loot_table": []
   },
@@ -28,6 +34,8 @@
     "name": "Thug",
     "image": "/assets/portraits/Thug.png",
     "attack_sound": "/assets/sfx/combat_punch.mp3",
+    "attack_type": "blunt",
+    "combat_tags": ["human", "thug"],
     "stats": { "hp": 80, "attack": 12, "defence": 4, "dexterity": 5 },
     "loot_table": [
       { "item_id": "coins", "quantity": 10, "chance": 0.5 }
@@ -37,6 +45,9 @@
     "name": "Drunk",
     "image": "/assets/portraits/Ben.png",
     "attack_sound": "/assets/sfx/combat_punch.mp3",
+    "attack_type": "blunt",
+    "combat_tags": ["human", "drunk", "brawler"],
+    "accuracy_modifier": -0.05,
     "stats": { "hp": 60, "attack": 8, "defence": 1, "dexterity": 3 },
     "loot_table": []
   },
@@ -44,6 +55,8 @@
     "name": "Brawler",
     "image": "/assets/portraits/Thug.png",
     "attack_sound": "/assets/sfx/combat_punch.mp3",
+    "attack_type": "blunt",
+    "combat_tags": ["human", "brawler"],
     "stats": { "hp": 65, "attack": 10, "defence": 3, "dexterity": 5 },
     "loot_table": []
   },
@@ -51,6 +64,8 @@
     "name": "Knife Thug",
     "image": "/assets/portraits/Thug.png",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
+    "attack_type": "pierce",
+    "combat_tags": ["human", "armed", "knife"],
     "stats": { "hp": 90, "attack": 15, "defence": 4, "dexterity": 6 },
     "loot_table": [
       { "item_id": "coins", "quantity": 12, "chance": 0.5 }
@@ -60,6 +75,8 @@
     "name": "Finn",
     "image": "/assets/portraits/OldManFinn.png",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
+    "attack_type": "slash",
+    "combat_tags": ["human", "armed", "boss"],
     "stats": { "hp": 200, "attack": 25, "defence": 10, "dexterity": 8 },
     "loot_table": [
       { "item_id": "coins", "quantity": 100, "chance": 1 }

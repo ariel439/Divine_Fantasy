@@ -1,6 +1,6 @@
 export const COMBAT_CONFIG = {
   BASE_HIT_CHANCE: {
-    PLAYER: 0.8,
+    PLAYER: 0.9,
     COMPANION: 0.8,
     ENEMY: 0.75,
   },

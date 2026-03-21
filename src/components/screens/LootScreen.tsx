@@ -26,6 +26,8 @@ export const LootScreen: React.FC<LootScreenProps> = ({ loot, onClose }) => {
     setContainerItems(loot);
   }, [loot]);
 
+  const formatWeight = (value: number) => Number(value.toFixed(2));
+
   // Take Item: Move from Container (Right) to Inventory (Left)
   const handleTakeItem = (index: number) => {
     const item = containerItems[index];
@@ -98,7 +100,7 @@ export const LootScreen: React.FC<LootScreenProps> = ({ loot, onClose }) => {
           </div>
           <div className="flex justify-between items-center text-[10px] text-zinc-500 mt-0.5">
             <span className="truncate max-w-[120px]">{itemDef.type}</span>
-            <span>{itemDef.weight * item.quantity}kg</span>
+            <span>{formatWeight(itemDef.weight * item.quantity)}kg</span>
           </div>
         </div>
 
@@ -125,7 +127,7 @@ export const LootScreen: React.FC<LootScreenProps> = ({ loot, onClose }) => {
              <div className="flex items-center gap-2">
                 <Backpack size={16} />
                 <span className={currentWeight > maxWeight ? 'text-red-500' : ''}>
-                  {currentWeight} / {maxWeight} kg
+                  {formatWeight(currentWeight)} / {formatWeight(maxWeight)} kg
                 </span>
              </div>
           </div>

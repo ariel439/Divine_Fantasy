@@ -77,6 +77,20 @@ It needs a clearer threat ladder.
 | Pit Fighter | Brawl | arena progression enemy |
 | Slum Ambusher | Street Violence | event-driven human threat with intimidation interaction |
 
+### Live Enemy Data State
+
+The following now exist in live enemy data:
+
+- `Drunk`
+- `Brawler`
+- `Knife Thug`
+
+Current implementation state:
+
+- `Drunk` is already used as the Ben tavern-brawl combat template
+- `Brawler` exists in data but is not yet placed into authored world content
+- `Knife Thug` exists in data but is not yet placed into authored world content
+
 ## Enemy Strength Intent
 
 These are not exact formulas yet.
@@ -116,6 +130,16 @@ Brawls are the most important new combat content for the alpha.
 | Tavern fighter NPC | repeatable | main early combat trainer |
 | Hidden pit / arena | repeatable progression | discovered through social info |
 | Special challenger night | scheduled event | stronger brawlers, higher bets |
+
+### Live State
+
+Current live status:
+
+- Ben tavern brawl is implemented
+- brawls use the same combat screen with a special `brawl` encounter type
+- brawls use fists / blunt logic
+- brawl defeat is knockout, not game over
+- brawl victory returns directly to gameplay instead of the loot screen
 
 ## Brawl Reward Matrix
 
@@ -179,6 +203,17 @@ Beasts should be a fear check, not a farming loop.
 | 2 wolves | likely death for weak Luke |
 | 3 wolves | obvious mistake unless prepared |
 | 4 wolves | late-prepared or companion-assisted challenge only |
+
+### Live Wolf State
+
+Current live wolf direction:
+
+- wolves use `slash` damage
+- wolves are tuned to be dangerous and fairly accurate
+- armor matters more than it used to
+- current drops are:
+  - `100%` wolf pelt
+  - `20%` wolf tooth
 
 ### Beast Reward Direction
 
@@ -254,6 +289,15 @@ Not:
 Do **not** overload the alpha combat UI with too many buttons.
 
 The route should feel rough and readable.
+
+### Live Alpha Action State
+
+Current live combat now includes:
+
+- `Attack`
+- `Flee`
+- `Brawl` encounter handling
+- first intimidation skip branch in Ben's debt scene
 
 ## Intimidation Matrix
 
@@ -347,6 +391,33 @@ Recommended additions:
 ### Design Rule
 
 Armor should be one of the biggest early combat progression levers in the game.
+
+## Damage Type / Armor Class Matrix
+
+### Live Damage Types
+
+| Type | Current Role |
+|---|---|
+| Blunt | fists, brawls, much weaker into armor |
+| Pierce | knives/daggers, better into armor |
+| Slash | wolves and blade-default damage |
+
+### Live Armor Classes
+
+| Armor Class | Current Meaning |
+|---|---|
+| None | Luke takes full punishment |
+| Light | current practical wolf-gear tier |
+| Heavy | current practical iron-gear tier |
+
+### Current Rule Of Thumb
+
+| Matchup | Current Direction |
+|---|---|
+| Blunt vs None | strong |
+| Blunt vs Light/Heavy | strongly reduced |
+| Pierce vs Armor | reduced less than blunt |
+| Slash vs Armor | reduced, but still threatening |
 
 ## Agility Progression Matrix
 
@@ -444,13 +515,16 @@ These are the most valuable first combat additions.
 
 ### Brawl Support
 
-The system likely needs:
+The system now already has:
 
 - a combat encounter flag or type for `brawl`
-- special rules for:
-  - no weapons
-  - lower lethality
-  - alternate defeat handling
+- special brawl damage behavior
+- alternate knockout defeat handling
+
+Still needed later:
+
+- more authored brawl content
+- clearer repeatable brawl progression
 
 ### Initiative
 
@@ -475,6 +549,11 @@ The future system should be able to read:
 - presentation/clothing
 - visible gear
 - maybe enemy type tag
+
+Current live state:
+
+- one intimidation branch exists in Ben's debt scene
+- intimidation can already read presentation/intimidation from the social presentation layer
 
 ## Success Standard
 

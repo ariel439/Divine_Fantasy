@@ -286,7 +286,7 @@
     "image": "/assets/items/wolf_amulet.png",
     "equipmentSlot": "amulet",
     "stats": {
-      "strength": 5
+      "attack": 1
     }
   },
   "iron_helmet": {

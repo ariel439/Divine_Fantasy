@@ -324,6 +324,10 @@ export class GameManagerService {
           isPlayer: false,
           isCompanion: false,
           attack_sound: wolfTemplate.attack_sound,
+          attackType: wolfTemplate.attack_type,
+          combatTags: wolfTemplate.combat_tags,
+          accuracyModifier: wolfTemplate.accuracy_modifier,
+          lootTable: wolfTemplate.loot_table,
         });
       }
     }
@@ -382,11 +386,15 @@ export class GameManagerService {
         attack: enemyTemplate?.stats.attack || 7,
         defence: enemyTemplate?.stats.defence || 5,
         dexterity: enemyTemplate?.stats.dexterity || 6,
-        portraitUrl: '/assets/portraits/Smuggler.png',
-        isPlayer: false,
-        isCompanion: false,
-        attack_sound: enemyTemplate?.attack_sound,
-      });
+          portraitUrl: '/assets/portraits/Smuggler.png',
+          isPlayer: false,
+          isCompanion: false,
+          attack_sound: enemyTemplate?.attack_sound,
+          attackType: enemyTemplate?.attack_type,
+          combatTags: enemyTemplate?.combat_tags,
+          accuracyModifier: enemyTemplate?.accuracy_modifier,
+          lootTable: enemyTemplate?.loot_table,
+        });
     }
 
     const playerStats = GameManagerService.calculatePlayerStats(character);
@@ -437,11 +445,15 @@ export class GameManagerService {
       attack: template?.stats.attack || 7,
       defence: template?.stats.defence || 1,
       dexterity: template?.stats.dexterity || 3,
-      portraitUrl: '/assets/portraits/Ben.png',
-      isPlayer: false,
-      isCompanion: false,
-      attack_sound: template?.attack_sound || '/assets/sfx/combat_punch.mp3',
-    };
+        portraitUrl: '/assets/portraits/Ben.png',
+        isPlayer: false,
+        isCompanion: false,
+        attack_sound: template?.attack_sound || '/assets/sfx/combat_punch.mp3',
+        attackType: template?.attack_type,
+        combatTags: template?.combat_tags,
+        accuracyModifier: template?.accuracy_modifier,
+        lootTable: template?.loot_table,
+      };
 
     const playerStats = GameManagerService.calculatePlayerStats(character);
     const player: CombatParticipant = {
@@ -505,6 +517,10 @@ export class GameManagerService {
       isPlayer: false,
       isCompanion: false,
       attack_sound: finnTemplate?.attack_sound,
+      attackType: finnTemplate?.attack_type,
+      combatTags: finnTemplate?.combat_tags,
+      accuracyModifier: finnTemplate?.accuracy_modifier,
+      lootTable: finnTemplate?.loot_table,
     });
 
     // Add 3 Thugs (Weaker as requested)
@@ -521,6 +537,10 @@ export class GameManagerService {
         isPlayer: false,
         isCompanion: false,
         attack_sound: thugTemplate?.attack_sound,
+        attackType: thugTemplate?.attack_type,
+        combatTags: thugTemplate?.combat_tags,
+        accuracyModifier: thugTemplate?.accuracy_modifier,
+        lootTable: thugTemplate?.loot_table,
       });
     }
 
@@ -605,6 +625,10 @@ export class GameManagerService {
       isPlayer: false,
       isCompanion: false,
       attack_sound: finnTemplate?.attack_sound,
+      attackType: finnTemplate?.attack_type,
+      combatTags: finnTemplate?.combat_tags,
+      accuracyModifier: finnTemplate?.accuracy_modifier,
+      lootTable: finnTemplate?.loot_table,
     });
 
     // 2. Add 3 Thugs
@@ -622,6 +646,10 @@ export class GameManagerService {
         isPlayer: false,
         isCompanion: false,
         attack_sound: thugTemplate?.attack_sound,
+        attackType: thugTemplate?.attack_type,
+        combatTags: thugTemplate?.combat_tags,
+        accuracyModifier: thugTemplate?.accuracy_modifier,
+        lootTable: thugTemplate?.loot_table,
       });
     }
 
@@ -664,6 +692,10 @@ export class GameManagerService {
       isPlayer: false,
       isCompanion: false,
       attack_sound: finnTemplate?.attack_sound,
+      attackType: finnTemplate?.attack_type,
+      combatTags: finnTemplate?.combat_tags,
+      accuracyModifier: finnTemplate?.accuracy_modifier,
+      lootTable: finnTemplate?.loot_table,
     });
 
     for (let i = 0; i < 3; i++) {
@@ -679,6 +711,10 @@ export class GameManagerService {
         isPlayer: false,
         isCompanion: false,
         attack_sound: thugTemplate?.attack_sound,
+        attackType: thugTemplate?.attack_type,
+        combatTags: thugTemplate?.combat_tags,
+        accuracyModifier: thugTemplate?.accuracy_modifier,
+        lootTable: thugTemplate?.loot_table,
       });
     }
 

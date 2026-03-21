@@ -59,20 +59,63 @@ const CombatScreen: FC<CombatScreenProps> = ({
   combatLog
 }) => {
     const logEndRef = useRef<HTMLDivElement>(null);
+    const [displayedEnemies, setDisplayedEnemies] = useState<CombatParticipant[]>(enemies);
     const [enemyDamageEvents, setEnemyDamageEvents] = useState<{ targetId: string, damage: number, key: number }[]>([]);
     const [partyDamageEvents, setPartyDamageEvents] = useState<{ targetId: string, damage: number, key: number }[]>([]);
+    const [soloEnemyFocusId, setSoloEnemyFocusId] = useState<string | null>(null);
     const tutorialActive = useWorldStateStore.getState().getFlag('combat_tutorial_active');
     const prevEnemiesRef = useRef<CombatParticipant[]>(JSON.parse(JSON.stringify(enemies)));
+    const previousAliveEnemiesRef = useRef<CombatParticipant[]>(JSON.parse(JSON.stringify(enemies)));
     const prevPartyRef = useRef<CombatParticipant[]>(JSON.parse(JSON.stringify(party)));
+    const previousEnemyCountRef = useRef(enemies.length);
     const { sfxEnabled, sfxVolume } = useAudioStore();
 
     useEffect(() => {
         logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [combatLog]);
+
+    useEffect(() => {
+        const previousAliveEnemies = previousAliveEnemiesRef.current;
+        const removedEnemies = previousAliveEnemies.filter(
+            (enemy) => !enemies.some((aliveEnemy) => aliveEnemy.id === enemy.id)
+        );
+
+        if (removedEnemies.length === 0) {
+            setDisplayedEnemies(enemies);
+            previousAliveEnemiesRef.current = JSON.parse(JSON.stringify(enemies));
+            return;
+        }
+
+        const nextDisplayedEnemies = previousAliveEnemies.map((enemy) => {
+            const aliveVersion = enemies.find((aliveEnemy) => aliveEnemy.id === enemy.id);
+            return aliveVersion ? aliveVersion : { ...enemy, hp: 0 };
+        });
+
+        setDisplayedEnemies(nextDisplayedEnemies);
+
+        const timer = setTimeout(() => {
+            setDisplayedEnemies(enemies);
+            previousAliveEnemiesRef.current = JSON.parse(JSON.stringify(enemies));
+        }, 700);
+
+        return () => clearTimeout(timer);
+    }, [enemies]);
+
+    useEffect(() => {
+        const previousEnemyCount = previousEnemyCountRef.current;
+        if (previousEnemyCount > 1 && enemies.length === 1) {
+            setSoloEnemyFocusId(enemies[0]?.id || null);
+            const timer = setTimeout(() => setSoloEnemyFocusId(null), 700);
+            previousEnemyCountRef.current = enemies.length;
+            return () => clearTimeout(timer);
+        }
+
+        previousEnemyCountRef.current = enemies.length;
+    }, [enemies]);
     
     useEffect(() => {
         const newDamageEvents: { targetId: string, damage: number, key: number }[] = [];
-        enemies.forEach(currentEnemy => {
+        displayedEnemies.forEach(currentEnemy => {
             const prevEnemy = prevEnemiesRef.current.find(e => e.id === currentEnemy.id);
             if (prevEnemy && prevEnemy.hp > currentEnemy.hp) {
                 const damage = prevEnemy.hp - currentEnemy.hp;
@@ -90,8 +133,8 @@ const CombatScreen: FC<CombatScreenProps> = ({
         }
         
         // Deep copy for accurate comparison next render
-        prevEnemiesRef.current = JSON.parse(JSON.stringify(enemies));
-    }, [enemies]);
+        prevEnemiesRef.current = JSON.parse(JSON.stringify(displayedEnemies));
+    }, [displayedEnemies]);
 
     useEffect(() => {
         const newDamageEvents: { targetId: string, damage: number, key: number }[] = [];
@@ -144,8 +187,15 @@ const CombatScreen: FC<CombatScreenProps> = ({
         </button>
     );
     
-    const activeParticipant = party.find(p => p.id === activeCharacterId);
+  const activeParticipant = party.find(p => p.id === activeCharacterId);
     const isCompanionTurn = activeParticipant?.isCompanion;
+    const enemyColumnCount = Math.min(2, displayedEnemies.length);
+    const enemyCardWrapperClass =
+        displayedEnemies.length === 1
+            ? 'w-full max-w-sm'
+            : displayedEnemies.length === 2
+                ? 'w-full max-w-sm justify-self-center'
+                : 'w-full';
 
   return (
     <div className="w-full h-full flex flex-col relative bg-zinc-950">
@@ -153,12 +203,12 @@ const CombatScreen: FC<CombatScreenProps> = ({
             <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 blur-md" style={{ backgroundImage: `url(/assets/backgrounds/minimal_bg.png)` }} />
             
             {/* Main Combat Area */}
-            <main className="relative z-10 flex-grow flex flex-col lg:flex-row items-center justify-around p-4 md:p-8">
+            <main className="relative z-10 flex-grow flex flex-col lg:flex-row items-center justify-around p-4 md:p-8 transition-all duration-500 ease-out">
                 {/* Party Column */}
-                <div className="flex flex-col gap-6 w-full lg:w-1/3 items-center">
+                <div className="flex flex-col gap-6 w-full lg:w-1/3 items-center transition-all duration-500 ease-out">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-2">Vanguard</h3>
                     {party.map(member => (
-                        <div key={member.id} className="relative w-full max-w-sm">
+                        <div key={member.id} className="relative w-full max-w-sm transition-all duration-500 ease-out">
                              <CombatantCard
                                 combatant={member}
                                 isPartyMember={true}
@@ -175,11 +225,14 @@ const CombatScreen: FC<CombatScreenProps> = ({
                 </div>
 
                 {/* Enemies Grid */}
-                <div className="flex flex-col gap-6 w-full lg:w-1/3 items-center">
+                <div className="flex flex-col gap-6 w-full lg:w-1/3 items-center transition-all duration-500 ease-out">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-red-500/70 mb-2">Adversaries</h3>
-                    <div className={`grid gap-4 lg:gap-6 w-full ${tutorialActive ? 'ring-2 ring-yellow-400 rounded-lg p-2' : ''}`} style={{ gridTemplateColumns: `repeat(${Math.min(2, enemies.length)}, minmax(0, 1fr))` }}>
-                        {enemies.map(enemy => (
-                            <div key={enemy.id} className="relative">
+                    <div className={`grid gap-4 lg:gap-6 w-full transition-all duration-500 ease-out ${tutorialActive ? 'ring-2 ring-yellow-400 rounded-lg p-2' : ''}`} style={{ gridTemplateColumns: `repeat(${Math.min(2, displayedEnemies.length)}, minmax(0, 1fr))` }}>
+                        {displayedEnemies.map(enemy => (
+                            <div
+                                key={enemy.id}
+                                className={`relative transition-all duration-500 ease-out ${enemyCardWrapperClass} ${enemyColumnCount === 1 ? 'mx-auto' : ''} ${soloEnemyFocusId === enemy.id ? 'scale-[1.03]' : ''}`}
+                            >
                                 <CombatantCard
                                     combatant={enemy}
                                     isPartyMember={false}

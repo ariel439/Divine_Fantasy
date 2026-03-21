@@ -37,6 +37,7 @@ export interface CombatStore extends CombatState {
   nextTurn: () => void;
   setPhase: (phase: CombatPhase) => void;
   updateParticipant: (id: string, updates: Partial<CombatParticipant>) => void;
+  setRewards: (rewards: CombatReward) => void;
   addLogEntry: (entry: string) => void;
   clearLog: () => void;
   
@@ -174,6 +175,10 @@ export const useCombatStore = create<CombatStore>((set, get) => ({
         p.id === id ? { ...p, ...updates } : p
       ),
     }));
+  },
+
+  setRewards(rewards) {
+    set({ rewards });
   },
 
   addLogEntry(entry) {

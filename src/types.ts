@@ -89,19 +89,23 @@ export interface Recipe {
 
 // Combat
 export interface CombatParticipant {
-  id: string;
-  name: string;
-  hp: number;
-  maxHp: number;
+    id: string;
+    name: string;
+    hp: number;
+    maxHp: number;
   attack: number;
   defence: number;
   dexterity: number;
   isPlayer?: boolean;
   isCompanion?: boolean;
-  portraitUrl?: string;
-  defending?: boolean;
-  attack_sound?: string;
-}
+    portraitUrl?: string;
+    defending?: boolean;
+    attack_sound?: string;
+    attackType?: 'slash' | 'pierce' | 'blunt';
+    combatTags?: string[];
+    accuracyModifier?: number;
+    lootTable?: Array<{ item_id: string; quantity: number; chance: number }>;
+  }
 
 export type CombatEncounterType = 'standard' | 'brawl';
 export type CombatDefeatMode = 'standard' | 'knockout';

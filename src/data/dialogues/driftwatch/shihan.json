@@ -1,0 +1,231 @@
+{
+  "shihan_default": {
+    "first_meet_node": "sh_first_meet",
+    "repeat_meet_node": "sh_repeat_meet",
+    "nodes": {
+      "sh_first_meet": {
+        "npc_text": "So you do speak first. That is rare. Most people in Driftwatch decide what I am before they decide whether to approach me at all.",
+        "player_choices": [
+          {
+            "text": "You looked like someone worth talking to.",
+            "action": "set_flag:shihan_first_meet_done:true",
+            "next_node": "sh_question_hub"
+          },
+          {
+            "text": "The guards make people nervous.",
+            "action": "set_flag:shihan_first_meet_done:true",
+            "next_node": "sh_first_guards"
+          },
+          {
+            "text": "Then I'll leave you alone.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "sh_repeat_meet": {
+        "npc_text": "Back again? Good. Driftwatch is easier to study when at least one person here asks questions instead of staring. What do you want to know?",
+        "player_choices": [
+          {
+            "text": "Where are you from?",
+            "next_node": "sh_ask_shenhai_1",
+            "condition": "world_flags.shihan_asked_shenhai==false"
+          },
+          {
+            "text": "Why did you come to Driftwatch?",
+            "next_node": "sh_ask_driftwatch_1",
+            "condition": "world_flags.shihan_asked_shenhai==true && world_flags.shihan_asked_driftwatch==false"
+          },
+          {
+            "text": "Who are the three guards with you?",
+            "next_node": "sh_ask_guards_1",
+            "condition": "world_flags.shihan_asked_guards==false"
+          },
+          {
+            "text": "Who was Ren Zhen?",
+            "next_node": "sh_ask_renzhen_1",
+            "condition": "world_flags.shihan_asked_driftwatch==true && world_flags.shihan_asked_renzhen==false"
+          },
+          {
+            "text": "Why tell me all of this?",
+            "next_node": "sh_book_offer",
+            "condition": "world_flags.shihan_asked_driftwatch==true && world_flags.shihan_asked_shenhai==true && world_flags.shihan_asked_renzhen==true && world_flags.shihan_book_given==false && inventory.book_white_tiger_sea==0"
+          },
+          {
+            "text": "About the book you gave me.",
+            "next_node": "sh_after_book",
+            "condition": "world_flags.shihan_book_given==true || inventory.book_white_tiger_sea>0"
+          },
+          {
+            "text": "I'll leave you to your work.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "sh_question_hub": {
+        "npc_text": "",
+        "player_choices": [
+          {
+            "text": "Where are you from?",
+            "next_node": "sh_ask_shenhai_1",
+            "condition": "world_flags.shihan_asked_shenhai==false"
+          },
+          {
+            "text": "Why did you come to Driftwatch?",
+            "next_node": "sh_ask_driftwatch_1",
+            "condition": "world_flags.shihan_asked_shenhai==true && world_flags.shihan_asked_driftwatch==false"
+          },
+          {
+            "text": "Who are the three guards with you?",
+            "next_node": "sh_ask_guards_1",
+            "condition": "world_flags.shihan_asked_guards==false"
+          },
+          {
+            "text": "Who was Ren Zhen?",
+            "next_node": "sh_ask_renzhen_1",
+            "condition": "world_flags.shihan_asked_driftwatch==true && world_flags.shihan_asked_renzhen==false"
+          },
+          {
+            "text": "Why tell me all of this?",
+            "next_node": "sh_book_offer",
+            "condition": "world_flags.shihan_asked_driftwatch==true && world_flags.shihan_asked_shenhai==true && world_flags.shihan_asked_renzhen==true && world_flags.shihan_book_given==false && inventory.book_white_tiger_sea==0"
+          },
+          {
+            "text": "About the book you gave me.",
+            "next_node": "sh_after_book",
+            "condition": "world_flags.shihan_book_given==true || inventory.book_white_tiger_sea>0"
+          },
+          {
+            "text": "I'll leave you to your work.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "sh_first_guards": {
+        "npc_text": "They should. My father had no intention of letting one of his daughters cross half the world without steel at her back.",
+        "player_choices": [
+          {
+            "text": "Fair enough.",
+            "next_node": "sh_question_hub"
+          }
+        ]
+      },
+      "sh_ask_driftwatch_1": {
+        "npc_text": "Because Driftwatch appears in old Shenhai records more often than a city this small ought to. Most ports are forgotten when the cargo moves on. This one was not.",
+        "player_choices": [
+          {
+            "text": "That sounds like a poor reason to cross the sea.",
+            "next_node": "sh_ask_driftwatch_2"
+          }
+        ]
+      },
+      "sh_ask_driftwatch_2": {
+        "npc_text": "Poor reasons make poor journeys. I came because I wanted to see whether the place itself remembered anything, or whether only foreign books still carried its shadow.",
+        "player_choices": [
+          {
+            "text": "Go on.",
+            "action": "set_flag:shihan_asked_driftwatch:true",
+            "next_node": "sh_question_hub"
+          }
+        ]
+      },
+      "sh_ask_shenhai_1": {
+        "npc_text": "Farther than most men here can imagine. They hear the name and think of silk, coin, and polished courts. They do not think of old shrines, family burdens, and histories written in caution instead of pride.",
+        "player_choices": [
+          {
+            "text": "And you left all that behind?",
+            "next_node": "sh_ask_shenhai_2"
+          }
+        ]
+      },
+      "sh_ask_shenhai_2": {
+        "npc_text": "For a time. I was born into a house with too many children and too many ambitions. Curiosity is one of the few freedoms neglected daughters can sharpen into usefulness.",
+        "player_choices": [
+          {
+            "text": "Go on.",
+            "action": "set_flag:shihan_asked_shenhai:true",
+            "next_node": "sh_question_hub"
+          }
+        ]
+      },
+      "sh_ask_guards_1": {
+        "npc_text": "Three retainers of my father's household. Not the loudest men in his service, which is why they are more dangerous than the loud ones.",
+        "player_choices": [
+          {
+            "text": "They act like soldiers, not servants.",
+            "next_node": "sh_ask_guards_2"
+          }
+        ]
+      },
+      "sh_ask_guards_2": {
+        "npc_text": "They were chosen because they know when not to speak, when not to hesitate, and when to kill quickly. That is a form of refinement too, in its way.",
+        "player_choices": [
+          {
+            "text": "Go on.",
+            "action": "set_flag:shihan_asked_guards:true",
+            "next_node": "sh_question_hub"
+          }
+        ]
+      },
+      "sh_ask_renzhen_1": {
+        "npc_text": "Ren Zhen was called the Thunder Beast, one of the Five Guardians of Shenhai. He is remembered as the one sent when mercy had already failed and something worse would follow delay.",
+        "player_choices": [
+          {
+            "text": "That sounds more feared than admired.",
+            "next_node": "sh_ask_renzhen_2"
+          }
+        ]
+      },
+      "sh_ask_renzhen_2": {
+        "npc_text": "Correct. Admiration is for men who leave clean victories behind them. Ren Zhen left survival, which is uglier work. Old accounts say his final western pursuit ended near Driftwatch, where he hunted one of the last mages tied to the Black Bloom.",
+        "player_choices": [
+          {
+            "text": "Go on.",
+            "action": "set_flag:shihan_asked_renzhen:true",
+            "next_node": "sh_question_hub"
+          }
+        ]
+      },
+      "sh_book_offer": {
+        "npc_text": "Because you are the first westerner here who approached me without fear, flattery, or calculation. Most wait for me to cross the distance first. You did not. Take this copy. Read it slowly.",
+        "player_choices": [
+          {
+            "text": "I'll read it.",
+            "action": "add_item:book_white_tiger_sea:1|set_flag:shihan_book_given:true",
+            "next_node": "sh_book_offer_2"
+          },
+          {
+            "text": "I don't want it.",
+            "next_node": "sh_refuse_book"
+          }
+        ]
+      },
+      "sh_book_offer_2": {
+        "npc_text": "Good. Legends survive because people simplify them. Truth survives only when someone refuses to.",
+        "player_choices": [
+          {
+            "text": "Go on.",
+            "next_node": "sh_question_hub"
+          }
+        ]
+      },
+      "sh_refuse_book": {
+        "npc_text": "That is your choice. If you change your mind, ask me again before my ship leaves.",
+        "player_choices": [
+          {
+            "text": "Go on.",
+            "next_node": "sh_question_hub"
+          }
+        ]
+      },
+      "sh_after_book": {
+        "npc_text": "Then read it with patience. Shenhai's oldest wounds are easiest to misunderstand when they are reduced to monsters and heroes.",
+        "player_choices": [
+          {
+            "text": "Go on.",
+            "next_node": "sh_question_hub"
+          }
+        ]
+      }
+    }
+  }
+}

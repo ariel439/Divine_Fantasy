@@ -218,10 +218,29 @@ export class DialogueService {
   }): boolean {
     const currentDialogue = this.currentDialogueId ? typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData] : null;
     if (currentDialogue && this.isMenuNodeId(currentDialogue, this.currentNodeId)) {
-      return false;
+      const isSocialRootSelection = this.currentNodeId === this.SOCIAL_ROOT_NODE_ID;
+      if (isSocialRootSelection) {
+        return false;
+      }
+    }
+
+    if (currentDialogue && choice.next_node) {
+      const nextNode = this.getNode(currentDialogue, choice.next_node);
+      if (nextNode && !nextNode.npc_text.trim()) {
+        return false;
+      }
     }
 
     return !this.isNavigationChoice(choice);
+  }
+
+  private static appendNpcHistory(text?: string): void {
+    if (!text) return;
+    const lastEntry = this.dialogueHistory[this.dialogueHistory.length - 1];
+    if (lastEntry?.speaker === 'npc' && lastEntry.text === text) {
+      return;
+    }
+    this.dialogueHistory.push({ speaker: 'npc', text });
   }
 
   private static getSocialActionMeta(action?: string): { npcId: string; type: SocialActionType } | null {
@@ -394,6 +413,10 @@ export class DialogueService {
     this.socialReturnNodeId = null;
 
     const startingNodeId = (() => {
+      if (!overrideDialogueId && npcId === 'npc_shihan' && !useWorldStateStore.getState().getFlag('shihan_first_meet_done')) {
+        return dialogueEntry.first_meet_node || '0';
+      }
+
       if (!overrideDialogueId && !wasKnown && dialogueEntry.first_meet_node && dialogueEntry.nodes[dialogueEntry.first_meet_node]) {
         return dialogueEntry.first_meet_node;
       }
@@ -427,9 +450,10 @@ export class DialogueService {
       return DialogueService.applyConditionsToNode(rootNode);
     }
 
-    this.dialogueHistory = this.isMenuNodeId(dialogueEntry, startingNodeId)
-      ? []
-      : [{ speaker: 'npc', text: firstNode.npc_text }];
+    this.dialogueHistory = [];
+    if (!this.isMenuNodeId(dialogueEntry, startingNodeId)) {
+      this.appendNpcHistory(firstNode.npc_text);
+    }
     return DialogueService.applyConditionsToNode(firstNode);
   }
 
@@ -480,11 +504,11 @@ export class DialogueService {
                 this.currentNodeId = failNodeId;
                 const nextNode = currentDialogue.nodes[failNodeId];
                 if (!this.isMenuNodeId(currentDialogue, failNodeId)) {
-                  this.dialogueHistory.push({ speaker: 'npc', text: nextNode.npc_text });
+                  this.appendNpcHistory(nextNode.npc_text);
                 }
                 return DialogueService.applyConditionsToNode(nextNode);
             } else {
-                 this.dialogueHistory.push({ speaker: 'npc', text: "[Skill Check Failed] (You are not skilled enough to do that.)" });
+                 this.appendNpcHistory("[Skill Check Failed] (You are not skilled enough to do that.)");
                  return this.getCurrentDialogue();
             }
         }
@@ -514,8 +538,8 @@ export class DialogueService {
       const nextNode = this.getNode(currentDialogue, nextNodeId);
       if (nextNode) {
         this.currentNodeId = nextNodeId;
-        if (shouldLogChoice && !this.isMenuNodeId(currentDialogue, nextNodeId)) {
-          this.dialogueHistory.push({ speaker: 'npc', text: nextNode.npc_text });
+        if (!this.isMenuNodeId(currentDialogue, nextNodeId)) {
+          this.appendNpcHistory(nextNode.npc_text);
         }
         return DialogueService.applyConditionsToNode(nextNode);
       }
@@ -536,6 +560,48 @@ export class DialogueService {
 
     const node = this.getNode(dialogueEntry, this.currentNodeId);
     return node ? DialogueService.applyConditionsToNode(node) : null;
+  }
+
+  static isCurrentNodeMenu(): boolean {
+    if (!this.currentDialogueId) return false;
+
+    const dialogueEntry = typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData];
+    if (!dialogueEntry) return false;
+
+    return this.isMenuNodeId(dialogueEntry, this.currentNodeId);
+  }
+
+  static getCurrentMenuPrompt(): string | null {
+    if (!this.currentDialogueId) return null;
+
+    const dialogueEntry = typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData];
+    if (!dialogueEntry || !this.isMenuNodeId(dialogueEntry, this.currentNodeId)) {
+      return null;
+    }
+
+    if (this.currentNodeId === this.SOCIAL_ROOT_NODE_ID) {
+      return 'How do you want to approach this conversation?';
+    }
+
+    const interactionRoots = dialogueEntry.interaction_roots || {};
+    const category = Object.entries(interactionRoots).find(([, nodeId]) => nodeId === this.currentNodeId)?.[0];
+
+    switch (category) {
+      case 'ask':
+        return 'What do you want to ask?';
+      case 'friendly':
+        return 'How do you want to approach this?';
+      case 'flirt':
+        return 'How do you want to flirt?';
+      case 'coerce':
+        return 'How do you want to pressure them?';
+      case 'quest':
+        return 'What do you want to discuss?';
+      case 'trade':
+        return 'What do you want to trade?';
+      default:
+        return 'What do you want to do?';
+    }
   }
 
   static getDialogueHistory(): ConversationEntry[] {

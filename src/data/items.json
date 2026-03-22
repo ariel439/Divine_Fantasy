@@ -8,6 +8,16 @@
     "base_value": 0,
     "image": "/assets/items/crumpled_letter.png"
   },
+  "book_white_tiger_sea": {
+    "name": "When the White Tiger Crossed the Sea",
+    "description": "A Shenhai chronicle translated and annotated by Shihan Yue. The margins are filled with her private notes.",
+    "type": "key_item",
+    "stackable": false,
+    "weight": 0.6,
+    "base_value": 0,
+    "image": "/assets/books/white_tiger_crossed_the_sea_cover.png",
+    "bookId": "book_white_tiger_sea"
+  },
   "elara_medicine_parcel": {
     "name": "Medicine Parcel",
     "description": "A package from Elara. Smells faintly of herbs... and something sweeter.",

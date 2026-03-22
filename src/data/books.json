@@ -57,5 +57,41 @@
     "content": [
       { "type": "img", "content": "/assets/locations/driftwatch_docks_day.png", "caption": "Detailed chart of the Driftwatch docks and surrounding coastline." }
     ]
+  },
+  "book_white_tiger_sea": {
+    "id": "book_white_tiger_sea",
+    "title": "When the White Tiger Crossed the Sea",
+    "author": "Scholar Wen Liao",
+    "releaseYear": "Undated Shenhai copy",
+    "shelf": "Historical",
+    "coverUrl": "/assets/books/white_tiger_crossed_the_sea_cover.png",
+    "content": [
+      { "type": "h1", "content": "When the White Tiger Crossed the Sea" },
+      { "type": "p", "content": "Among the preserved fragments of Shenhai, few names endure with as much fear and reverence as Ren Zhen, called the Thunder Beast. He belonged to the Five Guardians, the soul-bound protectors raised in the aftermath of the Black Bloom, when law, mercy, and the old mage courts had all failed the empire." },
+      { "type": "h2", "content": "Chapter I: The Black Bloom and the Five Guardians" },
+      { "type": "img", "content": "/assets/books/black_bloom_shenhai.png", "caption": "The Black Bloom as rendered in a later western illustration." },
+      { "type": "p", "content": "The Black Bloom began, so the records insist, when imperial mages attempted to purge darkness from the hearts of the people. Shenhai was already breaking beneath war, hunger, factional hatred, and the bitterness of a realm turning against itself. The rite was meant to cleanse. Instead, it gave form to what it touched." },
+      { "type": "p", "content": "Hatred, grief, terror, envy, cruelty, and ambition emerged clothed in plague, monstrous flesh, whispers, and storm. What should have remained hidden within human hearts became visible in the world. Thus the empire's corruption ceased to be metaphor and became landscape." },
+      { "type": "p", "content": "When the old mage order collapsed beneath blame and bloodshed, the empire turned to a harsher answer. Shrines, philosophers, and ritual houses forged a sacred pact from older spiritual law. Five warriors were chosen. Each surrendered lineage, ordinary life, and any hope of a peaceful afterlife. Their souls were bound into five weapons so they might continue fighting beyond mortal limits." },
+      { "type": "p", "content": "These became the Five Guardians." },
+      { "type": "p", "content": "They were not saints, nor were they praised as clean heroes. They existed to restore balance after the mages had broken it, and the work demanded acts that ordinary conscience could not survive untouched. Villages already swallowed by corruption were burned. Bloodlines judged too tainted to endure were ended. Mercy was measured not by innocence, but by whether imbalance would spread further if spared." },
+      { "type": "p", "content": "So the Guardians became both protectors and objects of dread. The empire needed them, feared them, and prayed never to need them again." },
+      { "type": "note", "content": "Translator's note: Shenhai's chronicles were written in their own tongue, not the common speech of the Whispers. Much is lost when western scribes flatten them into familiar words. I have preserved what meaning I can. Shihan Yue" },
+      { "type": "h2", "content": "Chapter II: Ren Zhen and the Western Sea" },
+      { "type": "p", "content": "Ren Zhen carried White Fang of Heaven, a glaive said to move before fear could fully become action. Later temple language associated him with the White Tiger, whether as divine favor, martial alignment, or merely the nearest symbol for a man who came to resemble force more than person. He was remembered as the Guardian sent when delay itself had become surrender." },
+      { "type": "p", "content": "Unlike the brighter heroes of courtly song, Ren Zhen left no graceful victories behind him. He left survival, which is uglier work. Where he passed, corruption receded, but so too did illusion. The records speak of a man whose usefulness outlived his softness." },
+      { "type": "p", "content": "Long after the worst of the Black Bloom had been contained in Shenhai, remnants endured in hidden rites, forbidden teachings, and surviving mages who refused to accept the death of their age. One such mage fled west by sea carrying fragments of profane knowledge and enough corruption to poison whatever shore received him." },
+      { "type": "p", "content": "Ren Zhen followed." },
+      { "type": "p", "content": "The pursuit crossed harbors, foreign courts, and coastlines that remembered neither Shenhai law nor Shenhai shame. By the time he reached the western shore now called Driftwatch, Ren Zhen was already an old man in visible form, though the pact within White Fang of Heaven had driven him far beyond the years granted to ordinary soldiers." },
+      { "type": "img", "content": "/assets/books/ren_zhen_driftwatch_finale.png", "caption": "Ren Zhen's final battle near Driftwatch, in which later artists place the last mage of the Black Bloom beneath White Fang of Heaven." },
+      { "type": "p", "content": "Here the records become uncertain." },
+      { "type": "p", "content": "All accounts agree that the pursuit ended near Driftwatch, and that lightning answered the glaive when the last of the old mages was finally brought low. Yet Shenhai sources do not say Ren Zhen returned home. They say only that White Fang of Heaven was never brought back, and that the Thunder Beast's road ended somewhere upon that western coast." },
+      { "type": "p", "content": "The western fragments are stranger still. They speak of a foreign warrior who lingered after war no longer required him, and of a local woman who gave him cause, for the first time in many years, to remain where he might otherwise have vanished. Whether these tales are truth, embellishment, or only the village-shaping of memory cannot now be known. What matters is that, by every surviving telling, Ren Zhen did not die in battle." },
+      { "type": "p", "content": "He died later, in age, somewhere near Driftwatch." },
+      { "type": "p", "content": "And before that end, he hid White Fang of Heaven in a place no empire, shrine, or warlord would ever think to search." },
+      { "type": "p", "content": "This is why Driftwatch appears in old Shenhai records more often than a city so small ought to. Ports are usually remembered for trade. This one was remembered for an ending." },
+      { "type": "p", "content": "Thus the oldest caution remains: should White Fang of Heaven be found again, it must not be judged as treasure. A weapon that has carried one will for too long begins to seek another capable of enduring it. Such a bearer will not be chosen for purity, but for capacity." },
+      { "type": "note", "content": "Translator's note: If this account survives in the west, let it survive with its warning intact. Legends simplify. Weapons do not. Shihan Yue" }
+    ]
   }
 }

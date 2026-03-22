@@ -1,7 +1,9 @@
 import { create } from 'zustand';
 import { useCharacterStore } from './useCharacterStore';
 import { useJournalStore } from './useJournalStore';
+import { useUIStore } from './useUIStore';
 import itemsData from '../data/items.json';
+import booksData from '../data/books.json';
 
 interface InventoryItem {
   id: string;
@@ -146,6 +148,19 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
         useCharacterStore.getState().eat(itemId);
       }
       return removed;
+    }
+
+    const bookId = (itemData as any).bookId as string | undefined;
+    if (bookId) {
+      const book = booksData[bookId as keyof typeof booksData];
+      if (!book) return false;
+
+      const ui = useUIStore.getState();
+      ui.setLibraryBooks([book as any]);
+      ui.setSelectedLibraryBookId(bookId);
+      ui.setLibraryReturnScreen('inventory');
+      ui.setScreen('library');
+      return true;
     }
 
     // For other items, just log for now

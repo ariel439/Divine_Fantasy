@@ -386,6 +386,7 @@ const ScreenManager: React.FC = () => {
             npcPortraitUrl={npc?.portrait || '/assets/icons/DivineFantasy.png'}
             playerPortraitUrl={'/assets/portraits/luke.jpg'}
             history={dialogueHistory}
+            activePrompt={DialogueService.getCurrentMenuPrompt()}
             options={options}
             onOptionSelect={handleDialogueOption}
             onEndDialogue={handleEndDialogue}

@@ -38,6 +38,19 @@
       { "location_id": "driftwatch_main_street", "start_hour": 18, "end_hour": 20 }
     ]
   },
+  "npc_shihan": {
+    "name": "Shihan Yue",
+    "home_location": "grand_library",
+    "default_dialogue_id": "shihan_default",
+    "portrait": "/assets/portraits/Adalia.png",
+    "available_from": { "month": 5, "dayOfMonth": 3 },
+    "available_until": { "month": 5, "dayOfMonth": 10 },
+    "schedules": [
+      { "location_id": "grand_library", "start_hour": 9, "end_hour": 13 },
+      { "location_id": "driftwatch_docks", "start_hour": 13, "end_hour": 16 },
+      { "location_id": "driftwatch_noble_quarter", "start_hour": 16, "end_hour": 18 }
+    ]
+  },
   "npc_matthias": {
     "name": "Corporal Matthias",
     "home_location": "mosswatch_keep",

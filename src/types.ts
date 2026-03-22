@@ -63,6 +63,7 @@ export interface Item {
   uuid?: string; // Add unique identifier for each item instance
   effects?: Record<string, number | string>;
   actions?: string[];
+  bookId?: string;
   equipmentSlot?: EquipmentSlot;
   stats?: Record<string, number>;
   attack_sound?: string;

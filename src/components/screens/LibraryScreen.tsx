@@ -37,15 +37,24 @@ interface LibraryScreenProps {
 }
 
 const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
-    const { libraryBooks, setScreen } = useUIStore();
+    const {
+        libraryBooks,
+        setScreen,
+        selectedLibraryBookId,
+        setSelectedLibraryBookId,
+        libraryReturnScreen
+    } = useUIStore();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedBook, setSelectedBook] = useState<Book | null>(null);
     const [activeShelf, setActiveShelf] = useState<BookShelf | 'All'>('All');
     const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+    const books = libraryBooks || [];
+    const shouldCloseDirectlyFromSelectedBook = libraryReturnScreen === 'inventory' && books.length <= 1;
 
     const handleClose = () => {
-        if (onClose) return onClose();
-        setScreen('inGame');
+        setSelectedLibraryBookId(null);
+        if (onClose && libraryReturnScreen === 'inGame') return onClose();
+        setScreen(libraryReturnScreen);
     };
 
     // Escape key handling
@@ -55,7 +64,12 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
                 if (fullscreenImage) {
                     setFullscreenImage(null);
                 } else if (selectedBook) {
-                    setSelectedBook(null);
+                    if (shouldCloseDirectlyFromSelectedBook) {
+                        handleClose();
+                    } else {
+                        setSelectedBook(null);
+                        setSelectedLibraryBookId(null);
+                    }
                 } else {
                     handleClose();
                 }
@@ -63,9 +77,13 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [selectedBook, fullscreenImage]);
+    }, [selectedBook, fullscreenImage, shouldCloseDirectlyFromSelectedBook]);
 
-    const books = libraryBooks || [];
+    useEffect(() => {
+        if (!selectedLibraryBookId) return;
+        const book = books.find(entry => entry.id === selectedLibraryBookId) || null;
+        setSelectedBook(book);
+    }, [selectedLibraryBookId, books]);
     
     const shelves: { id: BookShelf | 'All', label: string, icon: ReactNode }[] = [
         { id: 'All', label: 'All Archives', icon: <LibraryIcon size={16} /> },
@@ -104,12 +122,19 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
             {/* Top Navigation Bar */}
             <header className="relative z-20 w-full h-[7vh] min-h-[56px] px-8 flex justify-between items-center border-b border-zinc-800/50 backdrop-blur-xl shrink-0">
                 <button 
-                    onClick={selectedBook ? () => setSelectedBook(null) : handleClose} 
+                    onClick={selectedBook ? () => {
+                        if (shouldCloseDirectlyFromSelectedBook) {
+                            handleClose();
+                        } else {
+                            setSelectedBook(null);
+                            setSelectedLibraryBookId(null);
+                        }
+                    } : handleClose} 
                     className="flex items-center gap-2 text-zinc-400 hover:text-white transition-all group px-4 py-1.5 rounded-full hover:bg-white/5 border border-transparent hover:border-zinc-800"
                 >
                     <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                     <span className="font-bold tracking-widest uppercase text-[10px]">
-                        {selectedBook ? 'Return to Archives' : 'Back to Location'}
+                        {selectedBook ? (shouldCloseDirectlyFromSelectedBook ? 'Back to Inventory' : 'Return to Archives') : libraryReturnScreen === 'inventory' ? 'Back to Inventory' : 'Back to Location'}
                     </span>
                 </button>
                 <div className="text-center">

@@ -217,6 +217,8 @@ const LocationScreen: React.FC = () => {
       }
       case 'library': {
         useUIStore.getState().setLibraryBooks(mockBooks);
+        useUIStore.getState().setSelectedLibraryBookId(null);
+        useUIStore.getState().setLibraryReturnScreen('inGame');
         setScreen('library');
         break;
       }

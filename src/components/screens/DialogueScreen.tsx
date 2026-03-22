@@ -12,6 +12,7 @@ interface DialogueScreenProps {
   npcPortraitUrl: string;
   playerPortraitUrl: string;
   history: ConversationEntry[];
+  activePrompt?: string | null;
   options: DialogueOption[];
   onOptionSelect: (option: DialogueOption, index: number) => void;
   onEndDialogue: () => void;
@@ -25,6 +26,7 @@ const DialogueScreen: FC<DialogueScreenProps> = ({
     npcPortraitUrl, 
     playerPortraitUrl, 
     history, 
+    activePrompt,
     options, 
     onOptionSelect, 
     onEndDialogue,
@@ -185,6 +187,14 @@ const DialogueScreen: FC<DialogueScreenProps> = ({
                         ))}
                          <div ref={historyEndRef} />
                     </div>
+
+                    {activePrompt ? (
+                        <div className="flex-shrink-0 mb-6">
+                            <div className="relative max-w-[92%] px-6 py-4 rounded-2xl text-lg lg:text-xl font-light italic leading-relaxed shadow-2xl bg-black/80 text-zinc-100 border border-zinc-800/30">
+                                <p>"{activePrompt}"</p>
+                            </div>
+                        </div>
+                    ) : null}
 
                     {/* Options */}
                     <div className="flex-shrink-0 mt-auto max-h-[14rem] overflow-y-auto custom-scrollbar pr-2 space-y-3">

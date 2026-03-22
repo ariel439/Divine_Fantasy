@@ -13,6 +13,8 @@ interface UIState {
   eventSlides: import('../types').Slide[] | null;
   currentEventId: string | null;
   libraryBooks: import('../types').Book[] | null;
+  selectedLibraryBookId: string | null;
+  libraryReturnScreen: GameState;
   craftingSkill: CraftingSkill | null;
   confirmationType: string | null;
   // Actions
@@ -26,6 +28,8 @@ interface UIState {
   setEventSlides: (slides: import('../types').Slide[] | null) => void;
   setCurrentEventId: (id: string | null) => void;
   setLibraryBooks: (books: import('../types').Book[] | null) => void;
+  setSelectedLibraryBookId: (bookId: string | null) => void;
+  setLibraryReturnScreen: (screen: GameState) => void;
   setCraftingSkill: (skill: CraftingSkill | null) => void;
   setConfirmationType: (type: string | null) => void;
 }
@@ -40,6 +44,8 @@ export const useUIStore = create<UIState>((set, get) => ({
   eventSlides: null,
   currentEventId: null,
   libraryBooks: null,
+  selectedLibraryBookId: null,
+  libraryReturnScreen: 'inGame',
   craftingSkill: null,
   confirmationType: null,
   setScreen: (screen) => {
@@ -71,6 +77,12 @@ export const useUIStore = create<UIState>((set, get) => ({
   },
   setLibraryBooks: (books) => {
     set({ libraryBooks: books });
+  },
+  setSelectedLibraryBookId: (bookId) => {
+    set({ selectedLibraryBookId: bookId });
+  },
+  setLibraryReturnScreen: (screen) => {
+    set({ libraryReturnScreen: screen });
   },
   setCraftingSkill: (skill) => {
     set({ craftingSkill: skill });

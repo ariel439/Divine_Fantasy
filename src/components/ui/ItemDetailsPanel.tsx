@@ -1,7 +1,7 @@
 // FIX: Imported `useMemo` to resolve "Cannot find name 'useMemo'" error.
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import type { FC } from 'react';
-import { User, ChevronLeft } from 'lucide-react';
+import { User, ChevronLeft, X } from 'lucide-react';
 import type { Item } from '../../types';
 
 interface ItemDetailsPanelProps {
@@ -39,6 +39,7 @@ const StatComparisonRow: FC<{ label: string, selectedValue?: number, equippedVal
 };
 
 const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedItem, onShowEquipment, onAction, isEquipped }) => {
+    const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
     
     if (!selectedItem) {
         return (
@@ -53,6 +54,11 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
     }
     
     const isComparing = selectedItem.equipmentSlot && equippedItem && !isEquipped;
+    const isBook = Boolean(selectedItem.bookId);
+    const iconEl = selectedItem.icon as ReactElement<any> | undefined;
+    const itemImageSrc = iconEl && typeof iconEl.type === 'string' && iconEl.type === 'img'
+        ? ((iconEl.props && (iconEl.props as any).src) || '')
+        : '';
     const allStatKeys = useMemo(() => {
         const keys = new Set<string>();
         if (selectedItem?.stats) Object.keys(selectedItem.stats).forEach(k => keys.add(k));
@@ -68,6 +74,17 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
                 actionsToShow.splice(equipIndex, 1);
             }
         }
+
+        const getActionLabel = (action: string) => {
+            if (action === 'Use') {
+                if (selectedItem.bookId) return 'Read';
+                if (selectedItem.type === 'consumable') return 'Eat';
+            }
+            if (action === 'Equip') {
+                return isEquipped ? 'Unequip' : 'Equip';
+            }
+            return action;
+        };
         
         return (
             <div className="grid grid-cols-2 gap-3 pt-6 border-t border-zinc-800/50">
@@ -89,7 +106,7 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
                             : 'bg-zinc-800/40 text-zinc-300 hover:bg-zinc-700/60'
                         }`}
                     >
-                        {action}
+                        {getActionLabel(action)}
                     </button>
                 ))}
             </div>
@@ -97,6 +114,7 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
     };
 
     return (
+        <>
         <div className="bg-transparent flex flex-col h-full overflow-hidden">
             {/* Header */}
             <div className="p-8 pb-6 border-b border-zinc-800/50 relative bg-black/20">
@@ -110,17 +128,26 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
                 
                 <div className="mt-8 flex flex-col items-center">
                     <div className="relative group">
-                        <div className="w-32 h-32 bg-black/60 rounded-2xl flex items-center justify-center p-6 border border-zinc-800/50 shadow-inner group-hover:border-zinc-600 transition-colors">
+                        <button
+                            type="button"
+                            onClick={() => itemImageSrc && setFullscreenImage(itemImageSrc)}
+                            className={`${isBook ? 'w-36 h-52 p-3' : 'w-32 h-32 p-6'} bg-black/60 rounded-2xl flex items-center justify-center border border-zinc-800/50 shadow-inner group-hover:border-zinc-600 transition-colors ${itemImageSrc ? 'cursor-zoom-in' : 'cursor-default'}`}
+                        >
                             {(() => {
-                                const iconEl = selectedItem.icon as ReactElement<any> | undefined;
                                 if (iconEl && typeof iconEl.type === 'string' && iconEl.type === 'img') {
                                     const src = (iconEl.props && (iconEl.props as any).src) || '';
                                     const alt = (iconEl.props && (iconEl.props as any).alt) || selectedItem.name;
-                                    return <img src={src} alt={alt} className="w-24 h-24 object-contain rounded transition-transform group-hover:scale-110"/>;
+                                    return (
+                                        <img
+                                            src={src}
+                                            alt={alt}
+                                            className={`${isBook ? 'w-full h-full object-cover rounded-lg' : 'w-24 h-24 object-contain rounded'} transition-transform group-hover:scale-110`}
+                                        />
+                                    );
                                 }
                                 return iconEl ? React.cloneElement(iconEl, { size: 64, className: 'text-zinc-100 transition-transform group-hover:scale-110' }) : null;
                             })()}
-                        </div>
+                        </button>
                         {isEquipped && (
                             <div className="absolute -top-2 -right-2 bg-emerald-500 text-black px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-tighter shadow-lg">
                                 Equipped
@@ -191,6 +218,24 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
                 {renderActions()}
             </div>
         </div>
+        {fullscreenImage && (
+            <div className="fixed inset-0 z-[120] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-4 lg:p-12 animate-fade-in">
+                <button
+                    onClick={() => setFullscreenImage(null)}
+                    className="absolute top-8 right-8 p-3 bg-zinc-900/80 border border-zinc-800 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all shadow-2xl z-[130]"
+                >
+                    <X size={28} />
+                </button>
+                <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+                    <img
+                        src={fullscreenImage}
+                        alt={selectedItem.name}
+                        className="max-w-full max-h-full object-contain shadow-2xl animate-fade-in-up rounded-xl"
+                    />
+                </div>
+            </div>
+        )}
+        </>
     );
 };
 

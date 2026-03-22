@@ -1,12 +1,10 @@
 
-
-import React, { useRef, useEffect, useMemo, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { Swords, Footprints } from 'lucide-react';
 import type { CombatParticipant } from '../../types';
 import CombatantCard from '../ui/CombatantCard';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
-import { useAudioStore } from '../../stores/useAudioStore';
 
 interface CombatScreenProps {
   party: CombatParticipant[];
@@ -14,12 +12,77 @@ interface CombatScreenProps {
   turnOrder: CombatParticipant[];
   activeCharacterId?: string;
   selectedTargetId?: string;
+  targetableEnemyIds: string[];
+  thunderStrikeIds: string[];
   isPlayerTurn: boolean;
   onSelectTarget: (enemyId: string) => void;
   onAttack: () => void;
   onFlee: () => void;
   combatLog: string[];
 }
+
+type ThunderPoint = { x: number; y: number };
+type ThunderPath = { id: string; d: string; delay: number };
+
+const createLightningPath = (start: ThunderPoint, end: ThunderPoint, seedOffset: number) => {
+    const segments = 10;
+    const points: ThunderPoint[] = [start];
+
+    for (let i = 1; i < segments; i++) {
+        const t = i / segments;
+        const drift = Math.sin((t + seedOffset) * Math.PI * 4) * (28 - t * 16);
+        points.push({
+            x: start.x + (end.x - start.x) * t + drift,
+            y: start.y + (end.y - start.y) * t + Math.cos((t + seedOffset) * Math.PI * 2) * 4,
+        });
+    }
+
+    points.push(end);
+
+    return points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
+};
+
+const ThunderOverlay: FC<{
+    width: number;
+    height: number;
+    paths: ThunderPath[];
+    flashActive: boolean;
+}> = ({ width, height, paths, flashActive }) => {
+    if (width === 0 || height === 0 || paths.length === 0) return null;
+
+    return (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl z-20">
+            {flashActive && (
+                <>
+                    <div className="absolute inset-0 bg-white/20 animate-pulse" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-cyan-200/10 to-transparent animate-pulse" />
+                </>
+            )}
+            <svg
+                className="absolute inset-0 w-full h-full"
+                viewBox={`0 0 ${width} ${height}`}
+                preserveAspectRatio="none"
+            >
+                <defs>
+                    <filter id="thunder-glow" x="-40%" y="-40%" width="180%" height="180%">
+                        <feGaussianBlur stdDeviation="4" result="blur" />
+                        <feMerge>
+                            <feMergeNode in="blur" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
+                </defs>
+                {paths.map((path) => (
+                    <g key={path.id}>
+                        <path d={path.d} fill="none" stroke="rgba(34,211,238,0.42)" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" filter="url(#thunder-glow)" className="animate-thunder-bolt" style={{ animationDelay: `${path.delay}ms` }} />
+                        <path d={path.d} fill="none" stroke="rgba(250,204,21,0.78)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" filter="url(#thunder-glow)" className="animate-thunder-bolt" style={{ animationDelay: `${path.delay + 20}ms` }} />
+                        <path d={path.d} fill="none" stroke="rgba(255,255,255,0.98)" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" className="animate-thunder-bolt" style={{ animationDelay: `${path.delay + 35}ms` }} />
+                    </g>
+                ))}
+            </svg>
+        </div>
+    );
+};
 
 const TurnOrderTimeline: FC<{ combatants: CombatParticipant[]; activeId?: string }> = ({ combatants, activeId }) => (
     <div className="w-full max-w-4xl p-4 flex justify-center items-center gap-4 bg-zinc-950/50 backdrop-blur-xl rounded-full border border-zinc-800/50 shadow-2xl relative overflow-hidden">
@@ -52,6 +115,8 @@ const CombatScreen: FC<CombatScreenProps> = ({
   turnOrder,
   activeCharacterId,
   selectedTargetId,
+  targetableEnemyIds,
+  thunderStrikeIds,
   isPlayerTurn,
   onSelectTarget,
   onAttack,
@@ -59,20 +124,92 @@ const CombatScreen: FC<CombatScreenProps> = ({
   combatLog
 }) => {
     const logEndRef = useRef<HTMLDivElement>(null);
+    const enemyBoardRef = useRef<HTMLDivElement>(null);
+    const enemySlotRefs = useRef<Record<string, HTMLDivElement | null>>({});
+    const lastThunderSignatureRef = useRef<string>('');
+    const previousEnemyFormationRef = useRef<{ hadFrontAlive: boolean; frontIds: string[]; backIds: string[] }>({ hadFrontAlive: false, frontIds: [], backIds: [] });
     const [displayedEnemies, setDisplayedEnemies] = useState<CombatParticipant[]>(enemies);
     const [enemyDamageEvents, setEnemyDamageEvents] = useState<{ targetId: string, damage: number, key: number }[]>([]);
     const [partyDamageEvents, setPartyDamageEvents] = useState<{ targetId: string, damage: number, key: number }[]>([]);
-    const [soloEnemyFocusId, setSoloEnemyFocusId] = useState<string | null>(null);
+    const [thunderPaths, setThunderPaths] = useState<ThunderPath[]>([]);
+    const [thunderBounds, setThunderBounds] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
+    const [thunderFlashActive, setThunderFlashActive] = useState(false);
+    const [boardShakeActive, setBoardShakeActive] = useState(false);
+    const [promotedEnemyIds, setPromotedEnemyIds] = useState<string[]>([]);
     const tutorialActive = useWorldStateStore.getState().getFlag('combat_tutorial_active');
     const prevEnemiesRef = useRef<CombatParticipant[]>(JSON.parse(JSON.stringify(enemies)));
     const previousAliveEnemiesRef = useRef<CombatParticipant[]>(JSON.parse(JSON.stringify(enemies)));
     const prevPartyRef = useRef<CombatParticipant[]>(JSON.parse(JSON.stringify(party)));
-    const previousEnemyCountRef = useRef(enemies.length);
-    const { sfxEnabled, sfxVolume } = useAudioStore();
 
     useEffect(() => {
         logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [combatLog]);
+
+    useEffect(() => {
+        const signature = thunderStrikeIds.join('|');
+        if (thunderStrikeIds.length === 0) {
+            setThunderPaths([]);
+            setThunderFlashActive(false);
+            lastThunderSignatureRef.current = '';
+            return;
+        }
+        if (lastThunderSignatureRef.current === signature) return;
+        lastThunderSignatureRef.current = signature;
+
+        const boardEl = enemyBoardRef.current;
+        if (!boardEl) return;
+
+        const boardRect = boardEl.getBoundingClientRect();
+        if (boardRect.width === 0 || boardRect.height === 0) return;
+
+        const source = {
+            x: boardRect.width * 0.5,
+            y: Math.max(8, boardRect.height * 0.04),
+        };
+
+        const nextPaths: ThunderPath[] = thunderStrikeIds.flatMap((targetId, index) => {
+            const slotEl = enemySlotRefs.current[targetId];
+            if (!slotEl) return [];
+
+            const slotRect = slotEl.getBoundingClientRect();
+            const target = {
+                x: slotRect.left - boardRect.left + slotRect.width * 0.5,
+                y: slotRect.top - boardRect.top + slotRect.height * 0.45,
+            };
+
+            return [
+                {
+                    id: `${targetId}-main`,
+                    d: createLightningPath(source, target, index * 0.17 + 0.05),
+                    delay: index * 35,
+                },
+                {
+                    id: `${targetId}-branch`,
+                    d: createLightningPath(
+                        { x: source.x + (index % 2 === 0 ? -18 : 22), y: source.y + 14 },
+                        { x: target.x + (index % 2 === 0 ? 14 : -12), y: target.y - 10 },
+                        index * 0.11 + 0.24
+                    ),
+                    delay: index * 35 + 45,
+                },
+            ];
+        });
+
+        setThunderBounds({ width: boardRect.width, height: boardRect.height });
+        setThunderFlashActive(true);
+        setBoardShakeActive(true);
+        setThunderPaths(nextPaths);
+
+        const flashTimer = setTimeout(() => setThunderFlashActive(false), 180);
+        const shakeTimer = setTimeout(() => setBoardShakeActive(false), 280);
+        const cleanupTimer = setTimeout(() => setThunderPaths([]), 520);
+
+        return () => {
+            clearTimeout(flashTimer);
+            clearTimeout(shakeTimer);
+            clearTimeout(cleanupTimer);
+        };
+    }, [thunderStrikeIds]);
 
     useEffect(() => {
         const previousAliveEnemies = previousAliveEnemiesRef.current;
@@ -102,17 +239,29 @@ const CombatScreen: FC<CombatScreenProps> = ({
     }, [enemies]);
 
     useEffect(() => {
-        const previousEnemyCount = previousEnemyCountRef.current;
-        if (previousEnemyCount > 1 && enemies.length === 1) {
-            setSoloEnemyFocusId(enemies[0]?.id || null);
-            const timer = setTimeout(() => setSoloEnemyFocusId(null), 700);
-            previousEnemyCountRef.current = enemies.length;
+        const currentFrontIds = enemies.filter((enemy) => enemy.combatRow === 'front').map((enemy) => enemy.id);
+        const currentBackIds = enemies.filter((enemy) => enemy.combatRow === 'back').map((enemy) => enemy.id);
+        const currentHasFrontAlive = enemies.some((enemy) => enemy.combatRow === 'front' && enemy.hp > 0);
+        const previous = previousEnemyFormationRef.current;
+
+        if (previous.hadFrontAlive && !currentHasFrontAlive && currentBackIds.length > 0) {
+            setPromotedEnemyIds(currentBackIds);
+            const timer = setTimeout(() => setPromotedEnemyIds([]), 650);
+            previousEnemyFormationRef.current = {
+                hadFrontAlive: currentHasFrontAlive,
+                frontIds: currentFrontIds,
+                backIds: currentBackIds,
+            };
             return () => clearTimeout(timer);
         }
 
-        previousEnemyCountRef.current = enemies.length;
+        previousEnemyFormationRef.current = {
+            hadFrontAlive: currentHasFrontAlive,
+            frontIds: currentFrontIds,
+            backIds: currentBackIds,
+        };
     }, [enemies]);
-    
+
     useEffect(() => {
         const newDamageEvents: { targetId: string, damage: number, key: number }[] = [];
         displayedEnemies.forEach(currentEnemy => {
@@ -189,16 +338,117 @@ const CombatScreen: FC<CombatScreenProps> = ({
     
   const activeParticipant = party.find(p => p.id === activeCharacterId);
     const isCompanionTurn = activeParticipant?.isCompanion;
-    const enemyColumnCount = Math.min(2, displayedEnemies.length);
-    const enemyCardWrapperClass =
-        displayedEnemies.length === 1
-            ? 'w-full max-w-sm'
-            : displayedEnemies.length === 2
-                ? 'w-full max-w-sm justify-self-center'
-                : 'w-full';
+    const buildFormation = (combatants: CombatParticipant[]) => {
+        const aliveFront = combatants.filter((c) => c.hp > 0 && c.combatRow === 'front');
+        const hasAnyFront = combatants.some((c) => c.combatRow === 'front');
+        const frontSource = hasAnyFront
+            ? combatants.filter((c) => c.combatRow === 'front')
+            : combatants.filter((c) => c.combatRow === 'back');
+        const backSource = hasAnyFront ? combatants.filter((c) => c.combatRow === 'back') : [];
+
+        const orderedFront = [...frontSource].sort((a, b) => (a.combatSlot ?? 0) - (b.combatSlot ?? 0));
+        const orderedBack = [...backSource].sort((a, b) => (a.combatSlot ?? 0) - (b.combatSlot ?? 0));
+
+        return {
+            front: [orderedFront[0] || null, orderedFront[1] || null],
+            back: [orderedBack[0] || null, orderedBack[1] || null],
+        };
+    };
+
+    const partyFormation = buildFormation(party);
+    const enemyFormation = buildFormation(displayedEnemies);
+
+    const renderSlot = (
+        combatant: CombatParticipant | null,
+        side: 'party' | 'enemy',
+        key: string,
+        depth: 'front' | 'back'
+    ) => {
+        const damageEvents = side === 'party' ? partyDamageEvents : enemyDamageEvents;
+        const isTargetable = combatant ? targetableEnemyIds.includes(combatant.id) : false;
+        const isSelected = combatant ? combatant.id === selectedTargetId : false;
+        const canClickEnemy = side === 'enemy' && combatant && isTargetable;
+        const isThunderStruck = combatant ? thunderStrikeIds.includes(combatant.id) : false;
+        const isPromoted = combatant ? promotedEnemyIds.includes(combatant.id) : false;
+
+        return (
+            <div
+                key={key}
+                ref={(node) => {
+                    if (side === 'enemy' && combatant) {
+                        enemySlotRefs.current[combatant.id] = node;
+                    }
+                }}
+                className={`relative w-full max-w-sm transition-all duration-700 ease-out ${depth === 'back' ? 'scale-95 opacity-80 translate-y-2' : 'translate-y-0'} ${side === 'enemy' && isPromoted && depth === 'front' ? 'animate-row-promote' : ''}`}
+            >
+                {combatant ? (
+                    <>
+                        <CombatantCard
+                            combatant={combatant}
+                            isPartyMember={side === 'party'}
+                            isActive={combatant.id === activeCharacterId}
+                            isSelected={isSelected}
+                            isTargetable={side === 'enemy' ? isTargetable : true}
+                            onClick={canClickEnemy ? () => onSelectTarget(combatant.id) : undefined}
+                            wasJustHit={damageEvents.some(e => e.targetId === combatant.id)}
+                        />
+                        {isThunderStruck && combatant.hp > 0 && (
+                            <div className="absolute inset-0 rounded-xl pointer-events-none overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/18 via-cyan-200/10 to-amber-200/18 animate-pulse" />
+                                <div className="absolute inset-0 border border-cyan-100/65 shadow-[0_0_22px_rgba(255,255,255,0.25),0_0_34px_rgba(34,211,238,0.22),0_0_44px_rgba(250,204,21,0.18)] rounded-xl" />
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.35),transparent_62%)]" />
+                            </div>
+                        )}
+                        {side === 'enemy' && !isTargetable && combatant.hp > 0 && (
+                            <div className="absolute inset-0 rounded-xl bg-black/45 border border-zinc-800/60 flex items-center justify-center pointer-events-none">
+                                <span className="px-3 py-1 rounded-full bg-zinc-950/90 text-[9px] font-black uppercase tracking-[0.2em] text-zinc-300 border border-zinc-700/70">
+                                    Front Line Blocks
+                                </span>
+                            </div>
+                        )}
+                        {damageEvents.filter(e => e.targetId === combatant.id).map(event => (
+                            <div key={event.key} className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl font-bold animate-float-up ${isThunderStruck ? 'text-yellow-100' : 'text-red-500'}`} style={{textShadow: isThunderStruck ? '0 0 10px rgba(255,255,255,0.95), 0 0 18px rgba(34,211,238,0.85), 0 0 26px rgba(250,204,21,0.75)' : '0 0 8px rgba(255, 255, 255, 0.7)'}}>
+                                {event.damage}
+                            </div>
+                        ))}
+                    </>
+                ) : (
+                    <div className={`w-full h-[280px] rounded-xl border border-dashed ${depth === 'front' ? 'border-zinc-800/70' : 'border-zinc-900/70'} bg-black/15`} />
+                )}
+            </div>
+        );
+    };
 
   return (
     <div className="w-full h-full flex flex-col relative bg-zinc-950">
+            <style>{`
+                @keyframes thunderBolt {
+                    0% { opacity: 0; stroke-dasharray: 12 220; stroke-dashoffset: 120; }
+                    20% { opacity: 1; stroke-dasharray: 220 0; stroke-dashoffset: 0; }
+                    60% { opacity: 1; }
+                    100% { opacity: 0; stroke-dasharray: 220 0; stroke-dashoffset: -18; }
+                }
+                @keyframes boardShake {
+                    0%, 100% { transform: translate3d(0, 0, 0); }
+                    20% { transform: translate3d(-6px, 1px, 0); }
+                    40% { transform: translate3d(5px, -2px, 0); }
+                    60% { transform: translate3d(-3px, 2px, 0); }
+                    80% { transform: translate3d(2px, -1px, 0); }
+                }
+                @keyframes rowPromote {
+                    0% { transform: translate3d(32px, 6px, 0) scale(0.95); opacity: 0.75; }
+                    100% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+                }
+                .animate-thunder-bolt {
+                    animation: thunderBolt 300ms ease-out forwards;
+                }
+                .animate-board-shake {
+                    animation: boardShake 260ms ease-out;
+                }
+                .animate-row-promote {
+                    animation: rowPromote 420ms ease-out;
+                }
+            `}</style>
             {/* Background Layer with blur */}
             <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 blur-md" style={{ backgroundImage: `url(/assets/backgrounds/minimal_bg.png)` }} />
             
@@ -207,46 +457,31 @@ const CombatScreen: FC<CombatScreenProps> = ({
                 {/* Party Column */}
                 <div className="flex flex-col gap-6 w-full lg:w-1/3 items-center transition-all duration-500 ease-out">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-2">Vanguard</h3>
-                    {party.map(member => (
-                        <div key={member.id} className="relative w-full max-w-sm transition-all duration-500 ease-out">
-                             <CombatantCard
-                                combatant={member}
-                                isPartyMember={true}
-                                isActive={member.id === activeCharacterId}
-                                wasJustHit={partyDamageEvents.some(e => e.targetId === member.id)}
-                             />
-                            {partyDamageEvents.filter(e => e.targetId === member.id).map(event => (
-                                <div key={event.key} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl font-bold text-red-500 animate-float-up" style={{textShadow: '0 0 8px rgba(255, 255, 255, 0.7)'}}>
-                                  {event.damage}
-                                </div>
-                            ))}
-                        </div>
-                    ))}
+                    <div className="grid grid-cols-2 gap-4 lg:gap-6 w-full">
+                        {renderSlot(partyFormation.back[0], 'party', 'party-back-0', 'back')}
+                        {renderSlot(partyFormation.front[0], 'party', 'party-front-0', 'front')}
+                        {renderSlot(partyFormation.back[1], 'party', 'party-back-1', 'back')}
+                        {renderSlot(partyFormation.front[1], 'party', 'party-front-1', 'front')}
+                    </div>
                 </div>
 
                 {/* Enemies Grid */}
                 <div className="flex flex-col gap-6 w-full lg:w-1/3 items-center transition-all duration-500 ease-out">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-red-500/70 mb-2">Adversaries</h3>
-                    <div className={`grid gap-4 lg:gap-6 w-full transition-all duration-500 ease-out ${tutorialActive ? 'ring-2 ring-yellow-400 rounded-lg p-2' : ''}`} style={{ gridTemplateColumns: `repeat(${Math.min(2, displayedEnemies.length)}, minmax(0, 1fr))` }}>
-                        {displayedEnemies.map(enemy => (
-                            <div
-                                key={enemy.id}
-                                className={`relative transition-all duration-500 ease-out ${enemyCardWrapperClass} ${enemyColumnCount === 1 ? 'mx-auto' : ''} ${soloEnemyFocusId === enemy.id ? 'scale-[1.03]' : ''}`}
-                            >
-                                <CombatantCard
-                                    combatant={enemy}
-                                    isPartyMember={false}
-                                    isSelected={enemy.id === selectedTargetId}
-                                    onClick={() => onSelectTarget(enemy.id)}
-                                    wasJustHit={enemyDamageEvents.some(e => e.targetId === enemy.id)}
-                                />
-                                {enemyDamageEvents.filter(e => e.targetId === enemy.id).map(event => (
-                                    <div key={event.key} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl font-bold text-red-500 animate-float-up" style={{textShadow: '0 0 8px rgba(255, 255, 255, 0.7)'}}>
-                                    {event.damage}
-                                    </div>
-                                ))}
-                            </div>
-                        ))}
+                    <div
+                        ref={enemyBoardRef}
+                        className={`relative grid grid-cols-2 gap-4 lg:gap-6 w-full transition-all duration-500 ease-out ${tutorialActive ? 'ring-2 ring-yellow-400 rounded-lg p-2' : ''} ${boardShakeActive ? 'animate-board-shake' : ''}`}
+                    >
+                        <ThunderOverlay
+                            width={thunderBounds.width}
+                            height={thunderBounds.height}
+                            paths={thunderPaths}
+                            flashActive={thunderFlashActive}
+                        />
+                        {renderSlot(enemyFormation.front[0], 'enemy', 'enemy-front-0', 'front')}
+                        {renderSlot(enemyFormation.back[0], 'enemy', 'enemy-back-0', 'back')}
+                        {renderSlot(enemyFormation.front[1], 'enemy', 'enemy-front-1', 'front')}
+                        {renderSlot(enemyFormation.back[1], 'enemy', 'enemy-back-1', 'back')}
                     </div>
                 </div>
             </main>

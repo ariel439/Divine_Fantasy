@@ -106,9 +106,31 @@ const CombatManager: React.FC = () => {
   const scriptedTurnCount = React.useRef(0);
 
   const [selectedTargetId, setSelectedTargetId] = React.useState<string>('');
+  const [actionLocked, setActionLocked] = React.useState(false);
+  const [thunderStrikeIds, setThunderStrikeIds] = React.useState<string[]>([]);
+
+  const getEffectiveFrontTargets = React.useCallback((combatants: CombatParticipant[]) => {
+    const aliveFront = combatants.filter((p) => p.hp > 0 && p.combatRow === 'front');
+    if (aliveFront.length > 0) return aliveFront;
+    return combatants.filter((p) => p.hp > 0 && p.combatRow === 'back');
+  }, []);
+
+  const getCurrentWeapon = React.useCallback(() => useCharacterStore.getState().equippedItems.weapon, []);
+  const hasRowCleaveWeapon = React.useCallback((attacker: CombatParticipant) => {
+    if (!attacker.isPlayer) return false;
+    const weapon = getCurrentWeapon();
+    return Boolean(weapon?.combatTags?.includes('row_cleave'));
+  }, [getCurrentWeapon]);
+  const hasStormBoardWeapon = React.useCallback((attacker: CombatParticipant) => {
+    if (!attacker.isPlayer) return false;
+    const weapon = getCurrentWeapon();
+    return Boolean(weapon?.combatTags?.includes('storm_board'));
+  }, [getCurrentWeapon]);
 
   const aliveEnemies = React.useMemo(() => getAliveEnemies(), [participants, getAliveEnemies]);
   const aliveParty = React.useMemo(() => getAliveParty(), [participants, getAliveParty]);
+  const targetableEnemies = React.useMemo(() => getEffectiveFrontTargets(aliveEnemies), [aliveEnemies, getEffectiveFrontTargets]);
+  const targetableParty = React.useMemo(() => getEffectiveFrontTargets(aliveParty), [aliveParty, getEffectiveFrontTargets]);
   const sortedTurnOrder = React.useMemo(() => turnOrder.map(id => participants.find(p => p.id === id)).filter(Boolean) as CombatParticipant[], [turnOrder, participants]);
   const syncPlayerVitalsFromCombat = React.useCallback((fallbackHp?: number) => {
     const playerCombatant = participants.find((p) => p.isPlayer);
@@ -136,7 +158,9 @@ const CombatManager: React.FC = () => {
       if (attacker.attackType) return attacker.attackType;
   
       if (attacker.isPlayer) {
-        const weaponId = useCharacterStore.getState().equippedItems.weapon?.id?.toLowerCase() || '';
+        const weapon = useCharacterStore.getState().equippedItems.weapon;
+        const weaponId = weapon?.id?.toLowerCase() || '';
+        if (weapon?.combatTags?.includes('row_cleave') || weaponId.includes('glaive')) return 'slash';
         if (weaponId.includes('knife') || weaponId.includes('dagger')) return 'pierce';
         if (weaponId.includes('sword') || weaponId.includes('blade') || weaponId.includes('axe')) return 'slash';
         if (weaponId.includes('mace') || weaponId.includes('club') || weaponId.includes('hammer')) return 'blunt';
@@ -194,20 +218,26 @@ const CombatManager: React.FC = () => {
 
   // Keep target selection sane as enemy counts change
   useEffect(() => {
-    if (aliveEnemies.length === 1) {
-      const loneEnemy = aliveEnemies[0];
+    if (targetableEnemies.length === 1) {
+      const loneEnemy = targetableEnemies[0];
       if (loneEnemy && selectedTargetId !== loneEnemy.id) {
         setSelectedTargetId(loneEnemy.id);
       }
       return;
     }
 
-    const currentTargetStillAlive = aliveEnemies.some((enemy) => enemy.id === selectedTargetId);
-    if ((!selectedTargetId || !currentTargetStillAlive) && aliveEnemies.length > 0) {
-      const firstEnemy = aliveEnemies[0];
+    const currentTargetStillAlive = targetableEnemies.some((enemy) => enemy.id === selectedTargetId);
+    if ((!selectedTargetId || !currentTargetStillAlive) && targetableEnemies.length > 0) {
+      const firstEnemy = targetableEnemies[0];
       if (firstEnemy) setSelectedTargetId(firstEnemy.id);
     }
-  }, [aliveEnemies, selectedTargetId]);
+  }, [targetableEnemies, selectedTargetId]);
+
+  useEffect(() => {
+    if (thunderStrikeIds.length === 0) return;
+    const timer = setTimeout(() => setThunderStrikeIds([]), 700);
+    return () => clearTimeout(timer);
+  }, [thunderStrikeIds]);
 
   // Handle victory/defeat checks
   useEffect(() => {
@@ -301,25 +331,30 @@ const CombatManager: React.FC = () => {
   }, [aliveEnemies.length, aliveParty.length, phase, setPhase, setRewards, endCombat, setScreen, passTime, encounterType, victoryActions, victoryToast, defeatMode, defeatToast, syncPlayerVitalsFromCombat, participants, rollCombatLoot]);
 
   const handleAttack = () => {
-    if (!isPlayerTurn() || !selectedTargetId) return;
+    if (!isPlayerTurn() || !selectedTargetId || actionLocked) return;
     
     const attacker = getCurrentParticipant();
     const target = participants.find(p => p.id === selectedTargetId);
     if (!attacker || !target || target.hp <= 0) return;
+    if (!targetableEnemies.some((enemy) => enemy.id === target.id)) return;
 
     const isBrawl = encounterType === 'brawl';
 
     const baseHitChance = getBaseHitChance(attacker);
 
     if (Math.random() > baseHitChance) {
+      setActionLocked(true);
       addLogEntry(`${attacker.name} attacks ${target.name} but misses!`);
       playSfx(COMBAT_CONFIG.DEFAULT_SFX.MISS);
       // Brief delay so the miss is visible/audible before next turn
       setTimeout(() => {
+        setActionLocked(false);
         nextTurn();
       }, 450);
       return;
     }
+
+    setActionLocked(true);
 
     const attackPower = attacker.attack;
     const defencePower = Math.max(0, target.defence);
@@ -351,35 +386,104 @@ const CombatManager: React.FC = () => {
         damage = Math.max(minDamage, damage);
     }
 
-    const newHp = Math.max(0, target.hp - damage);
-
-    updateParticipant(target.id, { hp: newHp });
-    addLogEntry(`${attacker.name} attacks ${target.name} for ${damage} damage!`);
-
-    if (attacker.isPlayer || attacker.isCompanion) {
-      addSkillXp('attack', Math.floor(damage * 2));
-    }
+    const rowTargets = hasRowCleaveWeapon(attacker)
+      ? targetableEnemies.filter((enemy) => enemy.combatRow === target.combatRow)
+      : [target];
 
     playSfx(isBrawl ? COMBAT_CONFIG.DEFAULT_SFX.ATTACK : getAttackSound(attacker));
+    const hasStormFollowup = hasStormBoardWeapon(attacker);
 
-    if ((target.isPlayer || target.isCompanion) && newHp > 0) {
-      addSkillXp('defence', Math.floor(damage * 2));
-    }
+    const applyRowDamage = () => {
+      rowTargets.forEach((rowTarget) => {
+        const rowTargetDefence = Math.max(0, rowTarget.defence);
+        const rowArmorClass = getArmorClass(rowTarget);
+        const rowTypeMultiplier = getTypeMultiplier(damageType, rowArmorClass);
+        let rowDamage = damage;
 
-    if (newHp <= 0) {
-      addLogEntry(`${target.name} is defeated!`);
-    }
+        if (rowTarget.id !== target.id) {
+          if (attacker.isPlayer) {
+            const brawlProfile = isBrawl ? getBrawlProfile(rowTarget) : null;
+            const multiplier = isBrawl ? brawlProfile!.multiplier : COMBAT_CONFIG.DAMAGE_FORMULA.PLAYER_MULTIPLIER;
+            const defenceFactor = isBrawl ? brawlProfile!.defenceFactor : COMBAT_CONFIG.DAMAGE_FORMULA.PLAYER_DEFENCE_FACTOR;
+            const minDamage = isBrawl ? brawlProfile!.minDamage : COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.PLAYER;
+            rowDamage = Math.floor((attackPower * multiplier - rowTargetDefence * defenceFactor) * rowTypeMultiplier);
+            rowDamage = Math.max(minDamage, rowDamage);
+          }
+        }
 
-    if (useWorldStateStore.getState().getFlag('combat_tutorial_active')) {
-      useWorldStateStore.getState().setFlag('combat_tutorial_active', false);
-      useWorldStateStore.getState().setFlag('combat_tutorial_seen', true);
-    }
+        const newHp = Math.max(0, rowTarget.hp - rowDamage);
+        updateParticipant(rowTarget.id, { hp: newHp });
+        addLogEntry(`${attacker.name} attacks ${rowTarget.name} for ${rowDamage} damage!`);
 
-    nextTurn();
+        if (attacker.isPlayer || attacker.isCompanion) {
+          addSkillXp('attack', Math.floor(rowDamage * 2));
+        }
+
+        if ((rowTarget.isPlayer || rowTarget.isCompanion) && newHp > 0) {
+          addSkillXp('defence', Math.floor(rowDamage * 2));
+        }
+
+        if (newHp <= 0) {
+          addLogEntry(`${rowTarget.name} is defeated!`);
+        }
+      });
+    };
+
+    const applyThunderDamage = () => {
+      const currentEnemyState = useCombatStore.getState().participants.filter((p) => !p.isPlayer && !p.isCompanion && p.hp > 0);
+      const thunderDamage = Math.max(2, Math.floor(attackPower * 0.45));
+      const struckIds: string[] = [];
+
+      playSfx('/assets/sfx/combat_thunder_strike.mp3');
+
+      currentEnemyState.forEach((enemy) => {
+        const newHp = Math.max(0, enemy.hp - thunderDamage);
+        updateParticipant(enemy.id, { hp: newHp });
+        addLogEntry(`Lightning from ${attacker.name} lashes ${enemy.name} for ${thunderDamage} damage!`);
+        struckIds.push(enemy.id);
+
+        if (attacker.isPlayer || attacker.isCompanion) {
+          addSkillXp('attack', Math.floor(thunderDamage * 2));
+        }
+
+        if (newHp <= 0) {
+          addLogEntry(`${enemy.name} is defeated!`);
+        }
+      });
+
+      setThunderStrikeIds(struckIds);
+    };
+
+    setTimeout(() => {
+      applyRowDamage();
+
+      if (hasStormFollowup) {
+        setTimeout(() => {
+          applyThunderDamage();
+          if (useWorldStateStore.getState().getFlag('combat_tutorial_active')) {
+            useWorldStateStore.getState().setFlag('combat_tutorial_active', false);
+            useWorldStateStore.getState().setFlag('combat_tutorial_seen', true);
+          }
+          setTimeout(() => {
+            setActionLocked(false);
+            nextTurn();
+          }, 700);
+        }, 550);
+      } else {
+        if (useWorldStateStore.getState().getFlag('combat_tutorial_active')) {
+          useWorldStateStore.getState().setFlag('combat_tutorial_active', false);
+          useWorldStateStore.getState().setFlag('combat_tutorial_seen', true);
+        }
+        setTimeout(() => {
+          setActionLocked(false);
+          nextTurn();
+        }, 500);
+      }
+    }, 180);
   };
 
   const handleFlee = () => {
-    if (!isPlayerTurn()) return;
+    if (!isPlayerTurn() || actionLocked) return;
     
     // Simple flee logic - base chance modified by dexterity difference
     const partyDexterity = getAliveParty().reduce((sum, p) => sum + p.dexterity, 0) / getAliveParty().length;
@@ -439,14 +543,14 @@ const CombatManager: React.FC = () => {
 
         if (isScriptedLoss) {
           // Prioritize Robert (Companion)
-          const robert = aliveParty.find(p => p.isCompanion);
-          target = robert || aliveParty[0];
+          const robert = targetableParty.find(p => p.isCompanion);
+          target = robert || targetableParty[0];
           
           damage = 15; // Fixed high damage for cinematic feel
           scriptedTurnCount.current += 1;
           playSfx(getAttackSound(currentEnemy));
         } else {
-          target = aliveParty[Math.floor(Math.random() * aliveParty.length)];
+          target = targetableParty[Math.floor(Math.random() * targetableParty.length)];
 
           const baseHitChance = getBaseHitChance(currentEnemy);
           if (Math.random() > baseHitChance) {
@@ -511,12 +615,12 @@ const CombatManager: React.FC = () => {
     if (phase === 'player-turn' && current?.isCompanion) {
          const timer = setTimeout(() => {
             const aliveEnemies = getAliveEnemies();
-            if (aliveEnemies.length === 0) {
+            if (aliveEnemies.length === 0 || targetableEnemies.length === 0) {
                 nextTurn();
                 return;
             }
             
-            const target = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
+            const target = targetableEnemies[Math.floor(Math.random() * targetableEnemies.length)];
 
             const baseHitChance = getBaseHitChance(current);
             if (Math.random() > baseHitChance) {
@@ -558,7 +662,7 @@ const CombatManager: React.FC = () => {
          }, 650);
          return () => clearTimeout(timer);
     }
-  }, [phase, currentTurnIndex, participants, isPlayerTurn, getCurrentParticipant, nextTurn, addLogEntry, getAliveEnemies, getAliveParty, addSkillXp, getSkillLevel, updateParticipant, encounterType, getBrawlProfile, getBaseHitChance, getAttackType, getArmorClass, getTypeMultiplier]);
+  }, [phase, currentTurnIndex, participants, isPlayerTurn, getCurrentParticipant, nextTurn, addLogEntry, getAliveEnemies, getAliveParty, targetableEnemies, targetableParty, addSkillXp, getSkillLevel, updateParticipant, encounterType, getBrawlProfile, getBaseHitChance, getAttackType, getArmorClass, getTypeMultiplier]);
 
     return (
       <CombatScreen
@@ -567,12 +671,16 @@ const CombatManager: React.FC = () => {
         turnOrder={turnOrder.map(id => participants.find(p => p.id === id)).filter(Boolean) as CombatParticipant[]}
         activeCharacterId={getCurrentParticipant()?.id}
         selectedTargetId={selectedTargetId}
-      isPlayerTurn={isPlayerTurn()}
-      onSelectTarget={setSelectedTargetId}
-      onAttack={handleAttack}
-      onFlee={handleFlee}
-      combatLog={log}
-    />
+        targetableEnemyIds={targetableEnemies.map((enemy) => enemy.id)}
+        thunderStrikeIds={thunderStrikeIds}
+        isPlayerTurn={isPlayerTurn() && !actionLocked}
+        onSelectTarget={(enemyId) => {
+          if (!actionLocked) setSelectedTargetId(enemyId);
+        }}
+        onAttack={handleAttack}
+        onFlee={handleFlee}
+        combatLog={log}
+      />
   );
 };
 

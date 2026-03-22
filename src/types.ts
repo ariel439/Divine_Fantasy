@@ -64,6 +64,7 @@ export interface Item {
   effects?: Record<string, number | string>;
   actions?: string[];
   bookId?: string;
+  combatTags?: string[];
   equipmentSlot?: EquipmentSlot;
   stats?: Record<string, number>;
   attack_sound?: string;
@@ -105,6 +106,8 @@ export interface CombatParticipant {
     attack_sound?: string;
     attackType?: 'slash' | 'pierce' | 'blunt';
     combatTags?: string[];
+    combatRow?: 'front' | 'back';
+    combatSlot?: number;
     accuracyModifier?: number;
     lootTable?: Array<{ item_id: string; quantity: number; chance: number }>;
   }

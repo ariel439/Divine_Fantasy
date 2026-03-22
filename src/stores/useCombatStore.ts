@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { CombatParticipant, CombatEncounterType, CombatDefeatMode, CombatEncounterConfig } from '../types';
+import { useCharacterStore } from './useCharacterStore';
 
 export type CombatPhase = 'setup' | 'player-turn' | 'enemy-turn' | 'victory' | 'defeat' | 'fled';
 
@@ -49,6 +50,13 @@ export interface CombatStore extends CombatState {
   isPlayerTurn: () => boolean;
 }
 
+const assignFormation = (combatants: CombatParticipant[]): CombatParticipant[] =>
+  combatants.map((combatant, index) => ({
+    ...combatant,
+    combatRow: index < 2 ? 'front' : 'back',
+    combatSlot: index % 2,
+  }));
+
 const initialState: CombatState = {
   participants: [],
   turnOrder: [],
@@ -68,18 +76,41 @@ export const useCombatStore = create<CombatStore>((set, get) => ({
   ...initialState,
 
   startCombat(player, companion, enemies, config) {
-    const participants: CombatParticipant[] = [player, ...enemies];
+    const equippedWeapon = useCharacterStore.getState().equippedItems.weapon;
+    const playerCombatTags = Array.from(new Set([
+      ...(player.combatTags || []),
+      ...(equippedWeapon?.combatTags || []),
+    ]));
+
+    const partyMembers: CombatParticipant[] = [player];
     if (companion) {
       if (Array.isArray(companion)) {
-        participants.push(...companion);
+        partyMembers.push(...companion);
       } else {
-        participants.push(companion);
+        partyMembers.push(companion);
       }
     }
+
+    const normalizedParty = partyMembers.map((member) =>
+      member.isPlayer
+        ? {
+            ...member,
+            combatTags: playerCombatTags,
+            attack_sound: member.attack_sound || equippedWeapon?.attack_sound,
+          }
+        : member
+    );
+
+    const positionedParty = assignFormation(normalizedParty);
+    const positionedEnemies = assignFormation(enemies);
+    const participants: CombatParticipant[] = [...positionedParty, ...positionedEnemies];
 
     // Sort by dexterity descending for honest initiative.
     // Break ties by giving the player side a slight readability advantage only when stats are equal.
     const sorted = participants.sort((a, b) => {
+      const aFirstStrike = a.combatTags?.includes('first_strike') ? 1 : 0;
+      const bFirstStrike = b.combatTags?.includes('first_strike') ? 1 : 0;
+      if (bFirstStrike !== aFirstStrike) return bFirstStrike - aFirstStrike;
       if (b.dexterity !== a.dexterity) return b.dexterity - a.dexterity;
       if ((a.isPlayer || a.isCompanion) && !(b.isPlayer || b.isCompanion)) return -1;
       if (!(a.isPlayer || a.isCompanion) && (b.isPlayer || b.isCompanion)) return 1;

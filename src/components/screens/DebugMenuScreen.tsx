@@ -13,7 +13,6 @@ import { useJournalStore } from '../../stores/useJournalStore';
 const DebugMenuScreen: FC = () => {
   const { setScreen } = useUIStore();
   const inventoryStore = useInventoryStore();
-  const characterStore = useCharacterStore();
   const worldStateStore = useWorldStateStore();
   const locationStore = useLocationStore();
   const diaryStore = useDiaryStore();
@@ -28,20 +27,6 @@ const DebugMenuScreen: FC = () => {
 
   const handleBackToMenu = () => {
     setScreen('mainMenu');
-  };
-
-  const handleFullRestore = () => {
-    ensureDebugCharacter();
-    const maxHp = useCharacterStore.getState().maxHp || 100;
-    const maxEnergy = useCharacterStore.getState().getMaxEnergy();
-    useCharacterStore.setState({
-      energy: maxEnergy,
-      hp: maxHp,
-      hunger: 100,
-    });
-    if (characterStore.hp <= 0) {
-      useCharacterStore.setState({ hp: maxHp });
-    }
   };
 
   const handleCraftingSetup = () => {
@@ -86,6 +71,25 @@ const DebugMenuScreen: FC = () => {
     }
 
     locationStore.setLocation('driftwatch_docks');
+
+    const maxHp = charStore.maxHp || 100;
+    const maxEnergy = charStore.getMaxEnergy();
+    useCharacterStore.setState({
+      hp: maxHp,
+      energy: maxEnergy,
+      hunger: 100,
+    });
+
+    if (companionStore.activeCompanion) {
+      companionStore.setCompanion({
+        ...companionStore.activeCompanion,
+        stats: {
+          ...companionStore.activeCompanion.stats,
+          hp: companionStore.activeCompanion.stats.maxHp,
+        },
+      });
+    }
+
     GameManagerService.startSmugglerCombat();
   };
 
@@ -132,15 +136,9 @@ const DebugMenuScreen: FC = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => setScreen('combatDebug')}
-                className="flex-1 px-4 py-3 rounded-md bg-red-900/40 hover:bg-red-800/60 text-red-100 text-sm font-semibold border border-red-800/50 transition-all hover:shadow-[0_0_10px_rgba(220,38,38,0.2)]"
+                className="w-full px-4 py-3 rounded-md bg-red-900/40 hover:bg-red-800/60 text-red-100 text-sm font-semibold border border-red-800/50 transition-all hover:shadow-[0_0_10px_rgba(220,38,38,0.2)]"
               >
                 Open Combat Debug Workspace
-              </button>
-              <button
-                onClick={handleFullRestore}
-                className="flex-1 px-4 py-3 rounded-md bg-emerald-900/40 hover:bg-emerald-800/60 text-emerald-100 text-sm font-semibold border border-emerald-800/50 transition-all hover:shadow-[0_0_10px_rgba(5,150,105,0.2)]"
-              >
-                Heal & Restore Stats
               </button>
             </div>
           </section>

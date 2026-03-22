@@ -42,7 +42,7 @@
     "name": "Shihan Yue",
     "home_location": "grand_library",
     "default_dialogue_id": "shihan_default",
-    "portrait": "/assets/portraits/Adalia.png",
+    "portrait": "/assets/portraits/ShihanYue.png",
     "available_from": { "month": 5, "dayOfMonth": 3 },
     "available_until": { "month": 5, "dayOfMonth": 10 },
     "schedules": [
@@ -225,10 +225,10 @@
     ]
   },
   "npc_pit_booker": {
-    "name": "Pit Booker",
+    "name": "Rook Veller",
     "home_location": "slum_fight_pit",
     "default_dialogue_id": "pit_booker_default",
-    "portrait": "/assets/portraits/Thug.png",
+    "portrait": "/assets/portraits/RookVeller.png",
     "schedules": [
       { "location_id": "slum_fight_pit", "start_hour": 19, "end_hour": 4 }
     ]

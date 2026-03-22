@@ -53,8 +53,9 @@ const InventoryScreen: FC = () => {
             quantity: baseItem.quantity ?? 1,
             stackable: itemData.stackable,
             effects: (itemData as any).effects,
-            actions: equipSlot ? ['Equip', 'Use', 'Drop'] : ['Use', 'Drop'],
+            actions: equipSlot ? ['Equip', 'Drop'] : ['Use', 'Drop'],
             bookId: (itemData as any).bookId,
+            combatTags: (itemData as any).combatTags,
             equipmentSlot: equipSlot,
             stats: (itemData as any).stats || {}
         } as Item;

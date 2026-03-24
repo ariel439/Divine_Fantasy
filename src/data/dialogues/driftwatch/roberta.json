@@ -18,12 +18,12 @@
           {
             "text": "Looks like you've got your hands full.",
             "action": "update_relationship:npc_roberta:2|add_xp:persuasion:5|set_flag:roberta_first_meet_done:true",
-            "next_node": "__social_root__"
+            "next_node": "rb_repeat_meet"
           },
           {
             "text": "Just looking around.",
             "action": "set_flag:roberta_first_meet_done:true",
-            "next_node": "__social_root__"
+            "next_node": "rb_repeat_meet"
           }
         ]
       },
@@ -267,17 +267,17 @@
           {
             "text": "That is a lot to carry alone.",
             "next_node": "rb_lore_tide_trade_empathy",
-            "action": "set_flag:roberta_lore_seen:true|add_xp:persuasion:8|update_relationship:npc_roberta:2:friendship"
+            "action": "set_flag:roberta_lore_seen:true|add_xp:persuasion:8|update_relationship:npc_roberta:5:friendship"
           },
           {
             "text": "You hid that well.",
             "next_node": "rb_lore_tide_trade_respect",
-            "action": "set_flag:roberta_lore_seen:true|add_xp:persuasion:6|update_relationship:npc_roberta:1:love"
+            "action": "set_flag:roberta_lore_seen:true|add_xp:persuasion:6|update_relationship:npc_roberta:3:love"
           },
           {
             "text": "That makes the shop a weakness, doesn't it?",
             "next_node": "rb_lore_tide_trade_pressure",
-            "action": "set_flag:roberta_lore_seen:true|add_xp:coercion:6|update_relationship:npc_roberta:1:fear"
+            "action": "set_flag:roberta_lore_seen:true|add_xp:coercion:6|update_relationship:npc_roberta:3:fear"
           }
         ]
       },

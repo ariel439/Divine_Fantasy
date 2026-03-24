@@ -496,7 +496,22 @@ export class DialogueService {
 
   private static isMenuNodeId(dialogueEntry: DialogueEntry, nodeId: string): boolean {
     const role = this.getNodeRole(dialogueEntry, nodeId);
-    return role === 'entry' || role === 'social_root' || role === 'category_root';
+    return role === 'social_root' || role === 'category_root';
+  }
+
+  private static getExplicitFirstMeetFlagName(npcId: string, dialogueEntry: DialogueEntry): string | null {
+    if (!dialogueEntry.first_meet_node) {
+      return null;
+    }
+
+    const expectedFlag = `${npcId.replace(/^npc_/, '')}_first_meet_done`;
+    const flagNeedle = `set_flag:${expectedFlag}:true`;
+
+    const usesFlag = Object.values(dialogueEntry.nodes).some((node) =>
+      (node.player_choices || []).some((choice) => (choice.action || '').includes(flagNeedle))
+    );
+
+    return usesFlag ? expectedFlag : null;
   }
 
   private static isNavigationChoice(choice: {
@@ -568,7 +583,7 @@ export class DialogueService {
       return false;
     }
 
-    if (nodeId !== dialogueEntry.first_meet_node && nodeId !== dialogueEntry.repeat_meet_node) {
+    if (nodeId !== dialogueEntry.repeat_meet_node) {
       return false;
     }
 
@@ -716,12 +731,13 @@ export class DialogueService {
     this.state.dialogueId = dialogueId;
     this.state.npcId = npcId;
 
-    const startingNodeId = (() => {
-      if (!overrideDialogueId && npcId === 'npc_shihan' && !useWorldStateStore.getState().getFlag('shihan_first_meet_done')) {
-        return dialogueEntry.first_meet_node || '0';
-      }
+    const explicitFirstMeetFlag = this.getExplicitFirstMeetFlagName(npcId, dialogueEntry);
+    const firstMeetPending = explicitFirstMeetFlag
+      ? !useWorldStateStore.getState().getFlag(explicitFirstMeetFlag)
+      : !wasKnown;
 
-      if (!overrideDialogueId && !wasKnown && dialogueEntry.first_meet_node && dialogueEntry.nodes[dialogueEntry.first_meet_node]) {
+    const startingNodeId = (() => {
+      if (!overrideDialogueId && firstMeetPending && dialogueEntry.first_meet_node && dialogueEntry.nodes[dialogueEntry.first_meet_node]) {
         return dialogueEntry.first_meet_node;
       }
 

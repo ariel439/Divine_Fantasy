@@ -10,12 +10,9 @@
         "npc_text": "Ask, then. I charge extra for patience.",
         "player_choices": [
           {
-            "text": "How did you come to run this place?",
-            "next_node": "finn_ask_salty_mug"
-          },
-          {
-            "text": "What kind of place is the Salty Mug, really?",
-            "next_node": "finn_ask_salty_mug_reputation"
+            "text": "Tell me about the Salty Mug.",
+            "next_node": "finn_ask_salty_mug",
+            "condition": "world_flags.finn_lore_salty_mug_seen==false"
           },
           {
             "text": "Back.",
@@ -24,20 +21,12 @@
         ]
       },
       "finn_ask_salty_mug": {
-        "npc_text": "Same way men end up with most things worth having. Someone weaker lost hold of it, and I did not.",
+        "npc_text": "The Salty Mug is near as old as Driftwatch itself. Before Mosswatch Keep was raised in stone, this place was already pouring drink for sailors too tired to remember their own names. Ships bound between the Whispers and the Pearl Islands have always needed a room like this at journey's end. Other taverns came and went. This one stayed. Long day at the docks, rough sea under your boots, nowhere else you'd rather sit with a cup and your own thoughts.",
         "player_choices": [
           {
             "text": "Back.",
-            "next_node": "finn_ask_root"
-          }
-        ]
-      },
-      "finn_ask_salty_mug_reputation": {
-        "npc_text": "A room for men who owe, men who hide, and men who think drink makes them harder than they are. Useful place, if you know how to listen.",
-        "player_choices": [
-          {
-            "text": "Back.",
-            "next_node": "finn_ask_root"
+            "next_node": "finn_ask_root",
+            "action": "set_flag:finn_lore_salty_mug_seen:true"
           }
         ]
       },

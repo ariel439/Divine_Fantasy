@@ -6,6 +6,7 @@ The goal is consistency:
 - the player should always understand whether they are entering a conversation, a social menu, a shop, or a quest branch
 - menu navigation should never feel like spoken dialogue
 - social NPCs should follow the same shape unless there is a deliberate reason not to
+- authored greetings should feel like real dialogue, not hidden UI
 
 ## Core Structure
 
@@ -14,6 +15,7 @@ There are three layers of dialogue:
 1. Entry Menu
 - This is the first menu the player sees when talking to an NPC.
 - It is the "front door" of the conversation.
+- In most cases it should be attached to a real spoken greeting from the NPC.
 - Typical options:
   - `I'd like to talk.`
   - `Show me your stock.`
@@ -125,6 +127,11 @@ Use `first_meet_node` / `repeat_meet_node` when:
 - the opener needs different text or options on repeat visits
 - the NPC is a true social NPC and will be revisited often
 
+Important:
+- `first_meet_node` should not be auto-skipped into the social menu
+- first meetings are authored scenes, not utility shells
+- only repeat/opening utility menus may be auto-skipped when they are effectively just `talk + leave`
+
 If an NPC has both trade and social interaction:
 - entry menu should include trade and talk separately
 
@@ -205,6 +212,15 @@ Examples:
 
 These should not appear as NPC speech bubbles.
 
+Only generated system menus should be silent prompts:
+- `__social_root__`
+- category roots like `Ask`, `Friendly`, `Flirt`, `Coerce`, `Quest`
+
+Authored opener nodes should normally show as real speech bubbles:
+- `first_meet_node`
+- `repeat_meet_node`
+- node `0`
+
 ### Spoken dialogue
 
 NPC speech should:
@@ -249,6 +265,15 @@ Bad:
 - NPC answers
 - Luke says `Understood.`
 - menu returns
+
+Default rule:
+- most `Ask` lore questions should be one-time only
+- once the player has heard the answer, the option should usually disappear
+- repeatable `Ask` options should mostly be:
+  - quest unlocks
+  - practical reminders
+  - changing world-state questions
+  - information the player may realistically need again
 
 ### Good menu separation
 

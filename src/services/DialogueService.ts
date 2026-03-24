@@ -565,6 +565,20 @@ export class DialogueService {
     this.state.dialogueHistory.push({ speaker: 'npc', text });
   }
 
+  private static shouldAppendNpcLineForNode(dialogueEntry: DialogueEntry, nodeId: string): boolean {
+    const role = this.getNodeRole(dialogueEntry, nodeId);
+
+    if (role === 'social_root' || role === 'category_root') {
+      return false;
+    }
+
+    if (role === 'entry') {
+      return this.state.dialogueHistory.length === 0;
+    }
+
+    return true;
+  }
+
   private static getSocialActionMeta(action?: string): { npcId: string; type: SocialActionType } | null {
     if (!action || !action.startsWith('social_action:')) {
       return null;
@@ -781,7 +795,7 @@ export class DialogueService {
     }
 
     this.state.dialogueHistory = [];
-    if (!this.isMenuNodeId(dialogueEntry, startingNodeId)) {
+    if (this.shouldAppendNpcLineForNode(dialogueEntry, startingNodeId)) {
       this.appendNpcHistory(firstNode.npc_text);
     }
     return DialogueService.applyConditionsToNode(firstNode);
@@ -846,7 +860,7 @@ export class DialogueService {
             if (currentDialogue.nodes[failNodeId]) {
                 this.setCurrentNode(failNodeId, currentDialogue);
                 const nextNode = currentDialogue.nodes[failNodeId];
-                if (!this.isMenuNodeId(currentDialogue, failNodeId)) {
+                if (this.shouldAppendNpcLineForNode(currentDialogue, failNodeId)) {
                   this.appendNpcHistory(nextNode.npc_text);
                 }
                 return DialogueService.applyConditionsToNode(nextNode);
@@ -889,7 +903,7 @@ export class DialogueService {
       const nextNode = this.getNode(currentDialogue, nextNodeId);
       if (nextNode) {
         this.setCurrentNode(nextNodeId, currentDialogue);
-        if (!this.isMenuNodeId(currentDialogue, nextNodeId)) {
+        if (this.shouldAppendNpcLineForNode(currentDialogue, nextNodeId)) {
           this.appendNpcHistory(nextNode.npc_text);
         }
         return DialogueService.applyConditionsToNode(nextNode);

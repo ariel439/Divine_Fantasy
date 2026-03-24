@@ -2,20 +2,42 @@
   "finn_default": {
     "trade_shop_id": "salty_mug",
     "interaction_roots": {
-      "trade": "finn_trade_root",
+      "ask": "finn_ask_root",
       "quest": "finn_quest_root"
     },
     "nodes": {
-      "finn_trade_root": {
-        "npc_text": "If you are buying, buy. If you are talking, make it quick.",
+      "finn_ask_root": {
+        "npc_text": "Ask, then. I charge extra for patience.",
         "player_choices": [
           {
-            "text": "Let me see your stock.",
-            "action": "open_shop:salty_mug"
+            "text": "How did you come to run this place?",
+            "next_node": "finn_ask_salty_mug"
+          },
+          {
+            "text": "What kind of place is the Salty Mug, really?",
+            "next_node": "finn_ask_salty_mug_reputation"
           },
           {
             "text": "Back.",
             "next_node": "__social_root__"
+          }
+        ]
+      },
+      "finn_ask_salty_mug": {
+        "npc_text": "Same way men end up with most things worth having. Someone weaker lost hold of it, and I did not.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "finn_ask_root"
+          }
+        ]
+      },
+      "finn_ask_salty_mug_reputation": {
+        "npc_text": "A room for men who owe, men who hide, and men who think drink makes them harder than they are. Useful place, if you know how to listen.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "finn_ask_root"
           }
         ]
       },
@@ -41,9 +63,8 @@
             "action": "open_shop:salty_mug"
           },
           {
-            "text": "About the collection job.",
-            "next_node": "job_progress",
-            "condition": "world_flags.finn_debt_collection_active==true"
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
           },
           {
             "text": "Leave.",
@@ -85,7 +106,7 @@
           },
           {
             "text": "I'll get back to it.",
-            "closes_dialogue": true
+            "next_node": "finn_quest_root"
           }
         ]
       },

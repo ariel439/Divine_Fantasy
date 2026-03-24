@@ -265,9 +265,46 @@
         "npc_text": "My father ran it for decades. He passed recently. I am still learning to handle everything.",
         "player_choices": [
           {
+            "text": "That is a lot to carry alone.",
+            "next_node": "rb_lore_tide_trade_empathy",
+            "action": "set_flag:roberta_lore_seen:true|add_xp:persuasion:8|update_relationship:npc_roberta:2:friendship"
+          },
+          {
+            "text": "You hid that well.",
+            "next_node": "rb_lore_tide_trade_respect",
+            "action": "set_flag:roberta_lore_seen:true|add_xp:persuasion:6|update_relationship:npc_roberta:1:love"
+          },
+          {
+            "text": "That makes the shop a weakness, doesn't it?",
+            "next_node": "rb_lore_tide_trade_pressure",
+            "action": "set_flag:roberta_lore_seen:true|add_xp:coercion:6|update_relationship:npc_roberta:1:fear"
+          }
+        ]
+      },
+      "rb_lore_tide_trade_empathy": {
+        "npc_text": "It is. But if I let that show every time the door opened, the whole street would smell blood.",
+        "player_choices": [
+          {
             "text": "Back.",
-            "next_node": "rb_ask_root",
-            "action": "set_flag:roberta_lore_seen:true|add_xp:persuasion:8"
+            "next_node": "rb_ask_root"
+          }
+        ]
+      },
+      "rb_lore_tide_trade_respect": {
+        "npc_text": "You learn quickly in Driftwatch. Either you stand straight or people start measuring what they can take from you.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_ask_root"
+          }
+        ]
+      },
+      "rb_lore_tide_trade_pressure": {
+        "npc_text": "Only if I were foolish enough to forget where I am. I am not.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_ask_root"
           }
         ]
       },

@@ -22,11 +22,20 @@ import { ConditionEvaluator } from './ConditionEvaluator';
 import { getMaxSocialEnergy } from '../utils/socialEnergy';
 import { resolveSocialAction, type SocialActionType, type SocialStyle } from '../utils/socialResolver';
 import { getSocialNpcConfig } from '../utils/socialNpcConfig';
+import {
+  socialInteractionTemplates,
+  socialNpcInteractionConfigs,
+  type SocialInteractionCategory,
+  type SocialInteractionTemplate,
+} from '../data/dialogue/socialInteractions';
 
 interface DialogueNode {
   npc_text: string;
   player_choices?: {
     text: string;
+    player_text?: string;
+    player_intent?: string;
+    generated_interaction_key?: string;
     next_node?: string;
     closes_dialogue?: boolean;
     action?: string;
@@ -105,6 +114,7 @@ interface DialogueRuntimeState {
   shouldLeaveFromSocialRoot: boolean;
   lastSocialOutcome: 'fail' | 'weak' | 'strong' | null;
   dialogueHistory: ConversationEntry[];
+  generatedNodes: Record<string, DialogueNode>;
 }
 
 export class DialogueService {
@@ -118,9 +128,11 @@ export class DialogueService {
     shouldLeaveFromSocialRoot: false,
     lastSocialOutcome: null,
     dialogueHistory: [],
+    generatedNodes: {},
   };
   private static readonly SOCIAL_ROOT_NODE_ID = '__social_root__';
   private static readonly SOCIAL_RETURN_NODE_ID = '__social_return__';
+  private static socialIntentLineIndices: Record<string, number> = {};
 
   private static resetRuntimeState(): void {
     this.state = {
@@ -133,7 +145,203 @@ export class DialogueService {
       shouldLeaveFromSocialRoot: false,
       lastSocialOutcome: null,
       dialogueHistory: [],
+      generatedNodes: {},
     };
+  }
+
+  private static stripChoiceDecorations(text: string): string {
+    return text
+      .replace(/\s+\(\d+\s+Social\)$/, '')
+      .replace(/\s+\(No more today\)$/, '')
+      .replace(/\s+\(Need\s+\d+\s+Friendship\)$/, '');
+  }
+
+  private static getNextPooledLine(poolKey: string, pool?: string[]): string | null {
+    if (!pool || pool.length === 0) {
+      return null;
+    }
+
+    const currentIndex = this.socialIntentLineIndices[poolKey] ?? 0;
+    const line = pool[currentIndex % pool.length];
+    this.socialIntentLineIndices[poolKey] = (currentIndex + 1) % pool.length;
+    return line;
+  }
+
+  private static getCategoryForRoot(dialogueEntry: DialogueEntry, nodeId: string): SocialInteractionCategory | null {
+    const interactionRoots = dialogueEntry.interaction_roots || {};
+    const category = Object.entries(interactionRoots).find(([, rootNodeId]) => rootNodeId === nodeId)?.[0];
+    if (category === 'friendly' || category === 'flirt' || category === 'coerce') {
+      return category;
+    }
+    return null;
+  }
+
+  private static getMergedInteractionTemplate(npcId: string, interactionKey: string): SocialInteractionTemplate | null {
+    const baseTemplate = socialInteractionTemplates[interactionKey];
+    if (!baseTemplate) {
+      return null;
+    }
+
+    const override = socialNpcInteractionConfigs[npcId]?.interactionOverrides?.[interactionKey];
+    if (!override) {
+      return baseTemplate;
+    }
+
+    return {
+      ...baseTemplate,
+      label: override.label ?? baseTemplate.label,
+      playerLines: override.playerLines ?? baseTemplate.playerLines,
+      socialCost: override.socialCost ?? baseTemplate.socialCost,
+      defaultNpcResponses: {
+        strong: override.npcResponses?.strong ?? baseTemplate.defaultNpcResponses.strong,
+        weak: override.npcResponses?.weak ?? baseTemplate.defaultNpcResponses.weak,
+        fail: override.npcResponses?.fail ?? baseTemplate.defaultNpcResponses.fail,
+      },
+    };
+  }
+
+  private static buildGenericInteractionCategoryNode(dialogueEntry: DialogueEntry, nodeId: string): DialogueNode | null {
+    const npcId = this.state.npcId;
+    if (!npcId) return null;
+
+    const category = this.getCategoryForRoot(dialogueEntry, nodeId);
+    if (!category) return null;
+
+    const interactionKeys = socialNpcInteractionConfigs[npcId]?.availableInteractions?.[category];
+    if (!interactionKeys || interactionKeys.length === 0) {
+      return null;
+    }
+
+    const baseNode = dialogueEntry.nodes[nodeId];
+    const player_choices = interactionKeys
+      .map((interactionKey) => this.getMergedInteractionTemplate(npcId, interactionKey))
+      .filter((template): template is SocialInteractionTemplate => Boolean(template))
+      .map((template) => ({
+        text: template.label,
+        generated_interaction_key: template.key,
+        social_cost: template.socialCost,
+        action: `social_action:${npcId}:${template.socialType}:${template.socialStyle}`,
+      }));
+
+    player_choices.push({
+      text: 'Back.',
+      next_node: this.SOCIAL_RETURN_NODE_ID,
+    });
+
+    return {
+      npc_text: baseNode?.npc_text || 'What do you want to do?',
+      player_choices,
+    };
+  }
+
+  private static buildGeneratedResultNode(nodeId: string): DialogueNode | null {
+    return this.state.generatedNodes[nodeId] || null;
+  }
+
+  private static createGeneratedResultNode(npcText: string, returnNodeId: string): string {
+    const nodeId = `__generated_social_result__:${Date.now()}:${Object.keys(this.state.generatedNodes).length}`;
+    this.state.generatedNodes[nodeId] = {
+      npc_text: npcText,
+      player_choices: [
+        {
+          text: 'Back.',
+          next_node: returnNodeId,
+        },
+      ],
+    };
+    return nodeId;
+  }
+
+  private static resolveGenericInteractionPlayerLine(template: SocialInteractionTemplate): string {
+    return this.getNextPooledLine(`player:${template.key}`, template.playerLines) || template.label;
+  }
+
+  private static resolveGenericInteractionNpcResponse(
+    npcId: string,
+    template: SocialInteractionTemplate,
+    outcome: 'strong' | 'weak' | 'fail'
+  ): string {
+    const merged = this.getMergedInteractionTemplate(npcId, template.key) || template;
+    const npcConfig = getSocialNpcConfig(npcId);
+
+    for (const personality of npcConfig.personality) {
+      const personalityPool = merged.personalityResponses?.[personality]?.[outcome];
+      const personalityLine = this.getNextPooledLine(`npc:${npcId}:${template.key}:personality:${personality}:${outcome}`, personalityPool);
+      if (personalityLine) {
+        return personalityLine;
+      }
+    }
+
+    const classPool = merged.classResponses?.[npcConfig.socialClass]?.[outcome];
+    const classLine = this.getNextPooledLine(`npc:${npcId}:${template.key}:class:${npcConfig.socialClass}:${outcome}`, classPool);
+    if (classLine) {
+      return classLine;
+    }
+
+    return this.getNextPooledLine(`npc:${npcId}:${template.key}:default:${outcome}`, merged.defaultNpcResponses[outcome])
+      || merged.defaultNpcResponses[outcome][0]
+      || 'They give you a hard-to-read look.';
+  }
+
+  private static resolveGenericSocialInteraction(interactionKey: string): string | null {
+    const npcId = this.state.npcId;
+    if (!npcId) return null;
+
+    const template = this.getMergedInteractionTemplate(npcId, interactionKey);
+    if (!template) return null;
+
+    const playerLine = this.resolveGenericInteractionPlayerLine(template);
+    this.state.dialogueHistory.push({ speaker: 'player', text: playerLine });
+
+    if (template.socialCost) {
+      useCharacterStore.getState().updateStats({ socialEnergy: -template.socialCost });
+    }
+
+    if (this.hasNpcReachedDailySocialLimit(npcId)) {
+      this.state.lastSocialOutcome = 'fail';
+      useDiaryStore.getState().addInteraction(`${npcId}: They have had enough of you for today.`);
+    } else {
+      const result = resolveSocialAction({
+        npcId,
+        type: template.socialType,
+        style: template.socialStyle,
+        persuasionLevel: useSkillStore.getState().getSkillLevel('persuasion'),
+        coercionLevel: useSkillStore.getState().getSkillLevel('coercion'),
+      });
+
+      this.incrementNpcDailySocialUses(npcId);
+      this.state.lastSocialOutcome = result.outcome;
+      useDiaryStore.getState().updateRelationship(npcId, result.relationshipChanges);
+      useSkillStore.getState().addXp(result.xpSkill, result.xpAmount);
+      useDiaryStore.getState().addInteraction(`${npcId}: ${result.diaryText}`);
+    }
+
+    const outcome = this.state.lastSocialOutcome || 'fail';
+    const npcResponse = this.resolveGenericInteractionNpcResponse(npcId, template, outcome);
+    const returnNodeId = this.state.currentCategoryRootId || this.SOCIAL_ROOT_NODE_ID;
+    return this.createGeneratedResultNode(npcResponse, returnNodeId);
+  }
+
+  private static resolvePlayerHistoryText(choice: {
+    text: string;
+    player_text?: string;
+    player_intent?: string;
+    action?: string;
+  }): string {
+    if (choice.player_text?.trim()) {
+      return choice.player_text.trim();
+    }
+
+    const intent = choice.player_intent;
+    if (intent) {
+      const template = socialInteractionTemplates[intent];
+      const pooledLine = this.getNextPooledLine(`player:${intent}`, template?.playerLines);
+      if (pooledLine) {
+        return pooledLine;
+      }
+    }
+
+    return this.stripChoiceDecorations(choice.text);
   }
 
   private static setCurrentNode(nodeId: string, dialogueEntry: DialogueEntry): void {
@@ -237,6 +445,16 @@ export class DialogueService {
       return this.buildSocialRootNode(dialogueEntry);
     }
 
+    const generatedNode = this.buildGeneratedResultNode(nodeId);
+    if (generatedNode) {
+      return generatedNode;
+    }
+
+    const generatedCategoryNode = this.buildGenericInteractionCategoryNode(dialogueEntry, nodeId);
+    if (generatedCategoryNode) {
+      return generatedCategoryNode;
+    }
+
     const node = dialogueEntry.nodes[nodeId] || null;
     if (!node) {
       return null;
@@ -253,6 +471,10 @@ export class DialogueService {
   private static getNodeRole(dialogueEntry: DialogueEntry, nodeId: string): DialogueNodeRole {
     if (nodeId === this.SOCIAL_ROOT_NODE_ID) {
       return 'social_root';
+    }
+
+    if (this.state.generatedNodes[nodeId]) {
+      return 'result';
     }
 
     if (nodeId === dialogueEntry.first_meet_node || nodeId === dialogueEntry.repeat_meet_node || nodeId === '0') {
@@ -295,8 +517,11 @@ export class DialogueService {
 
   private static shouldLogChoice(choice: {
     text: string;
+    player_text?: string;
+    player_intent?: string;
     next_node?: string;
     closes_dialogue?: boolean;
+    action?: string;
   }): boolean {
     const currentDialogue = this.state.dialogueId ? typedDialogueData[this.state.dialogueId as keyof typeof typedDialogueData] : null;
     if (currentDialogue && this.isMenuNodeId(currentDialogue, this.state.currentNodeId)) {
@@ -567,9 +792,22 @@ export class DialogueService {
       return this.getCurrentDialogue();
     }
 
+    if (response.generated_interaction_key) {
+      const generatedNodeId = this.resolveGenericSocialInteraction(response.generated_interaction_key);
+      if (generatedNodeId) {
+        const nextNode = this.getNode(currentDialogue, generatedNodeId);
+        if (!nextNode) {
+          return this.getCurrentDialogue();
+        }
+        this.setCurrentNode(generatedNodeId, currentDialogue);
+        this.appendNpcHistory(nextNode.npc_text);
+        return DialogueService.applyConditionsToNode(nextNode);
+      }
+    }
+
     const shouldLogChoice = this.shouldLogChoice(response);
     if (shouldLogChoice) {
-      this.state.dialogueHistory.push({ speaker: 'player', text: response.text.replace(/\s+\(\d+\s+Social\)$/, '') });
+      this.state.dialogueHistory.push({ speaker: 'player', text: this.resolvePlayerHistoryText(response) });
     }
 
     if (response.social_cost) {

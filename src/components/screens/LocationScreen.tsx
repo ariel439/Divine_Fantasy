@@ -448,14 +448,14 @@ const LocationScreen: React.FC = () => {
         useWorldStateStore.getState().setFlag('intro_completed', true);
         useWorldStateStore.getState().setIntroMode(false);
         useWorldStateStore.getState().removeKnownNpc('npc_robert');
+        useWorldStateStore.getState().setFlag('finn_debt_intro_pending', false);
         useWorldTimeStore.setState({ year: 780 });
         useLocationStore.getState().setLocation('salty_mug');
         GameManagerService.applyMainGameStoryVitals();
-        useWorldStateStore.getState().setFlag('finn_debt_intro_pending', true);
-        useUIStore.getState().setEventSlides(rebelRaidIntroSlides); // Corrected to use a placeholder or relevant slides
-        useUIStore.getState().setCurrentEventId('finn_debt_intro');
+        useUIStore.getState().setEventSlides(null);
+        useUIStore.getState().setCurrentEventId(null);
         try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
-        setScreen('event');
+        setScreen('location');
         break;
       }
       case 'use': {

@@ -295,6 +295,7 @@ export class GameManagerService {
     useWorldStateStore.getState().setFlag('intro_completed', true);
     useWorldStateStore.getState().setTutorialStep(100);
     useWorldStateStore.getState().removeKnownNpc('npc_robert');
+    useWorldStateStore.getState().setFlag('finn_debt_intro_pending', false);
 
     useWorldTimeStore.setState({
       year: 780,
@@ -308,7 +309,6 @@ export class GameManagerService {
     useLocationStore.getState().setLocation('salty_mug');
     DialogueService.executeAction('start_quest:finn_debt_collection');
     DialogueService.executeAction('start_debt_collection');
-    useWorldStateStore.getState().setFlag('finn_debt_intro_pending', true);
 
     useCharacterStore.setState((state) => ({
       ...state,

@@ -38,6 +38,18 @@ There are three layers of dialogue:
   - social outcomes
   - refusals
 
+4. Generic Social Interactions
+- Repeatable social actions can be generated from shared templates instead of fully authored node trees.
+- These are meant for reusable interaction beats like:
+  - `smalltalk`
+  - `helpful`
+  - `honest`
+  - `compliment`
+  - `threaten`
+- The menu label is not spoken dialogue.
+- The spoken history should begin with Luke's generated line, not the selector text.
+- NPC response flavor should come primarily from personality and secondarily from social class.
+
 ## Important Rule
 
 `Trade` should live in the entry menu, not in `interaction_roots`.
@@ -87,6 +99,12 @@ Typical entry flow:
 - category root opens
 - content node opens
 
+Important:
+- a social NPC does not need every category
+- `Ask + Quest` only is valid
+- `Ask` and `Quest` can be the only interaction categories for a practical or hostile NPC
+- `Flirt`, `Friendly`, or `Coerce` can be absent until deliberately unlocked
+
 ### 3. Structured Special NPC
 
 Some NPCs may use `first_meet_node` / `repeat_meet_node` without full `interaction_roots`.
@@ -124,6 +142,12 @@ If an NPC has only one meaningful social path:
 - it is acceptable to skip the opener and go straight into the relevant social content
 - but only if this feels intentional and not abrupt
 
+Interaction layers can unlock over time:
+- an NPC may start with no interaction menu at all
+- later, a quest or flag can unlock `I'd like to talk.`
+- individual categories like `Flirt` or `Coerce` may appear only after relationship, quest, or story conditions are met
+- generic interaction options and fully custom interaction options can coexist in the same category
+
 ## Category Root Rules
 
 Category roots are menu hubs, not full scenes.
@@ -148,6 +172,12 @@ They count as:
 They should not:
 - contain huge exposition dumps
 - behave like final content nodes
+
+Category roots may be:
+- fully authored JSON menus
+- generated menus backed by the generic social interaction system
+
+Both are valid.
 
 ## Back Navigation Rules
 
@@ -186,6 +216,39 @@ Player choices should:
 - sound like something Luke would say
 - be short and readable
 - reflect tone clearly
+
+For generated social interactions:
+- selector labels are UI intent labels, not literal spoken lines
+- Luke's actual spoken line should come from the shared interaction template
+- NPC replies should be flavored by personality and class unless there is a custom override
+
+### Ask and lore writing rules
+
+`Ask` content should feel like a natural exchange, not a questionnaire.
+
+Use these rules:
+- do not make Luke ask about people, facts, or history he has no believable reason to know yet
+- if the player asks a lore question, the NPC answer should usually be the main beat of the exchange
+- avoid content nodes that end with Luke speaking and nobody answering
+- if the player has no meaningful follow-up, use `Back.` instead of filler lines like `Understood.` or `I see.`
+- do not create two consecutive player-history beats unless the second one leads to a real NPC reply
+
+Good:
+- Luke asks
+- NPC answers
+- `Back.`
+
+Acceptable:
+- Luke asks
+- NPC answers
+- Luke follow-up
+- NPC answers again
+
+Bad:
+- Luke asks
+- NPC answers
+- Luke says `Understood.`
+- menu returns
 
 ### Good menu separation
 
@@ -283,6 +346,14 @@ When modernizing old NPCs:
 
 5. Only use the social system for NPCs who truly need repeatable relationship gameplay
 
+6. Use generic social interactions for repeatable relationship beats
+- especially `Friendly`, `Flirt`, and `Coerce`
+- keep lore and quest progression in authored content nodes
+
+7. Use overrides sparingly
+- start with the generic system
+- only add NPC-specific overrides when the baseline voice is not enough
+
 ## Migration Template
 
 Use this when converting an old node tree into the modern structure:
@@ -310,6 +381,11 @@ Use this when converting an old node tree into the modern structure:
 - quest clarifications
 - social outcomes
 
+When converting `Ask` content:
+- keep the player question as the entry
+- make the NPC answer the payoff
+- prefer `Back.` over filler response lines unless a second NPC line is coming
+
 5. Return correctly
 - category root back to `__social_root__`
 - content back to category root
@@ -322,11 +398,16 @@ Use this when converting an old node tree into the modern structure:
 - no `Trade` inside `interaction_roots`
 - no repeated `Understood -> Back -> Understood` loops
 
+7. Decide whether each category is:
+- authored content
+- generic interaction template
+- or a mix of both
+
 ## Current Project Direction
 
 Right now:
 - Roberta is the main reference implementation
-- Finn is being moved into a cleaner hybrid form
+- Finn is being moved into a cleaner `trade + ask + quest` form
 - Shihan is a special structured NPC, not a full social-menu NPC
 
 When in doubt, follow Roberta's structure, but keep `Trade` in the entry menu only.

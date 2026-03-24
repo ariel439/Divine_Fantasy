@@ -45,7 +45,7 @@ interface DialogueNode {
 interface DialogueEntry {
   first_meet_node?: string;
   repeat_meet_node?: string;
-  interaction_roots?: Partial<Record<'trade' | 'ask' | 'friendly' | 'flirt' | 'coerce' | 'quest', string>>;
+  interaction_roots?: Partial<Record<'ask' | 'friendly' | 'flirt' | 'coerce' | 'quest', string>>;
   trade_shop_id?: string;
   nodes: Record<string, DialogueNode>;
 }
@@ -92,15 +92,73 @@ interface DialogueState {
   dialogueHistory: string[];
 }
 
+type DialogueMenuKind = 'entry' | 'social_root' | 'category_root' | null;
+type DialogueNodeRole = 'entry' | 'social_root' | 'category_root' | 'content' | 'result';
+
+interface DialogueRuntimeState {
+  dialogueId: string | null;
+  npcId: string | null;
+  currentNodeId: string;
+  entryNodeId: string | null;
+  currentCategoryRootId: string | null;
+  currentMenuKind: DialogueMenuKind;
+  shouldLeaveFromSocialRoot: boolean;
+  lastSocialOutcome: 'fail' | 'weak' | 'strong' | null;
+  dialogueHistory: ConversationEntry[];
+}
+
 export class DialogueService {
-  private static currentDialogueId: string | null = null;
-  private static currentNodeId: string = '0';
-  private static currentNpcId: string | null = null;
-  private static dialogueHistory: ConversationEntry[] = [];
+  private static state: DialogueRuntimeState = {
+    dialogueId: null,
+    npcId: null,
+    currentNodeId: '0',
+    entryNodeId: null,
+    currentCategoryRootId: null,
+    currentMenuKind: null,
+    shouldLeaveFromSocialRoot: false,
+    lastSocialOutcome: null,
+    dialogueHistory: [],
+  };
   private static readonly SOCIAL_ROOT_NODE_ID = '__social_root__';
   private static readonly SOCIAL_RETURN_NODE_ID = '__social_return__';
-  private static socialReturnNodeId: string | null = null;
-  private static lastSocialOutcome: 'fail' | 'weak' | 'strong' | null = null;
+
+  private static resetRuntimeState(): void {
+    this.state = {
+      dialogueId: null,
+      npcId: null,
+      currentNodeId: '0',
+      entryNodeId: null,
+      currentCategoryRootId: null,
+      currentMenuKind: null,
+      shouldLeaveFromSocialRoot: false,
+      lastSocialOutcome: null,
+      dialogueHistory: [],
+    };
+  }
+
+  private static setCurrentNode(nodeId: string, dialogueEntry: DialogueEntry): void {
+    this.state.currentNodeId = nodeId;
+    const role = this.getNodeRole(dialogueEntry, nodeId);
+
+    if (role === 'entry') {
+      this.state.currentMenuKind = 'entry';
+      this.state.currentCategoryRootId = null;
+      return;
+    }
+
+    if (role === 'social_root') {
+      this.state.currentMenuKind = 'social_root';
+      return;
+    }
+
+    if (role === 'category_root') {
+      this.state.currentMenuKind = 'category_root';
+      this.state.currentCategoryRootId = nodeId;
+      return;
+    }
+
+    this.state.currentMenuKind = null;
+  }
 
   private static getSocialCategoryLabel(category: keyof NonNullable<DialogueEntry['interaction_roots']>): string {
     switch (category) {
@@ -109,7 +167,6 @@ export class DialogueService {
       case 'flirt': return 'Flirt';
       case 'coerce': return 'Coerce';
       case 'quest': return 'Quest';
-      case 'trade': return 'Trade';
       default: return category;
     }
   }
@@ -142,10 +199,17 @@ export class DialogueService {
         };
       });
 
-    player_choices.push({
-      text: 'Back',
-      next_node: this.SOCIAL_RETURN_NODE_ID,
-    });
+    if (this.state.shouldLeaveFromSocialRoot) {
+      player_choices.push({
+        text: 'Leave',
+        closes_dialogue: true,
+      });
+    } else {
+      player_choices.push({
+        text: 'Back',
+        next_node: this.SOCIAL_RETURN_NODE_ID,
+      });
+    }
 
     return {
       npc_text: 'How do you want to approach this conversation?',
@@ -186,13 +250,31 @@ export class DialogueService {
     return node;
   }
 
-  private static isMenuNodeId(dialogueEntry: DialogueEntry, nodeId: string): boolean {
+  private static getNodeRole(dialogueEntry: DialogueEntry, nodeId: string): DialogueNodeRole {
     if (nodeId === this.SOCIAL_ROOT_NODE_ID) {
-      return true;
+      return 'social_root';
+    }
+
+    if (nodeId === dialogueEntry.first_meet_node || nodeId === dialogueEntry.repeat_meet_node || nodeId === '0') {
+      return 'entry';
     }
 
     const interactionRoots = Object.values(dialogueEntry.interaction_roots || {});
-    return interactionRoots.includes(nodeId as any);
+    if (interactionRoots.includes(nodeId as any)) {
+      return 'category_root';
+    }
+
+    const node = dialogueEntry.nodes[nodeId];
+    if (node?.player_choices?.length === 1 && node.player_choices[0]?.closes_dialogue) {
+      return 'result';
+    }
+
+    return 'content';
+  }
+
+  private static isMenuNodeId(dialogueEntry: DialogueEntry, nodeId: string): boolean {
+    const role = this.getNodeRole(dialogueEntry, nodeId);
+    return role === 'entry' || role === 'social_root' || role === 'category_root';
   }
 
   private static isNavigationChoice(choice: {
@@ -216,9 +298,9 @@ export class DialogueService {
     next_node?: string;
     closes_dialogue?: boolean;
   }): boolean {
-    const currentDialogue = this.currentDialogueId ? typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData] : null;
-    if (currentDialogue && this.isMenuNodeId(currentDialogue, this.currentNodeId)) {
-      const isSocialRootSelection = this.currentNodeId === this.SOCIAL_ROOT_NODE_ID;
+    const currentDialogue = this.state.dialogueId ? typedDialogueData[this.state.dialogueId as keyof typeof typedDialogueData] : null;
+    if (currentDialogue && this.isMenuNodeId(currentDialogue, this.state.currentNodeId)) {
+      const isSocialRootSelection = this.state.currentNodeId === this.SOCIAL_ROOT_NODE_ID;
       if (isSocialRootSelection) {
         return false;
       }
@@ -236,11 +318,11 @@ export class DialogueService {
 
   private static appendNpcHistory(text?: string): void {
     if (!text) return;
-    const lastEntry = this.dialogueHistory[this.dialogueHistory.length - 1];
+    const lastEntry = this.state.dialogueHistory[this.state.dialogueHistory.length - 1];
     if (lastEntry?.speaker === 'npc' && lastEntry.text === text) {
       return;
     }
-    this.dialogueHistory.push({ speaker: 'npc', text });
+    this.state.dialogueHistory.push({ speaker: 'npc', text });
   }
 
   private static getSocialActionMeta(action?: string): { npcId: string; type: SocialActionType } | null {
@@ -266,18 +348,15 @@ export class DialogueService {
     }
 
     const choices = (node.player_choices || []).filter((choice) => !choice.condition || ConditionEvaluator.evaluate(choice.condition));
-    if (choices.length !== 2) {
-      return false;
-    }
-
-    const talkChoice = choices.find((choice) => choice.next_node === this.SOCIAL_ROOT_NODE_ID);
-    const exitChoice = choices.find((choice) =>
+    const talkChoices = choices.filter((choice) => choice.next_node === this.SOCIAL_ROOT_NODE_ID);
+    const exitChoices = choices.filter((choice) =>
       choice.closes_dialogue ||
       choice.next_node === this.SOCIAL_RETURN_NODE_ID ||
       this.isNavigationChoice(choice)
     );
+    const otherChoices = choices.filter((choice) => !talkChoices.includes(choice) && !exitChoices.includes(choice));
 
-    return Boolean(talkChoice && exitChoice);
+    return talkChoices.length > 0 && otherChoices.length === 0;
   }
 
   private static getCurrentSocialDayKey(): string {
@@ -308,7 +387,7 @@ export class DialogueService {
   public static applyConditionsToNode(node: DialogueNode): DialogueNode {
     const choices = node.player_choices || [];
     const socialEnergy = useCharacterStore.getState().socialEnergy;
-    const currentNpcId = this.currentNpcId;
+    const currentNpcId = this.state.npcId;
 
     const filtered = choices
       .filter((choice) => {
@@ -408,9 +487,9 @@ export class DialogueService {
       return null;
     }
 
-    this.currentDialogueId = dialogueId;
-    this.currentNpcId = npcId;
-    this.socialReturnNodeId = null;
+    this.resetRuntimeState();
+    this.state.dialogueId = dialogueId;
+    this.state.npcId = npcId;
 
     const startingNodeId = (() => {
       if (!overrideDialogueId && npcId === 'npc_shihan' && !useWorldStateStore.getState().getFlag('shihan_first_meet_done')) {
@@ -425,6 +504,10 @@ export class DialogueService {
         return dialogueEntry.repeat_meet_node;
       }
 
+      if (dialogueEntry.nodes['0']) {
+        return '0';
+      }
+
       if (dialogueEntry.interaction_roots) {
         return this.SOCIAL_ROOT_NODE_ID;
       }
@@ -432,7 +515,10 @@ export class DialogueService {
       return '0';
     })();
 
-    this.currentNodeId = startingNodeId;
+    this.state.entryNodeId = startingNodeId === this.SOCIAL_ROOT_NODE_ID
+      ? (dialogueEntry.repeat_meet_node || dialogueEntry.first_meet_node || (dialogueEntry.nodes['0'] ? '0' : null))
+      : startingNodeId;
+    this.setCurrentNode(startingNodeId, dialogueEntry);
     const firstNode = this.getNode(dialogueEntry, startingNodeId);
 
     if (!firstNode) {
@@ -441,16 +527,19 @@ export class DialogueService {
     }
 
     if (this.shouldSkipOpeningNode(dialogueEntry, startingNodeId, firstNode)) {
-      this.currentNodeId = this.SOCIAL_ROOT_NODE_ID;
+      const visibleChoices = (firstNode.player_choices || []).filter((choice) => !choice.disabled);
+      const hasExplicitExit = visibleChoices.some((choice) => choice.closes_dialogue || this.isNavigationChoice(choice));
+      this.state.shouldLeaveFromSocialRoot = hasExplicitExit || visibleChoices.every((choice) => choice.next_node === this.SOCIAL_ROOT_NODE_ID);
+      this.setCurrentNode(this.SOCIAL_ROOT_NODE_ID, dialogueEntry);
       const rootNode = this.getNode(dialogueEntry, this.SOCIAL_ROOT_NODE_ID);
       if (!rootNode) {
         return null;
       }
-      this.dialogueHistory = [];
+      this.state.dialogueHistory = [];
       return DialogueService.applyConditionsToNode(rootNode);
     }
 
-    this.dialogueHistory = [];
+    this.state.dialogueHistory = [];
     if (!this.isMenuNodeId(dialogueEntry, startingNodeId)) {
       this.appendNpcHistory(firstNode.npc_text);
     }
@@ -458,12 +547,12 @@ export class DialogueService {
   }
 
   static selectResponse(responseIndex: number): DialogueNode | null {
-    if (!this.currentDialogueId) return null;
+    if (!this.state.dialogueId) return null;
 
-    const currentDialogue = typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData];
+    const currentDialogue = typedDialogueData[this.state.dialogueId as keyof typeof typedDialogueData];
     if (!currentDialogue) return null;
 
-    const rawNode = this.getNode(currentDialogue, this.currentNodeId);
+    const rawNode = this.getNode(currentDialogue, this.state.currentNodeId);
     if (!rawNode) return null;
 
     // Apply conditions to ensure we match the index to the filtered list the user saw
@@ -480,7 +569,7 @@ export class DialogueService {
 
     const shouldLogChoice = this.shouldLogChoice(response);
     if (shouldLogChoice) {
-      this.dialogueHistory.push({ speaker: 'player', text: response.text.replace(/\s+\(\d+\s+Social\)$/, '') });
+      this.state.dialogueHistory.push({ speaker: 'player', text: response.text.replace(/\s+\(\d+\s+Social\)$/, '') });
     }
 
     if (response.social_cost) {
@@ -501,7 +590,7 @@ export class DialogueService {
             const failNodeId = anyChoice.fail_node || anyChoice.next_node + '_fail';
             
             if (currentDialogue.nodes[failNodeId]) {
-                this.currentNodeId = failNodeId;
+                this.setCurrentNode(failNodeId, currentDialogue);
                 const nextNode = currentDialogue.nodes[failNodeId];
                 if (!this.isMenuNodeId(currentDialogue, failNodeId)) {
                   this.appendNpcHistory(nextNode.npc_text);
@@ -514,10 +603,6 @@ export class DialogueService {
         }
     }
 
-    if (response.next_node === this.SOCIAL_ROOT_NODE_ID && !this.isMenuNodeId(currentDialogue, this.currentNodeId)) {
-      this.socialReturnNodeId = this.currentNodeId;
-    }
-
     // Execute actions
     if (response.action) {
       const actionStr = response.action as string;
@@ -526,24 +611,36 @@ export class DialogueService {
 
     // Handle next dialogue
     let nextNodeId = response.next_node;
-    if (response.social_result_nodes && this.lastSocialOutcome) {
-      nextNodeId = response.social_result_nodes[this.lastSocialOutcome] || nextNodeId;
+    if (response.social_result_nodes && this.state.lastSocialOutcome) {
+      nextNodeId = response.social_result_nodes[this.state.lastSocialOutcome] || nextNodeId;
     }
 
+    let resolvedToClose = false;
     if (nextNodeId === this.SOCIAL_RETURN_NODE_ID) {
-      nextNodeId = this.socialReturnNodeId || undefined;
+      if (this.state.currentMenuKind === 'category_root') {
+        nextNodeId = this.SOCIAL_ROOT_NODE_ID;
+      } else if (this.state.currentMenuKind === 'social_root') {
+        if (this.state.shouldLeaveFromSocialRoot) {
+          nextNodeId = undefined;
+          resolvedToClose = true;
+        } else {
+          nextNodeId = this.state.entryNodeId || undefined;
+        }
+      } else {
+        nextNodeId = this.state.currentCategoryRootId || this.state.entryNodeId || undefined;
+      }
     }
 
     if (nextNodeId) {
       const nextNode = this.getNode(currentDialogue, nextNodeId);
       if (nextNode) {
-        this.currentNodeId = nextNodeId;
+        this.setCurrentNode(nextNodeId, currentDialogue);
         if (!this.isMenuNodeId(currentDialogue, nextNodeId)) {
           this.appendNpcHistory(nextNode.npc_text);
         }
         return DialogueService.applyConditionsToNode(nextNode);
       }
-    } else if (response.closes_dialogue) {
+    } else if (response.closes_dialogue || resolvedToClose) {
       this.endDialogue();
       return null;
     }
@@ -553,38 +650,38 @@ export class DialogueService {
   }
 
   static getCurrentDialogue(): DialogueNode | null {
-    if (!this.currentDialogueId) return null;
+    if (!this.state.dialogueId) return null;
 
-    const dialogueEntry = typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData];
+    const dialogueEntry = typedDialogueData[this.state.dialogueId as keyof typeof typedDialogueData];
     if (!dialogueEntry) return null;
 
-    const node = this.getNode(dialogueEntry, this.currentNodeId);
+    const node = this.getNode(dialogueEntry, this.state.currentNodeId);
     return node ? DialogueService.applyConditionsToNode(node) : null;
   }
 
   static isCurrentNodeMenu(): boolean {
-    if (!this.currentDialogueId) return false;
+    if (!this.state.dialogueId) return false;
 
-    const dialogueEntry = typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData];
+    const dialogueEntry = typedDialogueData[this.state.dialogueId as keyof typeof typedDialogueData];
     if (!dialogueEntry) return false;
 
-    return this.isMenuNodeId(dialogueEntry, this.currentNodeId);
+    return this.isMenuNodeId(dialogueEntry, this.state.currentNodeId);
   }
 
   static getCurrentMenuPrompt(): string | null {
-    if (!this.currentDialogueId) return null;
+    if (!this.state.dialogueId) return null;
 
-    const dialogueEntry = typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData];
-    if (!dialogueEntry || !this.isMenuNodeId(dialogueEntry, this.currentNodeId)) {
+    const dialogueEntry = typedDialogueData[this.state.dialogueId as keyof typeof typedDialogueData];
+    if (!dialogueEntry || !this.isMenuNodeId(dialogueEntry, this.state.currentNodeId)) {
       return null;
     }
 
-    if (this.currentNodeId === this.SOCIAL_ROOT_NODE_ID) {
+    if (this.state.currentNodeId === this.SOCIAL_ROOT_NODE_ID) {
       return 'How do you want to approach this conversation?';
     }
 
     const interactionRoots = dialogueEntry.interaction_roots || {};
-    const category = Object.entries(interactionRoots).find(([, nodeId]) => nodeId === this.currentNodeId)?.[0];
+    const category = Object.entries(interactionRoots).find(([, nodeId]) => nodeId === this.state.currentNodeId)?.[0];
 
     switch (category) {
       case 'ask':
@@ -597,28 +694,21 @@ export class DialogueService {
         return 'How do you want to pressure them?';
       case 'quest':
         return 'What do you want to discuss?';
-      case 'trade':
-        return 'What do you want to trade?';
       default:
         return 'What do you want to do?';
     }
   }
 
   static getDialogueHistory(): ConversationEntry[] {
-    return [...this.dialogueHistory];
+    return [...this.state.dialogueHistory];
   }
 
   static endDialogue(): void {
-    if (this.currentNpcId) {
-      const npcName = typedNpcsData[this.currentNpcId]?.name || this.currentNpcId;
-      useDiaryStore.getState().addInteraction(`${this.currentNpcId}: Spoke with ${npcName}.`);
+    if (this.state.npcId) {
+      const npcName = typedNpcsData[this.state.npcId]?.name || this.state.npcId;
+      useDiaryStore.getState().addInteraction(`${this.state.npcId}: Spoke with ${npcName}.`);
     }
-    this.currentDialogueId = null;
-    this.currentNodeId = '0';
-    this.currentNpcId = null;
-    this.dialogueHistory = [];
-    this.socialReturnNodeId = null;
-    this.lastSocialOutcome = null;
+    this.resetRuntimeState();
   }
 
   static executeAction(action: string): void {
@@ -778,11 +868,11 @@ export class DialogueService {
           useJobStore.getState().loadJobs();
           const can = useJobStore.getState().canHire(jobId);
           if (!can.ok) {
-            const currentDialogue = this.currentDialogueId ? typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData] : null;
+            const currentDialogue = this.state.dialogueId ? typedDialogueData[this.state.dialogueId as keyof typeof typedDialogueData] : null;
             if (currentDialogue && denyNodeId && currentDialogue.nodes[denyNodeId]) {
               const denyNode = currentDialogue.nodes[denyNodeId];
-              this.currentNodeId = denyNodeId;
-              this.dialogueHistory.push({ speaker: 'npc', text: denyNode.npc_text });
+              this.setCurrentNode(denyNodeId, currentDialogue);
+              this.state.dialogueHistory.push({ speaker: 'npc', text: denyNode.npc_text });
             }
             break;
           }
@@ -998,12 +1088,12 @@ export class DialogueService {
           const rebukeNodeId = params[1];
           const world = useWorldStateStore.getState();
           const allCollected = world.getFlag('debt_paid_by_ben') && (world.getFlag('debt_paid_by_beryl') || world.getFlag('beryl_debt_forgiven')) && world.getFlag('debt_paid_by_elara');
-          const currentDialogue = this.currentDialogueId ? typedDialogueData[this.currentDialogueId as keyof typeof typedDialogueData] : null;
+          const currentDialogue = this.state.dialogueId ? typedDialogueData[this.state.dialogueId as keyof typeof typedDialogueData] : null;
           const showRebuke = () => {
             if (currentDialogue && rebukeNodeId && currentDialogue.nodes[rebukeNodeId]) {
               const node = currentDialogue.nodes[rebukeNodeId];
-              this.currentNodeId = rebukeNodeId;
-              this.dialogueHistory.push({ speaker: 'npc', text: node.npc_text });
+              this.setCurrentNode(rebukeNodeId, currentDialogue);
+              this.state.dialogueHistory.push({ speaker: 'npc', text: node.npc_text });
             } else {
               diaryStore.addInteraction('npc_finn: Come back when you actually did the job.');
             }
@@ -1032,6 +1122,24 @@ export class DialogueService {
           const target = params[0];
           if (target === 'ben') {
             GameManagerService.startBenBrawl();
+          } else if (target === 'arena_desperate_brawler') {
+            GameManagerService.startArenaBrawl('desperate_brawler', {
+              purseCopper: 12,
+              victoryToast: 'You stay on your feet and leave the pit 12 copper richer.',
+              defeatToast: 'The crowd laughs as you drag yourself up from the sawdust.',
+            });
+          } else if (target === 'arena_brawler') {
+            GameManagerService.startArenaBrawl('brawler_pit', {
+              purseCopper: 20,
+              victoryToast: 'You grind out the win and pocket 20 copper from the ring.',
+              defeatToast: 'The brawler folds you up and leaves you seeing stars.',
+            });
+          } else if (target === 'arena_pit_brawler') {
+            GameManagerService.startArenaBrawl('pit_brawler', {
+              purseCopper: 32,
+              victoryToast: 'The pit goes quiet when you put the big man down. The purse is yours.',
+              defeatToast: 'The pit brawler batters you senseless and takes the night with him.',
+            });
           }
         }
         break;
@@ -1143,7 +1251,7 @@ export class DialogueService {
           const socialType = (params[1] || 'friendly') as SocialActionType;
           const socialStyle = (params[2] || 'honest') as SocialStyle;
           if (this.hasNpcReachedDailySocialLimit(npcId)) {
-            this.lastSocialOutcome = 'fail';
+            this.state.lastSocialOutcome = 'fail';
             diaryStore.addInteraction(`${npcId}: They have had enough of you for today.`);
             break;
           }
@@ -1157,7 +1265,7 @@ export class DialogueService {
           });
 
           this.incrementNpcDailySocialUses(npcId);
-          this.lastSocialOutcome = result.outcome;
+          this.state.lastSocialOutcome = result.outcome;
           useDiaryStore.getState().updateRelationship(npcId, result.relationshipChanges);
           useSkillStore.getState().addXp(result.xpSkill, result.xpAmount);
           diaryStore.addInteraction(`${npcId}: ${result.diaryText}`);

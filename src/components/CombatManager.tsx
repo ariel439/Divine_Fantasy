@@ -104,10 +104,17 @@ const CombatManager: React.FC = () => {
   };
 
   const scriptedTurnCount = React.useRef(0);
+  const resolutionHandledRef = React.useRef(false);
 
   const [selectedTargetId, setSelectedTargetId] = React.useState<string>('');
   const [actionLocked, setActionLocked] = React.useState(false);
   const [thunderStrikeIds, setThunderStrikeIds] = React.useState<string[]>([]);
+
+  useEffect(() => {
+    if (phase === 'setup' || participants.length === 0) {
+      resolutionHandledRef.current = false;
+    }
+  }, [phase, participants.length]);
 
   const getEffectiveFrontTargets = React.useCallback((combatants: CombatParticipant[]) => {
     const aliveFront = combatants.filter((p) => p.hp > 0 && p.combatRow === 'front');
@@ -243,7 +250,10 @@ const CombatManager: React.FC = () => {
   useEffect(() => {
     if (phase === 'setup') return;
 
+    if (resolutionHandledRef.current) return;
+
     if (aliveEnemies.length === 0 && phase !== 'victory' && phase !== 'defeat' && phase !== 'fled') {
+      resolutionHandledRef.current = true;
       setPhase('victory');
       addLogEntry('Victory!');
 
@@ -292,6 +302,7 @@ const CombatManager: React.FC = () => {
         }, 1000);
       }
     } else if (aliveParty.length === 0) {
+      resolutionHandledRef.current = true;
       setPhase('defeat');
       setTimeout(() => {
         if (defeatMode === 'knockout') {

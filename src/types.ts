@@ -121,6 +121,7 @@ export interface CombatEncounterConfig {
   victoryToast?: string;
   defeatMode?: CombatDefeatMode;
   defeatToast?: string;
+  forcePlayerFirstTurn?: boolean;
 }
 
 // Dialogue

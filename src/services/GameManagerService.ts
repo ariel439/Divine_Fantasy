@@ -441,7 +441,9 @@ export class GameManagerService {
       };
     }
 
-    useCombatStore.getState().startCombat(player, companionCombatant, enemies);
+    useCombatStore.getState().startCombat(player, companionCombatant, enemies, {
+      forcePlayerFirstTurn: true,
+    });
     useWorldStateStore.getState().setFlag('smuggler_scripted_loss', true);
     useUIStore.getState().setScreen('combat');
   }

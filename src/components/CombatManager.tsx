@@ -334,7 +334,7 @@ const CombatManager: React.FC = () => {
         }
         
         // End combat after setting screen to avoid empty combat screen flash
-        syncPlayerVitalsFromCombat(1);
+        syncPlayerVitalsFromCombat(10);
         endCombat();
         passTime(5);
       }, 1500);

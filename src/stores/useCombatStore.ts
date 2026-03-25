@@ -116,15 +116,27 @@ export const useCombatStore = create<CombatStore>((set, get) => ({
       if (!(a.isPlayer || a.isCompanion) && (b.isPlayer || b.isCompanion)) return 1;
       return 0;
     });
-    const turnOrder = sorted.map(p => p.id);
+    let finalTurnOrder = sorted.map(p => p.id);
+
+    if (config?.forcePlayerFirstTurn) {
+      const playerIndex = finalTurnOrder.findIndex((id) => {
+        const participant = participants.find((p) => p.id === id);
+        return participant?.isPlayer;
+      });
+
+      if (playerIndex > 0) {
+        const [playerId] = finalTurnOrder.splice(playerIndex, 1);
+        finalTurnOrder = [playerId, ...finalTurnOrder];
+      }
+    }
 
     // Determine initial phase based on who goes first
-    const firstParticipant = sorted[0];
+    const firstParticipant = participants.find((p) => p.id === finalTurnOrder[0]) || sorted[0];
     const initialPhase = (firstParticipant.isPlayer || firstParticipant.isCompanion) ? 'player-turn' : 'enemy-turn';
 
     set({
       participants,
-      turnOrder,
+      turnOrder: finalTurnOrder,
       currentTurnIndex: 0,
       phase: initialPhase,
       round: 1,

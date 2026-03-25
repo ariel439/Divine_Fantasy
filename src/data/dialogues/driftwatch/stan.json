@@ -1,25 +1,57 @@
 {
   "stan_default": {
+    "interaction_roots": {
+      "ask": "stan_ask_root",
+      "quest": "stan_quest_root"
+    },
     "nodes": {
       "0": {
-        "npc_text": "Halt! What business do you have at Mosswatch Keep?",
+        "npc_text": "Halt. State your business.",
+        "player_choices": [
+          {
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "stan_ask_root": {
+        "npc_text": "Ask, if you must.",
+        "player_choices": [
+          {
+            "text": "How is guard duty treating you?",
+            "next_node": "stan_ask_duty",
+            "condition": "world_flags.stan_lore_duty_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "stan_ask_duty": {
+        "npc_text": "Cold boots, long hours, bad food, and men above me pretending all of that builds character. It keeps a man awake, at least.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "stan_ask_root",
+            "action": "set_flag:stan_lore_duty_seen:true"
+          }
+        ]
+      },
+      "stan_quest_root": {
+        "npc_text": "What is it?",
         "player_choices": [
           {
             "text": "I have something to report.",
             "next_node": "matthias_report"
           },
           {
-            "text": "Just passing through.",
-            "closes_dialogue": true
-          }
-        ]
-      },
-      "1": {
-        "npc_text": "Try Sergeant Rodrick in the Tidehunter Quarter.",
-        "player_choices": [
-          {
-            "text": "Back",
-            "next_node": "0"
+            "text": "Back.",
+            "next_node": "__social_root__"
           }
         ]
       },
@@ -33,12 +65,12 @@
           },
           {
             "text": "Never mind.",
-            "closes_dialogue": true
+            "next_node": "stan_quest_root"
           }
         ]
       },
       "matthias_evidence": {
-        "npc_text": "Let me see that. ... This alloy... this is contraband. Shadow steel. Finn has been smuggling this under our noses?",
+        "npc_text": "Let me see that. This alloy... contraband. Shadow steel. Finn's been moving this under our noses?",
         "player_choices": [
           {
             "text": "There's more where that came from.",
@@ -47,7 +79,7 @@
         ]
       },
       "matthias_plan": {
-        "npc_text": "This is enough for a warrant. Go to Sergeant Rodrick in the Tidehunter Quarter. He will organize the raid.",
+        "npc_text": "This is enough for a warrant. Go to Sergeant Rodrick in the Tidehunter Quarter. He'll organize the raid.",
         "player_choices": [
           {
             "text": "I'll go now.",
@@ -57,11 +89,11 @@
         ]
       },
       "matthias_raid_ready": {
-        "npc_text": "My men are on standby. Go to the Salty Mug. The option to Raid will be available.",
+        "npc_text": "Men are on standby. Go to the Salty Mug. The raid option will be waiting.",
         "player_choices": [
           {
-            "text": "Understood.",
-            "closes_dialogue": true
+            "text": "Back.",
+            "next_node": "stan_quest_root"
           }
         ]
       }

@@ -1,8 +1,49 @@
 {
   "cyrus_default": {
+    "interaction_roots": {
+      "ask": "cyrus_ask_root",
+      "quest": "cyrus_quest_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "I'm Cyrus, apprentice to Kaelen. Need something forged?",
+        "player_choices": [
+          {
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "cyrus_ask_root": {
+        "npc_text": "Ask what you want. Just don't say it loud.",
+        "player_choices": [
+          {
+            "text": "How is forge work treating you?",
+            "next_node": "cyrus_ask_forge",
+            "condition": "world_flags.cyrus_lore_forge_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "cyrus_ask_forge": {
+        "npc_text": "Hot, loud, and never finished. Kaelen says iron teaches patience because it punishes anyone too proud to wait for it.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "cyrus_ask_root",
+            "action": "set_flag:cyrus_lore_forge_seen:true"
+          }
+        ]
+      },
+      "cyrus_quest_root": {
+        "npc_text": "What is it?",
         "player_choices": [
           {
             "text": "Old Crank says you know about Finn's crates.",
@@ -10,8 +51,8 @@
             "condition": "quest.rebel_path.stage==1"
           },
           {
-            "text": "Goodbye, Cyrus.",
-            "closes_dialogue": true
+            "text": "Back.",
+            "next_node": "__social_root__"
           }
         ]
       },

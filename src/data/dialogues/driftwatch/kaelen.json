@@ -1,5 +1,9 @@
 {
   "kaelen_default": {
+    "trade_shop_id": "kaelens_forge",
+    "interaction_roots": {
+      "ask": "kaelen_ask_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "The forge is hot today. What brings you here?",
@@ -9,8 +13,36 @@
             "action": "open_shop:kaelens_forge"
           },
           {
-            "text": "Goodbye, Kaelen.",
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
             "closes_dialogue": true
+          }
+        ]
+      },
+      "kaelen_ask_root": {
+        "npc_text": "Ask quickly. Iron cools while people talk.",
+        "player_choices": [
+          {
+            "text": "Tell me about the forge.",
+            "next_node": "kaelen_ask_forge",
+            "condition": "world_flags.kaelen_lore_forge_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "kaelen_ask_forge": {
+        "npc_text": "A forge is heat, timing, and the discipline not to rush the metal. Driftwatch thinks blades come from muscle. They come from patience.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "kaelen_ask_root",
+            "action": "set_flag:kaelen_lore_forge_seen:true"
           }
         ]
       }

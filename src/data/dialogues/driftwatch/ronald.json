@@ -1,5 +1,10 @@
 {
   "ronald_default": {
+    "trade_shop_id": "hunters_cabin",
+    "interaction_roots": {
+      "ask": "ronald_ask_root",
+      "quest": "ronald_quest_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "The woods are dangerous. What brings you?",
@@ -9,13 +14,50 @@
             "action": "open_shop:hunters_cabin"
           },
           {
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "ronald_ask_root": {
+        "npc_text": "Ask what you want. The woods aren't getting safer while we stand here.",
+        "player_choices": [
+          {
+            "text": "Tell me about the woods.",
+            "next_node": "ronald_ask_woods",
+            "condition": "world_flags.ronald_lore_woods_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "ronald_ask_woods": {
+        "npc_text": "The woods give plenty to men who pay attention and bury fools who don't. Tracks, wind, broken brush, old silence. All of it matters.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "ronald_ask_root",
+            "action": "set_flag:ronald_lore_woods_seen:true"
+          }
+        ]
+      },
+      "ronald_quest_root": {
+        "npc_text": "What is it?",
+        "player_choices": [
+          {
             "text": "I noticed your workbench. Mind if I use it?",
             "next_node": "crafting_unlock",
             "condition": "world_flags.hunter_crafting_unlocked==false"
           },
           {
-            "text": "Goodbye, Ronald.",
-            "closes_dialogue": true
+            "text": "Back.",
+            "next_node": "__social_root__"
           }
         ]
       },

@@ -1,17 +1,58 @@
 {
   "elisa_default": {
+    "interaction_roots": {
+      "ask": "elisa_ask_root",
+      "quest": "elisa_quest_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "Welcome to the farm.",
         "player_choices": [
           {
-            "text": "Goodbye, Elisa.",
-            "closes_dialogue": true
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
           },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "elisa_ask_root": {
+        "npc_text": "Ask what you came to ask.",
+        "player_choices": [
+          {
+            "text": "How long have you kept this farm going?",
+            "next_node": "elisa_ask_farm",
+            "condition": "world_flags.elisa_lore_farm_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "elisa_ask_farm": {
+        "npc_text": "Long enough to know every fence post that leans and every season that lies. Farms survive because someone wakes before dawn and refuses to let them die.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "elisa_ask_root",
+            "action": "set_flag:elisa_lore_farm_seen:true"
+          }
+        ]
+      },
+      "elisa_quest_root": {
+        "npc_text": "What is it?",
+        "player_choices": [
           {
             "text": "I need to talk to you.",
             "next_node": "elisa_night_raid",
             "condition": "time.is_night==true"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
           }
         ]
       },

@@ -1,12 +1,43 @@
 {
   "rowan_default": {
+    "interaction_roots": {
+      "ask": "rowan_ask_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "I'm Rowan. What?",
         "player_choices": [
           {
-            "text": "Goodbye, Rowan.",
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
             "closes_dialogue": true
+          }
+        ]
+      },
+      "rowan_ask_root": {
+        "npc_text": "Go on.",
+        "player_choices": [
+          {
+            "text": "How do you like farm life?",
+            "next_node": "rowan_ask_farm",
+            "condition": "world_flags.rowan_lore_farm_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "rowan_ask_farm": {
+        "npc_text": "I like it when the weather behaves and Ben keeps his mouth shut. So, not often. Still better than a lot of places.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rowan_ask_root",
+            "action": "set_flag:rowan_lore_farm_seen:true"
           }
         ]
       }

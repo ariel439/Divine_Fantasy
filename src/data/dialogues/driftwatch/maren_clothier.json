@@ -1,5 +1,9 @@
 {
   "maren_clothier_default": {
+    "trade_shop_id": "harbor_clothier",
+    "interaction_roots": {
+      "ask": "maren_ask_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "Need something sturdier than rags, or are you only here to stare at the stitching?",
@@ -9,8 +13,36 @@
             "action": "open_shop:harbor_clothier"
           },
           {
-            "text": "Just looking around.",
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
             "closes_dialogue": true
+          }
+        ]
+      },
+      "maren_ask_root": {
+        "npc_text": "Ask, then. Cloth doesn't fold itself.",
+        "player_choices": [
+          {
+            "text": "What makes good clothing around here?",
+            "next_node": "maren_ask_clothing",
+            "condition": "world_flags.maren_lore_clothing_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "maren_ask_clothing": {
+        "npc_text": "Good clothing in Driftwatch keeps rain off your back, salt out of the seams, and enough dignity on you that people don't mistake desperation for an invitation.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "maren_ask_root",
+            "action": "set_flag:maren_lore_clothing_seen:true"
           }
         ]
       }

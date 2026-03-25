@@ -1,12 +1,43 @@
 {
   "kyle_default": {
+    "interaction_roots": {
+      "ask": "kyle_ask_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "Luke!",
         "player_choices": [
           {
-            "text": "See you soon, Kyle.",
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
             "closes_dialogue": true
+          }
+        ]
+      },
+      "kyle_ask_root": {
+        "npc_text": "What do you want to talk about?",
+        "player_choices": [
+          {
+            "text": "How's life at the lighthouse?",
+            "next_node": "kyle_ask_lighthouse",
+            "condition": "world_flags.kyle_lore_lighthouse_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "kyle_ask_lighthouse": {
+        "npc_text": "Wind, chores, Leo telling the same stories better every time, and Sarah acting like every day ought to be an adventure. I like it.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "kyle_ask_root",
+            "action": "set_flag:kyle_lore_lighthouse_seen:true"
           }
         ]
       }
@@ -15,7 +46,7 @@
   "kyle_smuggler_alert": {
     "nodes": {
       "0": {
-        "npc_text": "Luke—wake up. Robert slipped out before dawn. I saw him heading toward the docks with some rough-looking men.",
+        "npc_text": "Luke, wake up. Robert slipped out before dawn. I saw him heading toward the docks with some rough-looking men.",
         "player_choices": [
           {
             "text": "We go now.",

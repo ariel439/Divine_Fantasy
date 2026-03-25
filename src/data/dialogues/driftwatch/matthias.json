@@ -1,25 +1,57 @@
 {
   "matthias_default": {
+    "interaction_roots": {
+      "ask": "matthias_ask_root",
+      "quest": "matthias_quest_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "Halt! What business do you have at Mosswatch Keep?",
+        "player_choices": [
+          {
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "matthias_ask_root": {
+        "npc_text": "Speak clearly.",
+        "player_choices": [
+          {
+            "text": "Tell me about Mosswatch Keep.",
+            "next_node": "matthias_ask_keep",
+            "condition": "world_flags.matthias_lore_keep_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "matthias_ask_keep": {
+        "npc_text": "Keep's older than most men posted to it and in better shape than some. It doesn't need to be beautiful. It needs to hold.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "matthias_ask_root",
+            "action": "set_flag:matthias_lore_keep_seen:true"
+          }
+        ]
+      },
+      "matthias_quest_root": {
+        "npc_text": "What is it?",
         "player_choices": [
           {
             "text": "I have something to report.",
             "next_node": "matthias_report"
           },
           {
-            "text": "Just passing through.",
-            "closes_dialogue": true
-          }
-        ]
-      },
-      "1": {
-        "npc_text": "Try Sergeant Rodrick in the Tidehunter Quarter.",
-        "player_choices": [
-          {
-            "text": "Back",
-            "next_node": "0"
+            "text": "Back.",
+            "next_node": "__social_root__"
           }
         ]
       },

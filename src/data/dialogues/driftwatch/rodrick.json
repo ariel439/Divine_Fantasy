@@ -1,8 +1,49 @@
 {
   "rodrick_default": {
+    "interaction_roots": {
+      "ask": "rodrick_ask_root",
+      "quest": "rodrick_quest_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "What do you want, kid?",
+        "player_choices": [
+          {
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "rodrick_ask_root": {
+        "npc_text": "Ask something useful or move along.",
+        "player_choices": [
+          {
+            "text": "Tell me about the Tidehunters.",
+            "next_node": "rodrick_ask_tidehunters",
+            "condition": "world_flags.rodrick_lore_tidehunters_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "rodrick_ask_tidehunters": {
+        "npc_text": "We keep the coast watchful, the roads honest, and fools from thinking Driftwatch has gone soft. Or we try to, anyway.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rodrick_ask_root",
+            "action": "set_flag:rodrick_lore_tidehunters_seen:true"
+          }
+        ]
+      },
+      "rodrick_quest_root": {
+        "npc_text": "What is it?",
         "player_choices": [
           {
             "text": "Matthias sent me. We're ready to raid the Salty Mug.",
@@ -10,8 +51,8 @@
             "condition": "quest.rebel_path.stage==3"
           },
           {
-            "text": "Nothing, sir.",
-            "closes_dialogue": true
+            "text": "Back.",
+            "next_node": "__social_root__"
           }
         ]
       }

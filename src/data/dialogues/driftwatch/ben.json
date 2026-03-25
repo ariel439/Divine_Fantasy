@@ -1,11 +1,52 @@
 {
   "ben_default": {
+    "interaction_roots": {
+      "ask": "ben_ask_root",
+      "quest": "ben_quest_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "Hard work on the farm. What can I do for you?",
         "player_choices": [
           {
-            "text": "We won! Pay up.",
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "ben_ask_root": {
+        "npc_text": "Ask, then. Talking is easier than plowing.",
+        "player_choices": [
+          {
+            "text": "Tell me about the farm.",
+            "next_node": "ben_ask_farm",
+            "condition": "world_flags.ben_lore_farm_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "ben_ask_farm": {
+        "npc_text": "This land's never been rich, but it feeds who works it. Summer gives grain, winter gives mud, and both find ways to break your back if you get careless.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "ben_ask_root",
+            "action": "set_flag:ben_lore_farm_seen:true"
+          }
+        ]
+      },
+      "ben_quest_root": {
+        "npc_text": "What is it? Make it quick.",
+        "player_choices": [
+          {
+            "text": "We won. Pay up.",
             "next_node": "ben_pay_cheat",
             "condition": "world_flags.ben_cheat_done==true && world_flags.debt_paid_by_ben==false"
           },
@@ -15,24 +56,22 @@
             "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_ben==false && world_flags.ben_cheat_agreed==false"
           },
           {
-            "text": "Goodbye, Ben.",
-            "closes_dialogue": true,
-            "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_ben==false && world_flags.ben_cheat_agreed==false"
-          },
-          {
-            "text": "Goodbye, Ben.",
-            "closes_dialogue": true,
-            "condition": "world_flags.finn_debt_collection_active==false"
-          },
-          {
-            "text": "Goodbye, Ben.",
-            "closes_dialogue": true,
-            "condition": "world_flags.debt_paid_by_ben==true"
-          },
-          {
-            "text": "Goodbye, Ben.",
-            "closes_dialogue": true,
+            "text": "About tonight at the Mug.",
+            "next_node": "ben_quest_cheat_reminder",
             "condition": "world_flags.ben_cheat_agreed==true && world_flags.ben_cheat_done==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "ben_quest_cheat_reminder": {
+        "npc_text": "Tonight, at the Salty Mug. Stick close, keep your face calm, and don't ruin the one good bad idea I've had all month.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "ben_quest_root"
           }
         ]
       },
@@ -74,7 +113,7 @@
           },
           {
             "text": "Forget it.",
-            "next_node": "0"
+            "next_node": "ben_quest_root"
           }
         ]
       },
@@ -98,7 +137,7 @@
           },
           {
             "text": "Forget it.",
-            "next_node": "0"
+            "next_node": "ben_quest_root"
           }
         ]
       },

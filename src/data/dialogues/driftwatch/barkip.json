@@ -1,22 +1,49 @@
 {
   "barkip_default": {
+    "interaction_roots": {
+      "ask": "barkip_ask_root",
+      "quest": "barkip_quest_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "What'll it be? Ale's 1 silver.",
         "player_choices": [
           {
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          },
+          {
             "text": "Ale, please.",
             "action": "remove_money:1|add_item:ale:1",
             "closes_dialogue": true,
             "condition": "money>=1"
-          },
+          }
+        ]
+      },
+      "barkip_ask_root": {
+        "npc_text": "Ask, but keep it short. I've got mugs to fill.",
+        "player_choices": [
           {
             "text": "Hear any rumors?",
-            "next_node": "rumors"
+            "next_node": "rumors",
+            "condition": "world_flags.barkip_rumor_seen==false"
           },
           {
-            "text": "Nothing.",
-            "closes_dialogue": true
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "barkip_quest_root": {
+        "npc_text": "No work from me. Just drink and noise.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
           }
         ]
       },
@@ -24,8 +51,9 @@
         "npc_text": "They say the Tidehunters are recruiting. And Old Man Finn is in a foul mood lately. Watch yourself.",
         "player_choices": [
           {
-            "text": "Thanks.",
-            "closes_dialogue": true
+            "text": "Back.",
+            "next_node": "barkip_ask_root",
+            "action": "set_flag:barkip_rumor_seen:true"
           }
         ]
       }

@@ -130,7 +130,8 @@ Use `first_meet_node` / `repeat_meet_node` when:
 Important:
 - `first_meet_node` should not be auto-skipped into the social menu
 - first meetings are authored scenes, not utility shells
-- only repeat/opening utility menus may be auto-skipped when they are effectively just `talk + leave`
+- repeat/opening utility menus may be auto-skipped when they are effectively just `talk + leave`
+- this includes simple `node 0` openers when the NPC has no trade or other real entry actions
 
 If an NPC has both trade and social interaction:
 - entry menu should include trade and talk separately
@@ -144,6 +145,11 @@ If the opener is effectively only `I'd like to talk.` plus `Leave.`:
 - the engine may skip the opener automatically
 - the player should land directly in the interaction menu
 - in this case the interaction menu should show `Leave`, not `Back`
+- if the opener had authored NPC greeting text, that greeting should still appear as a speech bubble before the interaction menu
+
+Important:
+- shop access still counts as a real entry action even if it closes dialogue to open a shop
+- a `Trade` option means the opener should not be auto-skipped
 
 If an NPC has only one meaningful social path:
 - it is acceptable to skip the opener and go straight into the relevant social content

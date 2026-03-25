@@ -1,8 +1,49 @@
 {
   "elara_default": {
+    "interaction_roots": {
+      "ask": "elara_ask_root",
+      "quest": "elara_quest_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "Herbs, potions, salves... I have everything a healer needs.",
+        "player_choices": [
+          {
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "elara_ask_root": {
+        "npc_text": "If you're asking, ask properly.",
+        "player_choices": [
+          {
+            "text": "Tell me about your remedies.",
+            "next_node": "elara_ask_remedies",
+            "condition": "world_flags.elara_lore_remedies_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "elara_ask_remedies": {
+        "npc_text": "Most of what I sell is simpler than people imagine. Willow bark for pain, bitterroot for fever, salves for burns, tinctures for stomach rot. The hard part isn't making them. It's keeping fools from taking twice the dose and blaming me after.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "elara_ask_root",
+            "action": "set_flag:elara_lore_remedies_seen:true"
+          }
+        ]
+      },
+      "elara_quest_root": {
+        "npc_text": "What is it?",
         "player_choices": [
           {
             "text": "Finn sent me. Pay 10 silvers.",
@@ -15,13 +56,13 @@
             "condition": "world_flags.elara_delivery_done==true && world_flags.debt_paid_by_elara==false"
           },
           {
-            "text": "I know about your 'nighttime business', Elara.",
+            "text": "I know about your 'nighttime business'.",
             "next_node": "drug_confrontation",
             "condition": "world_flags.elara_secret_known==true && world_flags.debt_paid_by_elara==false"
           },
           {
-            "text": "Goodbye, Elara.",
-            "closes_dialogue": true
+            "text": "Back.",
+            "next_node": "__social_root__"
           }
         ]
       },

@@ -1,8 +1,49 @@
 {
   "old_crank_default": {
+    "interaction_roots": {
+      "ask": "crank_ask_root",
+      "quest": "crank_quest_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "Bah! Another whelp in the tavern. (He eyes your drink).",
+        "player_choices": [
+          {
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "crank_ask_root": {
+        "npc_text": "Ask, if you must. I've heard worse ways to waste time.",
+        "player_choices": [
+          {
+            "text": "You've seen this tavern a long time, haven't you?",
+            "next_node": "crank_ask_mug",
+            "condition": "world_flags.crank_lore_mug_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "crank_ask_mug": {
+        "npc_text": "Long enough to watch boys turn into drunks and drunks turn into ghosts. The Mug changes its owner, its stools, its spills. Never its smell.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "crank_ask_root",
+            "action": "set_flag:crank_lore_mug_seen:true"
+          }
+        ]
+      },
+      "crank_quest_root": {
+        "npc_text": "If you've got beer, maybe I've got words.",
         "player_choices": [
           {
             "text": "Give Beer (Gossip)",
@@ -23,8 +64,8 @@
             "condition": "inventory.beer>=1 && world_flags.crank_beer_2==true && world_flags.crank_beer_3==false"
           },
           {
-            "text": "Leave.",
-            "closes_dialogue": true
+            "text": "Back.",
+            "next_node": "__social_root__"
           }
         ]
       },
@@ -33,7 +74,7 @@
         "player_choices": [
           {
             "text": "Interesting.",
-            "next_node": "0"
+            "next_node": "crank_quest_root"
           }
         ]
       },
@@ -42,7 +83,7 @@
         "player_choices": [
           {
             "text": "Is that so?",
-            "next_node": "0"
+            "next_node": "crank_quest_root"
           }
         ]
       },

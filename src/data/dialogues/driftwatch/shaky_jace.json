@@ -1,8 +1,25 @@
 {
   "shaky_jace_default": {
+    "interaction_roots": {
+      "ask": "jace_ask_root",
+      "quest": "jace_quest_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "Spare a coin? Just one coin... I need my fix...",
+        "player_choices": [
+          {
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "jace_ask_root": {
+        "npc_text": "Ask fast. My hands don't stop shaking for free.",
         "player_choices": [
           {
             "text": "Any way to make copper around here?",
@@ -14,6 +31,15 @@
             "next_node": "jace_pit_repeat",
             "condition": "world_flags.slum_pit_unlocked==true"
           },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "jace_quest_root": {
+        "npc_text": "Well? Coin or questions?",
+        "player_choices": [
           {
             "text": "Here's 1 copper.",
             "action": "remove_money:1:copper",
@@ -27,8 +53,8 @@
             "condition": "currency.copper>=1 && world_flags.elara_secret_known==true"
           },
           {
-            "text": "Get lost.",
-            "closes_dialogue": true
+            "text": "Back.",
+            "next_node": "__social_root__"
           }
         ]
       },

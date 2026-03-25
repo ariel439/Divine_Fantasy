@@ -1,12 +1,43 @@
 {
   "robert_default": {
+    "interaction_roots": {
+      "ask": "robert_ask_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "Hey Luke.",
         "player_choices": [
           {
-            "text": "See you soon, Robert.",
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
             "closes_dialogue": true
+          }
+        ]
+      },
+      "robert_ask_root": {
+        "npc_text": "Yeah?",
+        "player_choices": [
+          {
+            "text": "How have you been?",
+            "next_node": "robert_ask_day",
+            "condition": "world_flags.robert_lore_day_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "robert_ask_day": {
+        "npc_text": "Same as always. Chores, Leo watching the weather, Kyle talking too loud, Sarah pretending every afternoon needs a plan.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "robert_ask_root",
+            "action": "set_flag:robert_lore_day_seen:true"
           }
         ]
       }

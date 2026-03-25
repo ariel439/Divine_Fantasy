@@ -597,18 +597,22 @@ export class DialogueService {
       return false;
     }
 
-    if (nodeId !== dialogueEntry.repeat_meet_node) {
+    const isSkippableOpener =
+      nodeId === dialogueEntry.repeat_meet_node ||
+      (nodeId === '0' && nodeId !== dialogueEntry.first_meet_node);
+
+    if (!isSkippableOpener) {
       return false;
     }
 
     const choices = (node.player_choices || []).filter((choice) => !choice.condition || ConditionEvaluator.evaluate(choice.condition));
     const talkChoices = choices.filter((choice) => choice.next_node === this.SOCIAL_ROOT_NODE_ID);
-    const exitChoices = choices.filter((choice) =>
-      choice.closes_dialogue ||
+    const pureExitChoices = choices.filter((choice) =>
+      (choice.closes_dialogue && !(choice.action || '').startsWith('open_shop:')) ||
       choice.next_node === this.SOCIAL_RETURN_NODE_ID ||
       this.isNavigationChoice(choice)
     );
-    const otherChoices = choices.filter((choice) => !talkChoices.includes(choice) && !exitChoices.includes(choice));
+    const otherChoices = choices.filter((choice) => !talkChoices.includes(choice) && !pureExitChoices.includes(choice));
 
     return talkChoices.length > 0 && otherChoices.length === 0;
   }
@@ -785,12 +789,15 @@ export class DialogueService {
       const visibleChoices = (firstNode.player_choices || []).filter((choice) => !choice.disabled);
       const hasExplicitExit = visibleChoices.some((choice) => choice.closes_dialogue || this.isNavigationChoice(choice));
       this.state.shouldLeaveFromSocialRoot = hasExplicitExit || visibleChoices.every((choice) => choice.next_node === this.SOCIAL_ROOT_NODE_ID);
+      this.state.dialogueHistory = [];
+      if (firstNode.npc_text?.trim()) {
+        this.appendNpcHistory(firstNode.npc_text);
+      }
       this.setCurrentNode(this.SOCIAL_ROOT_NODE_ID, dialogueEntry);
       const rootNode = this.getNode(dialogueEntry, this.SOCIAL_ROOT_NODE_ID);
       if (!rootNode) {
         return null;
       }
-      this.state.dialogueHistory = [];
       return DialogueService.applyConditionsToNode(rootNode);
     }
 

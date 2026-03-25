@@ -1,8 +1,49 @@
 {
   "crawler_default": {
+    "interaction_roots": {
+      "ask": "crawler_ask_root",
+      "quest": "crawler_quest_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "Logs to planks? 2 copper per plank.",
+        "player_choices": [
+          {
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "crawler_ask_root": {
+        "npc_text": "Ask if you like. Sawdust doesn't answer back.",
+        "player_choices": [
+          {
+            "text": "Tell me about the sawmill.",
+            "next_node": "crawler_ask_sawmill",
+            "condition": "world_flags.crawler_lore_sawmill_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "crawler_ask_sawmill": {
+        "npc_text": "Most folk see timber. I see the time it takes to turn a tree into something a storm can't laugh at. The mill keeps half this town standing, whether they notice it or not.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "crawler_ask_root",
+            "action": "set_flag:crawler_lore_sawmill_seen:true"
+          }
+        ]
+      },
+      "crawler_quest_root": {
+        "npc_text": "What is it?",
         "player_choices": [
           {
             "text": "Can I use your sawmill?",
@@ -10,8 +51,8 @@
             "condition": "world_flags.sawmill_unlocked==false"
           },
           {
-            "text": "Leave.",
-            "closes_dialogue": true
+            "text": "Back.",
+            "next_node": "__social_root__"
           }
         ]
       },

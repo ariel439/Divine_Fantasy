@@ -1,12 +1,43 @@
 {
   "adalia_default": {
+    "interaction_roots": {
+      "ask": "adalia_ask_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "Ah, a visitor to the library.",
         "player_choices": [
           {
-            "text": "Goodbye, Adalia.",
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
             "closes_dialogue": true
+          }
+        ]
+      },
+      "adalia_ask_root": {
+        "npc_text": "Ask what you like, so long as your hands stay clean.",
+        "player_choices": [
+          {
+            "text": "Tell me about the library.",
+            "next_node": "adalia_ask_library",
+            "condition": "world_flags.adalia_lore_library_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "adalia_ask_library": {
+        "npc_text": "Driftwatch keeps its memory here when the rest of the city would rather drink or drown it. Shipping logs, family ledgers, weather records, old grievances. Dust is only what history wears when people stop listening.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "adalia_ask_root",
+            "action": "set_flag:adalia_lore_library_seen:true"
           }
         ]
       }

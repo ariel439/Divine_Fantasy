@@ -1,5 +1,10 @@
 {
   "beryl_default": {
+    "trade_shop_id": "beryls_general_goods",
+    "interaction_roots": {
+      "ask": "beryl_ask_root",
+      "quest": "beryl_quest_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "Welcome to Beryl's General Goods! What do you need?",
@@ -8,6 +13,43 @@
             "text": "Show me your goods.",
             "action": "open_shop:beryls_general_goods"
           },
+          {
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "beryl_ask_root": {
+        "npc_text": "Ask what you want, just don't knock anything over.",
+        "player_choices": [
+          {
+            "text": "Tell me about General Goods.",
+            "next_node": "beryl_ask_shop",
+            "condition": "world_flags.beryl_lore_shop_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "beryl_ask_shop": {
+        "npc_text": "Little bit of everything, that's the trick. Nails, cloth, tools, odds and ends. Driftwatch doesn't reward elegance. It rewards whoever still has what the next man suddenly needs.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "beryl_ask_root",
+            "action": "set_flag:beryl_lore_shop_seen:true"
+          }
+        ]
+      },
+      "beryl_quest_root": {
+        "npc_text": "If this is business beyond the shelves, say so.",
+        "player_choices": [
           {
             "text": "About that letter...",
             "next_node": "beryl_confrontation",
@@ -24,8 +66,8 @@
             "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_beryl==false && world_flags.beryl_refused_debt==true && world_flags.beryl_letter_found==false && world_flags.beryl_help_agreed==false && inventory.beryl_noble_parcel==0"
           },
           {
-            "text": "Goodbye, Beryl.",
-            "closes_dialogue": true
+            "text": "Back.",
+            "next_node": "__social_root__"
           }
         ]
       },
@@ -209,15 +251,56 @@
     }
   },
   "beryl_debt_approach": {
+    "trade_shop_id": "beryls_general_goods",
+    "interaction_roots": {
+      "ask": "beryl_ask_root",
+      "quest": "beryl_quest_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "Welcome to Beryl's General Goods!",
         "player_choices": [
           {
             "text": "Show me your goods.",
-            "closes_dialogue": true,
             "action": "open_shop:beryls_general_goods"
           },
+          {
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "beryl_ask_root": {
+        "npc_text": "Ask what you want, just don't waste my afternoon.",
+        "player_choices": [
+          {
+            "text": "Tell me about General Goods.",
+            "next_node": "beryl_ask_shop",
+            "condition": "world_flags.beryl_lore_shop_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "beryl_ask_shop": {
+        "npc_text": "You don't stay in business here by specializing. You stay alive by having the nail, the cloth, or the hammer the town suddenly realizes it cannot do without.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "beryl_ask_root",
+            "action": "set_flag:beryl_lore_shop_seen:true"
+          }
+        ]
+      },
+      "beryl_quest_root": {
+        "npc_text": "Go on, then.",
+        "player_choices": [
           {
             "text": "I delivered the package.",
             "next_node": "delivery_reward",
@@ -229,8 +312,8 @@
             "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_beryl==false && world_flags.beryl_help_agreed==false && inventory.beryl_noble_parcel==0"
           },
           {
-            "text": "Goodbye, Beryl.",
-            "closes_dialogue": true
+            "text": "Back.",
+            "next_node": "__social_root__"
           }
         ]
       },

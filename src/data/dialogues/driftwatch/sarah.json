@@ -1,12 +1,43 @@
 {
   "sarah_default": {
+    "interaction_roots": {
+      "ask": "sarah_ask_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "Hi Luke!",
         "player_choices": [
           {
-            "text": "See you soon, Sarah.",
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
             "closes_dialogue": true
+          }
+        ]
+      },
+      "sarah_ask_root": {
+        "npc_text": "What do you want to talk about?",
+        "player_choices": [
+          {
+            "text": "How's life at the lighthouse?",
+            "next_node": "sarah_ask_lighthouse",
+            "condition": "world_flags.sarah_lore_lighthouse_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "sarah_ask_lighthouse": {
+        "npc_text": "Busy, windy, and never as dull as people think. Leo keeps us working, Kyle keeps us laughing, and the sea keeps trying to remind us who's stronger.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "sarah_ask_root",
+            "action": "set_flag:sarah_lore_lighthouse_seen:true"
           }
         ]
       }

@@ -1,12 +1,43 @@
 {
   "elias_default": {
+    "interaction_roots": {
+      "ask": "elias_ask_root"
+    },
     "nodes": {
       "0": {
         "npc_text": "Ahoy! Captain Elias at your service. What tales do you bring?",
         "player_choices": [
           {
-            "text": "Goodbye, Captain Elias.",
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
             "closes_dialogue": true
+          }
+        ]
+      },
+      "elias_ask_root": {
+        "npc_text": "Ask away. A harbor without stories is only wet wood.",
+        "player_choices": [
+          {
+            "text": "Tell me about the ships coming through Driftwatch.",
+            "next_node": "elias_ask_ships",
+            "condition": "world_flags.elias_lore_ships_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "elias_ask_ships": {
+        "npc_text": "Coasters, pearl boats, fishing hulls, smugglers pretending not to be smugglers. A port's character is written in its wake, and Driftwatch has always drawn rougher ink than most.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "elias_ask_root",
+            "action": "set_flag:elias_lore_ships_seen:true"
           }
         ]
       }

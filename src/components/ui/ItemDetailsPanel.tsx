@@ -8,8 +8,9 @@ interface ItemDetailsPanelProps {
     selectedItem: Item | null;
     equippedItem: Item | null;
     onShowEquipment: () => void;
-    onAction: (action: 'Equip' | 'Unequip' | 'Use' | 'Drop') => void;
+    onAction: (action: 'Equip' | 'Unequip' | 'Use' | 'Drop' | 'UseMax') => void;
     isEquipped: boolean;
+    extraContent?: React.ReactNode;
 }
 
 const StatComparisonRow: FC<{ label: string, selectedValue?: number, equippedValue?: number }> = ({ label, selectedValue = 0, equippedValue = 0 }) => {
@@ -38,7 +39,7 @@ const StatComparisonRow: FC<{ label: string, selectedValue?: number, equippedVal
     )
 };
 
-const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedItem, onShowEquipment, onAction, isEquipped }) => {
+const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedItem, onShowEquipment, onAction, isEquipped, extraContent }) => {
     const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
     
     if (!selectedItem) {
@@ -99,7 +100,7 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
                 {actionsToShow.map(action => (
                     <button 
                         key={action} 
-                        onClick={() => onAction(action as 'Equip' | 'Unequip' | 'Use' | 'Drop')}
+                        onClick={() => onAction(action as 'Equip' | 'Unequip' | 'Use' | 'Drop' | 'UseMax')}
                         className={`py-3 px-4 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all border border-zinc-800/50 active:scale-95 ${
                             action === 'Drop' 
                             ? 'bg-rose-950/20 text-rose-500 hover:bg-rose-900/40 border-rose-900/30' 
@@ -109,6 +110,14 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
                         {getActionLabel(action)}
                     </button>
                 ))}
+                {selectedItem.type === 'consumable' && (selectedItem.quantity ?? 1) > 1 && (
+                    <button
+                        onClick={() => onAction('UseMax')}
+                        className="col-span-2 py-3 px-4 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all border border-emerald-900/30 bg-emerald-950/20 text-emerald-400 hover:bg-emerald-900/40 active:scale-95"
+                    >
+                        Eat Until Full
+                    </button>
+                )}
             </div>
         )
     };
@@ -158,6 +167,9 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
                     <div className="text-center mt-6">
                         <h2 className="text-2xl font-bold text-white tracking-tight leading-none" style={{ fontFamily: 'Cinzel, serif' }}>{selectedItem.name}</h2>
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mt-2">{selectedItem.category} Identification</p>
+                        {(selectedItem.quantity ?? 1) > 1 && (
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mt-2">Quantity x{selectedItem.quantity}</p>
+                        )}
                     </div>
                 </div>
             </div>
@@ -215,6 +227,7 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
                     )}
                 </div>
 
+                {extraContent}
                 {renderActions()}
             </div>
         </div>

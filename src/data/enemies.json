@@ -103,7 +103,7 @@
   },
   "ren_zhen_shadow": {
     "name": "Ren Zhen's Shadow",
-    "image": "/assets/books/ren_zhen_driftwatch_finale.png",
+    "image": "/assets/events/ren_zhen_shadow.png",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
     "attack_type": "slash",
     "combat_tags": ["boss", "row_cleave", "storm_board", "first_strike"],

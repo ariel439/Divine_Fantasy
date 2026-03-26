@@ -113,26 +113,22 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
         const offer = side === 'player' ? playerOffer : merchantOffer;
         const setOffer = side === 'player' ? setPlayerOffer : setMerchantOffer;
 
-        // For non-stackable items, we need to find by UUID
-        const existingOfferIndex = item.stackable
+        const tracksByItemId = side === 'merchant' || item.stackable;
+        const existingOfferIndex = tracksByItemId
             ? offer.findIndex(o => o.item.id === item.id)
             : offer.findIndex(o => o.item.uuid === item.uuid);
 
         if (existingOfferIndex !== -1) {
-            // Item is already in offer
-            if (item.stackable) {
-                // If stackable, open quantity modal to adjust quantity
+            if (tracksByItemId) {
                 setQuantityModalState({ isOpen: true, item: offer[existingOfferIndex].item, side, currentQuantity: offer[existingOfferIndex].quantity });
             } else {
-                // If not stackable, remove it
                 setOffer(offer.filter((_, index) => index !== existingOfferIndex));
                 if (side === 'player') setSelectedPlayerItemId(null);
                 else setSelectedMerchantItemId(null);
             }
         } else {
-            // Item is not in offer, add it
-            if (item.stackable && (item.quantity ?? 1) > 1) {
-                setQuantityModalState({ isOpen: true, item, side, currentQuantity: 0 }); // New item, start with 0 or 1
+            if ((tracksByItemId && (item.quantity ?? 1) > 1) || (item.stackable && (item.quantity ?? 1) > 1)) {
+                setQuantityModalState({ isOpen: true, item, side, currentQuantity: 0 });
             } else {
                 setOffer([...offer, { item, quantity: 1 }]);
                 if (side === 'player') setSelectedPlayerItemId(item.uuid || item.id);
@@ -148,7 +144,8 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
         const offer = side === 'player' ? playerOffer : merchantOffer;
         const setOffer = side === 'player' ? setPlayerOffer : setMerchantOffer;
 
-        const existingOfferIndex = item.stackable
+        const tracksByItemId = side === 'merchant' || item.stackable;
+        const existingOfferIndex = tracksByItemId
             ? offer.findIndex(o => o.item.id === item.id)
             : offer.findIndex(o => o.item.uuid === item.uuid);
 

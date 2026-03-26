@@ -43,12 +43,53 @@
     "home_location": "grand_library",
     "default_dialogue_id": "shihan_default",
     "portrait": "/assets/portraits/ShihanYue.png",
+    "hidden_if_flag": "whitefang_bound",
     "available_from": { "month": 5, "dayOfMonth": 3 },
     "available_until": { "month": 5, "dayOfMonth": 10 },
     "schedules": [
       { "location_id": "grand_library", "start_hour": 9, "end_hour": 13 },
       { "location_id": "driftwatch_docks", "start_hour": 13, "end_hour": 16 },
       { "location_id": "driftwatch_noble_quarter", "start_hour": 16, "end_hour": 18 }
+    ]
+  },
+  "npc_shihan_camp": {
+    "name": "Shihan Yue",
+    "home_location": "shihan_camp",
+    "default_dialogue_id": "shihan_camp_default",
+    "portrait": "/assets/portraits/ShihanYue.png",
+    "required_flag": "whitefang_bound",
+    "schedules": [
+      { "location_id": "shihan_camp", "start_hour": 0, "end_hour": 24 }
+    ]
+  },
+  "npc_lin_shao": {
+    "name": "Captain Lin Shao",
+    "home_location": "shihan_camp",
+    "default_dialogue_id": "lin_shao_camp_default",
+    "portrait": "/assets/portraits/LinShao.png",
+    "required_flag": "whitefang_bound",
+    "schedules": [
+      { "location_id": "shihan_camp", "start_hour": 0, "end_hour": 24 }
+    ]
+  },
+  "npc_wei_taren": {
+    "name": "Wei Taren",
+    "home_location": "shihan_camp",
+    "default_dialogue_id": "wei_taren_camp_default",
+    "portrait": "/assets/portraits/WeiTaren.png",
+    "required_flag": "whitefang_bound",
+    "schedules": [
+      { "location_id": "shihan_camp", "start_hour": 0, "end_hour": 24 }
+    ]
+  },
+  "npc_qiao_ren": {
+    "name": "Qiao Ren",
+    "home_location": "shihan_camp",
+    "default_dialogue_id": "qiao_ren_camp_default",
+    "portrait": "/assets/portraits/QiaoRen.png",
+    "required_flag": "whitefang_bound",
+    "schedules": [
+      { "location_id": "shihan_camp", "start_hour": 0, "end_hour": 24 }
     ]
   },
   "npc_matthias": {

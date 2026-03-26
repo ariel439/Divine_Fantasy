@@ -106,6 +106,7 @@ const CombatDebugScreen: FC = () => {
     };
 
     Object.entries(itemsJson).forEach(([id, item]) => {
+      if (id === 'white_fang_of_heaven_u') return;
       const slot = (item as any).equipmentSlot as DebugGearSlot | undefined;
       if (!slot || !(slot in initial)) return;
       initial[slot].push({ id, name: item.name });

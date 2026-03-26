@@ -158,7 +158,7 @@ export class GameManagerService {
         attack: 15,
         defence: 10,
         dexterity: 9,
-        portraitUrl: '/assets/portraits/Guard_Generic.png',
+        portraitUrl: '/assets/portraits/LinShao.png',
         isPlayer: false,
         isCompanion: true,
         attack_sound: '/assets/sfx/combat_sword_swing.mp3',
@@ -171,7 +171,7 @@ export class GameManagerService {
         attack: 14,
         defence: 9,
         dexterity: 8,
-        portraitUrl: '/assets/portraits/Guard_Generic.png',
+        portraitUrl: '/assets/portraits/WeiTaren.png',
         isPlayer: false,
         isCompanion: true,
         attack_sound: '/assets/sfx/combat_sword_swing.mp3',
@@ -184,7 +184,7 @@ export class GameManagerService {
         attack: 13,
         defence: 8,
         dexterity: 10,
-        portraitUrl: '/assets/portraits/Guard_Generic.png',
+        portraitUrl: '/assets/portraits/QiaoRen.png',
         isPlayer: false,
         isCompanion: true,
         attack_sound: '/assets/sfx/combat_sword_swing.mp3',
@@ -1025,7 +1025,7 @@ export class GameManagerService {
         attack: 15,
         defence: 10,
         dexterity: 9,
-        portraitUrl: '/assets/portraits/Guard_Generic.png',
+        portraitUrl: '/assets/portraits/LinShao.png',
         isPlayer: false,
         isCompanion: true,
         attack_sound: '/assets/sfx/combat_sword_swing.mp3',
@@ -1038,7 +1038,7 @@ export class GameManagerService {
         attack: 14,
         defence: 9,
         dexterity: 8,
-        portraitUrl: '/assets/portraits/Guard_Generic.png',
+        portraitUrl: '/assets/portraits/WeiTaren.png',
         isPlayer: false,
         isCompanion: true,
         attack_sound: '/assets/sfx/combat_sword_swing.mp3',
@@ -1051,7 +1051,7 @@ export class GameManagerService {
         attack: 13,
         defence: 8,
         dexterity: 10,
-        portraitUrl: '/assets/portraits/Guard_Generic.png',
+        portraitUrl: '/assets/portraits/QiaoRen.png',
         isPlayer: false,
         isCompanion: true,
         attack_sound: '/assets/sfx/combat_sword_swing.mp3',
@@ -1090,6 +1090,12 @@ export class GameManagerService {
           intelligence: state.attributes.intelligence + 2,
           charisma: state.attributes.charisma + 2,
         },
+        bio: state.bio
+          ? {
+              ...state.bio,
+              image: '/assets/portraits/LukeWhiteFang.png',
+            }
+          : state.bio,
       }));
       useCharacterStore.getState().recalculateStats();
       useCharacterStore.setState((state) => ({

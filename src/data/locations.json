@@ -246,6 +246,7 @@
     "is_indoor": true,
     "exit_location": "driftwatch_slums",
     "actions": [
+      { "text": "Meet Ben for the card game", "type": "trigger_event", "eventId": "ben_cheat_event", "condition": "world_flags.ben_cheat_agreed==true && world_flags.ben_cheat_done==false && time.is_night==true" },
       { "text": "Travel to The Slums", "type": "navigate", "target": "driftwatch_slums" }
     ]
   },
@@ -317,10 +318,22 @@
       { "text": "Chop Wood", "type": "woodcut", "target": "woodcut_basic" },
       { "text": "Fish", "type": "fish", "target": "fish_river" },
       { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_woods_sign", "condition": "world_flags.whitefang_woods_vision_seen==false" },
+      { "text": "Travel to Shihan's Camp", "type": "navigate", "target": "shihan_camp", "condition": "world_flags.whitefang_bound==true" },
       { "text": "Travel to Hunter's Cabin", "type": "navigate", "target": "hunters_cabin" },
       { "text": "Travel to Sawmill", "type": "navigate", "target": "sawmill" },
       { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 },
       { "text": "Travel to Secret Cabin", "type": "navigate", "target": "player_cabin", "condition": "world_flags.loc_cabin_unlocked==true" }
+    ]
+  },
+  "shihan_camp": {
+    "name": "Shihan's Camp",
+    "day_description": "A disciplined Shenhai camp has been raised among the trees, quiet and orderly despite the damp Driftwatch woods.",
+    "night_description": "Lanterns burn low over the foreign camp, and the men posted here watch the woods in silence.",
+    "day_background": "/assets/locations/driftwatch_woods_day.png",
+    "night_background": "/assets/locations/driftwatch_woods_night.png",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
+    "actions": [
+      { "text": "Travel to Driftwatch Woods", "type": "navigate", "target": "driftwatch_woods" }
     ]
   },
   "mountain_paths": {

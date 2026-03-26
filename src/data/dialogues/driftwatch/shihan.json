@@ -346,5 +346,114 @@
         ]
       }
     }
+  },
+  "shihan_camp_default": {
+    "first_meet_node": "sh_camp_first",
+    "repeat_meet_node": "sh_camp_repeat",
+    "nodes": {
+      "sh_camp_first": {
+        "npc_text": "I will not return to the city with this hanging over you. Driftwatch would feel the change in you before sunset, and men here fear what they cannot name. We will keep camp in these woods for now. If you wish to find us again, come here.",
+        "player_choices": [
+          {
+            "text": "You really think it will be that obvious?",
+            "next_node": "sh_camp_first_2"
+          },
+          {
+            "text": "And if I want to travel with you?",
+            "next_node": "sh_camp_first_3"
+          },
+          {
+            "text": "Understood.",
+            "action": "set_flag:shihan_camp_intro_seen:true",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "sh_camp_first_2": {
+        "npc_text": "To people like me, yes. To ordinary people, no. They will only feel that something in you has become difficult to stand near. That is enough to ruin simpler bonds.",
+        "player_choices": [
+          {
+            "text": "And if I want to travel with you?",
+            "next_node": "sh_camp_first_3"
+          },
+          {
+            "text": "Then I will remember that.",
+            "action": "set_flag:shihan_camp_intro_seen:true",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "sh_camp_first_3": {
+        "npc_text": "Not in this version of your story. For now, all I can offer is a place to find us and people who understand what the glaive has made of you. That will have to be enough.",
+        "player_choices": [
+          {
+            "text": "Then I know where to look.",
+            "action": "set_flag:shihan_camp_intro_seen:true",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "sh_camp_repeat": {
+        "npc_text": "We will remain in the woods for now. The city is too tight a place for what White Fang has made of you. If you need me, you know where to find us.",
+        "player_choices": [
+          {
+            "text": "I only wanted to see you were still here.",
+            "closes_dialogue": true
+          },
+          {
+            "text": "And the road east?",
+            "next_node": "sh_camp_repeat_2"
+          }
+        ]
+      },
+      "sh_camp_repeat_2": {
+        "npc_text": "Still closed to you for now. When that changes, I expect White Fang will make its own opinion known long before either of us does.",
+        "player_choices": [
+          {
+            "text": "Then I will wait.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  },
+  "lin_shao_camp_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Captain Lin Shao inclines his head, but his hand never strays far from his weapon. \"Lady Yue is resting. If you need her, speak plainly.\"",
+        "player_choices": [
+          {
+            "text": "I understand.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  },
+  "wei_taren_camp_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Wei Taren studies you without warmth. \"The weapon sits on you badly. Perhaps that is the kindest shape it can take.\"",
+        "player_choices": [
+          {
+            "text": "Good to know.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  },
+  "qiao_ren_camp_default": {
+    "nodes": {
+      "0": {
+        "npc_text": "Qiao Ren says nothing for a long moment. Then: \"You are still alive. That is more than most men would have managed.\"",
+        "player_choices": [
+          {
+            "text": "Barely.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
   }
 }

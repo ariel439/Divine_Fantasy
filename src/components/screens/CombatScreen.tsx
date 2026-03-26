@@ -124,6 +124,8 @@ const CombatScreen: FC<CombatScreenProps> = ({
   combatLog
 }) => {
     const logEndRef = useRef<HTMLDivElement>(null);
+    const partyBoardRef = useRef<HTMLDivElement>(null);
+    const partySlotRefs = useRef<Record<string, HTMLDivElement | null>>({});
     const enemyBoardRef = useRef<HTMLDivElement>(null);
     const enemySlotRefs = useRef<Record<string, HTMLDivElement | null>>({});
     const lastThunderSignatureRef = useRef<string>('');
@@ -134,6 +136,7 @@ const CombatScreen: FC<CombatScreenProps> = ({
     const [thunderPaths, setThunderPaths] = useState<ThunderPath[]>([]);
     const [thunderBounds, setThunderBounds] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
     const [thunderFlashActive, setThunderFlashActive] = useState(false);
+    const [thunderBoardSide, setThunderBoardSide] = useState<'party' | 'enemy'>('enemy');
     const [boardShakeActive, setBoardShakeActive] = useState(false);
     const [promotedEnemyIds, setPromotedEnemyIds] = useState<string[]>([]);
     const tutorialActive = useWorldStateStore.getState().getFlag('combat_tutorial_active');
@@ -156,7 +159,8 @@ const CombatScreen: FC<CombatScreenProps> = ({
         if (lastThunderSignatureRef.current === signature) return;
         lastThunderSignatureRef.current = signature;
 
-        const boardEl = enemyBoardRef.current;
+        const usesEnemyBoard = thunderStrikeIds.some((targetId) => enemySlotRefs.current[targetId]);
+        const boardEl = usesEnemyBoard ? enemyBoardRef.current : partyBoardRef.current;
         if (!boardEl) return;
 
         const boardRect = boardEl.getBoundingClientRect();
@@ -168,7 +172,7 @@ const CombatScreen: FC<CombatScreenProps> = ({
         };
 
         const nextPaths: ThunderPath[] = thunderStrikeIds.flatMap((targetId, index) => {
-            const slotEl = enemySlotRefs.current[targetId];
+            const slotEl = usesEnemyBoard ? enemySlotRefs.current[targetId] : partySlotRefs.current[targetId];
             if (!slotEl) return [];
 
             const slotRect = slotEl.getBoundingClientRect();
@@ -196,6 +200,7 @@ const CombatScreen: FC<CombatScreenProps> = ({
         });
 
         setThunderBounds({ width: boardRect.width, height: boardRect.height });
+        setThunderBoardSide(usesEnemyBoard ? 'enemy' : 'party');
         setThunderFlashActive(true);
         setBoardShakeActive(true);
         setThunderPaths(nextPaths);
@@ -375,9 +380,9 @@ const CombatScreen: FC<CombatScreenProps> = ({
             <div
                 key={key}
                 ref={(node) => {
-                    if (side === 'enemy' && combatant) {
-                        enemySlotRefs.current[combatant.id] = node;
-                    }
+                    if (!combatant) return;
+                    if (side === 'enemy') enemySlotRefs.current[combatant.id] = node;
+                    if (side === 'party') partySlotRefs.current[combatant.id] = node;
                 }}
                 className={`relative w-full max-w-sm transition-all duration-700 ease-out ${depth === 'back' ? 'scale-95 opacity-80 translate-y-2' : 'translate-y-0'} ${side === 'enemy' && isPromoted && depth === 'front' ? 'animate-row-promote' : ''}`}
             >
@@ -457,7 +462,18 @@ const CombatScreen: FC<CombatScreenProps> = ({
                 {/* Party Column */}
                 <div className="flex flex-col gap-6 w-full lg:w-1/3 items-center transition-all duration-500 ease-out">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-2">Vanguard</h3>
-                    <div className="grid grid-cols-2 gap-4 lg:gap-6 w-full">
+                    <div
+                        ref={partyBoardRef}
+                        className={`relative grid grid-cols-2 gap-4 lg:gap-6 w-full transition-all duration-500 ease-out ${boardShakeActive && thunderBoardSide === 'party' ? 'animate-board-shake' : ''}`}
+                    >
+                        {thunderBoardSide === 'party' && (
+                            <ThunderOverlay
+                                width={thunderBounds.width}
+                                height={thunderBounds.height}
+                                paths={thunderPaths}
+                                flashActive={thunderFlashActive}
+                            />
+                        )}
                         {renderSlot(partyFormation.back[0], 'party', 'party-back-0', 'back')}
                         {renderSlot(partyFormation.front[0], 'party', 'party-front-0', 'front')}
                         {renderSlot(partyFormation.back[1], 'party', 'party-back-1', 'back')}
@@ -470,14 +486,16 @@ const CombatScreen: FC<CombatScreenProps> = ({
                     <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-red-500/70 mb-2">Adversaries</h3>
                     <div
                         ref={enemyBoardRef}
-                        className={`relative grid grid-cols-2 gap-4 lg:gap-6 w-full transition-all duration-500 ease-out ${tutorialActive ? 'ring-2 ring-yellow-400 rounded-lg p-2' : ''} ${boardShakeActive ? 'animate-board-shake' : ''}`}
+                        className={`relative grid grid-cols-2 gap-4 lg:gap-6 w-full transition-all duration-500 ease-out ${tutorialActive ? 'ring-2 ring-yellow-400 rounded-lg p-2' : ''} ${boardShakeActive && thunderBoardSide === 'enemy' ? 'animate-board-shake' : ''}`}
                     >
-                        <ThunderOverlay
-                            width={thunderBounds.width}
-                            height={thunderBounds.height}
-                            paths={thunderPaths}
-                            flashActive={thunderFlashActive}
-                        />
+                        {thunderBoardSide === 'enemy' && (
+                            <ThunderOverlay
+                                width={thunderBounds.width}
+                                height={thunderBounds.height}
+                                paths={thunderPaths}
+                                flashActive={thunderFlashActive}
+                            />
+                        )}
                         {renderSlot(enemyFormation.front[0], 'enemy', 'enemy-front-0', 'front')}
                         {renderSlot(enemyFormation.back[0], 'enemy', 'enemy-back-0', 'back')}
                         {renderSlot(enemyFormation.front[1], 'enemy', 'enemy-front-1', 'front')}

@@ -234,6 +234,45 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
         hp: newHp
       };
     });
+
+    const world = useWorldStateStore.getState();
+    const autoEatThreshold = parseInt(world.getData('auto_eat_threshold') || '0', 10) || 0;
+    const rawFoodBlocked = ['raw_meat', 'fish_sardine', 'fish_trout', 'fish_pike'];
+    if (autoEatThreshold <= 0) return;
+
+    const currentHunger = get().hunger;
+    if (currentHunger >= autoEatThreshold) return;
+
+    const needed = autoEatThreshold - currentHunger;
+    const edibleCandidates = useInventoryStore.getState().items
+      .map((invItem) => {
+        const itemData = itemsData[invItem.id as keyof typeof itemsData] as { type?: string; effects?: { hunger?: number } } | undefined;
+        const hungerGain = Number(itemData?.effects?.hunger || 0);
+        return {
+          id: invItem.id,
+          quantity: invItem.quantity,
+          type: itemData?.type,
+          hungerGain,
+        };
+      })
+      .filter((item) => item.type === 'consumable' && item.hungerGain > 0 && !rawFoodBlocked.includes(item.id))
+      .sort((a, b) => a.hungerGain - b.hungerGain);
+
+    if (edibleCandidates.length === 0) return;
+
+    const bestCandidate =
+      edibleCandidates.find((item) => item.hungerGain >= needed) ||
+      edibleCandidates[edibleCandidates.length - 1];
+
+    const eatCount = Math.min(bestCandidate.quantity, Math.ceil(needed / bestCandidate.hungerGain));
+    if (eatCount <= 0) return;
+
+    const removed = useInventoryStore.getState().removeItem(bestCandidate.id, eatCount);
+    if (!removed) return;
+
+    set((state) => ({
+      hunger: Math.min(100, state.hunger + bestCandidate.hungerGain * eatCount),
+    }));
   },
   recalculateStats: () => {
     set((state) => {

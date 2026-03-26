@@ -274,8 +274,8 @@ const ScreenManager: React.FC = () => {
             useInventoryStore.getState().removeItem('antique_locket', 1);
             useCharacterStore.getState().addCurrency('silver', 10);
             useWorldStateStore.getState().setFlag('debt_paid_by_ben', true);
-            useJournalStore.getState().advanceQuestStage('finn_debt_collection');
             useDiaryStore.getState().addInteraction('Sold the antique locket to a noble for 10 silver.');
+            useLocationStore.getState().setLocation('driftwatch_noble_quarter');
             setScreen('inGame');
             return;
           }
@@ -334,7 +334,11 @@ const ScreenManager: React.FC = () => {
           if (id === 'whitefang_finn_end') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
-            useLocationStore.getState().setLocation('driftwatch_slums');
+            useWorldStateStore.getState().setFlag('finn_whitefang_branch_complete', true);
+            useWorldStateStore.getState().setFlag('finn_dead', true);
+            useWorldStateStore.getState().setFlag('finn_resolved', true);
+            useWorldStateStore.getState().setFlag('raid_ready', false);
+            useLocationStore.getState().setLocation('shihan_camp');
             setScreen('inGame');
             return;
           }
@@ -417,8 +421,9 @@ const ScreenManager: React.FC = () => {
             ui.setCurrentEventId(null);
             GameManagerService.bindWhiteFangToLuke();
             useJournalStore.getState().completeQuest('white_fang_route');
-            useLocationStore.getState().setLocation('mountain_paths');
-            setScreen('inGame');
+            useLocationStore.getState().setLocation('shihan_camp');
+            ui.setDialogueNpcId('npc_shihan_camp');
+            setScreen('dialogue');
             return;
           }
 
@@ -448,7 +453,7 @@ const ScreenManager: React.FC = () => {
             npcId={npcId}
             npcName={npc?.name || 'NPC'}
             npcPortraitUrl={npc?.portrait || '/assets/icons/DivineFantasy.png'}
-            playerPortraitUrl={'/assets/portraits/luke.jpg'}
+            playerPortraitUrl={useCharacterStore.getState().bio?.image || '/assets/portraits/luke.jpg'}
             history={dialogueHistory}
             activePrompt={DialogueService.getCurrentMenuPrompt()}
             options={options}
@@ -583,22 +588,6 @@ const ScreenManager: React.FC = () => {
                 const totalXp = (successes * recipe.xpGranted) + (failures * Math.floor(recipe.xpGranted * 0.25));
                 skillStore.addXp(recipe.skill.toLowerCase(), totalXp);
 
-                // Show detailed toast for cooking
-                if (failures > 0) {
-                  toast.addToast(
-                    `Cooked ${quantity} items: ${successes} success, ${failures} burned.`,
-                    'warning',
-                    4000,
-                    'Cooking Result'
-                  );
-                } else {
-                  toast.addToast(
-                    `Successfully cooked ${quantity}x ${recipe.result.name}!`,
-                    'success',
-                    3000,
-                    'Cooking Success'
-                  );
-                }
               } else {
                 // Non-cooking crafting is always successful for now
                 const resultQty = (recipe.result.quantity || 1) * quantity;

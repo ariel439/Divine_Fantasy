@@ -49,24 +49,13 @@ export class QuestObserverService {
       const isNonLinear = (questDef as any).nonLinear === true;
       
       if (isNonLinear) {
-        let anyChange = false;
-        questDef.stages.forEach((stageDef: any, index: number) => {
-          if (stageDef.type !== type) return;
+        const currentStageIndex = quest.currentStage || 0;
+        const currentStage = questDef.stages[currentStageIndex];
+        if (!currentStage || currentStage.type !== type) return;
 
-          const objectiveMet = this.checkObjective(type, stageDef, data);
-          if (objectiveMet) {
-            if (index === quest.currentStage) {
-              journalStore.setQuestStage(quest.id, index + 1);
-              anyChange = true;
-            } else {
-              // Force UI update for out-of-order completion
-              journalStore.setQuestStage(quest.id, quest.currentStage || 0);
-            }
-          }
-        });
-
-        if (anyChange) {
-          this.checkAllQuests(type, data);
+        const objectiveMet = this.checkObjective(type, currentStage, data);
+        if (objectiveMet) {
+          journalStore.setQuestStage(quest.id, currentStageIndex + 1);
         }
       } else {
         const currentStageIndex = quest.currentStage || 0;

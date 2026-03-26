@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import type { FC } from 'react';
-import { Coins, ArrowLeft, Weight } from 'lucide-react';
+import { Coins, ArrowLeft, Settings2 } from 'lucide-react';
 import type { Item, EquipmentSlot, FilterCategory } from '../../types';
 import { useInventoryStore } from '../../stores/useInventoryStore';
 import { useCharacterStore } from '../../stores/useCharacterStore';
@@ -10,14 +10,17 @@ import ItemSelectionPanel from '../ui/ItemSelectionPanel';
 import EquippedGearPanel from '../ui/EquippedGearPanel';
 import ItemDetailsPanel from '../ui/ItemDetailsPanel';
 import itemsData from '../../data/items.json';
+import { useWorldStateStore } from '../../stores/useWorldStateStore';
 
 const InventoryScreen: FC = () => {
     const { setScreen } = useUIStore();
     const { items: inventoryItems, getCurrentWeight, useItem, removeItem } = useInventoryStore();
-    const { currency, maxWeight, equippedItems, equipItem, unequipItem } = useCharacterStore();
+    const { currency, maxWeight, equippedItems, equipItem, unequipItem, hunger } = useCharacterStore();
+    const { getData, setData } = useWorldStateStore();
 
     const [selectedItem, setSelectedItem] = useState<Item | null>(null);
     const [rightPanelView, setRightPanelView] = useState<'equipment' | 'details'>('equipment');
+    const [showAutoEatSettings, setShowAutoEatSettings] = useState(false);
 
     const buildDisplayItem = (baseItem: { id: string; quantity?: number }): Item | null => {
         const itemData = itemsData[baseItem.id as keyof typeof itemsData];
@@ -107,11 +110,20 @@ const InventoryScreen: FC = () => {
         setSelectedItem(null);
     };
 
-    const handleAction = (action: 'Equip' | 'Unequip' | 'Use' | 'Drop') => {
+    const handleAction = (action: 'Equip' | 'Unequip' | 'Use' | 'Drop' | 'UseMax') => {
         if (!selectedItem) return;
 
         if (action === 'Use') {
             useItem(selectedItem.id);
+        } else if (action === 'UseMax') {
+            const itemData = itemsData[selectedItem.id as keyof typeof itemsData] as any;
+            const hungerPerUse = Number(itemData?.effects?.hunger || 0);
+            let remaining = selectedItem.quantity ?? 1;
+            while (remaining > 0 && useCharacterStore.getState().hunger < 100 && hungerPerUse > 0) {
+                const used = useInventoryStore.getState().useItem(selectedItem.id);
+                if (!used) break;
+                remaining -= 1;
+            }
         } else if (action === 'Drop') {
             removeItem(selectedItem.id, 1);
         } else if (action === 'Equip') {
@@ -122,6 +134,8 @@ const InventoryScreen: FC = () => {
 
         handleShowEquipment();
     };
+
+    const autoEatThreshold = parseInt(getData('auto_eat_threshold') || '0', 10) || 0;
     
     return (
         <div className="relative w-screen h-screen bg-zinc-950 flex flex-col overflow-hidden">
@@ -143,7 +157,49 @@ const InventoryScreen: FC = () => {
                         Inventory
                     </h1>
                 </div>
-                <div className="w-32"></div>
+                <div className="relative w-32 flex justify-end">
+                    <button
+                        onClick={() => setShowAutoEatSettings((prev) => !prev)}
+                        className="flex items-center gap-2 text-zinc-400 hover:text-white transition-all group px-4 py-1.5 rounded-full hover:bg-white/5 border border-transparent hover:border-zinc-800"
+                    >
+                        <Settings2 size={16} className="group-hover:rotate-12 transition-transform" />
+                        <span className="font-bold tracking-widest uppercase text-[10px]">Auto Eat</span>
+                    </button>
+                    {showAutoEatSettings && (
+                        <div className="absolute top-12 right-0 z-30 w-80 bg-zinc-950/95 backdrop-blur-xl border border-zinc-800/70 rounded-2xl shadow-2xl p-4 space-y-3">
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-400">Auto Ration</p>
+                            <p className="text-xs text-zinc-400">
+                                Luke will automatically eat from any valid food in his inventory when hunger drops below the selected threshold. This also works while waiting or sleeping.
+                            </p>
+                            <div className="grid grid-cols-4 gap-2">
+                                <button
+                                    onClick={() => setData('auto_eat_threshold', '0')}
+                                    className={`py-2 px-3 rounded-lg text-[10px] font-black uppercase tracking-widest border ${
+                                        autoEatThreshold === 0
+                                            ? 'bg-amber-100 text-black border-amber-100'
+                                            : 'bg-zinc-800/40 text-zinc-300 border-zinc-700/50 hover:bg-zinc-700/60'
+                                    }`}
+                                >
+                                    Off
+                                </button>
+                                {[25, 50, 75].map((threshold) => (
+                                    <button
+                                        key={threshold}
+                                        onClick={() => setData('auto_eat_threshold', String(threshold))}
+                                        className={`py-2 px-3 rounded-lg text-[10px] font-black uppercase tracking-widest border ${
+                                            autoEatThreshold === threshold
+                                                ? 'bg-amber-100 text-black border-amber-100'
+                                                : 'bg-amber-950/20 text-amber-300 border-amber-900/30 hover:bg-amber-900/40'
+                                        }`}
+                                    >
+                                        {threshold}
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-[10px] text-zinc-500">Current hunger: {Math.floor(hunger)}</p>
+                        </div>
+                    )}
+                </div>
             </header>
 
             {/* Main Content Area - Symmetrical Layout */}

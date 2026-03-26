@@ -3,6 +3,7 @@ import type { FC } from 'react';
 import { Search, Weight, Coins } from 'lucide-react';
 import type { Item, FilterCategory } from '../../types';
 import ProgressBar from './ProgressBar';
+import { convertCopperToGSC } from '../../data';
 
 interface ItemSelectionPanelProps {
     title: string;
@@ -56,6 +57,15 @@ const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({
     }, [items, activeFilter, searchTerm]);
 
     const filterTabs: FilterCategory[] = ['All', 'Equipment', 'Resource', 'Consumable', 'Tool', 'Quest'];
+
+    const formatValue = (totalCopper: number) => {
+        const { gold, silver, copper } = convertCopperToGSC(totalCopper);
+        const parts: string[] = [];
+        if (gold > 0) parts.push(`${gold}g`);
+        if (silver > 0) parts.push(`${silver}s`);
+        if (copper > 0 || parts.length === 0) parts.push(`${copper}c`);
+        return parts.join(' ');
+    };
 
     const getRowClass = (item: Item) => {
         const accepted = isItemAccepted(item);
@@ -145,9 +155,10 @@ const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({
 
                 {/* Header Row */}
                 <div className="flex justify-between items-center px-4 py-2 text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] border-b border-zinc-800/50">
-                    <span className="w-3/5">Identification</span>
-                    <span className="w-1/5 text-right">Mass</span>
-                    <span className="w-1/5 text-right">Value</span>
+                    <span className="w-[50%]">Identification</span>
+                    <span className="w-[12%] text-center">Amt</span>
+                    <span className="w-[18%] text-center">Mass</span>
+                    <span className="w-[20%] text-center">Value</span>
                 </div>
             </div>
 
@@ -162,7 +173,7 @@ const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({
                         disabled={!accepted}
                         className={`w-full flex justify-between items-center p-3 rounded-xl text-sm group ${getRowClass(item)}`}
                     >
-                        <div className="flex items-center gap-4 w-3/5">
+                        <div className="flex items-center gap-4 w-[50%]">
                             <div className={`w-10 h-10 flex-shrink-0 flex items-center justify-center bg-black/60 rounded-xl border border-zinc-800/50 group-hover:border-zinc-700 transition-colors ${!accepted ? 'opacity-50' : ''}`}>
                                 {item.icon || ((itemsData as any)[item.id]?.image ? <img src={(itemsData as any)[item.id].image} alt={item.name} className="w-7 h-7 object-contain" /> : null)}
                             </div>
@@ -171,11 +182,14 @@ const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({
                                 <span className="text-[10px] uppercase font-black tracking-tighter opacity-50">{item.category}</span>
                             </div>
                         </div>
-                        <div className="w-1/5 text-right font-mono text-xs opacity-70">
+                        <div className="w-[12%] text-center font-mono text-xs text-zinc-300">
+                            {item.quantity ?? 1}
+                        </div>
+                        <div className="w-[18%] text-center font-mono text-xs opacity-70">
                             {item.weight.toFixed(1)}kg
                         </div>
-                        <div className="w-1/5 text-right font-black text-zinc-100">
-                            {Math.floor(item.base_value * valueMultiplier)}c
+                        <div className="w-[20%] text-center font-black text-zinc-100">
+                            {formatValue(Math.floor(item.base_value * valueMultiplier))}
                         </div>
                     </button>
                     );

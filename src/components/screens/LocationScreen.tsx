@@ -841,15 +841,15 @@ const LocationScreen: React.FC = () => {
         <div className="flex items-center gap-6 w-1/3">
           <div className="flex items-center gap-3 w-40">
             <Heart size={14} className="text-red-500 shrink-0" />
-            <ProgressBar label="" value={Math.floor(hp)} max={Math.floor(maxHp)} colorClass="bg-red-500" variant="weight" showText={false} />
+            <ProgressBar label="" value={Math.floor(hp)} max={Math.floor(maxHp)} colorClass="bg-red-500" />
           </div>
           <div className="flex items-center gap-3 w-40">
             <Zap size={14} className="text-blue-500 shrink-0" />
-            <ProgressBar label="" value={Math.floor(energy)} max={100} colorClass="bg-blue-500" variant="weight" showText={false} />
+            <ProgressBar label="" value={Math.floor(energy)} max={100} colorClass="bg-blue-500" />
           </div>
           <div className="flex items-center gap-3 w-40">
             <Utensils size={14} className="text-orange-500 shrink-0" />
-            <ProgressBar label="" value={Math.floor(hunger)} max={100} colorClass="bg-orange-500" variant="weight" showText={false} />
+            <ProgressBar label="" value={Math.floor(hunger)} max={100} colorClass="bg-orange-500" />
           </div>
         </div>
 

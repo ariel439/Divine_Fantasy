@@ -305,11 +305,11 @@
     "type": "armor",
     "stackable": false,
     "weight": 3.0,
-    "base_value": 80,
+    "base_value": 214,
     "image": "/assets/items/iron_helmet.png",
     "equipmentSlot": "head",
     "stats": {
-      "defence": 5
+      "defence": 6
     }
   },
   "iron_chainmail": {
@@ -318,11 +318,11 @@
     "type": "armor",
     "stackable": false,
     "weight": 10.0,
-    "base_value": 200,
+    "base_value": 572,
     "image": "/assets/items/iron_chainmail.png",
     "equipmentSlot": "chest",
     "stats": {
-      "defence": 10
+      "defence": 11
     }
   },
   "iron_leggings": {
@@ -331,11 +331,11 @@
     "type": "armor",
     "stackable": false,
     "weight": 5.0,
-    "base_value": 120,
+    "base_value": 359,
     "image": "/assets/items/iron_chainlegs.png",
     "equipmentSlot": "legs",
     "stats": {
-      "defence": 5
+      "defence": 6
     }
   },
   "crude_knife": {
@@ -358,12 +358,12 @@
     "type": "tool",
     "stackable": false,
     "weight": 2.5,
-    "base_value": 100,
+    "base_value": 429,
     "image": "/assets/items/iron_sword.png",
     "equipmentSlot": "weapon",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
     "stats": {
-      "attack": 6
+      "attack": 8
     }
   },
   "white_fang_of_heaven": {
@@ -397,17 +397,17 @@
     }
   },
   "wooden_club": {
-    "name": "Wooden Club",
-    "description": "A thick hardwood club. Crude, brutal, and useful in a back-alley fight.",
+    "name": "Iron Mace",
+    "description": "A heavy iron mace built to crush rather than cut. Brutal, simple, and every bit as dangerous as a sword in the right hands.",
     "type": "weapon",
     "stackable": false,
     "weight": 1.8,
-    "base_value": 18,
+    "base_value": 429,
     "image": "/assets/items/hammer.png",
     "equipmentSlot": "weapon",
     "attack_sound": "/assets/sfx/combat_punch.mp3",
     "stats": {
-      "attack": 3
+      "attack": 8
     }
   },
   "leather_cap": {

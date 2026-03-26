@@ -1,6 +1,5 @@
 {
   "ronald_default": {
-    "trade_shop_id": "hunters_cabin",
     "interaction_roots": {
       "ask": "ronald_ask_root",
       "quest": "ronald_quest_root"
@@ -9,10 +8,6 @@
       "0": {
         "npc_text": "The woods are dangerous. What brings you?",
         "player_choices": [
-          {
-            "text": "What have you got for sale?",
-            "action": "open_shop:hunters_cabin"
-          },
           {
             "text": "I'd like to talk.",
             "next_node": "__social_root__"

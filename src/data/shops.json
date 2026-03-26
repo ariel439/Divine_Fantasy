@@ -71,9 +71,6 @@
     "sell_multiplier": 1.4,
     "accepted_categories": ["weapon", "armor", "tool", "resource"],
     "inventory": [
-        { "item_id": "leather_cap", "quantity": 2 },
-        { "item_id": "padded_gambeson", "quantity": 2 },
-        { "item_id": "leather_leg_wraps", "quantity": 2 },
         { "item_id": "wooden_club", "quantity": 3 },
         { "item_id": "iron_helmet", "quantity": 2 },
         { "item_id": "iron_chainmail", "quantity": 2 },
@@ -82,20 +79,5 @@
         { "item_id": "axe_basic", "quantity": 3 },
         { "item_id": "hammer", "quantity": 5 }
       ]
-  },
-  {
-    "shop_id": "hunters_cabin",
-    "name": "Ronald's Hunting Supplies",
-    "location_id": "hunters_cabin",
-    "currency": 250,
-    "buy_multiplier": 0.8,
-    "sell_multiplier": 1.3,
-    "accepted_categories": ["resource", "tool", "consumable", "weapon", "armor"],
-    "inventory": [
-      { "item_id": "crude_knife", "quantity": 3 },
-      { "item_id": "wolf_pelt", "quantity": 5 },
-      { "item_id": "wolf_tooth", "quantity": 10 },
-      { "item_id": "raw_meat", "quantity": 10 }
-    ]
   }
 ]

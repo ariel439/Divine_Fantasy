@@ -47,7 +47,7 @@ const ProgressBar: FC<ProgressBarProps> = ({ label, value, max, colorClass, nega
         <div className="w-full">
             <div className="flex justify-between items-center mb-1">
                 {label && <div className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-zinc-300"><Weight size={14}/><span>{label}</span></div>}
-                <span className="font-sans font-semibold text-xs text-zinc-300">{value} / {max} kg</span>
+                <span className="font-sans font-semibold text-xs text-zinc-300">{value.toFixed(2)} / {max.toFixed(2)} kg</span>
             </div>
             <div className="w-full bg-black/40 rounded-full h-1.5 shadow-inner border border-zinc-800/50 overflow-hidden">
                 {renderBar()}
@@ -58,7 +58,7 @@ const ProgressBar: FC<ProgressBarProps> = ({ label, value, max, colorClass, nega
 
   return (
     <div className="w-full">
-      <div className="flex justify-between items-center mb-1.5">
+      <div className={`flex items-center mb-1.5 ${label ? 'justify-between' : 'justify-center'}`}>
         {label && <span className="font-bold tracking-widest uppercase text-zinc-300 text-[10px]">{label}</span>}
         {showText && <span className="font-sans font-semibold text-[11px] text-zinc-300">{Math.floor(value)} / {Math.floor(max)}</span>}
       </div>

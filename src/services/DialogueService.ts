@@ -1046,7 +1046,9 @@ export class DialogueService {
           useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
           useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
           useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
+          useWorldStateStore.getState().setFlag('raid_ready', false);
           try { useJournalStore.getState().completeQuest('finn_debt_collection'); } catch {}
+          try { useJournalStore.getState().completeQuest('rebel_path'); } catch {}
           useUIStore.getState().setEventSlides(whitefangFinnKillSlides);
           useUIStore.getState().setScreen('event');
           this.endDialogue();

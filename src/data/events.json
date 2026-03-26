@@ -10,7 +10,7 @@
     },
     {
       "image": "/assets/events/demo_end_screen.png",
-      "text": "This marks the end of the Divine Fantasy Classic Demo. Thank you for playing! Keep an eye out for future updates."
+      "text": "This branch ends here in the current version. Driftwatch goes on, and so can you."
     }
   ],
   "lukePrologueSlides": [
@@ -108,7 +108,7 @@
   "timeoutSlides": [
     {
       "image": "/assets/events/finn_timeout_raid.png",
-      "text": "The seventh day passes. You are cornered in a dark alley by Finn and his thugs. 'Time's up, kid. Pay up or bleed.' You have no coin, but you have your steel."
+      "text": "The debt has aged past seven days. The moment you step back into Driftwatch proper, Finn's people close in and drag you into the reckoning he promised."
     }
   ],
   "rebelRaidIntroSlides": [
@@ -142,7 +142,7 @@
   "rebelVictorySlides": [
     {
       "image": "/assets/events/raid_victory_barracks.png",
-      "text": "Finn falls, his reign over the slums ended. Rodrick nods at you. 'You've got guts, kid. Maybe the Guard could use someone like you.' The Shadow Hand retreats... for now."
+      "text": "Finn falls, his grip over the slums broken. Rodrick nods once. 'You've got guts, kid. Maybe the Guard could use someone like you.' This branch ends here in the current version, but Driftwatch is still yours to walk."
     }
   ],
   "elaraDeliverySlides": [
@@ -180,7 +180,7 @@
     },
     {
       "image": "/assets/events/demo_end_screen.png",
-      "text": "This marks the end of the Divine Fantasy Classic Demo!"
+      "text": "This branch ends here in the current version. You can keep playing and see what else Driftwatch is willing to show you."
     }
   ],
   "hybridEndingSlides": [
@@ -194,7 +194,21 @@
     },
     {
       "image": "/assets/events/demo_end_screen.png",
-      "text": "This marks the end of the Divine Fantasy Classic Demo. Thank you for playing!"
+      "text": "This branch ends here in the current version. You can keep playing from here."
+    }
+  ],
+  "whitefangFinnKillSlides": [
+    {
+      "image": "/assets/events/whitefang_bearer_luke.png",
+      "text": "White Fang answers before Finn can. The tavern seems to dim around the glaive as Luke steps in and ends the old debt collector with a violence too swift to bargain with."
+    },
+    {
+      "image": "/assets/portraits/LukeWhiteFang.png",
+      "text": "Finn is gone. Whatever fear held the Salty Mug together dies with him, and the people who watched know instinctively that something worse now walks away from the room."
+    },
+    {
+      "image": "/assets/events/demo_end_screen.png",
+      "text": "This branch ends here in the current version. White Fang remains with you, and Driftwatch is still open."
     }
   ],
   "whitefangUnreadableWoodsSlides": [

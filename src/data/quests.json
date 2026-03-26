@@ -93,7 +93,7 @@
     ],
     "rewards": {
       "xp": [{ "skill": "combat", "amount": 250 }, { "skill": "persuasion", "amount": 100 }],
-      "items": ["white_fang_of_heaven_u"],
+      "items": ["white_fang_of_heaven"],
       "currency": 0,
       "relationship": [{ "npc_id": "npc_shihan", "change": 20 }]
     }

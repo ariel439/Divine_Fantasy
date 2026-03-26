@@ -368,7 +368,7 @@
   },
   "white_fang_of_heaven": {
     "name": "White Fang of Heaven",
-    "description": "An ancient Shenhai thunder glaive. Its edge hums with restrained violence, and every sweep feels meant for whole ranks rather than single men.",
+    "description": "A fully awakened Shenhai thunder glaive. Each sweep tears through the line before storm-light lashes the whole battlefield.",
     "type": "weapon",
     "stackable": false,
     "weight": 4.8,
@@ -376,13 +376,13 @@
     "image": "/assets/items/white_fang_of_heaven.png",
     "equipmentSlot": "weapon",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
-    "combatTags": ["row_cleave", "first_strike"],
+    "combatTags": ["row_cleave", "storm_board", "first_strike"],
     "stats": {
-      "attack": 14
+      "attack": 18
     }
   },
   "white_fang_of_heaven_u": {
-    "name": "White Fang of Heaven (U)",
+    "name": "White Fang of Heaven",
     "description": "A fully awakened White Fang of Heaven. Each sweep tears through the line before storm-light lashes the whole battlefield.",
     "type": "weapon",
     "stackable": false,

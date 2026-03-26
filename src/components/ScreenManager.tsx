@@ -294,7 +294,15 @@ const ScreenManager: React.FC = () => {
           if (id === 'raid_victory') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
-            setScreen('mainMenu');
+            useWorldStateStore.getState().setFlag('finn_rebel_branch_complete', true);
+            useWorldStateStore.getState().setFlag('finn_dead', true);
+            useWorldStateStore.getState().setFlag('finn_resolved', true);
+            useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
+            useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
+            useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
+            try { useJournalStore.getState().completeQuest('rebel_path'); } catch {}
+            useLocationStore.getState().setLocation('driftwatch_slums');
+            setScreen('inGame');
             return;
           }
           if (id === 'timeout_game_over') {
@@ -312,13 +320,36 @@ const ScreenManager: React.FC = () => {
           if (id === 'evil_path_end') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
-            setScreen('mainMenu');
+            useLocationStore.getState().setLocation('salty_mug');
+            setScreen('inGame');
             return;
           }
           if (id === 'finn_hybrid_end') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
-            setScreen('mainMenu');
+            useLocationStore.getState().setLocation('salty_mug');
+            setScreen('inGame');
+            return;
+          }
+          if (id === 'whitefang_finn_end') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            useLocationStore.getState().setLocation('driftwatch_slums');
+            setScreen('inGame');
+            return;
+          }
+          if (id === 'rebel_victory') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            useWorldStateStore.getState().setFlag('finn_rebel_branch_complete', true);
+            useWorldStateStore.getState().setFlag('finn_dead', true);
+            useWorldStateStore.getState().setFlag('finn_resolved', true);
+            useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
+            useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
+            useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
+            try { useJournalStore.getState().completeQuest('rebel_path'); } catch {}
+            useLocationStore.getState().setLocation('driftwatch_slums');
+            setScreen('inGame');
             return;
           }
           if (id === 'elara_delivery_event') {

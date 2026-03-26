@@ -111,6 +111,7 @@
     "home_location": "salty_mug",
     "default_dialogue_id": "finn_default",
     "portrait": "/assets/portraits/OldManFinn.png",
+    "hidden_if_flag": "finn_dead",
     "schedules": [
       { "location_id": "salty_mug", "start_hour": 6, "end_hour": 18 }
     ]

@@ -6,7 +6,7 @@ interface WorldState {
   knownNpcs: string[];
   introMode: boolean;
   introCompleted: boolean;
-  gameMode: 'story' | 'sandbox';
+  gameMode: 'story';
   tutorialStep: number;
   seenRoomTutorial: boolean;
   seenLeoTutorial: boolean;
@@ -18,7 +18,7 @@ interface WorldState {
   removeKnownNpc: (npcId: string) => void;
   setIntroMode: (value: boolean) => void;
   setIntroCompleted: (value: boolean) => void;
-  setGameMode: (mode: 'story' | 'sandbox') => void;
+  setGameMode: (mode: 'story') => void;
   setTutorialStep: (step: number) => void;
   setSeenRoomTutorial: (value: boolean) => void;
   setSeenLeoTutorial: (value: boolean) => void;

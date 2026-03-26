@@ -165,7 +165,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     if (!equipmentSlot) return;
     if (equipmentSlot === 'weapon' && useWorldStateStore.getState().getFlag('whitefang_bound')) {
       const lockedWeapon = get().equippedItems.weapon;
-      if (lockedWeapon?.id === 'white_fang_of_heaven_u') return;
+      if (lockedWeapon?.id === 'white_fang_of_heaven' || lockedWeapon?.id === 'white_fang_of_heaven_u') return;
     }
 
     const { equippedItems } = get();
@@ -192,7 +192,11 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   unequipItem: (item) => {
     const { equipmentSlot } = item;
     if (!equipmentSlot) return;
-    if (equipmentSlot === 'weapon' && useWorldStateStore.getState().getFlag('whitefang_bound') && item.id === 'white_fang_of_heaven_u') {
+    if (
+      equipmentSlot === 'weapon' &&
+      useWorldStateStore.getState().getFlag('whitefang_bound') &&
+      (item.id === 'white_fang_of_heaven' || item.id === 'white_fang_of_heaven_u')
+    ) {
       return;
     }
 

@@ -8,8 +8,6 @@ import { characters, getDescriptiveAttributeLabel } from '../../data';
 import { useUIStore } from '../../stores/useUIStore';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import { useLocationStore } from '../../stores/useLocationStore';
-import { useJournalStore } from '../../stores/useJournalStore';
-import { useCharacterStore } from '../../stores/useCharacterStore';
 import { GameManagerService } from '../../services/GameManagerService';
 import { DialogueService } from '../../services/DialogueService';
 import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
@@ -59,38 +57,22 @@ const CharacterSelection: FC = () => {
         setIsGameModeModalOpen(true);
     };
 
-    const handleStartGame = (mode: 'story' | 'sandbox', options?: { skipIntro?: boolean }) => {
+    const handleStartGame = (options?: { skipIntro?: boolean }) => {
         setIsGameModeModalOpen(false);
         const setGameMode = useWorldStateStore.getState().setGameMode;
-        setGameMode(mode);
+        setGameMode('story');
         
-        // Start new game with the selected template
         GameManagerService.startNewGame('luke_orphan');
 
-        if (mode === 'sandbox') {
-            useCharacterStore.setState((state) => ({
-                ...state,
-                energy: 100,
-                hunger: 100,
-            }));
-            useWorldStateStore.getState().setIntroMode(false);
-            useWorldStateStore.getState().setIntroCompleted(true);
-            useWorldStateStore.getState().setFlag('intro_completed', true);
-            useWorldStateStore.getState().setTutorialStep(100);
-            useJournalStore.getState().completeQuest('luke_tutorial');
-            useWorldTimeStore.setState({ year: 780, month: 5, day: 1, hour: 8, minute: 0 });
-            useLocationStore.getState().setLocation('driftwatch');
+        if (options?.skipIntro) {
+            GameManagerService.skipStoryIntroToFinnWeek();
         } else {
-            if (options?.skipIntro) {
-                GameManagerService.skipStoryIntroToFinnWeek();
-            } else {
-                useWorldStateStore.getState().setIntroMode(true);
-                useWorldStateStore.getState().setIntroCompleted(false);
-                useWorldStateStore.getState().setTutorialStep(0);
-                useWorldTimeStore.setState({ year: 775 });
-                DialogueService.executeAction('start_quest:luke_tutorial');
-                useLocationStore.getState().setLocation('orphanage_room');
-            }
+            useWorldStateStore.getState().setIntroMode(true);
+            useWorldStateStore.getState().setIntroCompleted(false);
+            useWorldStateStore.getState().setTutorialStep(0);
+            useWorldTimeStore.setState({ year: 775 });
+            DialogueService.executeAction('start_quest:luke_tutorial');
+            useLocationStore.getState().setLocation('orphanage_room');
         }
 
         setScreen('inGame');

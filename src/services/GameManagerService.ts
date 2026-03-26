@@ -27,6 +27,70 @@ import { getMaxSocialEnergy } from '../utils/socialEnergy';
 export class GameManagerService {
   private static currentDay: number = 0;
   private static initialized: boolean = false;
+  private static readonly DRIFTWATCH_PROPER_LOCATIONS = new Set([
+    'driftwatch',
+    'driftwatch_main_street',
+    'driftwatch_noble_quarter',
+    'driftwatch_docks',
+    'driftwatch_slums',
+    'salty_mug',
+    'salty_mug_rented_room',
+    'tide_trade',
+    'beryls_general_goods',
+    'harbor_clothier',
+    'kaelens_forge',
+    'grand_library',
+    'mosswatch_keep',
+    'tidehunter_quarter',
+    'herbalists_hovel',
+    'slum_fight_pit',
+  ]);
+
+  static isDriftwatchProper(locationId: string | null | undefined): boolean {
+    return Boolean(locationId && this.DRIFTWATCH_PROPER_LOCATIONS.has(locationId));
+  }
+
+  private static isFinnTimeoutActiveOrResolved(): boolean {
+    const world = useWorldStateStore.getState();
+    const ui = useUIStore.getState();
+    return (
+      !world.getFlag('finn_debt_collection_active') ||
+      world.getFlag('finn_timeout_triggered') ||
+      world.getFlag('finn_dead') ||
+      world.getFlag('finn_rebel_branch_complete') ||
+      world.getFlag('finn_whitefang_branch_complete') ||
+      ui.currentScreen === 'combat' ||
+      ui.currentEventId === 'timeout_game_over' ||
+      ui.currentEventId === 'game_over' ||
+      ui.currentEventId === 'starvation_game_over'
+    );
+  }
+
+  private static updateFinnTimeoutReadiness(currentDay: number): void {
+    const world = useWorldStateStore.getState();
+    if (!world.introCompleted || !world.getFlag('finn_debt_collection_active')) return;
+
+    const deadlineRaw = world.getData('finn_debt_deadline_day');
+    const deadline = deadlineRaw ? Number(deadlineRaw) : 0;
+    if (deadline <= 0 || currentDay <= deadline) return;
+
+    if (!world.getFlag('finn_timeout_ready')) {
+      world.setFlag('finn_timeout_ready', true);
+    }
+  }
+
+  private static tryTriggerFinnTimeout(locationId?: string | null): void {
+    const world = useWorldStateStore.getState();
+    if (!world.getFlag('finn_timeout_ready')) return;
+    if (this.isFinnTimeoutActiveOrResolved()) return;
+    if (!this.isDriftwatchProper(locationId ?? useLocationStore.getState().currentLocationId)) return;
+
+    world.setFlag('finn_timeout_triggered', true);
+    const ui = useUIStore.getState();
+    ui.setEventSlides(timeoutSlides);
+    ui.setCurrentEventId('timeout_game_over');
+    ui.setScreen('event');
+  }
   
   private static getEnemyPortrait(templateId: string, template: any): string {
     if (template?.image) return template.image;
@@ -142,10 +206,7 @@ export class GameManagerService {
     useWorldTimeStore.subscribe(
       (state) => {
         // Since Zustand 5 subscribe doesn't give prevState, we track it manually or use current state
-        const day = state.dayOfMonth;
-        const hour = state.hour;
-        const minute = state.minute;
-
+        const day = state.day;
         // Use local static variables to track changes across subscription fires
         if (GameManagerService.currentDay === 0) {
             GameManagerService.currentDay = day;
@@ -167,19 +228,14 @@ export class GameManagerService {
           // For now, hunger tick is handled below every minute.
         }
 
-        // 7-Day Demo Timeout Check (End of Day 7 -> Day 8)
-        if (day > 7) {
-           const ui = useUIStore.getState();
-           const world = useWorldStateStore.getState();
-           if (world.introCompleted && world.gameMode !== 'sandbox' && ui.currentEventId !== 'game_over' && ui.currentEventId !== 'timeout_game_over') {
-              console.log('Game Over: 7-Day Timeout Reached');
-              ui.setEventSlides(timeoutSlides);
-              ui.setCurrentEventId('timeout_game_over');
-              ui.setScreen('event');
-           }
-        }
+        GameManagerService.updateFinnTimeoutReadiness(day);
+        GameManagerService.tryTriggerFinnTimeout();
       }
     );
+
+    useLocationStore.subscribe((state) => {
+      GameManagerService.tryTriggerFinnTimeout(state.currentLocationId);
+    });
 
     // Subscribe to character stats (HP/Hunger) for Death/Starvation
     useCharacterStore.subscribe((state) => {
@@ -228,6 +284,7 @@ export class GameManagerService {
 
   static startNewGame(templateId: string): void {
     console.log('Starting new game with template:', templateId);
+    GameManagerService.currentDay = 0;
 
     // Load template data
     const template = characterTemplates[templateId as keyof typeof characterTemplates];
@@ -314,6 +371,13 @@ export class GameManagerService {
         'npc_kyle',
         'npc_finn',
       ],
+      introMode: false,
+      introCompleted: false,
+      gameMode: 'story',
+      tutorialStep: 0,
+      seenRoomTutorial: false,
+      seenLeoTutorial: false,
+      stringData: {},
     });
 
     useCompanionStore.setState({
@@ -1008,10 +1072,13 @@ export class GameManagerService {
 
     const inventory = useInventoryStore.getState();
     const character = useCharacterStore.getState();
-    const whiteFang = itemsJson['white_fang_of_heaven_u' as keyof typeof itemsJson] as any;
+    const whiteFang = itemsJson['white_fang_of_heaven' as keyof typeof itemsJson] as any;
 
-    if (inventory.getItemQuantity('white_fang_of_heaven_u') <= 0) {
-      inventory.addItem('white_fang_of_heaven_u', 1);
+    if (inventory.getItemQuantity('white_fang_of_heaven_u') > 0) {
+      inventory.removeItem('white_fang_of_heaven_u', inventory.getItemQuantity('white_fang_of_heaven_u'));
+    }
+    if (inventory.getItemQuantity('white_fang_of_heaven') <= 0) {
+      inventory.addItem('white_fang_of_heaven', 1);
     }
 
     if (whiteFang) {
@@ -1031,8 +1098,8 @@ export class GameManagerService {
       }));
 
       const currentlyEquipped = useCharacterStore.getState().equippedItems.weapon;
-      if (!currentlyEquipped || currentlyEquipped.id !== 'white_fang_of_heaven_u') {
-        useCharacterStore.getState().equipItem({ ...whiteFang, id: 'white_fang_of_heaven_u' } as unknown as Item);
+      if (!currentlyEquipped || (currentlyEquipped.id !== 'white_fang_of_heaven' && currentlyEquipped.id !== 'white_fang_of_heaven_u')) {
+        useCharacterStore.getState().equipItem({ ...whiteFang, id: 'white_fang_of_heaven' } as unknown as Item);
       }
     }
 

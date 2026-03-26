@@ -15,7 +15,7 @@ import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useJobStore } from '../stores/useJobStore';
 import { useLocationStore } from '../stores/useLocationStore';
-import { benCheatEventSlides, rebelRaidIntroSlides, evilEndingSlides, hybridEndingSlides } from '../data/events';
+import { benCheatEventSlides, rebelRaidIntroSlides, evilEndingSlides, hybridEndingSlides, whitefangFinnKillSlides } from '../data/events';
 import type { ConversationEntry } from '../types';
 import { GameManagerService } from './GameManagerService';
 import { ConditionEvaluator } from './ConditionEvaluator';
@@ -1024,11 +1024,30 @@ export class DialogueService {
           useUIStore.getState().setScreen('event');
           this.endDialogue();
         } else if (eventId === 'evil_path_end') {
+          useWorldStateStore.getState().setFlag('finn_loyalist_branch_complete', true);
+          useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
+          useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
+          useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
           useUIStore.getState().setEventSlides(evilEndingSlides);
           useUIStore.getState().setScreen('event');
           this.endDialogue();
         } else if (eventId === 'finn_hybrid_end') {
+          useWorldStateStore.getState().setFlag('finn_hybrid_branch_complete', true);
+          useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
+          useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
+          useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
           useUIStore.getState().setEventSlides(hybridEndingSlides);
+          useUIStore.getState().setScreen('event');
+          this.endDialogue();
+        } else if (eventId === 'whitefang_finn_end') {
+          useWorldStateStore.getState().setFlag('finn_whitefang_branch_complete', true);
+          useWorldStateStore.getState().setFlag('finn_dead', true);
+          useWorldStateStore.getState().setFlag('finn_resolved', true);
+          useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
+          useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
+          useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
+          try { useJournalStore.getState().completeQuest('finn_debt_collection'); } catch {}
+          useUIStore.getState().setEventSlides(whitefangFinnKillSlides);
           useUIStore.getState().setScreen('event');
           this.endDialogue();
         } else {
@@ -1192,26 +1211,6 @@ export class DialogueService {
         {
           const minutes = Number(params[0] || '0');
           useWorldTimeStore.getState().passTime(minutes);
-          
-          // Check for Finn's Deadline
-          const world = useWorldStateStore.getState();
-          if (world.getFlag('finn_debt_collection_active')) {
-            const deadlineRaw = world.getData('finn_debt_deadline_day');
-            const deadline = deadlineRaw ? Number(deadlineRaw) : 0;
-            const currentDay = useWorldTimeStore.getState().day;
-            if (deadline > 0 && currentDay > deadline) {
-               // Trigger Game Over Dialogue
-               // We force start the dialogue next time they interact or immediately?
-               // Since we are in a "pass_time" (usually sleep or wait), we can't easily pop dialogue immediately unless we are in a scene.
-               // Better approach: Set a flag "finn_deadline_missed" and check it on every move? 
-               // Or force it here if we can.
-               // Let's force it by overriding the current screen if possible, or just setting a flag that triggers an event.
-               // For simplicity in this codebase, let's set a flag and handle it in the "Wake Up" or "Wait" logic, OR just launch it now.
-               // Launching dialogue requires being in a view that supports it.
-               DialogueService.startDialogue('npc_finn', 'finn_timeout_event');
-               useUIStore.getState().setScreen('dialogue');
-            }
-          }
         }
         break;
 
@@ -1296,6 +1295,8 @@ export class DialogueService {
       case 'start_debt_collection':
         {
           useWorldStateStore.getState().setFlag('finn_debt_collection_active', true);
+          useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
+          useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
           useWorldStateStore.getState().setFlag('debt_paid_by_ben', false);
           useWorldStateStore.getState().setFlag('debt_paid_by_beryl', false);
           useWorldStateStore.getState().setFlag('debt_paid_by_elara', false);
@@ -1350,6 +1351,8 @@ export class DialogueService {
             break;
           }
           world.setFlag('finn_debt_collection_active', false);
+          world.setFlag('finn_timeout_ready', false);
+          world.setFlag('finn_timeout_triggered', false);
           diaryStore.addInteraction('npc_finn: Debt job complete.');
           try {
             useJournalStore.getState().completeQuest('finn_debt_collection');
@@ -1384,6 +1387,8 @@ export class DialogueService {
             break;
           }
           world.setFlag('finn_debt_collection_active', false);
+          world.setFlag('finn_timeout_ready', false);
+          world.setFlag('finn_timeout_triggered', false);
           diaryStore.addInteraction('npc_finn: Debt job complete.');
           try {
             useJournalStore.getState().completeQuest('finn_debt_collection');

@@ -34,6 +34,12 @@
         "npc_text": "What is it?",
         "player_choices": [
           {
+            "text": "We settle this now.",
+            "action": "trigger_event:whitefang_finn_end",
+            "closes_dialogue": true,
+            "condition": "world_flags.whitefang_bound==true && world_flags.finn_dead==false"
+          },
+          {
             "text": "About the collection job.",
             "next_node": "job_progress",
             "condition": "world_flags.finn_debt_collection_active==true"

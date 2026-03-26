@@ -163,6 +163,10 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   equipItem: (item) => {
     const { equipmentSlot } = item;
     if (!equipmentSlot) return;
+    if (equipmentSlot === 'weapon' && useWorldStateStore.getState().getFlag('whitefang_bound')) {
+      const lockedWeapon = get().equippedItems.weapon;
+      if (lockedWeapon?.id === 'white_fang_of_heaven_u') return;
+    }
 
     const { equippedItems } = get();
     const currentlyEquipped = equippedItems[equipmentSlot];
@@ -188,6 +192,9 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   unequipItem: (item) => {
     const { equipmentSlot } = item;
     if (!equipmentSlot) return;
+    if (equipmentSlot === 'weapon' && useWorldStateStore.getState().getFlag('whitefang_bound') && item.id === 'white_fang_of_heaven_u') {
+      return;
+    }
 
     // Add to inventory first
     const added = useInventoryStore.getState().addItem(item.id, 1);

@@ -27,6 +27,15 @@ export const benCheatEventSlides: Slide[] = events.benCheatEventSlides;
 export const sellLocketSlides: Slide[] = events.sellLocketSlides;
 export const evilEndingSlides: Slide[] = events.evilEndingSlides;
 export const hybridEndingSlides: Slide[] = events.hybridEndingSlides;
+export const whitefangUnreadableWoodsSlides: Slide[] = events.whitefangUnreadableWoodsSlides;
+export const whitefangUnreadableBeachSlides: Slide[] = events.whitefangUnreadableBeachSlides;
+export const whitefangUnreadableMountainSlides: Slide[] = events.whitefangUnreadableMountainSlides;
+export const whitefangWoodsVisionSlides: Slide[] = events.whitefangWoodsVisionSlides;
+export const whitefangBeachVisionSlides: Slide[] = events.whitefangBeachVisionSlides;
+export const whitefangMountainVisionSlides: Slide[] = events.whitefangMountainVisionSlides;
+export const whitefangCaveBlockedSlides: Slide[] = events.whitefangCaveBlockedSlides;
+export const whitefangExpeditionBreachSlides: Slide[] = events.whitefangExpeditionBreachSlides;
+export const whitefangBindingSlides: Slide[] = events.whitefangBindingSlides;
 
 type ChoiceEventId =
   | 'beryl_letter_pickup'

@@ -5,16 +5,15 @@ import { useUIStore } from '../../stores/useUIStore';
 import { useInventoryStore } from '../../stores/useInventoryStore';
 import { useCharacterStore } from '../../stores/useCharacterStore';
 import { useSkillStore } from '../../stores/useSkillStore';
-import { useCompanionStore } from '../../stores/useCompanionStore';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import { GameManagerService } from '../../services/GameManagerService';
 import itemsJson from '../../data/items.json';
 import enemiesJson from '../../data/enemies.json';
 import type { EquipmentSlot, Item } from '../../types';
 
-type CompanionSetup = 'none' | 'wolf' | 'robert';
 type EncounterMode = 'standard' | 'brawl';
 type EnemySlotValue = 'none' | keyof typeof enemiesJson;
+type AllySlotValue = 'none' | 'wolf_puppy' | 'robert' | 'lin_shao' | 'wei_taren' | 'qiao_ren';
 type DebugGearSlot = 'head' | 'chest' | 'legs' | 'boots' | 'weapon' | 'amulet';
 type GearSelection = Record<DebugGearSlot, string>;
 
@@ -84,8 +83,8 @@ const GEAR_PRESETS: Array<{ id: string; label: string; gear: GearSelection }> = 
 const CombatDebugScreen: FC = () => {
   const { setScreen } = useUIStore();
   const characterState = useCharacterStore();
-  const [companionSetup, setCompanionSetup] = useState<CompanionSetup>('none');
   const [encounterMode, setEncounterMode] = useState<EncounterMode>('standard');
+  const [allySlots, setAllySlots] = useState<AllySlotValue[]>(['none', 'none', 'none']);
   const [enemySlots, setEnemySlots] = useState<EnemySlotValue[]>(['wolf_forest', 'none', 'none', 'none']);
   const [selectedGear, setSelectedGear] = useState<GearSelection>({
     head: '',
@@ -122,6 +121,17 @@ const CombatDebugScreen: FC = () => {
         id: id as keyof typeof enemiesJson,
         label: enemy.name,
       })),
+    []
+  );
+
+  const allyOptions = useMemo(
+    () => [
+      { id: 'wolf_puppy' as AllySlotValue, label: 'Wolf Puppy' },
+      { id: 'robert' as AllySlotValue, label: 'Robert' },
+      { id: 'lin_shao' as AllySlotValue, label: 'Captain Lin Shao' },
+      { id: 'wei_taren' as AllySlotValue, label: 'Wei Taren' },
+      { id: 'qiao_ren' as AllySlotValue, label: 'Qiao Ren' },
+    ],
     []
   );
 
@@ -189,7 +199,6 @@ const CombatDebugScreen: FC = () => {
     useWorldStateStore.getState().setFlag('combat_tutorial_active', false);
 
     clearEquipment();
-    useCompanionStore.getState().setCompanion(null);
 
     const skillStore = useSkillStore.getState();
     skillStore.setSkillLevel('attack', 1);
@@ -204,38 +213,13 @@ const CombatDebugScreen: FC = () => {
     useCharacterStore.getState().recalculateStats();
   };
 
-  const applyCompanionSetup = () => {
-    const companionStore = useCompanionStore.getState();
-    if (companionSetup === 'none') {
-      companionStore.setCompanion(null);
-      return;
-    }
-    if (companionSetup === 'wolf') {
-      companionStore.setCompanion({
-        id: 'wolf_puppy',
-        name: 'Wolf Puppy',
-        type: 'wolf',
-        stats: { hp: 40, maxHp: 40, attack: 5, defence: 2, dexterity: 12 },
-        equippedItems: [],
-      });
-      return;
-    }
-    companionStore.setCompanion({
-      id: 'npc_robert',
-      name: 'Robert',
-      type: 'human',
-      stats: { hp: 70, maxHp: 70, attack: 7, defence: 6, dexterity: 7 },
-      equippedItems: [],
-    });
-  };
-
   const handleLaunchCombat = () => {
     applyPlayerSetup();
-    applyCompanionSetup();
+    const selectedAllies = allySlots.filter((slot): slot is Exclude<AllySlotValue, 'none'> => slot !== 'none');
     GameManagerService.startDebugCombat(selectedEnemies, {
       encounterType: encounterMode,
       knockoutOnDefeat: encounterMode === 'brawl',
-    });
+    }, selectedAllies);
   };
 
   const handleRestore = () => {
@@ -264,7 +248,7 @@ const CombatDebugScreen: FC = () => {
               Combat Debug Workbench
             </h1>
             <p className="text-sm text-zinc-400 mt-2">
-              Configure gear piece by piece, build mixed enemy groups, attach companions, and launch reusable combat tests.
+              Configure gear piece by piece, build Luke's side and the enemy side slot by slot, and launch reusable combat tests.
             </p>
           </div>
           <button
@@ -367,17 +351,26 @@ const CombatDebugScreen: FC = () => {
               <h2 className="text-lg font-semibold text-white">Preview & Launch</h2>
             </div>
 
-            <div className="flex flex-col gap-3 mb-5">
-              <label className="text-xs text-zinc-400 uppercase tracking-wider">Companion</label>
-              <select
-                value={companionSetup}
-                onChange={(e) => setCompanionSetup(e.target.value as CompanionSetup)}
-                className="bg-zinc-950 border border-zinc-700 text-white text-sm rounded-md p-3"
-              >
-                <option value="none">None</option>
-                <option value="wolf">Wolf Puppy</option>
-                <option value="robert">Robert</option>
-              </select>
+            <div className="grid grid-cols-1 gap-4 mb-5">
+              {allySlots.map((slot, index) => (
+                <div key={index} className="flex flex-col gap-2">
+                  <label className="text-xs text-zinc-400 uppercase tracking-wider">Ally Slot {index + 1}</label>
+                  <select
+                    value={slot}
+                    onChange={(e) => {
+                      const next = [...allySlots];
+                      next[index] = e.target.value as AllySlotValue;
+                      setAllySlots(next);
+                    }}
+                    className="bg-zinc-950 border border-zinc-700 text-white text-sm rounded-md p-3"
+                  >
+                    <option value="none">None</option>
+                    {allyOptions.map((ally) => (
+                      <option key={ally.id} value={ally.id}>{ally.label}</option>
+                    ))}
+                  </select>
+                </div>
+              ))}
             </div>
 
             <div className="grid grid-cols-2 gap-3 mb-5">
@@ -412,9 +405,9 @@ const CombatDebugScreen: FC = () => {
             </div>
 
             <div className="space-y-2 mb-5 text-sm text-zinc-400">
+              <div>Allies selected: <span className="text-zinc-200">{allySlots.filter((slot) => slot !== 'none').length}</span></div>
               <div>Enemies selected: <span className="text-zinc-200">{selectedEnemies.length}</span></div>
               <div>Mode: <span className="text-zinc-200">{encounterMode === 'brawl' ? 'Brawl / Knockout' : 'Standard Combat'}</span></div>
-              <div>Companion: <span className="text-zinc-200">{companionSetup === 'none' ? 'None' : companionSetup === 'wolf' ? 'Wolf Puppy' : 'Robert'}</span></div>
             </div>
 
             <div className="grid grid-cols-1 gap-3">

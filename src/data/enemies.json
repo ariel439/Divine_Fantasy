@@ -100,5 +100,15 @@
     "loot_table": [
       { "item_id": "coins", "quantity": 100, "chance": 1 }
     ]
+  },
+  "ren_zhen_shadow": {
+    "name": "Ren Zhen's Shadow",
+    "image": "/assets/books/ren_zhen_driftwatch_finale.png",
+    "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
+    "attack_type": "slash",
+    "combat_tags": ["boss", "row_cleave", "storm_board", "first_strike"],
+    "accuracy_modifier": 0.12,
+    "stats": { "hp": 422, "attack": 22, "defence": 16, "dexterity": 14 },
+    "loot_table": []
   }
 }

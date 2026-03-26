@@ -291,7 +291,7 @@ const JournalScreen: FC = () => {
                                                 <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-200">Progress Tracker</h3>
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-6">
-                                                {selectedQuest.objectives.map((obj, index) => {
+                                                {selectedQuest.objectives.filter((obj: any) => !obj.hidden).map((obj, index) => {
                                                     const isBeryl = selectedQuest.id === 'finn_debt_collection' && index === 2; // Beryl is stage 2
                                                     const world = useWorldStateStore.getState();
                                                     const failed = isBeryl && world.getFlag('beryl_debt_forgiven');

@@ -7,6 +7,7 @@ import { useDiaryStore } from '../../stores/useDiaryStore';
 import { useJournalStore } from '../../stores/useJournalStore';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import { GameManagerService } from '../../services/GameManagerService';
+import { DialogueService } from '../../services/DialogueService';
 import { NPCService } from '../../services/NPCService';
 import { LocationService } from '../../services/LocationService';
 import { Sun, Moon, MessageSquare, Hammer, Fish, MapPin, ShoppingCart, CookingPot, Bed, Search, Swords, Leaf, Snowflake, Sprout, Cloud, CloudRain, BookOpen, User, Package, Briefcase, Heart, Library, Zap, Award, Utensils, Clock } from 'lucide-react';
@@ -23,7 +24,7 @@ import type { ActionSummary, Slide } from '../../types';
 import { ExplorationService } from '../../services/ExplorationService';
 import { mockBooks } from '../../data';
 import locationsData from '../../data/locations.json';
-import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, rebelRaidIntroSlides, sellLocketSlides, elaraDeliverySlides, berylDeliverySlides, benCheatEventSlides } from '../../data/events';
+import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, rebelRaidIntroSlides, sellLocketSlides, elaraDeliverySlides, berylDeliverySlides, benCheatEventSlides, whitefangUnreadableWoodsSlides, whitefangUnreadableBeachSlides, whitefangUnreadableMountainSlides, whitefangWoodsVisionSlides, whitefangBeachVisionSlides, whitefangMountainVisionSlides, whitefangCaveBlockedSlides, whitefangExpeditionBreachSlides } from '../../data/events';
 import { useToastStore } from '../../stores/useToastStore';
 
 const LocationScreen: React.FC = () => {
@@ -134,6 +135,15 @@ const LocationScreen: React.FC = () => {
   }, [introMode, tutorialStep, currentLocation.id]);
 
   const handleAction = (action: any) => {
+    const ensureWhiteFangQuestStarted = () => {
+      const journal = useJournalStore.getState();
+      const existing = journal.quests['white_fang_route'];
+      if (!existing) {
+        DialogueService.executeAction('start_quest:white_fang_route');
+        useJournalStore.getState().setQuestStage('white_fang_route', 0);
+      }
+    };
+
     switch (action.type) {
       case 'dialogue':
         useUIStore.getState().setDialogueNpcId(action.target);
@@ -174,6 +184,59 @@ const LocationScreen: React.FC = () => {
         } else if (eventId === 'sell_locket_event') {
           useUIStore.getState().setEventSlides(sellLocketSlides);
           useUIStore.getState().setCurrentEventId('sell_locket_event');
+          setScreen('event');
+        } else if (eventId === 'whitefang_woods_sign') {
+          ensureWhiteFangQuestStarted();
+          useWorldStateStore.getState().setFlag('whitefang_signs_noticed', true);
+          const bookRead = useWorldStateStore.getState().getFlag('whitefang_book_read');
+          if (bookRead) {
+            useWorldStateStore.getState().setFlag('whitefang_woods_vision_seen', true);
+            useUIStore.getState().setEventSlides(whitefangWoodsVisionSlides);
+            useUIStore.getState().setCurrentEventId('whitefang_woods_vision');
+          } else {
+            useWorldStateStore.getState().setFlag('whitefang_woods_letters_seen', true);
+            useUIStore.getState().setEventSlides(whitefangUnreadableWoodsSlides);
+            useUIStore.getState().setCurrentEventId('whitefang_woods_unreadable');
+          }
+          setScreen('event');
+        } else if (eventId === 'whitefang_beach_sign') {
+          ensureWhiteFangQuestStarted();
+          useWorldStateStore.getState().setFlag('whitefang_signs_noticed', true);
+          const world = useWorldStateStore.getState();
+          if (world.getFlag('whitefang_book_read') && world.getFlag('whitefang_woods_vision_seen')) {
+            world.setFlag('whitefang_beach_vision_seen', true);
+            useUIStore.getState().setEventSlides(whitefangBeachVisionSlides);
+            useUIStore.getState().setCurrentEventId('whitefang_beach_vision');
+          } else {
+            world.setFlag('whitefang_beach_letters_seen', true);
+            useUIStore.getState().setEventSlides(whitefangUnreadableBeachSlides);
+            useUIStore.getState().setCurrentEventId('whitefang_beach_unreadable');
+          }
+          setScreen('event');
+        } else if (eventId === 'whitefang_mountain_sign') {
+          ensureWhiteFangQuestStarted();
+          useWorldStateStore.getState().setFlag('whitefang_signs_noticed', true);
+          const world = useWorldStateStore.getState();
+          if (world.getFlag('whitefang_book_read') && world.getFlag('whitefang_beach_vision_seen')) {
+            world.setFlag('whitefang_mountain_vision_seen', true);
+            world.setFlag('whitefang_cave_discovered', true);
+            useUIStore.getState().setEventSlides(whitefangMountainVisionSlides);
+            useUIStore.getState().setCurrentEventId('whitefang_mountain_vision');
+          } else {
+            world.setFlag('whitefang_mountain_letters_seen', true);
+            useUIStore.getState().setEventSlides(whitefangUnreadableMountainSlides);
+            useUIStore.getState().setCurrentEventId('whitefang_mountain_unreadable');
+          }
+          setScreen('event');
+        } else if (eventId === 'whitefang_sealed_cave') {
+          ensureWhiteFangQuestStarted();
+          useUIStore.getState().setEventSlides(whitefangCaveBlockedSlides);
+          useUIStore.getState().setCurrentEventId('whitefang_cave_blocked');
+          setScreen('event');
+        } else if (eventId === 'whitefang_expedition_breach') {
+          useWorldStateStore.getState().setFlag('whitefang_cave_breached', true);
+          useUIStore.getState().setEventSlides(whitefangExpeditionBreachSlides);
+          useUIStore.getState().setCurrentEventId('whitefang_expedition_breach');
           setScreen('event');
         } else if (eventId === 'slum_night_roam') {
           useWorldTimeStore.getState().passTime(15);

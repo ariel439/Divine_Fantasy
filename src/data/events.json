@@ -196,5 +196,91 @@
       "image": "/assets/events/demo_end_screen.png",
       "text": "This marks the end of the Divine Fantasy Classic Demo. Thank you for playing!"
     }
+  ],
+  "whitefangUnreadableWoodsSlides": [
+    {
+      "image": "/assets/locations/driftwatch_woods_day.png",
+      "text": "Strange storm-marked letters drift in the air between the trees, fading whenever you try to focus on them. Luke reaches toward them, but the meaning slips away before thought can catch it."
+    }
+  ],
+  "whitefangUnreadableBeachSlides": [
+    {
+      "image": "/assets/locations/driftwatch_docks_day.png",
+      "text": "Along the lonely shore, pale signs flicker above the sand like writing made from salt and lightning. Luke feels something in them, but whatever language they carry remains closed to him."
+    }
+  ],
+  "whitefangUnreadableMountainSlides": [
+    {
+      "image": "/assets/locations/driftwatch_crossroads_day.png",
+      "text": "High on the stony path, the same storm letters turn in the cold air. Luke can feel intent in them, almost memory, but he still cannot comprehend what this energy means."
+    }
+  ],
+  "whitefangWoodsVisionSlides": [
+    {
+      "image": "/assets/events/whitefang_forest_vision.png",
+      "text": "When Luke touches the storm letters with Shihan's translation still fresh in his mind, the woods change around him. He sees Ren Zhen younger than the legends, White Fang across his back, studying broken branches and blackened roots where corruption once passed."
+    },
+    {
+      "image": "/assets/events/whitefang_forest_vision.png",
+      "text": "The vision carries no words, only certainty: Ren Zhen hunted with patience here, learning the mage's trail instead of rushing toward glory. Every sign in the undergrowth mattered."
+    }
+  ],
+  "whitefangBeachVisionSlides": [
+    {
+      "image": "/assets/events/whitefang_beach_vision.png",
+      "text": "At the isolated shore, the sea wind becomes another age. Ren Zhen stands against storm and surf with White Fang in both hands, the long pursuit finally brought to its end."
+    },
+    {
+      "image": "/assets/events/whitefang_beach_vision.png",
+      "text": "The mage dies here amid black surf, broken ritual, and lightning. What Luke feels in the vision is not triumph, but finality. The hunt that stole six years of Ren Zhen's life ended on this beach, and Driftwatch kept the memory long after Shenhai lost the trail."
+    }
+  ],
+  "whitefangMountainVisionSlides": [
+    {
+      "image": "/assets/events/whitefang_mountain_vision.png",
+      "text": "The final storm letters open into thin mountain air and old exhaustion. Ren Zhen climbs alone, White Fang heavy in his hands, age finally visible in every step."
+    },
+    {
+      "image": "/assets/events/whitefang_mountain_vision.png",
+      "text": "He reaches a hidden cave and seals himself beyond stone and silence. The last thing Luke feels from the vision is not triumph, but restraint: an old warrior choosing where the weapon's darkness would be buried when his own heart could no longer hold it."
+    }
+  ],
+  "whitefangCaveBlockedSlides": [
+    {
+      "image": "/assets/locations/driftwatch_crossroads_day.png",
+      "text": "You find the hidden fault in the mountain exactly where the vision led you. Great slabs of stone have been collapsed inward with deliberate force. Whatever Ren Zhen sealed here, he meant to deny to the world."
+    },
+    {
+      "image": "/assets/locations/driftwatch_crossroads_day.png",
+      "text": "You can go no farther alone. The passage would need tools, powder, and hands trained not to flinch in tight stone."
+    }
+  ],
+  "whitefangExpeditionBreachSlides": [
+    {
+      "image": "/assets/events/whitefang_expedition_arrival.png",
+      "text": "You return to the hidden mountain fault with Shihan Yue, Captain Lin Shao, Wei Taren, and Qiao Ren. The place from the vision is real. Cold wind cuts along the stone while the four of them study the sealed cave Ren Zhen chose for his final disappearance."
+    },
+    {
+      "image": "/assets/events/whitefang_expedition_charges.png",
+      "text": "At Shihan's word, the retainers unpack lacquered Shenhai charges wrapped against the damp. They set them into the old fracture lines with practiced precision while Shihan watches the seam in silence, as if she already knows something inside is listening."
+    },
+    {
+      "image": "/assets/events/whitefang_renzhen_emerges.png",
+      "text": "The blast rolls through the heights like a buried storm. Stone splits, darkness opens, and a figure steps from the cave with White Fang in hand. What waits within is not Ren Zhen as he lived, but the shadow that remained behind to guard the glaive."
+    }
+  ],
+  "whitefangBindingSlides": [
+    {
+      "image": "/assets/events/ren_zhen_shadow.png",
+      "text": "Ren Zhen's shadow falls, and what remains of the old Guardian finally breaks apart. Yet White Fang of Heaven does not lie still. Lightning crawls across the glaive as if searching for a heart still strong enough to endure it."
+    },
+    {
+      "image": "/assets/events/whitefang_bearer_luke.png",
+      "text": "The weapon chooses Luke. Storm-light tears through bone, memory, and breath as the last of Ren Zhen's ruined will pours out of flesh and into steel. What remains human in him is gone. What remains in you is harder, colder, and far less merciful."
+    },
+    {
+      "image": "/assets/items/white_fang_of_heaven.png",
+      "text": "When it ends, White Fang of Heaven rests in your hands as if it had always belonged there. The good is buried in the glaive. What walks away from the mountain is only what was strong enough to bear the rest. Ordinary people will feel the difference long before you learn how to hide it."
+    }
   ]
 }

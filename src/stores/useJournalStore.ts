@@ -27,6 +27,52 @@ interface Quest {
   currentStage?: number;
 }
 
+const buildGenericRewards = (rewards: any): string[] => {
+  const out: string[] = [];
+  if (rewards) {
+    if (Array.isArray(rewards.xp) && rewards.xp.length > 0) {
+      rewards.xp.forEach((xp: any) => {
+        const skillName = String(xp.skill || '').trim();
+        if (skillName) out.push(`${skillName.charAt(0).toUpperCase() + skillName.slice(1)} knowledge`);
+      });
+    }
+    if (typeof rewards.currency === 'number' && rewards.currency > 0) {
+      out.push('Some copper');
+    }
+    if (Array.isArray(rewards.relationship)) {
+      rewards.relationship.forEach((rel: any) => {
+        const npcName = npcsData[rel.npc_id as keyof typeof npcsData]?.name || 'someone';
+        out.push(`Relationship with ${npcName}`);
+      });
+    }
+    if (Array.isArray(rewards.items) && rewards.items.length > 0) {
+      out.push('Useful supplies');
+    }
+  }
+  return out;
+};
+
+const buildQuestObjectives = (questDef: any, stageIndex: number) => {
+  const world = useWorldStateStore.getState();
+  const inv = useInventoryStore.getState();
+  const hideFutureObjectives = Boolean(questDef?.hideFutureObjectives);
+
+  return (questDef?.stages || []).map((stageDef: any, idx: number) => {
+    let isDone = idx < stageIndex;
+    if (stageDef.type === 'collect' || stageDef.type === 'flag') {
+      if (world.getFlag(stageDef.target)) isDone = true;
+    } else if (stageDef.type === 'gather') {
+      if (inv.getItemQuantity(stageDef.target) >= (stageDef.quantity || 0)) isDone = true;
+    }
+
+    return {
+      text: stageDef.text,
+      completed: isDone,
+      hidden: hideFutureObjectives ? idx > stageIndex : false,
+    };
+  });
+};
+
 interface JournalState {
   quests: Record<string, Quest>;
   questsList: UiQuest[];
@@ -46,20 +92,8 @@ export const useJournalStore = create<JournalState>((set, get) => ({
   questsList: [],
   addQuest: (quest) => {
     set((state) => {
-      // Smart initial objective check
-      const world = useWorldStateStore.getState();
-      const inv = useInventoryStore.getState();
       const questDef = (questsData as any)[quest.id];
-      
-      const objectives = (questDef?.stages || []).map((stageDef: any) => {
-        let isDone = false;
-        if (stageDef.type === 'collect' || stageDef.type === 'flag') {
-          if (world.getFlag(stageDef.target)) isDone = true;
-        } else if (stageDef.type === 'gather') {
-          if (inv.getItemQuantity(stageDef.target) >= (stageDef.quantity || 0)) isDone = true;
-        }
-        return { text: stageDef.text, completed: isDone };
-      });
+      const objectives = buildQuestObjectives(questDef, 0);
 
       const uiQuest: UiQuest = {
         id: quest.id,
@@ -94,32 +128,6 @@ export const useJournalStore = create<JournalState>((set, get) => ({
   completeQuest: (questId) => {
     set((state) => {
       const quest = state.quests[questId];
-      const buildGenericRewards = (rewards: any): string[] => {
-        const out: string[] = [];
-        if (rewards) {
-          if (Array.isArray(rewards.xp) && rewards.xp.length > 0) {
-            // Show knowledge based on skill(s)
-            rewards.xp.forEach((xp: any) => {
-              const skillName = String(xp.skill || '').trim();
-              if (skillName) out.push(`${skillName.charAt(0).toUpperCase() + skillName.slice(1)} knowledge`);
-            });
-          }
-          if (typeof rewards.currency === 'number' && rewards.currency > 0) {
-            out.push('Some copper');
-          }
-          if (Array.isArray(rewards.relationship)) {
-            rewards.relationship.forEach((rel: any) => {
-              const npcName = npcsData[rel.npc_id as keyof typeof npcsData]?.name || 'someone';
-              out.push(`Relationship with ${npcName}`);
-            });
-          }
-          if (Array.isArray(rewards.items) && rewards.items.length > 0) {
-            out.push('Useful supplies');
-          }
-        }
-        return out;
-      };
-
       const updatedRewards = buildGenericRewards(quest?.rewards);
 
       // Apply rewards to game state
@@ -172,54 +180,9 @@ export const useJournalStore = create<JournalState>((set, get) => ({
 
       const updatedQuestsList = state.questsList.map(q => {
         if (q.id !== questId) return q;
-        
-        const world = useWorldStateStore.getState();
-        const inv = useInventoryStore.getState();
-
-        const updatedObjectives = q.objectives.map((obj, idx) => {
-          const stageDef = questDef?.stages[idx];
-          let isActuallyDone = idx < nextStage;
-
-          if (stageDef) {
-            if (stageDef.type === 'collect' || stageDef.type === 'flag') {
-              if (world.getFlag(stageDef.target)) isActuallyDone = true;
-            } else if (stageDef.type === 'gather') {
-              if (inv.getItemQuantity(stageDef.target) >= (stageDef.quantity || 0)) isActuallyDone = true;
-            }
-          }
-
-          return {
-            ...obj,
-            completed: isActuallyDone,
-          };
-        });
+        const updatedObjectives = buildQuestObjectives(questDef, nextStage);
 
         const status = nextStage >= stageCount ? 'completed' : 'active';
-        // Only show rewards on completion
-        const buildGenericRewards = (rewards: any): string[] => {
-          const out: string[] = [];
-          if (rewards) {
-            if (Array.isArray(rewards.xp) && rewards.xp.length > 0) {
-              rewards.xp.forEach((xp: any) => {
-                const skillName = String(xp.skill || '').trim();
-                if (skillName) out.push(`${skillName.charAt(0).toUpperCase() + skillName.slice(1)} knowledge`);
-              });
-            }
-            if (typeof rewards.currency === 'number' && rewards.currency > 0) {
-              out.push('Some copper');
-            }
-            if (Array.isArray(rewards.relationship)) {
-              rewards.relationship.forEach((rel: any) => {
-                const npcName = npcsData[rel.npc_id as keyof typeof npcsData]?.name || 'someone';
-                out.push(`Relationship with ${npcName}`);
-              });
-            }
-            if (Array.isArray(rewards.items) && rewards.items.length > 0) {
-              out.push('Useful supplies');
-            }
-          }
-          return out;
-        };
         const rewardsUi = status === 'completed' ? buildGenericRewards(quest.rewards) : [];
         return { ...q, objectives: updatedObjectives, status, rewards: rewardsUi };
       });
@@ -241,35 +204,8 @@ export const useJournalStore = create<JournalState>((set, get) => ({
 
       const updatedQuestsList = state.questsList.map(q => {
         if (q.id !== questId) return q;
-        const updatedObjectives = q.objectives.map((obj, idx) => ({
-          ...obj,
-          completed: idx < nextStage,
-        }));
+        const updatedObjectives = buildQuestObjectives((questsData as any)[questId], nextStage);
         const status = nextStage >= stageCount ? 'completed' : 'active';
-        const buildGenericRewards = (rewards: any): string[] => {
-          const out: string[] = [];
-          if (rewards) {
-            if (Array.isArray(rewards.xp) && rewards.xp.length > 0) {
-              rewards.xp.forEach((xp: any) => {
-                const skillName = String(xp.skill || '').trim();
-                if (skillName) out.push(`${skillName.charAt(0).toUpperCase() + skillName.slice(1)} knowledge`);
-              });
-            }
-            if (typeof rewards.currency === 'number' && rewards.currency > 0) {
-              out.push('Some copper');
-            }
-            if (Array.isArray(rewards.relationship)) {
-              rewards.relationship.forEach((rel: any) => {
-                const npcName = npcsData[rel.npc_id as keyof typeof npcsData]?.name || 'someone';
-                out.push(`Relationship with ${npcName}`);
-              });
-            }
-            if (Array.isArray(rewards.items) && rewards.items.length > 0) {
-              out.push('Useful supplies');
-            }
-          }
-          return out;
-        };
         const rewardsUi = status === 'completed' ? buildGenericRewards(quest.rewards) : [];
         return { ...q, objectives: updatedObjectives, status, rewards: rewardsUi };
       });

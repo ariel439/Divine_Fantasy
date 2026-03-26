@@ -74,5 +74,28 @@
       "currency": 50,
       "relationship": [{ "npc_id": "npc_matthias", "change": 40 }]
     }
+  },
+  "white_fang_route": {
+    "title": "White Fang's Echo",
+    "giver_id": "npc_shihan",
+    "hideFutureObjectives": true,
+    "description": "Strange Shenhai signs keep appearing to Luke around Driftwatch. After reading Shihan Yue's translated chronicle, the signs become visions leading him along Ren Zhen's final trail.",
+    "stages": [
+      { "id": 0, "text": "Something in Driftwatch's outskirts is calling to me. I should inspect the strange signs I keep seeing.", "type": "flag", "target": "whitefang_signs_noticed" },
+      { "id": 1, "text": "Shihan's book may explain what these signs mean. I should read it carefully.", "type": "flag", "target": "whitefang_book_read" },
+      { "id": 2, "text": "I should follow Ren Zhen's first trace in Driftwatch Woods.", "type": "flag", "target": "whitefang_woods_vision_seen" },
+      { "id": 3, "text": "The next sign lies along an isolated beach outside the harbor.", "type": "flag", "target": "whitefang_beach_vision_seen" },
+      { "id": 4, "text": "The final trace waits in the mountain paths above Driftwatch.", "type": "flag", "target": "whitefang_mountain_vision_seen" },
+      { "id": 5, "text": "I found where Ren Zhen sealed himself. I need to tell Shihan.", "type": "flag", "target": "whitefang_expedition_agreed" },
+      { "id": 6, "text": "Shihan's retainers can breach the sealed cave if I bring them back to the mountain.", "type": "flag", "target": "whitefang_cave_breached" },
+      { "id": 7, "text": "Ren Zhen's shadow guards what was sealed there. I have to survive it.", "type": "flag", "target": "whitefang_renzhen_shadow_defeated" },
+      { "id": 8, "text": "White Fang of Heaven has chosen me. Whatever comes next, I am not leaving this mountain unchanged.", "type": "flag", "target": "whitefang_bound" }
+    ],
+    "rewards": {
+      "xp": [{ "skill": "combat", "amount": 250 }, { "skill": "persuasion", "amount": 100 }],
+      "items": ["white_fang_of_heaven_u"],
+      "currency": 0,
+      "relationship": [{ "npc_id": "npc_shihan", "change": 20 }]
+    }
   }
 }

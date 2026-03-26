@@ -2,18 +2,14 @@
   "shihan_default": {
     "first_meet_node": "sh_first_meet",
     "repeat_meet_node": "sh_repeat_meet",
-    "interaction_roots": {
-      "ask": "sh_ask_root",
-      "quest": "sh_quest_root"
-    },
     "nodes": {
       "sh_first_meet": {
         "npc_text": "So you do speak first. That is rare. Most people in Driftwatch decide what I am before they decide whether to approach me at all.",
         "player_choices": [
           {
             "text": "You looked like someone worth talking to.",
-            "action": "set_flag:shihan_first_meet_done:true",
-            "next_node": "sh_repeat_meet"
+            "action": "set_flag:shihan_first_meet_done:true|update_relationship:npc_shihan:2:friendship|add_xp:persuasion:5",
+            "next_node": "sh_first_meet_reply"
           },
           {
             "text": "The guards make people nervous.",
@@ -21,20 +17,25 @@
             "next_node": "sh_first_guards"
           },
           {
-            "text": "Then I'll leave you alone.",
-            "closes_dialogue": true
+            "text": "You do not make it easy to approach.",
+            "action": "set_flag:shihan_first_meet_done:true|update_relationship:npc_shihan:-1:friendship|add_xp:coercion:4",
+            "next_node": "sh_first_meet_cold"
           }
         ]
       },
-      "sh_repeat_meet": {
-        "npc_text": "Back again? Good. Driftwatch is easier to study when at least one person here asks questions instead of staring.",
+      "sh_first_meet_reply": {
+        "npc_text": "That already sets you apart. Most men here either avoid me or arrive carrying some performance they think will impress me.",
         "player_choices": [
           {
-            "text": "I'd like to talk.",
-            "next_node": "__social_root__"
+            "text": "What do you mean by that?",
+            "next_node": "sh_intro_hub"
           },
           {
-            "text": "Leave.",
+            "text": "Maybe they just do not know what to make of you.",
+            "next_node": "sh_intro_hub"
+          },
+          {
+            "text": "I'll let you get back to your reading.",
             "closes_dialogue": true
           }
         ]
@@ -43,13 +44,30 @@
         "npc_text": "They should. My father had no intention of letting one of his daughters cross half the world without steel at her back.",
         "player_choices": [
           {
+            "text": "That sounds like a story.",
+            "next_node": "sh_intro_hub"
+          },
+          {
             "text": "Fair enough.",
             "next_node": "sh_repeat_meet"
           }
         ]
       },
-      "sh_ask_root": {
-        "npc_text": "Ask what you want to know.",
+      "sh_first_meet_cold": {
+        "npc_text": "No. I imagine I do not. Driftwatch teaches people to mistake caution for insult. Still, you spoke. That already sets you apart from most of this city.",
+        "player_choices": [
+          {
+            "text": "Then let me ask properly.",
+            "next_node": "sh_intro_hub"
+          },
+          {
+            "text": "I said my piece.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "sh_intro_hub": {
+        "npc_text": "It means Driftwatch stares more easily than it speaks. You, at least, chose the harder thing. What do you want to know?",
         "player_choices": [
           {
             "text": "Where are you from?",
@@ -62,9 +80,33 @@
             "condition": "world_flags.shihan_asked_shenhai==true && world_flags.shihan_asked_driftwatch==false"
           },
           {
+            "text": "Who was Ren Zhen?",
+            "next_node": "sh_ask_renzhen_1",
+            "condition": "world_flags.shihan_asked_driftwatch==true && world_flags.shihan_asked_renzhen==false"
+          },
+          {
             "text": "Who are the three guards with you?",
             "next_node": "sh_ask_guards_1",
             "condition": "world_flags.shihan_asked_guards==false"
+          },
+          {
+            "text": "That is enough for now.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "sh_repeat_meet": {
+        "npc_text": "Back again? Good. Driftwatch is easier to study when at least one person here asks questions instead of staring. What do you want to know?",
+        "player_choices": [
+          {
+            "text": "Where are you from?",
+            "next_node": "sh_ask_shenhai_1",
+            "condition": "world_flags.shihan_asked_shenhai==false"
+          },
+          {
+            "text": "Why did you come to Driftwatch?",
+            "next_node": "sh_ask_driftwatch_1",
+            "condition": "world_flags.shihan_asked_shenhai==true && world_flags.shihan_asked_driftwatch==false"
           },
           {
             "text": "Who was Ren Zhen?",
@@ -72,14 +114,10 @@
             "condition": "world_flags.shihan_asked_driftwatch==true && world_flags.shihan_asked_renzhen==false"
           },
           {
-            "text": "Back.",
-            "next_node": "__social_root__"
-          }
-        ]
-      },
-      "sh_quest_root": {
-        "npc_text": "What is it?",
-        "player_choices": [
+            "text": "Who are the three guards with you?",
+            "next_node": "sh_ask_guards_1",
+            "condition": "world_flags.shihan_asked_guards==false"
+          },
           {
             "text": "Why tell me all of this?",
             "next_node": "sh_book_offer",
@@ -91,27 +129,13 @@
             "condition": "world_flags.shihan_book_given==true || inventory.book_white_tiger_sea>0"
           },
           {
-            "text": "Back.",
-            "next_node": "__social_root__"
-          }
-        ]
-      },
-      "sh_ask_driftwatch_1": {
-        "npc_text": "Because Driftwatch appears in old Shenhai records more often than a city this small ought to. Most ports are forgotten when the cargo moves on. This one was not.",
-        "player_choices": [
+            "text": "I found the place from the book.",
+            "next_node": "sh_whitefang_expedition_1",
+            "condition": "world_flags.whitefang_book_read==true && world_flags.whitefang_cave_discovered==true && world_flags.whitefang_expedition_agreed==false"
+          },
           {
-            "text": "That sounds like a poor reason to cross the sea.",
-            "next_node": "sh_ask_driftwatch_2"
-          }
-        ]
-      },
-      "sh_ask_driftwatch_2": {
-        "npc_text": "Poor reasons make poor journeys. I came because I wanted to see whether the place itself remembered anything, or whether only foreign books still carried its shadow.",
-        "player_choices": [
-          {
-            "text": "Back.",
-            "action": "set_flag:shihan_asked_driftwatch:true",
-            "next_node": "sh_ask_root"
+            "text": "I should leave you to your work.",
+            "closes_dialogue": true
           }
         ]
       },
@@ -128,9 +152,52 @@
         "npc_text": "For a time. I was born into a house with too many children and too many ambitions. Curiosity is one of the few freedoms neglected daughters can sharpen into usefulness.",
         "player_choices": [
           {
-            "text": "Back.",
+            "text": "Then why come all the way to Driftwatch?",
             "action": "set_flag:shihan_asked_shenhai:true",
-            "next_node": "sh_ask_root"
+            "next_node": "sh_ask_driftwatch_1",
+            "condition": "world_flags.shihan_asked_driftwatch==false"
+          },
+          {
+            "text": "And the guards came with you?",
+            "action": "set_flag:shihan_asked_shenhai:true",
+            "next_node": "sh_ask_guards_1",
+            "condition": "world_flags.shihan_asked_guards==false"
+          },
+          {
+            "text": "I think I understand you a little better now.",
+            "action": "set_flag:shihan_asked_shenhai:true",
+            "next_node": "sh_repeat_meet"
+          }
+        ]
+      },
+      "sh_ask_driftwatch_1": {
+        "npc_text": "Because Driftwatch appears in old Shenhai records more often than a city this small ought to. Most ports are forgotten when the cargo moves on. This one was not.",
+        "player_choices": [
+          {
+            "text": "That sounds like a poor reason to cross the sea.",
+            "next_node": "sh_ask_driftwatch_2"
+          }
+        ]
+      },
+      "sh_ask_driftwatch_2": {
+        "npc_text": "Poor reasons make poor journeys. I came because I wanted to see whether the place itself remembered anything, or whether only foreign books still carried its shadow.",
+        "player_choices": [
+          {
+            "text": "Is that where Ren Zhen comes in?",
+            "action": "set_flag:shihan_asked_driftwatch:true",
+            "next_node": "sh_ask_renzhen_1",
+            "condition": "world_flags.shihan_asked_renzhen==false"
+          },
+          {
+            "text": "And the guards are here because your father did not trust the journey.",
+            "action": "set_flag:shihan_asked_driftwatch:true",
+            "next_node": "sh_ask_guards_1",
+            "condition": "world_flags.shihan_asked_guards==false"
+          },
+          {
+            "text": "You crossed half the world for a city's shadow.",
+            "action": "set_flag:shihan_asked_driftwatch:true",
+            "next_node": "sh_repeat_meet"
           }
         ]
       },
@@ -147,14 +214,19 @@
         "npc_text": "They were chosen because they know when not to speak, when not to hesitate, and when to kill quickly. That is a form of refinement too, in its way.",
         "player_choices": [
           {
-            "text": "Back.",
+            "text": "Your father must care a great deal about appearances.",
             "action": "set_flag:shihan_asked_guards:true",
-            "next_node": "sh_ask_root"
+            "next_node": "sh_repeat_meet"
+          },
+          {
+            "text": "I will remember not to test them.",
+            "action": "set_flag:shihan_asked_guards:true",
+            "next_node": "sh_repeat_meet"
           }
         ]
       },
       "sh_ask_renzhen_1": {
-        "npc_text": "Ren Zhen was called the Thunder Beast, one of the Five Guardians of Shenhai. He is remembered as the one sent when mercy had already failed and something worse would follow delay.",
+        "npc_text": "Ren Zhen had already been called the White Tiger when he was still a general of the old empire. Thunder Beast came later, after he became one of the Five Guardians of Shenhai. He is remembered as the one sent when mercy had already failed and something worse would follow delay.",
         "player_choices": [
           {
             "text": "That sounds more feared than admired.",
@@ -163,12 +235,18 @@
         ]
       },
       "sh_ask_renzhen_2": {
-        "npc_text": "Correct. Admiration is for men who leave clean victories behind them. Ren Zhen left survival, which is uglier work. Old accounts say his final western pursuit ended near Driftwatch, where he hunted one of the last mages tied to the Black Bloom.",
+        "npc_text": "Correct. Admiration is for men who leave clean victories behind them. Ren Zhen left survival, which is uglier work. Old accounts say his final western pursuit brought him to Driftwatch, where he spent years hunting one of the last mages tied to the Black Bloom before finally killing him.",
         "player_choices": [
           {
-            "text": "Back.",
+            "text": "Why are you telling me this?",
             "action": "set_flag:shihan_asked_renzhen:true",
-            "next_node": "sh_ask_root"
+            "next_node": "sh_book_offer",
+            "condition": "world_flags.shihan_asked_shenhai==true && world_flags.shihan_asked_driftwatch==true && world_flags.shihan_book_given==false && inventory.book_white_tiger_sea==0"
+          },
+          {
+            "text": "That explains why Driftwatch matters to you.",
+            "action": "set_flag:shihan_asked_renzhen:true",
+            "next_node": "sh_repeat_meet"
           }
         ]
       },
@@ -190,8 +268,8 @@
         "npc_text": "Good. Legends survive because people simplify them. Truth survives only when someone refuses to.",
         "player_choices": [
           {
-            "text": "Back.",
-            "next_node": "sh_quest_root"
+            "text": "Then I'll read it properly.",
+            "next_node": "sh_repeat_meet"
           }
         ]
       },
@@ -199,8 +277,8 @@
         "npc_text": "That is your choice. If you change your mind, ask me again before my ship leaves.",
         "player_choices": [
           {
-            "text": "Back.",
-            "next_node": "sh_quest_root"
+            "text": "Maybe I will.",
+            "next_node": "sh_repeat_meet"
           }
         ]
       },
@@ -208,8 +286,62 @@
         "npc_text": "Then read it with patience. Shenhai's oldest wounds are easiest to misunderstand when they are reduced to monsters and heroes.",
         "player_choices": [
           {
-            "text": "Back.",
-            "next_node": "sh_quest_root"
+            "text": "I will keep that in mind.",
+            "next_node": "sh_repeat_meet"
+          },
+          {
+            "text": "There is more in it than I expected.",
+            "next_node": "sh_repeat_meet"
+          }
+        ]
+      },
+      "sh_whitefang_expedition_1": {
+        "npc_text": "From the book? That is not a phrase I would normally take literally. Tell me exactly what you found.",
+        "player_choices": [
+          {
+            "text": "There are storm letters out in the wilds. I could not make sense of them until I read your book.",
+            "next_node": "sh_whitefang_expedition_2"
+          }
+        ]
+      },
+      "sh_whitefang_expedition_2": {
+        "npc_text": "Go on.",
+        "player_choices": [
+          {
+            "text": "The woods showed me his trail beginning. The beach showed me the years he spent here. In the mountains, I saw him seal himself inside a cave.",
+            "next_node": "sh_whitefang_expedition_3"
+          }
+        ]
+      },
+      "sh_whitefang_expedition_3": {
+        "npc_text": "That matches too closely to dismiss. If Ren Zhen sealed himself there, then what remains may not be the man at all, only what he imprisoned from himself. I will not let you break into such a place alone.",
+        "player_choices": [
+          {
+            "text": "Then come with me.",
+            "next_node": "sh_whitefang_expedition_4"
+          },
+          {
+            "text": "I only needed to know if you believed me.",
+            "next_node": "sh_repeat_meet"
+          }
+        ]
+      },
+      "sh_whitefang_expedition_4": {
+        "npc_text": "I will come as far as the mountain with Captain Lin Shao, Wei Taren, and Qiao Ren. The passage will be blocked if the vision showed anything true. They carry charges for stone as well as flesh.",
+        "player_choices": [
+          {
+            "text": "Meet me there. I will be ready.",
+            "action": "set_flag:whitefang_expedition_agreed:true",
+            "next_node": "sh_whitefang_expedition_5"
+          }
+        ]
+      },
+      "sh_whitefang_expedition_5": {
+        "npc_text": "Good. Do not mistake this for curiosity alone, Luke. If White Fang of Heaven still endures, it will not endure quietly.",
+        "player_choices": [
+          {
+            "text": "I understand.",
+            "closes_dialogue": true
           }
         ]
       }

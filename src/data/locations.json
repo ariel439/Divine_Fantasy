@@ -24,7 +24,6 @@
     "actions": [
       { "text": "Travel to Leo's Lighthouse", "type": "navigate", "target": "leo_lighthouse", "condition": "time.is_day==true" },
       { "text": "Travel to Beryl's General Goods", "type": "navigate", "target": "beryls_general_goods" },
-      { "text": "Travel to Harbor Clothier", "type": "navigate", "target": "harbor_clothier" },
       { "text": "Investigate Noise", "type": "trigger_event", "eventId": "beryl_secret_meeting", "condition": "time.is_night==true&&world_flags.finn_debt_collection_active==true&&world_flags.debt_paid_by_beryl==false&&world_flags.beryl_secret_meeting_seen==false" },
       { "text": "Inspect Crumpled Letter", "type": "trigger_event", "eventId": "beryl_letter_pickup", "condition": "world_flags.beryl_secret_meeting_seen==true&&world_flags.beryl_letter_found==false" },
       { "text": "Travel to Kaelen's Forge", "type": "navigate", "target": "kaelens_forge", "condition": "world_flags.intro_completed==true" },
@@ -40,9 +39,9 @@
     "is_indoor": true,
     "opening_hour": 8,
     "closing_hour": 18,
-    "exit_location": "driftwatch_main_street",
+    "exit_location": "driftwatch_noble_quarter",
     "actions": [
-      { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
+      { "text": "Travel to Noble Quarter", "type": "navigate", "target": "driftwatch_noble_quarter" }
     ]
   },
   "leo_lighthouse": {
@@ -116,6 +115,7 @@
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
       { "text": "Travel to Mosswatch Keep", "type": "navigate", "target": "mosswatch_keep" },
+      { "text": "Travel to Harbor Clothier", "type": "navigate", "target": "harbor_clothier" },
       { "text": "Sell Antique Locket", "type": "trigger_event", "eventId": "sell_locket_event", "condition": "has_item:antique_locket && time.is_day==true" },
       { "text": "Travel to The Grand Library", "type": "navigate", "target": "grand_library" },
       { "text": "Deliver Parcel", "type": "trigger_event", "eventId": "beryl_delivery_event", "condition": "inventory.beryl_noble_parcel>0" },
@@ -174,6 +174,18 @@
       { "text": "Work", "type": "job", "target": "job_dockhand" },
       { "text": "Travel to Tide & Trade", "type": "navigate", "target": "tide_trade" },
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" }
+    ]
+  },
+  "isolated_beach": {
+    "name": "Isolated Beach",
+    "day_description": "A lonely stretch of coast beyond the busy harbor, all broken shells, dark stones, and restless surf.",
+    "night_description": "The tide whispers over the stones while the rest of Driftwatch feels impossibly far away.",
+    "day_background": "/assets/locations/isolated_beach.png",
+    "night_background": "/assets/locations/isolated_beach.png",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
+    "actions": [
+      { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_beach_sign", "condition": "world_flags.whitefang_beach_vision_seen==false" },
+      { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 }
     ]
   },
   "tide_trade": {
@@ -288,7 +300,8 @@
     "actions": [
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" },
       { "text": "Travel to Driftwatch Woods", "type": "navigate", "target": "driftwatch_woods", "time_cost": 60 },
-
+      { "text": "Travel to Isolated Beach", "type": "navigate", "target": "isolated_beach", "time_cost": 60 },
+      { "text": "Travel to Mountain Paths", "type": "navigate", "target": "mountain_paths", "time_cost": 60 },
       { "text": "Travel to Homestead Farm", "type": "navigate", "target": "homestead_farm" }
     ]
   },
@@ -303,10 +316,25 @@
       { "text": "Explore", "type": "explore", "target": "explore_woods" },
       { "text": "Chop Wood", "type": "woodcut", "target": "woodcut_basic" },
       { "text": "Fish", "type": "fish", "target": "fish_river" },
+      { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_woods_sign", "condition": "world_flags.whitefang_woods_vision_seen==false" },
       { "text": "Travel to Hunter's Cabin", "type": "navigate", "target": "hunters_cabin" },
       { "text": "Travel to Sawmill", "type": "navigate", "target": "sawmill" },
       { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 },
       { "text": "Travel to Secret Cabin", "type": "navigate", "target": "player_cabin", "condition": "world_flags.loc_cabin_unlocked==true" }
+    ]
+  },
+  "mountain_paths": {
+    "name": "Mountain Paths",
+    "day_description": "Thin trails and cold stone rise above Driftwatch, where wind and distance strip the coast down to something older.",
+    "night_description": "The mountain dark is sharp and silent, broken only by distant surf and loose stone underfoot.",
+    "day_background": "/assets/locations/mountain_paths.png",
+    "night_background": "/assets/locations/mountain_paths.png",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
+    "actions": [
+      { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_mountain_sign", "condition": "world_flags.whitefang_mountain_vision_seen==false" },
+      { "text": "Investigate the sealed cave", "type": "trigger_event", "eventId": "whitefang_sealed_cave", "condition": "world_flags.whitefang_cave_discovered==true && world_flags.whitefang_expedition_agreed==false && world_flags.whitefang_cave_breached==false" },
+      { "text": "Return to the sealed cave with Shihan's retainers", "type": "trigger_event", "eventId": "whitefang_expedition_breach", "condition": "world_flags.whitefang_expedition_agreed==true && world_flags.whitefang_cave_breached==false" },
+      { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 }
     ]
   },
   "player_cabin": {

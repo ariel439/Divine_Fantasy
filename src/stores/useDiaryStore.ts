@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useWorldStateStore } from './useWorldStateStore';
 
 interface Relationship {
   friendship: { value: number; max: number; };
@@ -25,19 +26,26 @@ export const useDiaryStore = create<DiaryState>((set, get) => ({
   interactionHistory: [],
   updateRelationship: (npcId, changes) => {
     set((state) => {
+      const whiteFangBound = useWorldStateStore.getState().getFlag('whitefang_bound');
+      const positiveBondingLocked = whiteFangBound && npcId !== 'npc_shihan';
+      const filteredChanges: RelationshipChanges = {
+        ...changes,
+        friendship: positiveBondingLocked && (changes.friendship || 0) > 0 ? 0 : changes.friendship,
+        love: positiveBondingLocked && (changes.love || 0) > 0 ? 0 : changes.love,
+      };
       const currentRelationships = state.relationships[npcId] || { friendship: { value: 0, max: 100 } };
       
       const clamp = (val: number) => Math.max(-100, Math.min(100, val));
-      const updatedFriendship = changes.friendship !== undefined
-        ? { ...currentRelationships.friendship, value: clamp(currentRelationships.friendship.value + changes.friendship) }
+      const updatedFriendship = filteredChanges.friendship !== undefined
+        ? { ...currentRelationships.friendship, value: clamp(currentRelationships.friendship.value + filteredChanges.friendship) }
         : currentRelationships.friendship;
 
-      const updatedLove = changes.love !== undefined
-        ? { ...(currentRelationships.love || { value: 0, max: 100 }), value: clamp((currentRelationships.love?.value || 0) + changes.love) }
+      const updatedLove = filteredChanges.love !== undefined
+        ? { ...(currentRelationships.love || { value: 0, max: 100 }), value: clamp((currentRelationships.love?.value || 0) + filteredChanges.love) }
         : currentRelationships.love;
 
-      const updatedFear = changes.fear !== undefined
-        ? { ...(currentRelationships.fear || { value: 0, max: 100 }), value: clamp((currentRelationships.fear?.value || 0) + changes.fear) }
+      const updatedFear = filteredChanges.fear !== undefined
+        ? { ...(currentRelationships.fear || { value: 0, max: 100 }), value: clamp((currentRelationships.fear?.value || 0) + filteredChanges.fear) }
         : currentRelationships.fear;
 
       return {

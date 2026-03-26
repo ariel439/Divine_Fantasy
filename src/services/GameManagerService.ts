@@ -60,6 +60,77 @@ export class GameManagerService {
     };
   }
 
+  private static buildDebugAllyCombatant(templateId: string, index: number): CombatParticipant | null {
+    const allyTemplates: Record<string, CombatParticipant> = {
+      wolf_puppy: {
+        id: `wolf_puppy_debug_${index}_${Date.now()}`,
+        name: 'Wolf Puppy',
+        hp: 40,
+        maxHp: 40,
+        attack: 5,
+        defence: 2,
+        dexterity: 12,
+        portraitUrl: '/assets/portraits/WolfPuppy.png',
+        isPlayer: false,
+        isCompanion: true,
+      },
+      robert: {
+        id: `robert_debug_${index}_${Date.now()}`,
+        name: 'Robert',
+        hp: 70,
+        maxHp: 70,
+        attack: 7,
+        defence: 6,
+        dexterity: 7,
+        portraitUrl: '/assets/portraits/Robert.png',
+        isPlayer: false,
+        isCompanion: true,
+      },
+      lin_shao: {
+        id: `lin_shao_debug_${index}_${Date.now()}`,
+        name: 'Captain Lin Shao',
+        hp: 180,
+        maxHp: 180,
+        attack: 15,
+        defence: 10,
+        dexterity: 9,
+        portraitUrl: '/assets/portraits/Guard_Generic.png',
+        isPlayer: false,
+        isCompanion: true,
+        attack_sound: '/assets/sfx/combat_sword_swing.mp3',
+      },
+      wei_taren: {
+        id: `wei_taren_debug_${index}_${Date.now()}`,
+        name: 'Wei Taren',
+        hp: 160,
+        maxHp: 160,
+        attack: 14,
+        defence: 9,
+        dexterity: 8,
+        portraitUrl: '/assets/portraits/Guard_Generic.png',
+        isPlayer: false,
+        isCompanion: true,
+        attack_sound: '/assets/sfx/combat_sword_swing.mp3',
+      },
+      qiao_ren: {
+        id: `qiao_ren_debug_${index}_${Date.now()}`,
+        name: 'Qiao Ren',
+        hp: 150,
+        maxHp: 150,
+        attack: 13,
+        defence: 8,
+        dexterity: 10,
+        portraitUrl: '/assets/portraits/Guard_Generic.png',
+        isPlayer: false,
+        isCompanion: true,
+        attack_sound: '/assets/sfx/combat_sword_swing.mp3',
+      },
+    };
+
+    const template = allyTemplates[templateId];
+    return template ? { ...template } : null;
+  }
+
   static init(): void {
     if (GameManagerService.initialized) return;
     GameManagerService.initialized = true;
@@ -567,9 +638,12 @@ export class GameManagerService {
     useUIStore.getState().setScreen('combat');
   }
 
-  static startDebugCombat(enemyTemplateIds: string[], config?: { encounterType?: 'standard' | 'brawl'; knockoutOnDefeat?: boolean }): void {
+  static startDebugCombat(
+    enemyTemplateIds: string[],
+    config?: { encounterType?: 'standard' | 'brawl'; knockoutOnDefeat?: boolean },
+    allyTemplateIds?: string[]
+  ): void {
     const character = useCharacterStore.getState();
-    const companion = useCompanionStore.getState().activeCompanion;
 
     const enemies = enemyTemplateIds
       .map((templateId, index) => this.buildEnemyCombatant(templateId, index))
@@ -591,23 +665,11 @@ export class GameManagerService {
       isCompanion: false,
     };
 
-    let companionCombatant: CombatParticipant | null = null;
-    if (companion) {
-      companionCombatant = {
-        id: companion.id,
-        name: companion.name,
-        hp: companion.stats.hp,
-        maxHp: companion.stats.maxHp,
-        attack: companion.stats.attack,
-        defence: companion.stats.defence,
-        dexterity: companion.stats.dexterity,
-        portraitUrl: companion.type === 'wolf' ? '/assets/portraits/WolfPuppy.png' : '/assets/portraits/Robert.png',
-        isPlayer: false,
-        isCompanion: true,
-      };
-    }
+    const companions = (allyTemplateIds || [])
+      .map((templateId, index) => this.buildDebugAllyCombatant(templateId, index))
+      .filter(Boolean) as CombatParticipant[];
 
-    useCombatStore.getState().startCombat(player, companionCombatant, enemies, {
+    useCombatStore.getState().startCombat(player, companions.length > 0 ? companions : null, enemies, {
       encounterType: config?.encounterType || 'standard',
       defeatMode: config?.knockoutOnDefeat ? 'knockout' : 'standard',
     });
@@ -869,6 +931,113 @@ export class GameManagerService {
 
     useCombatStore.getState().startCombat(player, null, enemies);
     useUIStore.getState().setScreen('combat');
+  }
+
+  static startWhiteFangCombat(): void {
+    const character = useCharacterStore.getState();
+    const shadow = this.buildEnemyCombatant('ren_zhen_shadow', 0);
+    if (!shadow) return;
+
+    const playerStats = GameManagerService.calculatePlayerStats(character);
+    const player: CombatParticipant = {
+      id: 'player',
+      name: character.bio?.name || 'Luke',
+      hp: character.hp,
+      maxHp: character.maxHp || 100,
+      attack: playerStats.attack,
+      defence: playerStats.defence,
+      dexterity: playerStats.dexterity,
+      portraitUrl: character.bio?.image || '/assets/portraits/luke.jpg',
+      isPlayer: true,
+      isCompanion: false,
+    };
+
+    const retainers: CombatParticipant[] = [
+      {
+        id: 'lin_shao_retainer',
+        name: 'Captain Lin Shao',
+        hp: 180,
+        maxHp: 180,
+        attack: 15,
+        defence: 10,
+        dexterity: 9,
+        portraitUrl: '/assets/portraits/Guard_Generic.png',
+        isPlayer: false,
+        isCompanion: true,
+        attack_sound: '/assets/sfx/combat_sword_swing.mp3',
+      },
+      {
+        id: 'wei_taren_retainer',
+        name: 'Wei Taren',
+        hp: 160,
+        maxHp: 160,
+        attack: 14,
+        defence: 9,
+        dexterity: 8,
+        portraitUrl: '/assets/portraits/Guard_Generic.png',
+        isPlayer: false,
+        isCompanion: true,
+        attack_sound: '/assets/sfx/combat_sword_swing.mp3',
+      },
+      {
+        id: 'qiao_ren_retainer',
+        name: 'Qiao Ren',
+        hp: 150,
+        maxHp: 150,
+        attack: 13,
+        defence: 8,
+        dexterity: 10,
+        portraitUrl: '/assets/portraits/Guard_Generic.png',
+        isPlayer: false,
+        isCompanion: true,
+        attack_sound: '/assets/sfx/combat_sword_swing.mp3',
+      },
+    ];
+
+    useCombatStore.getState().startCombat(player, retainers, [shadow], {
+      victoryToast: 'The storm falls silent. Something older than victory waits for you in the dark.',
+    });
+    useUIStore.getState().setScreen('combat');
+  }
+
+  static bindWhiteFangToLuke(): void {
+    const world = useWorldStateStore.getState();
+    if (world.getFlag('whitefang_bound')) return;
+
+    world.setFlag('whitefang_bound', true);
+
+    const inventory = useInventoryStore.getState();
+    const character = useCharacterStore.getState();
+    const whiteFang = itemsJson['white_fang_of_heaven_u' as keyof typeof itemsJson] as any;
+
+    if (inventory.getItemQuantity('white_fang_of_heaven_u') <= 0) {
+      inventory.addItem('white_fang_of_heaven_u', 1);
+    }
+
+    if (whiteFang) {
+      useCharacterStore.setState((state) => ({
+        ...state,
+        attributes: {
+          strength: state.attributes.strength + 2,
+          dexterity: state.attributes.dexterity + 2,
+          intelligence: state.attributes.intelligence + 2,
+          charisma: state.attributes.charisma + 2,
+        },
+      }));
+      useCharacterStore.getState().recalculateStats();
+      useCharacterStore.setState((state) => ({
+        ...state,
+        hp: Math.min(state.maxHp, state.hp + 30),
+      }));
+
+      const currentlyEquipped = useCharacterStore.getState().equippedItems.weapon;
+      if (!currentlyEquipped || currentlyEquipped.id !== 'white_fang_of_heaven_u') {
+        useCharacterStore.getState().equipItem({ ...whiteFang, id: 'white_fang_of_heaven_u' } as unknown as Item);
+      }
+    }
+
+    useDiaryStore.getState().updateRelationship('npc_shihan', { friendship: 5 });
+    useDiaryStore.getState().addInteraction('White Fang of Heaven has bound itself to Luke.');
   }
 
   private static calculatePlayerStats(character: any): { attack: number; defence: number; dexterity: number } {

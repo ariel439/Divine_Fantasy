@@ -215,6 +215,7 @@ export type QuestStatus = 'active' | 'completed';
 export interface QuestObjective {
   text: string;
   completed: boolean;
+  hidden?: boolean;
 }
 
 export interface Quest {

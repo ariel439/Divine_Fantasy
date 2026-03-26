@@ -11,7 +11,7 @@ import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useToastStore } from '../stores/useToastStore';
 import { COMBAT_CONFIG } from '../config/combat';
 import CombatScreen from './screens/CombatScreen';
-import { robertCaughtSlides, gameOverSlides, raidVictorySlides } from '../data/events';
+import { robertCaughtSlides, gameOverSlides, raidVictorySlides, whitefangBindingSlides } from '../data/events';
 import { DialogueService } from '../services/DialogueService';
 
 type DamageType = 'slash' | 'pierce' | 'blunt';
@@ -281,6 +281,19 @@ const CombatManager: React.FC = () => {
         return;
       }
       
+      const renZhenWasPresent = participants.some((p) => p.id === 'ren_zhen_shadow' || p.name === "Ren Zhen's Shadow");
+      if (renZhenWasPresent) {
+        setTimeout(() => {
+          useWorldStateStore.getState().setFlag('whitefang_renzhen_shadow_defeated', true);
+          const ui = useUIStore.getState();
+          ui.setEventSlides(whitefangBindingSlides);
+          ui.setCurrentEventId('whitefang_binding');
+          setScreen('event');
+          endCombat();
+        }, 1400);
+        return;
+      }
+
       // Check if this was the Finn Raid
       const finnWasPresent = participants.some(p => p.name === 'Finn' || p.id.startsWith('finn_'));
 
@@ -590,21 +603,77 @@ const CombatManager: React.FC = () => {
           
           playSfx(encounterType === 'brawl' ? COMBAT_CONFIG.DEFAULT_SFX.ATTACK : getAttackSound(currentEnemy));
         }
-        
+
+        const isRenZhenShadow = currentEnemy.id === 'ren_zhen_shadow' || currentEnemy.name === "Ren Zhen's Shadow";
+
         if (target) {
-            const newHp = Math.max(0, target.hp - damage);
-            
-            updateParticipant(target.id, { hp: newHp });
-            addLogEntry(`${currentEnemy.name} attacks ${target.name} for ${damage} damage!`);
-            
-            // Award defence skill XP to target for taking damage
-            if ((target.isPlayer || target.isCompanion) && damage > 0) {
-              addSkillXp('defence', Math.floor(damage * 4)); // 4 XP per damage taken
-            }
-            
-            if (newHp <= 0) {
-              addLogEntry(`${target.name} is defeated!`);
-            }
+          if (isRenZhenShadow) {
+            const preferredRowTargets = targetableParty.filter((ally) => ally.combatRow === target!.combatRow);
+            const rowTargets = preferredRowTargets.length > 0 ? preferredRowTargets : targetableParty;
+
+            rowTargets.forEach((rowTarget) => {
+              const defencePower = Math.max(0, rowTarget.defence);
+              const damageType = getAttackType(currentEnemy, encounterType === 'brawl');
+              const armorClass = getArmorClass(rowTarget);
+              const typeMultiplier = getTypeMultiplier(damageType, armorClass);
+              let rowDamage = Math.floor((currentEnemy.attack * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_DEFENCE_FACTOR) * typeMultiplier);
+              rowDamage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY + 4, rowDamage);
+
+              const newHp = Math.max(0, rowTarget.hp - rowDamage);
+              updateParticipant(rowTarget.id, { hp: newHp });
+              addLogEntry(`${currentEnemy.name} cuts through ${rowTarget.name} for ${rowDamage} damage!`);
+
+              if ((rowTarget.isPlayer || rowTarget.isCompanion) && rowDamage > 0) {
+                addSkillXp('defence', Math.floor(rowDamage * 4));
+              }
+
+              if (newHp <= 0) {
+                addLogEntry(`${rowTarget.name} is defeated!`);
+              }
+            });
+
+            setTimeout(() => {
+              const survivors = useCombatStore.getState().participants.filter((p) => (p.isPlayer || p.isCompanion) && p.hp > 0);
+              const thunderDamage = Math.max(8, Math.floor(currentEnemy.attack * 0.4));
+              const struckIds: string[] = [];
+
+              playSfx('/assets/sfx/combat_thunder_strike.mp3');
+
+              survivors.forEach((survivor) => {
+                const newHp = Math.max(0, survivor.hp - thunderDamage);
+                updateParticipant(survivor.id, { hp: newHp });
+                addLogEntry(`Lightning from ${currentEnemy.name} lashes ${survivor.name} for ${thunderDamage} damage!`);
+                struckIds.push(survivor.id);
+
+                if ((survivor.isPlayer || survivor.isCompanion) && thunderDamage > 0) {
+                  addSkillXp('defence', Math.floor(thunderDamage * 4));
+                }
+
+                if (newHp <= 0) {
+                  addLogEntry(`${survivor.name} is defeated!`);
+                }
+              });
+
+              setThunderStrikeIds(struckIds);
+              nextTurn();
+            }, 650);
+
+            return;
+          }
+
+          const newHp = Math.max(0, target.hp - damage);
+
+          updateParticipant(target.id, { hp: newHp });
+          addLogEntry(`${currentEnemy.name} attacks ${target.name} for ${damage} damage!`);
+
+          // Award defence skill XP to target for taking damage
+          if ((target.isPlayer || target.isCompanion) && damage > 0) {
+            addSkillXp('defence', Math.floor(damage * 4)); // 4 XP per damage taken
+          }
+
+          if (newHp <= 0) {
+            addLogEntry(`${target.name} is defeated!`);
+          }
         }
 
         // Scripted loss: End combat after 1 full round (4 enemy actions)

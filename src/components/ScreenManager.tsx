@@ -46,7 +46,7 @@ import {
   benCheatEventSlides, 
   elaraDeliverySlides, 
   berylDeliverySlides, 
-  rebelVictorySlides 
+  rebelVictorySlides
 } from '../data/events';
 import { getIntimidationSummary } from '../utils/socialPresentation';
 
@@ -354,6 +354,39 @@ const ScreenManager: React.FC = () => {
             useWorldTimeStore.getState().passTime(120);
             useCharacterStore.getState().updateStats({ energy: -10 });
             useDiaryStore.getState().addInteraction('Delivered the discreet package to the Noble Quarter.');
+            setScreen('inGame');
+            return;
+          }
+          if (id === 'whitefang_woods_unreadable' || id === 'whitefang_beach_unreadable' || id === 'whitefang_mountain_unreadable') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            setScreen('inGame');
+            return;
+          }
+          if (id === 'whitefang_woods_vision' || id === 'whitefang_beach_vision' || id === 'whitefang_mountain_vision') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            setScreen('inGame');
+            return;
+          }
+          if (id === 'whitefang_cave_blocked') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            setScreen('inGame');
+            return;
+          }
+          if (id === 'whitefang_expedition_breach') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            GameManagerService.startWhiteFangCombat();
+            return;
+          }
+          if (id === 'whitefang_binding') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            GameManagerService.bindWhiteFangToLuke();
+            useJournalStore.getState().completeQuest('white_fang_route');
+            useLocationStore.getState().setLocation('mountain_paths');
             setScreen('inGame');
             return;
           }

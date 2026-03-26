@@ -3,6 +3,7 @@ import type { FC } from 'react';
 import { Search, BookOpen, ChevronLeft, ArrowLeft, Book as BookIcon, History, Info, Map, Library as LibraryIcon, X } from 'lucide-react';
 import type { Book, BookContent, BookShelf } from '../../types';
 import { useUIStore } from '../../stores/useUIStore';
+import { useWorldStateStore } from '../../stores/useWorldStateStore';
 
 // Render individual content pieces based on type
 const renderContent = (content: BookContent, index: number) => {
@@ -84,6 +85,15 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
         const book = books.find(entry => entry.id === selectedLibraryBookId) || null;
         setSelectedBook(book);
     }, [selectedLibraryBookId, books]);
+
+    useEffect(() => {
+        if (selectedBook?.id !== 'book_white_tiger_sea') return;
+        const world = useWorldStateStore.getState();
+        if (!world.getFlag('whitefang_book_read')) {
+            world.setFlag('whitefang_book_read', true);
+            useUIStore.getState().setCurrentEventId(null);
+        }
+    }, [selectedBook]);
     
     const shelves: { id: BookShelf | 'All', label: string, icon: ReactNode }[] = [
         { id: 'All', label: 'All Archives', icon: <LibraryIcon size={16} /> },

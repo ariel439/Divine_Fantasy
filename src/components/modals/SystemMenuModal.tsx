@@ -115,7 +115,7 @@ const SystemMenuModal: React.FC<SystemMenuModalProps> = ({ isOpen, onClose, onOp
         
         {/* Footer */}
         <div className="p-4 bg-zinc-950/50 text-center border-t border-zinc-800/50">
-           <span className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-600">Chronicle Version 0.1.0-alpha</span>
+           <span className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-600">Alpha v1</span>
         </div>
       </div>
       <style>{`

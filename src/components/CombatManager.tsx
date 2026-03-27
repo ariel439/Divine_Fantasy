@@ -449,7 +449,7 @@ const CombatManager: React.FC = () => {
           addSkillXp('attack', Math.floor(rowDamage * 2));
         }
 
-        if ((rowTarget.isPlayer || rowTarget.isCompanion) && newHp > 0) {
+        if (rowTarget.isPlayer && newHp > 0) {
           addSkillXp('defence', Math.floor(rowDamage * 2));
         }
 
@@ -629,8 +629,8 @@ const CombatManager: React.FC = () => {
               updateParticipant(rowTarget.id, { hp: newHp });
               addLogEntry(`${currentEnemy.name} cuts through ${rowTarget.name} for ${rowDamage} damage!`);
 
-              if ((rowTarget.isPlayer || rowTarget.isCompanion) && rowDamage > 0) {
-                addSkillXp('defence', Math.floor(rowDamage * 4));
+              if (rowTarget.isPlayer && rowDamage > 0) {
+                addSkillXp('defence', Math.floor(rowDamage * 2));
               }
 
               if (newHp <= 0) {
@@ -651,8 +651,8 @@ const CombatManager: React.FC = () => {
                 addLogEntry(`Lightning from ${currentEnemy.name} lashes ${survivor.name} for ${thunderDamage} damage!`);
                 struckIds.push(survivor.id);
 
-                if ((survivor.isPlayer || survivor.isCompanion) && thunderDamage > 0) {
-                  addSkillXp('defence', Math.floor(thunderDamage * 4));
+                if (survivor.isPlayer && thunderDamage > 0) {
+                  addSkillXp('defence', Math.floor(thunderDamage * 2));
                 }
 
                 if (newHp <= 0) {
@@ -673,8 +673,8 @@ const CombatManager: React.FC = () => {
           addLogEntry(`${currentEnemy.name} attacks ${target.name} for ${damage} damage!`);
 
           // Award defence skill XP to target for taking damage
-          if ((target.isPlayer || target.isCompanion) && damage > 0) {
-            addSkillXp('defence', Math.floor(damage * 4)); // 4 XP per damage taken
+          if (target.isPlayer && damage > 0) {
+            addSkillXp('defence', Math.floor(damage * 2)); // 2 XP per damage taken
           }
 
           if (newHp <= 0) {

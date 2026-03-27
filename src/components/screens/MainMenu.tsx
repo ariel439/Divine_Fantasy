@@ -54,7 +54,7 @@ const MainMenu: FC = () => {
                 className="absolute bottom-4 right-4 text-zinc-400 text-xs font-mono animate-fade-in-up delay-700"
                 style={{ textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}
             >
-                v0.1.0-alpha
+                Alpha v1
             </div>
             {(() => {
                 const { musicEnabled, sfxEnabled, weatherEnabled, setMusicEnabled, setSFXEnabled, setWeatherEnabled } = useAudioStore();

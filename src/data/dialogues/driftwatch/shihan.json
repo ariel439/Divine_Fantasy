@@ -455,5 +455,18 @@
         ]
       }
     }
+  },
+  "shenhaic_barrier": {
+    "nodes": {
+      "0": {
+        "npc_text": "The retainer answers in clipped Shenhaic, precise and unreadable to you. Whatever judgment sits in his voice is lost behind words you were never taught to follow.",
+        "player_choices": [
+          {
+            "text": "Back away.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
   }
 }

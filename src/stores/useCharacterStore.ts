@@ -39,6 +39,7 @@ interface CharacterState {
     birthplace: string;
     born: string;
   };
+  languages: Record<string, 'None' | 'Basic' | 'Fluent' | 'Native'>;
   // Equipment
   equippedItems: Partial<Record<EquipmentSlot, Item>>;
   // Actions
@@ -77,6 +78,10 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     gold: 0,
   },
   maxWeight: 50,
+  languages: {
+    veyric: 'Native',
+    shenhaic: 'None',
+  },
   equippedItems: {},
   eat: (itemId) => {
     const itemData = itemsData[itemId as keyof typeof itemsData] as { effects?: { hunger?: number; energy?: number } } | undefined;

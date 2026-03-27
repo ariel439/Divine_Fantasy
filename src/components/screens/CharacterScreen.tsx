@@ -59,19 +59,23 @@ const CharacterPortrait: FC<{ characterData: any }> = ({ characterData }) => (
 
 const CharacterScreen: FC = () => {
     const { setScreen } = useUIStore();
-    const { attributes, hp, energy, hunger, socialEnergy, maxSocialEnergy, bio } = useCharacterStore();
+    const { attributes, hp, energy, hunger, socialEnergy, maxSocialEnergy, bio, languages } = useCharacterStore();
     const { skills, getSkillLevel } = useSkillStore();
     const presentation = getPresentationSummary();
     const intimidation = getIntimidationSummary();
 
     const characterData = {
         name: bio?.name || 'Unknown',
-        image: bio?.image || 'https://i.imgur.com/gUNzyBA.jpeg',
+        image: bio?.image || '/assets/portraits/luke.jpg',
         bio: {
             gender: bio?.gender || 'Unknown',
             race: bio?.race || 'Unknown',
             birthplace: bio?.birthplace || 'Unknown',
             born: bio?.born || 'Unknown',
+        },
+        languages: {
+            Veyric: languages?.veyric || 'Native',
+            Shenhaic: languages?.shenhaic || 'None',
         },
         hp: Math.floor(hp),
         energy: Math.floor(energy),
@@ -86,7 +90,7 @@ const CharacterScreen: FC = () => {
         },
         skills: [
             { name: 'Attack', level: getSkillLevel('attack'), icon: <Sword size={18} /> },
-            { name: 'Defense', level: getSkillLevel('defense'), icon: <Shield size={18} /> },
+            { name: 'Defense', level: getSkillLevel('defence'), icon: <Shield size={18} /> },
             { name: 'Agility', level: getSkillLevel('agility'), icon: <Wind size={18} /> },
             { name: 'Woodcutting', level: getSkillLevel('woodcutting'), icon: <Axe size={18} /> },
             { name: 'Fishing', level: getSkillLevel('fishing'), icon: <Fish size={18} /> },
@@ -152,6 +156,22 @@ const CharacterScreen: FC = () => {
                             <Stat label="Presentation" value={`${presentation.label} (${presentation.score >= 0 ? '+' : ''}${presentation.score})`} icon={<MessageSquare size={12} className="text-zinc-500" />} />
                             <Stat label="Intimidation" value={`${intimidation.label} (${intimidation.score >= 0 ? '+' : ''}${intimidation.score})`} icon={<Angry size={12} className="text-zinc-500" />} />
                         </div>
+                        <div className="mt-6 border-t border-zinc-800/50 pt-6">
+                            <div className="flex items-center gap-3 mb-4">
+                                <BookOpen size={16} className="text-zinc-500" />
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-300">Languages</h3>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {Object.entries(characterData.languages).map(([language, fluency]) => (
+                                    <Stat
+                                        key={language}
+                                        label={language}
+                                        value={fluency}
+                                        icon={<ScrollText size={12} className="text-zinc-500" />}
+                                    />
+                                ))}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Attributes Section */}
@@ -186,13 +206,14 @@ const CharacterScreen: FC = () => {
                                         <div className="p-2 bg-zinc-900 rounded-lg text-zinc-500 group-hover:text-zinc-200 transition-colors border border-zinc-800">
                                             {skill.icon}
                                         </div>
-                                        <div className="flex-grow">
-                                            <div className="flex justify-between items-end mb-1">
-                                                <p className="font-black text-white text-[10px] uppercase tracking-widest">{skill.name}</p>
-                                            </div>
-                                            <p className="text-xs text-zinc-400 font-medium">{getDescriptiveSkillLabel(skill.level)}</p>
+                                    <div className="flex-grow">
+                                        <div className="flex justify-between items-end mb-1">
+                                            <p className="font-black text-white text-[10px] uppercase tracking-widest">{skill.name}</p>
+                                            <p className="text-xs font-mono text-zinc-300">Lv. {skill.level}</p>
                                         </div>
+                                        <p className="text-xs text-zinc-400 font-medium">{getDescriptiveSkillLabel(skill.level)}</p>
                                     </div>
+                                </div>
                                     <div className="w-full bg-black/40 rounded-full h-1 overflow-hidden border border-zinc-800/30">
                                         <div 
                                             className="h-full bg-gradient-to-r from-zinc-700 to-zinc-400 rounded-full transition-all duration-1000"

@@ -38,15 +38,16 @@ const CombatDebugScreen = React.lazy(() => import('./screens/CombatDebugScreen')
 import npcsData from '../data/npcs.json';
 import { 
   lukePrologueSlides, 
-  playEventSlidesSarah, 
-  playEventSlidesKyle, 
   finnDebtIntroSlides, 
   gameOverSlides, 
   choiceEvents, 
   benCheatEventSlides, 
   elaraDeliverySlides, 
   berylDeliverySlides, 
-  rebelVictorySlides
+  rebelVictorySlides,
+  introRobertTrainingSlides,
+  introKidsHelpingSlides,
+  introStudyShenhaicSlides
 } from '../data/events';
 import { getIntimidationSummary } from '../utils/socialPresentation';
 
@@ -67,6 +68,49 @@ const ScreenManager: React.FC = () => {
 
   const [dialogueNode, setDialogueNode] = useState<any>(null);
   const [dialogueHistory, setDialogueHistory] = useState<any[]>([]);
+
+  const completeIntroPastime = (fallbackChoice: 'robert' | 'kids' | 'study') => {
+    const world = useWorldStateStore.getState();
+    const selectedPastime = world.getData('intro_pastime_choice') || fallbackChoice;
+
+    // Keep the childhood-choice rewards deterministic so old state cannot leak in.
+    useSkillStore.getState().setSkillLevel('defence', 1);
+    useSkillStore.getState().setSkillLevel('crafting', 1);
+    useCharacterStore.setState((state) => ({
+      ...state,
+      languages: {
+        ...state.languages,
+        shenhaic: 'None',
+      },
+    }));
+    world.setFlag('knows_shenhaic_basic', false);
+
+    if (selectedPastime === 'robert') {
+      useDiaryStore.getState().updateRelationship('npc_robert', { friendship: 12 });
+      useSkillStore.getState().setSkillLevel('defence', 3);
+    } else if (selectedPastime === 'kids') {
+      useDiaryStore.getState().updateRelationship('npc_sarah', { friendship: 8 });
+      useDiaryStore.getState().updateRelationship('npc_kyle', { friendship: 8 });
+      useSkillStore.getState().setSkillLevel('crafting', 3);
+    } else if (selectedPastime === 'study') {
+      useCharacterStore.setState((state) => ({
+        ...state,
+        languages: {
+          ...state.languages,
+          shenhaic: 'Basic',
+        },
+      }));
+      world.setFlag('knows_shenhaic_basic', true);
+    }
+
+    world.setTutorialStep(6);
+    world.setData('intro_pastime_choice', '');
+    try { useJournalStore.getState().setQuestStage('luke_tutorial', 6); } catch {}
+    useWorldTimeStore.setState({ hour: 20, minute: 0 });
+    ui.setEventSlides(null);
+    ui.setCurrentEventId(null);
+    setScreen('inGame');
+  };
 
   useEffect(() => {
     if (currentScreen === 'dialogue') {
@@ -127,26 +171,6 @@ const ScreenManager: React.FC = () => {
           useDiaryStore.getState().updateRelationship('npc_roberta', { friendship: delta });
         }
       } 
-      // Intro: Sarah/Kyle at Lighthouse (Step 5 -> 6)
-      else if (world.introMode && loc.id === 'leo_lighthouse' && world.tutorialStep === 5 && (npcId === 'npc_sarah' || npcId === 'npc_kyle')) {
-        // Use setTimeout to avoid synchronous state conflicts
-        setTimeout(() => {
-            useWorldStateStore.getState().setTutorialStep(6);
-            useWorldTimeStore.setState({ hour: 20, minute: 0 });
-            try { useJournalStore.getState().setQuestStage('luke_tutorial', 6); } catch {}
-            
-            const ui = useUIStore.getState();
-            if (npcId === 'npc_sarah') {
-                ui.setEventSlides(playEventSlidesSarah);
-                ui.setCurrentEventId('play_sarah');
-            } else {
-                ui.setEventSlides(playEventSlidesKyle);
-                ui.setCurrentEventId('play_kyle');
-            }
-            ui.setScreen('event');
-        }, 50);
-        return;
-      }
       // Smuggler Event: Kyle Dialogue -> Help Robert
       else if (useUIStore.getState().currentEventId === 'kyle_smuggler_alert' && npcId === 'npc_kyle') {
         // Fix for "Help Robert" crash: Wrap in setTimeout
@@ -195,6 +219,8 @@ const ScreenManager: React.FC = () => {
               useWorldStateStore.getState().setIntroCompleted(true);
               useWorldStateStore.getState().setFlag('intro_completed', true);
               useWorldStateStore.getState().setIntroMode(false);
+              useWorldStateStore.getState().setFlag('smuggler_help_available', false);
+              useWorldStateStore.getState().setFlag('robert_smuggler_incident', false);
               useWorldTimeStore.setState({ hour: 8, minute: 0, year: 780 });
               useLocationStore.getState().setLocation('salty_mug');
               useWorldStateStore.getState().setFlag('finn_debt_intro_pending', true);
@@ -222,6 +248,8 @@ const ScreenManager: React.FC = () => {
             useWorldStateStore.getState().removeKnownNpc('npc_robert');
             useWorldStateStore.getState().setIntroCompleted(true);
             useWorldStateStore.getState().setFlag('intro_completed', true);
+            useWorldStateStore.getState().setFlag('smuggler_help_available', false);
+            useWorldStateStore.getState().setFlag('robert_smuggler_incident', false);
             try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
             useUIStore.getState().setDialogueNpcId('npc_finn');
             setScreen('dialogue');
@@ -285,6 +313,18 @@ const ScreenManager: React.FC = () => {
             ui.setEventSlides(benCheatEventSlides);
             ui.setCurrentEventId('ben_cheat_slides');
             setScreen('event');
+            return;
+          }
+          if (id === 'intro_robert_training') {
+            completeIntroPastime('robert');
+            return;
+          }
+          if (id === 'intro_kids_helping') {
+            completeIntroPastime('kids');
+            return;
+          }
+          if (id === 'intro_study_shenhaic') {
+            completeIntroPastime('study');
             return;
           }
           if (id === 'raid_salty_mug_intro') {
@@ -687,6 +727,45 @@ const ScreenManager: React.FC = () => {
                   onSelect: () => {
                     useUIStore.getState().setCurrentEventId(null);
                     setScreen('inGame');
+                  },
+                },
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'intro_pastime_choice') {
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Train with Robert',
+                  onSelect: () => {
+                    useWorldStateStore.getState().setData('intro_pastime_choice', 'robert');
+                    useUIStore.getState().setEventSlides(introRobertTrainingSlides);
+                    useUIStore.getState().setCurrentEventId('intro_robert_training');
+                    setScreen('event');
+                  },
+                },
+                {
+                  text: 'Look After the Younger Kids',
+                  onSelect: () => {
+                    useWorldStateStore.getState().setData('intro_pastime_choice', 'kids');
+                    useUIStore.getState().setEventSlides(introKidsHelpingSlides);
+                    useUIStore.getState().setCurrentEventId('intro_kids_helping');
+                    setScreen('event');
+                  },
+                },
+                {
+                  text: 'Study Shenhaic',
+                  onSelect: () => {
+                    useWorldStateStore.getState().setData('intro_pastime_choice', 'study');
+                    useUIStore.getState().setEventSlides(introStudyShenhaicSlides);
+                    useUIStore.getState().setCurrentEventId('intro_study_shenhaic');
+                    setScreen('event');
                   },
                 },
               ]}

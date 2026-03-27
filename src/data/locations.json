@@ -56,10 +56,8 @@
     "exit_location": "driftwatch_main_street",
     "actions": [
       { "text": "Talk to Old Leo", "type": "dialogue", "target": "npc_old_leo", "condition": "world_flags.intro_completed==false" },
-      { "text": "Talk to Sarah", "type": "dialogue", "target": "npc_sarah", "condition": "world_flags.intro_completed==false" },
-      { "text": "Talk to Kyle", "type": "dialogue", "target": "npc_kyle", "condition": "world_flags.intro_completed==false" },
       { "text": "Eat Breakfast", "type": "tutorial_breakfast", "target": "breakfast", "condition": "world_flags.intro_completed==false" },
-      { "text": "Play Alone", "type": "tutorial_play_alone", "target": "alone", "condition": "world_flags.intro_completed==false" },
+      { "text": "Choose How to Spend the Afternoon", "type": "trigger_event", "eventId": "intro_pastime_choice", "condition": "world_flags.intro_completed==false" },
       { "text": "End the Day", "type": "end_intro", "target": "end_intro", "condition": "world_flags.intro_completed==false" },
       { "text": "Return to Room", "type": "navigate", "target": "orphanage_room", "condition": "world_flags.intro_completed==false" },
       { "text": "Travel to Driftwatch Main Street", "type": "navigate", "target": "driftwatch_main_street" }
@@ -148,6 +146,7 @@
     "closing_hour": 17,
     "exit_location": "driftwatch_noble_quarter",
     "actions": [
+      { "text": "Browse the Archives", "type": "library", "target": "grand_library" },
       { "text": "Travel to Noble Quarter", "type": "navigate", "target": "driftwatch_noble_quarter" }
     ]
   },

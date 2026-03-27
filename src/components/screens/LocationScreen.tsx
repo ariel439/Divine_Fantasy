@@ -10,7 +10,7 @@ import { GameManagerService } from '../../services/GameManagerService';
 import { DialogueService } from '../../services/DialogueService';
 import { NPCService } from '../../services/NPCService';
 import { LocationService } from '../../services/LocationService';
-import { Sun, Moon, MessageSquare, Hammer, Fish, MapPin, ShoppingCart, CookingPot, Bed, Search, Swords, Leaf, Snowflake, Sprout, Cloud, CloudRain, BookOpen, User, Package, Briefcase, Heart, Library, Zap, Award, Utensils, Clock } from 'lucide-react';
+import { Sun, Moon, MessageSquare, Hammer, Fish, MapPin, ShoppingCart, CookingPot, Bed, Search, Swords, Leaf, Snowflake, Sprout, Cloud, CloudRain, BookOpen, User, Package, Briefcase, Heart, Library, Zap, Award, Utensils, Clock, Compass } from 'lucide-react';
 import ProgressBar from '../ui/ProgressBar';
 import ActionButton from '../ui/ActionButton';
 import WeatherParticles from '../effects/WeatherParticles';
@@ -24,7 +24,7 @@ import type { ActionSummary, Slide } from '../../types';
 import { ExplorationService } from '../../services/ExplorationService';
 import { mockBooks } from '../../data';
 import locationsData from '../../data/locations.json';
-import { breakfastEventSlides, playEventSlidesSarah, playEventSlidesRobert, playEventSlidesAlone, rebelRaidIntroSlides, sellLocketSlides, elaraDeliverySlides, berylDeliverySlides, benCheatEventSlides, whitefangUnreadableWoodsSlides, whitefangUnreadableBeachSlides, whitefangUnreadableMountainSlides, whitefangWoodsVisionSlides, whitefangBeachVisionSlides, whitefangMountainVisionSlides, whitefangCaveBlockedSlides, whitefangExpeditionBreachSlides } from '../../data/events';
+import { breakfastEventSlides, rebelRaidIntroSlides, sellLocketSlides, elaraDeliverySlides, berylDeliverySlides, benCheatEventSlides, whitefangUnreadableWoodsSlides, whitefangUnreadableBeachSlides, whitefangUnreadableMountainSlides, whitefangWoodsVisionSlides, whitefangBeachVisionSlides, whitefangMountainVisionSlides, whitefangCaveBlockedSlides, whitefangExpeditionBreachSlides } from '../../data/events';
 import { useToastStore } from '../../stores/useToastStore';
 
 const LocationScreen: React.FC = () => {
@@ -436,36 +436,6 @@ const LocationScreen: React.FC = () => {
         setScreen('event');
         break;
       }
-      case 'tutorial_play_sarah': {
-        useDiaryStore.getState().updateRelationship('npc_sarah', { friendship: 10 });
-        useWorldStateStore.getState().setTutorialStep(6);
-        setIntroTime(20, 0);
-        try { useJournalStore.getState().setQuestStage('luke_tutorial', 6); } catch {}
-        useUIStore.getState().setEventSlides(playEventSlidesSarah);
-        useUIStore.getState().setCurrentEventId('play_sarah');
-        setScreen('event');
-        break;
-      }
-      case 'tutorial_play_robert': {
-        useDiaryStore.getState().updateRelationship('npc_robert', { friendship: 0 });
-        useWorldStateStore.getState().setTutorialStep(6);
-        setIntroTime(20, 0);
-        try { useJournalStore.getState().setQuestStage('luke_tutorial', 6); } catch {}
-        useUIStore.getState().setEventSlides(playEventSlidesRobert);
-        useUIStore.getState().setCurrentEventId('play_robert');
-        setScreen('event');
-        break;
-      }
-      case 'tutorial_play_alone': {
-        useWorldStateStore.getState().setFlag('played_midday', true);
-        useWorldStateStore.getState().setTutorialStep(6);
-        setIntroTime(20, 0);
-        try { useJournalStore.getState().setQuestStage('luke_tutorial', 6); } catch {}
-        useUIStore.getState().setEventSlides(playEventSlidesAlone);
-        useUIStore.getState().setCurrentEventId('play_alone');
-        setScreen('event');
-        break;
-      }
       case 'tutorial_sleep': {
         const step = useWorldStateStore.getState().tutorialStep;
         if (step === 6) {
@@ -612,7 +582,7 @@ const LocationScreen: React.FC = () => {
   const getActionIcon = (type: string) => {
     switch (type) {
       case 'dialogue': return <MessageSquare size={20} className="text-sky-300" />;
-      case 'shop': return <ShoppingCart size={20} className="text-yellow-300" />;
+      case 'shop': return <ShoppingCart size={20} className="text-zinc-300" />;
       case 'fish': return <Fish size={20} className="text-orange-400" />;
       case 'woodcut': return <Leaf size={20} className="text-orange-400" />;
       case 'craft': return <Hammer size={20} className="text-orange-300" />;
@@ -621,6 +591,7 @@ const LocationScreen: React.FC = () => {
       case 'library': return <BookOpen size={20} className="text-zinc-300" />;
       case 'sleep': case 'tutorial_sleep': return <Bed size={20} className="text-zinc-300" />;
       case 'navigate': return <MapPin size={20} className="text-green-300" />;
+      case 'explore': return <Compass size={20} className="text-rose-300" />;
       default: return <Search size={20} className="text-zinc-300" />;
     }
   };
@@ -628,11 +599,11 @@ const LocationScreen: React.FC = () => {
   const getActionCategory = (type: string) => {
     switch (type) {
       case 'dialogue': return 'dialogue';
-      case 'shop': return 'commerce';
+      case 'shop': case 'library': case 'sleep': case 'tutorial_sleep': case 'rent': case 'use': case 'trigger_event': return 'normal';
       case 'fish': case 'job': case 'woodcut': case 'craft': case 'cook': return 'action';
-      case 'library': case 'sleep': case 'tutorial_sleep': return 'explore';
+      case 'explore': return 'explore';
       case 'navigate': return 'travel';
-      default: return 'explore';
+      default: return 'normal';
     }
   };
 
@@ -920,11 +891,13 @@ const LocationScreen: React.FC = () => {
                 .slice()
                 .sort((a: any, b: any) => {
                   const getPriority = (action: any) => {
-                    if (action.type === 'navigate') return 5;
+                    if (['job', 'craft', 'woodcut', 'fish', 'cook'].includes(action.type)) return 1;
+                    if (['shop', 'library', 'sleep', 'tutorial_sleep', 'trigger_event', 'rent', 'use'].includes(action.type)) return 2;
+                    if (action.type === 'explore') return 3;
                     if (action.type === 'dialogue') return 4;
-                    if (action.type === 'shop') return 3;
-                    if (['job', 'craft', 'woodcut', 'fish'].includes(action.type)) return 2;
-                    return 1;
+                    if (action.type === 'navigate' && action.time_cost && action.time_cost > 0) return 5;
+                    if (action.type === 'navigate') return 6;
+                    return 2;
                   };
                   const pA = getPriority(a);
                   const pB = getPriority(b);
@@ -1063,7 +1036,7 @@ const LocationScreen: React.FC = () => {
                     case 'leo_lighthouse':
                       if (tutorialStep <= 2) return action.type === 'dialogue' && action.target === 'npc_old_leo';
                       if (tutorialStep === 3) return action.type === 'tutorial_breakfast';
-                      if (tutorialStep === 5) return (action.type === 'dialogue' && (action.target === 'npc_sarah' || action.target === 'npc_kyle')) || action.type === 'tutorial_play_alone';
+                      if (tutorialStep === 5) return action.type === 'trigger_event' && action.eventId === 'intro_pastime_choice';
                       if (tutorialStep === 6) return (action.type === 'navigate' && action.target === 'orphanage_room');
                       return false;
 
@@ -1099,7 +1072,7 @@ const LocationScreen: React.FC = () => {
                     else if (locId === 'leo_lighthouse') {
                       if (tutorialStep <= 2) highlight = true;
                       else if (tutorialStep === 3) highlight = true;
-                      else if (tutorialStep === 5) highlight = (action.type === 'dialogue' && (action.target === 'npc_sarah' || action.target === 'npc_kyle')) || action.type === 'tutorial_play_alone';
+                      else if (tutorialStep === 5) highlight = action.type === 'trigger_event' && action.eventId === 'intro_pastime_choice';
                       else if (tutorialStep === 6) highlight = (action.type === 'navigate' && action.target === 'orphanage_room');
                     } else if (locId === 'orphanage_room') {
                       if (tutorialStep === 6 || tutorialStep === 7) highlight = action.type === 'tutorial_sleep';
@@ -1111,8 +1084,8 @@ const LocationScreen: React.FC = () => {
                     <ActionButton
                       key={index}
                       onClick={() => handleAction(action)}
-                      category={highlight ? 'highlighted' : getActionCategory(action.type)}
-                      icon={getActionIcon(action.type)}
+                      category={highlight ? 'highlighted' : (action.type === 'navigate' && action.time_cost && action.time_cost > 0 ? 'timedTravel' : getActionCategory(action.type))}
+                      icon={action.type === 'navigate' && action.time_cost && action.time_cost > 0 ? <MapPin size={20} className="text-emerald-700" /> : getActionIcon(action.type)}
                       text={action.text}
                       highlight={highlight}
                     />

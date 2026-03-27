@@ -1,5 +1,6 @@
 {
   "barkip_default": {
+    "trade_shop_id": "salty_mug",
     "interaction_roots": {
       "ask": "barkip_ask_root",
       "quest": "barkip_quest_root"
@@ -8,6 +9,10 @@
       "0": {
         "npc_text": "What'll it be? Ale's 1 silver.",
         "player_choices": [
+          {
+            "text": "Let me see your stock.",
+            "action": "open_shop:salty_mug"
+          },
           {
             "text": "I'd like to talk.",
             "next_node": "__social_root__"

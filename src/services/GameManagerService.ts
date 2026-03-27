@@ -307,6 +307,10 @@ export class GameManagerService {
       hunger: 100,
       currency: { ...template.starting_bonuses.currency },
       maxWeight: 50,
+      languages: {
+        veyric: 'Native',
+        shenhaic: 'None',
+      },
       bio: {
         name: template.name,
         image: '/assets/portraits/luke.jpg',
@@ -316,6 +320,7 @@ export class GameManagerService {
         birthplace: 'Driftwatch', // TODO: Add to template
         born: '10th of July, 760', // TODO: Add to template
       },
+      equippedItems: {},
     });
     useSkillStore.setState({
       skills: {},
@@ -383,6 +388,8 @@ export class GameManagerService {
     useCompanionStore.setState({
       activeCompanion: null,
     });
+
+    useShopStore.getState().loadShops();
 
     // Add starting items to inventory (after stores are initialized)
     template.starting_bonuses.items.forEach((itemId: string) => {

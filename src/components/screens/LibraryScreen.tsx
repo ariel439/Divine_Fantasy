@@ -61,7 +61,15 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
     // Escape key handling
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
+            const shortcutKey = e.key.toLowerCase();
+
+            if (['i', 'c', 'j', 'd', 't'].includes(shortcutKey)) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+
+            if (shortcutKey === 'escape') {
                 if (fullscreenImage) {
                     setFullscreenImage(null);
                 } else if (selectedBook) {

@@ -40,6 +40,7 @@ export const whitefangExpeditionBreachSlides: Slide[] = events.whitefangExpediti
 export const whitefangBindingSlides: Slide[] = events.whitefangBindingSlides;
 
 type ChoiceEventId =
+  | 'intro_pastime_choice'
   | 'beryl_letter_pickup'
   | 'apple_tree_event'
   | 'fallen_log_event'
@@ -60,6 +61,13 @@ export interface ChoiceEventConfig {
 }
 
 export const choiceEvents: Record<ChoiceEventId, ChoiceEventConfig> = {
+  intro_pastime_choice: {
+    id: 'intro_pastime_choice',
+    title: 'A Quiet Afternoon',
+    imageUrl: '/assets/events/luke_afternoon_choice.png',
+    text:
+      "The chores are done and Old Leo is occupied for a while. For once, Luke has a little time that belongs only to him. How does he spend it?",
+  },
   beryl_letter_pickup: {
     id: 'beryl_letter_pickup',
     title: 'Crumpled Letter',
@@ -137,3 +145,32 @@ export const choiceEvents: Record<ChoiceEventId, ChoiceEventConfig> = {
       'A lean thug steps close enough for you to catch the glint of a knife. His smile says he has done this before, and often.',
   },
 };
+
+export const introRobertTrainingSlides: Slide[] = [
+  {
+    image: '/assets/events/luke_train_robert.png',
+    text: "Luke finds Robert behind the lighthouse where the older boy has marked a rough sparring circle in the dirt. Robert makes him keep his feet under him, hands high, shoulders square, correcting every lazy step with the blunt certainty of an older brother who has decided that surviving Driftwatch starts now."
+  },
+  {
+    image: '/assets/events/luke_train_robert.png',
+    text: "By the time the light begins to fade, Luke's arms ache and his pride aches more. Robert only claps him once on the shoulder and tells him that taking a hit means nothing if you stay standing after it."
+  }
+];
+
+export const introKidsHelpingSlides: Slide[] = [
+  {
+    image: '/assets/events/luke_help_kids.png',
+    text: "Instead of chasing his own amusement, Luke ends up surrounded by the younger children, calming one argument, fixing a broken toy, and turning scraps into something that keeps them laughing a little longer."
+  },
+  {
+    image: '/assets/events/luke_help_kids.png',
+    text: "By evening the little ones are tired, fed, and quieter than usual. In a house like Leo's Lighthouse, being useful often means making do with almost nothing, and Luke is already learning how."
+  }
+];
+
+export const introStudyShenhaicSlides: Slide[] = [
+  {
+    image: '/assets/events/luke_study_shenhaic.png',
+    text: "Luke spends the spare hour by lantern light with a weathered page Old Leo once kept from a foreign sailor's bundle, tracing the strange Shenhaic characters again and again until a few sounds finally begin to stick in his memory."
+  }
+];

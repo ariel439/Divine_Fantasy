@@ -4,7 +4,7 @@ import type { FC, ReactNode } from 'react';
 interface ActionButtonProps {
   icon?: ReactNode;
   text: string;
-  category?: 'dialogue' | 'action' | 'travel' | 'commerce' | 'explore' | 'highlighted';
+  category?: 'dialogue' | 'action' | 'travel' | 'timedTravel' | 'normal' | 'explore' | 'highlighted';
   onClick?: () => void;
   disabled?: boolean;
   highlight?: boolean;
@@ -16,8 +16,9 @@ const ActionButton: FC<ActionButtonProps> = ({ icon, text, category, onClick, di
         dialogue: 'border-l-sky-400',
         action: 'border-l-orange-400',
         travel: 'border-l-green-400',
-        commerce: 'border-l-yellow-400',
-        explore: 'border-l-zinc-400',
+        timedTravel: 'border-l-emerald-700',
+        normal: 'border-l-zinc-400',
+        explore: 'border-l-rose-400',
         highlighted: 'border-l-yellow-400'
     };
     

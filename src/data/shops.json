@@ -25,7 +25,8 @@
     "accepted_categories": ["consumable"],
     "inventory": [
       { "item_id": "fish_sardine", "quantity": 15 },
-      { "item_id": "food_sardine_grilled", "quantity": 10 },
+      { "item_id": "fish_trout", "quantity": 10 },
+      { "item_id": "fish_pike", "quantity": 6 },
       { "item_id": "fishing_rod", "quantity": 2 }
     ]
   },

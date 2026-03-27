@@ -342,6 +342,19 @@ const ScreenManager: React.FC = () => {
             setScreen('inGame');
             return;
           }
+          if (id === 'finn_personal_kill_end') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            useWorldStateStore.getState().setFlag('finn_hybrid_branch_complete', true);
+            useWorldStateStore.getState().setFlag('finn_dead', true);
+            useWorldStateStore.getState().setFlag('finn_resolved', true);
+            useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
+            useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
+            useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
+            useWorldStateStore.getState().setFlag('raid_ready', false);
+            setScreen('inGame');
+            return;
+          }
           if (id === 'rebel_victory') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);

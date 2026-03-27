@@ -11,7 +11,7 @@ import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useToastStore } from '../stores/useToastStore';
 import { COMBAT_CONFIG } from '../config/combat';
 import CombatScreen from './screens/CombatScreen';
-import { robertCaughtSlides, gameOverSlides, raidVictorySlides, whitefangBindingSlides } from '../data/events';
+import { robertCaughtSlides, gameOverSlides, raidVictorySlides, whitefangBindingSlides, finnPersonalKillSlides } from '../data/events';
 import { DialogueService } from '../services/DialogueService';
 
 type DamageType = 'slash' | 'pierce' | 'blunt';
@@ -26,6 +26,7 @@ const CombatManager: React.FC = () => {
     encounterType,
     victoryActions,
     victoryToast,
+    victoryEventId,
     defeatMode,
     defeatToast,
     log,
@@ -294,14 +295,19 @@ const CombatManager: React.FC = () => {
         return;
       }
 
-      // Check if this was the Finn Raid
-      const finnWasPresent = participants.some(p => p.name === 'Finn' || p.id.startsWith('finn_'));
-
-      if (finnWasPresent) {
+      if (victoryEventId === 'raid_victory') {
           setTimeout(() => {
             const ui = useUIStore.getState();
             ui.setEventSlides(raidVictorySlides);
             ui.setCurrentEventId('raid_victory');
+            setScreen('event');
+            endCombat();
+          }, 1500);
+      } else if (victoryEventId === 'finn_personal_kill_end') {
+          setTimeout(() => {
+            const ui = useUIStore.getState();
+            ui.setEventSlides(finnPersonalKillSlides);
+            ui.setCurrentEventId('finn_personal_kill_end');
             setScreen('event');
             endCombat();
           }, 1500);
@@ -352,7 +358,7 @@ const CombatManager: React.FC = () => {
         passTime(5);
       }, 1500);
     }
-  }, [aliveEnemies.length, aliveParty.length, phase, setPhase, setRewards, endCombat, setScreen, passTime, encounterType, victoryActions, victoryToast, defeatMode, defeatToast, syncPlayerVitalsFromCombat, participants, rollCombatLoot]);
+  }, [aliveEnemies.length, aliveParty.length, phase, setPhase, setRewards, endCombat, setScreen, passTime, encounterType, victoryActions, victoryToast, victoryEventId, defeatMode, defeatToast, syncPlayerVitalsFromCombat, participants, rollCombatLoot]);
 
   const handleAttack = () => {
     if (!isPlayerTurn() || !selectedTargetId || actionLocked) return;

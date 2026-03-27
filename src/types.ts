@@ -119,6 +119,7 @@ export interface CombatEncounterConfig {
   encounterType?: CombatEncounterType;
   victoryActions?: string[];
   victoryToast?: string;
+  victoryEventId?: string;
   defeatMode?: CombatDefeatMode;
   defeatToast?: string;
   forcePlayerFirstTurn?: boolean;

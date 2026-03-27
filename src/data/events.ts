@@ -28,6 +28,7 @@ export const sellLocketSlides: Slide[] = events.sellLocketSlides;
 export const evilEndingSlides: Slide[] = events.evilEndingSlides;
 export const hybridEndingSlides: Slide[] = events.hybridEndingSlides;
 export const whitefangFinnKillSlides: Slide[] = events.whitefangFinnKillSlides;
+export const finnPersonalKillSlides: Slide[] = events.finnPersonalKillSlides;
 export const whitefangUnreadableWoodsSlides: Slide[] = events.whitefangUnreadableWoodsSlides;
 export const whitefangUnreadableBeachSlides: Slide[] = events.whitefangUnreadableBeachSlides;
 export const whitefangUnreadableMountainSlides: Slide[] = events.whitefangUnreadableMountainSlides;

@@ -211,6 +211,20 @@
       "text": "This branch ends here in the current version. White Fang remains with you, and Driftwatch is still open."
     }
   ],
+  "finnPersonalKillSlides": [
+    {
+      "image": "/assets/events/demo_end_screen.png",
+      "text": "Finn dies by Luke's hand, not the Guard's. No warrant, no raid, no borrowed authority - only the kind of ending Driftwatch understands best."
+    },
+    {
+      "image": "/assets/events/demo_end_screen.png",
+      "text": "With Finn gone, the debt that dragged you through the city is broken at the source. Whatever comes next in Driftwatch, it will not be under his shadow."
+    },
+    {
+      "image": "/assets/events/demo_end_screen.png",
+      "text": "This branch ends here in the current version. You can keep playing from here."
+    }
+  ],
   "whitefangUnreadableWoodsSlides": [
     {
       "image": "/assets/locations/driftwatch_woods_day.png",

@@ -24,6 +24,7 @@ export interface CombatState {
   encounterType: CombatEncounterType;
   victoryActions: string[];
   victoryToast?: string;
+  victoryEventId?: string;
   defeatMode: CombatDefeatMode;
   defeatToast?: string;
   
@@ -67,6 +68,7 @@ const initialState: CombatState = {
   encounterType: 'standard',
   victoryActions: [],
   victoryToast: undefined,
+  victoryEventId: undefined,
   defeatMode: 'standard',
   defeatToast: undefined,
   log: [],
@@ -144,6 +146,7 @@ export const useCombatStore = create<CombatStore>((set, get) => ({
       encounterType: config?.encounterType || 'standard',
       victoryActions: config?.victoryActions || [],
       victoryToast: config?.victoryToast,
+      victoryEventId: config?.victoryEventId,
       defeatMode: config?.defeatMode || 'standard',
       defeatToast: config?.defeatToast,
       log: ['Combat begins!'],

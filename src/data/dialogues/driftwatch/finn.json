@@ -179,38 +179,32 @@
             "condition": "world_flags.ben_cheat_done==true && world_flags.elara_helped_drug==true && world_flags.beryl_helped_pimp==true"
           },
           {
-            "text": "Wait!",
-            "action": "trigger_event:finn_hybrid_end",
+            "text": "...",
             "closes_dialogue": true,
             "condition": "world_flags.ben_cheat_done==true && world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==false"
           },
           {
-            "text": "Wait!",
-            "action": "trigger_event:finn_hybrid_end",
+            "text": "...",
             "closes_dialogue": true,
             "condition": "world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==true && world_flags.beryl_helped_pimp==false"
           },
           {
-            "text": "Wait!",
-            "action": "trigger_event:finn_hybrid_end",
+            "text": "...",
             "closes_dialogue": true,
             "condition": "world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==true"
           },
           {
-            "text": "Wait!",
-            "action": "trigger_event:finn_hybrid_end",
+            "text": "...",
             "closes_dialogue": true,
             "condition": "world_flags.ben_cheat_done==true && world_flags.elara_helped_drug==true && world_flags.beryl_helped_pimp==false"
           },
           {
-            "text": "Wait!",
-            "action": "trigger_event:finn_hybrid_end",
+            "text": "...",
             "closes_dialogue": true,
             "condition": "world_flags.ben_cheat_done==true && world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==true"
           },
           {
-            "text": "Wait!",
-            "action": "trigger_event:finn_hybrid_end",
+            "text": "...",
             "closes_dialogue": true,
             "condition": "world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==true && world_flags.beryl_helped_pimp==true"
           }

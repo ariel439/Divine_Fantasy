@@ -863,12 +863,15 @@ export class GameManagerService {
       }
     ];
 
-    useCombatStore.getState().startCombat(player, companions, enemies);
+    useCombatStore.getState().startCombat(player, companions, enemies, {
+      victoryEventId: 'raid_victory',
+    });
     useUIStore.getState().setScreen('combat');
   }
 
   static startFinnTimeoutCombat(): void {
     const character = useCharacterStore.getState();
+    const whiteFangBound = useWorldStateStore.getState().getFlag('whitefang_bound');
 
     const enemies: CombatParticipant[] = [];
 
@@ -929,12 +932,15 @@ export class GameManagerService {
       isCompanion: false,
     };
 
-    useCombatStore.getState().startCombat(player, null, enemies);
+    useCombatStore.getState().startCombat(player, null, enemies, {
+      victoryEventId: whiteFangBound ? 'whitefang_finn_end' : 'finn_personal_kill_end',
+    });
     useUIStore.getState().setScreen('combat');
   }
 
   static startFinnBetrayalCombat(): void {
     const character = useCharacterStore.getState();
+    const whiteFangBound = useWorldStateStore.getState().getFlag('whitefang_bound');
 
     const finnTemplate = enemiesJson['finn_boss'];
     const thugTemplate = enemiesJson['thug_generic'];
@@ -993,7 +999,9 @@ export class GameManagerService {
       isCompanion: false,
     };
 
-    useCombatStore.getState().startCombat(player, null, enemies);
+    useCombatStore.getState().startCombat(player, null, enemies, {
+      victoryEventId: whiteFangBound ? 'whitefang_finn_end' : 'finn_personal_kill_end',
+    });
     useUIStore.getState().setScreen('combat');
   }
 
@@ -1069,6 +1077,7 @@ export class GameManagerService {
     if (world.getFlag('whitefang_bound')) return;
 
     world.setFlag('whitefang_bound', true);
+    world.setFlag('raid_ready', false);
 
     const inventory = useInventoryStore.getState();
     const character = useCharacterStore.getState();

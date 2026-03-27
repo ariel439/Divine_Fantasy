@@ -220,7 +220,7 @@
         ]
       },
       "tavern_refusal": {
-        "npc_text": "Not here, kid. I'm trying to enjoy my ale. Come by the shop in the morning.",
+        "npc_text": "Not here, kid. You don't walk up to a man in a tavern and threaten him over coin. Come by the shop in the morning if you want to talk business.",
         "player_choices": [
           {
             "text": "Fine.",
@@ -332,8 +332,7 @@
           },
           {
             "text": "Just pay up or else.",
-            "action": "collect_debt_from:npc_beryl",
-            "closes_dialogue": true
+            "next_node": "debt_confrontation_hard_refusal"
           },
           {
             "text": "I'll come back later.",
@@ -352,6 +351,16 @@
           },
           {
             "text": "Actually, let me think about it.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "debt_confrontation_hard_refusal": {
+        "npc_text": "Are you threatening me in my own shop? Get out before I call the guards. If Finn wants coin, he can come try his luck himself.",
+        "player_choices": [
+          {
+            "text": "Fine. Keep your coin for now.",
+            "action": "set_flag:beryl_refused_debt:true",
             "closes_dialogue": true
           }
         ]

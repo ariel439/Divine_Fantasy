@@ -55,7 +55,9 @@ const buildGenericRewards = (rewards: any): string[] => {
 const buildQuestObjectives = (questDef: any, stageIndex: number) => {
   const world = useWorldStateStore.getState();
   const inv = useInventoryStore.getState();
-  const hideFutureObjectives = Boolean(questDef?.hideFutureObjectives);
+  const hideFutureObjectives = typeof questDef?.hideFutureObjectives === 'boolean'
+    ? questDef.hideFutureObjectives
+    : !Boolean(questDef?.nonLinear);
 
   return (questDef?.stages || []).map((stageDef: any, idx: number) => {
     let isDone = idx < stageIndex;

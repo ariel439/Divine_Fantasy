@@ -6,6 +6,7 @@ import SaveSlot from '../ui/SaveSlot';
 import ConfirmationModal from './ConfirmationModal';
 import { SaveLoadService, SaveSlotMetadata } from '../../services/SaveLoadService';
 import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
+import { useWorldStateStore } from '../../stores/useWorldStateStore';
 
 interface SaveLoadModalProps {
   isOpen: boolean;
@@ -14,6 +15,13 @@ interface SaveLoadModalProps {
 }
 
 type Tab = 'Save' | 'Load';
+
+const getIntroSaveLabel = (tutorialStep: number): string => {
+  if (tutorialStep <= 2) return 'Intro - Morning';
+  if (tutorialStep <= 5) return 'Intro - Afternoon';
+  if (tutorialStep <= 7) return 'Intro - Night';
+  return 'Intro';
+};
 
 const SaveLoadModal: FC<SaveLoadModalProps> = ({ isOpen, onClose, context }) => {
   const [activeTab, setActiveTab] = useState<Tab>(context === 'mainMenu' ? 'Load' : 'Save');
@@ -33,7 +41,10 @@ const SaveLoadModal: FC<SaveLoadModalProps> = ({ isOpen, onClose, context }) => 
       
       // Default save name
       const t = useWorldTimeStore.getState();
-      const defaultName = `Day ${t.day} - ${t.hour}:${String(t.minute).padStart(2, '0')}`;
+      const world = useWorldStateStore.getState();
+      const defaultName = world.introMode
+        ? getIntroSaveLabel(world.tutorialStep)
+        : `Day ${t.day} - ${t.hour}:${String(t.minute).padStart(2, '0')}`;
       setSaveName(defaultName);
     }
   }, [isOpen, context]);

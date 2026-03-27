@@ -12,6 +12,7 @@ import ScreenManager from './ScreenManager';
 const Game: React.FC = () => {
   const { currentScreen, activeModal, openModal } = useUIStore();
   const { loadShops } = useShopStore();
+  const introMode = useWorldStateStore((state) => state.introMode);
   
   // Initialize GameManagerService on component mount
   useEffect(() => {
@@ -74,9 +75,9 @@ const Game: React.FC = () => {
   useEffect(() => {
     const wt = useWorldTimeStore.getState();
     const modalOpen = Boolean(activeModal);
-    const shouldPause = modalOpen || currentScreen === 'dialogue' || currentScreen !== 'inGame';
+    const shouldPause = modalOpen || introMode || currentScreen === 'dialogue' || currentScreen !== 'inGame';
     wt.setClockPaused(shouldPause);
-  }, [currentScreen, activeModal]);
+  }, [currentScreen, activeModal, introMode]);
 
   useEffect(() => {
     const world = useWorldStateStore.getState();

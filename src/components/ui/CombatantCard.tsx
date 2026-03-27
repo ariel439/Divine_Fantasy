@@ -12,10 +12,11 @@ interface CombatantCardProps {
   isSelected?: boolean;
   isTargetable?: boolean;
   wasJustHit?: boolean;
+  isRetreating?: boolean;
   onClick?: () => void;
 }
 
-const CombatantCard: FC<CombatantCardProps> = ({ combatant, isPartyMember, isActive = false, isSelected = false, isTargetable = true, wasJustHit = false, onClick }) => {
+const CombatantCard: FC<CombatantCardProps> = ({ combatant, isPartyMember, isActive = false, isSelected = false, isTargetable = true, wasJustHit = false, isRetreating = false, onClick }) => {
     const isDead = combatant.hp <= 0;
 
     const cardClasses = `
@@ -26,7 +27,8 @@ const CombatantCard: FC<CombatantCardProps> = ({ combatant, isPartyMember, isAct
         ${onClick ? 'cursor-pointer hover:border-zinc-500' : ''}
         ${!isPartyMember && !isTargetable ? 'saturate-50 brightness-75' : ''}
         ${wasJustHit ? 'animate-shake' : ''}
-        ${isDead ? 'opacity-0 grayscale pointer-events-none' : 'opacity-100'}
+        ${isRetreating ? 'animate-retreat-left pointer-events-none' : ''}
+        ${isDead && !isRetreating ? 'opacity-0 grayscale pointer-events-none' : 'opacity-100'}
     `;
 
     const hpColor = isPartyMember ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.7)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]";

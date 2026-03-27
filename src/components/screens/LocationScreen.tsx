@@ -119,6 +119,10 @@ const LocationScreen: React.FC = () => {
 
   const { temp, weatherText, WeatherIcon } = getWeatherDisplay();
 
+  const setIntroTime = useCallback((hourValue: number, minuteValue: number = 0) => {
+    useWorldTimeStore.setState({ hour: hourValue, minute: minuteValue });
+  }, []);
+
   const berylSecretMeetingSlides: Slide[] = [
     {
       text: "The main street is quiet under the moonlight until you hear a sob from an alleyway. Peeking around, you spot Beryl receiving a crumpled letter from a ragged urchin. He reads it in despair, pays the child, then crushes the letter and throws it into a puddle before storming back inside.",
@@ -418,12 +422,12 @@ const LocationScreen: React.FC = () => {
         break;
       }
       case 'tutorial_lunch': {
-        useWorldTimeStore.getState().passTime(60);
+        setIntroTime(13, 0);
         useWorldStateStore.getState().setTutorialStep(5);
         break;
       }
       case 'tutorial_breakfast': {
-        useWorldTimeStore.getState().passTime(30);
+        setIntroTime(13, 0);
         useCharacterStore.setState({ hunger: 100 });
         useWorldStateStore.getState().setTutorialStep(5);
         try { useJournalStore.getState().setQuestStage('luke_tutorial', 5); } catch {}
@@ -434,7 +438,9 @@ const LocationScreen: React.FC = () => {
       }
       case 'tutorial_play_sarah': {
         useDiaryStore.getState().updateRelationship('npc_sarah', { friendship: 10 });
-        useWorldStateStore.getState().setTutorialStep(5);
+        useWorldStateStore.getState().setTutorialStep(6);
+        setIntroTime(20, 0);
+        try { useJournalStore.getState().setQuestStage('luke_tutorial', 6); } catch {}
         useUIStore.getState().setEventSlides(playEventSlidesSarah);
         useUIStore.getState().setCurrentEventId('play_sarah');
         setScreen('event');
@@ -442,7 +448,9 @@ const LocationScreen: React.FC = () => {
       }
       case 'tutorial_play_robert': {
         useDiaryStore.getState().updateRelationship('npc_robert', { friendship: 0 });
-        useWorldStateStore.getState().setTutorialStep(5);
+        useWorldStateStore.getState().setTutorialStep(6);
+        setIntroTime(20, 0);
+        try { useJournalStore.getState().setQuestStage('luke_tutorial', 6); } catch {}
         useUIStore.getState().setEventSlides(playEventSlidesRobert);
         useUIStore.getState().setCurrentEventId('play_robert');
         setScreen('event');
@@ -451,6 +459,7 @@ const LocationScreen: React.FC = () => {
       case 'tutorial_play_alone': {
         useWorldStateStore.getState().setFlag('played_midday', true);
         useWorldStateStore.getState().setTutorialStep(6);
+        setIntroTime(20, 0);
         try { useJournalStore.getState().setQuestStage('luke_tutorial', 6); } catch {}
         useUIStore.getState().setEventSlides(playEventSlidesAlone);
         useUIStore.getState().setCurrentEventId('play_alone');

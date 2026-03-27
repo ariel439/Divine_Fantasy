@@ -131,6 +131,7 @@ const CombatScreen: FC<CombatScreenProps> = ({
     const lastThunderSignatureRef = useRef<string>('');
     const previousEnemyFormationRef = useRef<{ hadFrontAlive: boolean; frontIds: string[]; backIds: string[] }>({ hadFrontAlive: false, frontIds: [], backIds: [] });
     const [displayedEnemies, setDisplayedEnemies] = useState<CombatParticipant[]>(enemies);
+    const [displayedParty, setDisplayedParty] = useState<CombatParticipant[]>(party);
     const [enemyDamageEvents, setEnemyDamageEvents] = useState<{ targetId: string, damage: number, key: number }[]>([]);
     const [partyDamageEvents, setPartyDamageEvents] = useState<{ targetId: string, damage: number, key: number }[]>([]);
     const [thunderPaths, setThunderPaths] = useState<ThunderPath[]>([]);
@@ -139,10 +140,12 @@ const CombatScreen: FC<CombatScreenProps> = ({
     const [thunderBoardSide, setThunderBoardSide] = useState<'party' | 'enemy'>('enemy');
     const [boardShakeActive, setBoardShakeActive] = useState(false);
     const [promotedEnemyIds, setPromotedEnemyIds] = useState<string[]>([]);
+    const [retreatingPartyIds, setRetreatingPartyIds] = useState<string[]>([]);
     const tutorialActive = useWorldStateStore.getState().getFlag('combat_tutorial_active');
     const prevEnemiesRef = useRef<CombatParticipant[]>(JSON.parse(JSON.stringify(enemies)));
     const previousAliveEnemiesRef = useRef<CombatParticipant[]>(JSON.parse(JSON.stringify(enemies)));
     const prevPartyRef = useRef<CombatParticipant[]>(JSON.parse(JSON.stringify(party)));
+    const previousAlivePartyRef = useRef<CombatParticipant[]>(JSON.parse(JSON.stringify(party)));
 
     useEffect(() => {
         logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -244,6 +247,32 @@ const CombatScreen: FC<CombatScreenProps> = ({
     }, [enemies]);
 
     useEffect(() => {
+        const previousAliveParty = previousAlivePartyRef.current;
+        const removedPartyMembers = previousAliveParty.filter(
+            (member) => !party.some((aliveMember) => aliveMember.id === member.id)
+        );
+
+        if (removedPartyMembers.length === 0) {
+            setDisplayedParty(party);
+            setRetreatingPartyIds([]);
+            previousAlivePartyRef.current = JSON.parse(JSON.stringify(party));
+            return;
+        }
+
+        const removedIds = removedPartyMembers.map((member) => member.id);
+        setRetreatingPartyIds(removedIds);
+        setDisplayedParty(previousAliveParty);
+
+        const timer = setTimeout(() => {
+            setDisplayedParty(party);
+            setRetreatingPartyIds([]);
+            previousAlivePartyRef.current = JSON.parse(JSON.stringify(party));
+        }, 650);
+
+        return () => clearTimeout(timer);
+    }, [party]);
+
+    useEffect(() => {
         const currentFrontIds = enemies.filter((enemy) => enemy.combatRow === 'front').map((enemy) => enemy.id);
         const currentBackIds = enemies.filter((enemy) => enemy.combatRow === 'back').map((enemy) => enemy.id);
         const currentHasFrontAlive = enemies.some((enemy) => enemy.combatRow === 'front' && enemy.hp > 0);
@@ -293,7 +322,7 @@ const CombatScreen: FC<CombatScreenProps> = ({
     useEffect(() => {
         const newDamageEvents: { targetId: string, damage: number, key: number }[] = [];
         let tookDamage = false;
-        party.forEach(currentMember => {
+        displayedParty.forEach(currentMember => {
             const prevMember = prevPartyRef.current.find(e => e.id === currentMember.id);
             if (prevMember && prevMember.hp > currentMember.hp) {
                 const damage = prevMember.hp - currentMember.hp;
@@ -315,8 +344,8 @@ const CombatScreen: FC<CombatScreenProps> = ({
             });
         }
 
-        prevPartyRef.current = JSON.parse(JSON.stringify(party));
-    }, [party]);
+        prevPartyRef.current = JSON.parse(JSON.stringify(displayedParty));
+    }, [displayedParty]);
 
     // Use the provided turnOrder from the combat store instead of creating our own
     /*const turnOrder = useMemo(() => {
@@ -341,7 +370,7 @@ const CombatScreen: FC<CombatScreenProps> = ({
         </button>
     );
     
-  const activeParticipant = party.find(p => p.id === activeCharacterId);
+    const activeParticipant = displayedParty.find(p => p.id === activeCharacterId);
     const isCompanionTurn = activeParticipant?.isCompanion;
     const buildFormation = (combatants: CombatParticipant[]) => {
         const aliveFront = combatants.filter((c) => c.hp > 0 && c.combatRow === 'front');
@@ -360,7 +389,7 @@ const CombatScreen: FC<CombatScreenProps> = ({
         };
     };
 
-    const partyFormation = buildFormation(party);
+    const partyFormation = buildFormation(displayedParty);
     const enemyFormation = buildFormation(displayedEnemies);
 
     const renderSlot = (
@@ -394,6 +423,7 @@ const CombatScreen: FC<CombatScreenProps> = ({
                             isActive={combatant.id === activeCharacterId}
                             isSelected={isSelected}
                             isTargetable={side === 'enemy' ? isTargetable : true}
+                            isRetreating={side === 'party' && retreatingPartyIds.includes(combatant.id)}
                             onClick={canClickEnemy ? () => onSelectTarget(combatant.id) : undefined}
                             wasJustHit={damageEvents.some(e => e.targetId === combatant.id)}
                         />
@@ -444,6 +474,10 @@ const CombatScreen: FC<CombatScreenProps> = ({
                     0% { transform: translate3d(32px, 6px, 0) scale(0.95); opacity: 0.75; }
                     100% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
                 }
+                @keyframes retreatLeft {
+                    0% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+                    100% { transform: translate3d(-180px, 0, 0) scale(0.92); opacity: 0; }
+                }
                 .animate-thunder-bolt {
                     animation: thunderBolt 300ms ease-out forwards;
                 }
@@ -452,6 +486,9 @@ const CombatScreen: FC<CombatScreenProps> = ({
                 }
                 .animate-row-promote {
                     animation: rowPromote 420ms ease-out;
+                }
+                .animate-retreat-left {
+                    animation: retreatLeft 620ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
                 }
             `}</style>
             {/* Background Layer with blur */}

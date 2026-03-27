@@ -226,13 +226,30 @@ const CharacterSelection: FC = () => {
                     from { opacity: 0; transform: translateY(-20px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
-                .animate-fade-in-down { animation: fade-in-down 0.8s ease-out forwards; }
+                .animate-fade-in-down {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                    animation: fade-in-down 0.8s ease-out forwards;
+                }
 
                 @keyframes fade-in-up {
                     from { opacity: 0; transform: translateY(30px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
-                .animate-fade-in-up { animation: fade-in-up 1s ease-out forwards; }
+                .animate-fade-in-up {
+                    opacity: 0;
+                    transform: translateY(30px);
+                    animation: fade-in-up 1s ease-out forwards;
+                }
+
+                @keyframes fade-in {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                .animate-fade-in {
+                    opacity: 0;
+                    animation: fade-in 0.8s ease-out forwards;
+                }
 
                 @keyframes shimmer {
                     100% { transform: translateX(100%); }
@@ -248,7 +265,10 @@ const CharacterSelection: FC = () => {
                     from { width: 0%; }
                     to { width: var(--fill-percentage); }
                 }
-                .animate-fill-bar { animation: fill-bar 1.5s ease-out forwards; }
+                .animate-fill-bar {
+                    width: 0%;
+                    animation: fill-bar 1.5s ease-out forwards;
+                }
             `}</style>
         </div>
     );

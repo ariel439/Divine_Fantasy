@@ -309,7 +309,7 @@ export class GameManagerService {
       maxWeight: 50,
       bio: {
         name: template.name,
-        image: 'https://i.imgur.com/gUNzyBA.jpeg', // TODO: Add image to template
+        image: '/assets/portraits/luke.jpg',
         description: template.description,
         gender: 'Male', // TODO: Add to template
         race: 'Human', // TODO: Add to template

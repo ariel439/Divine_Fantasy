@@ -2,6 +2,7 @@ import React from 'react';
 import { useUIStore } from '../stores/useUIStore';
 import { useLocationStore } from '../stores/useLocationStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
+import { useWorldStateStore } from '../stores/useWorldStateStore';
 import LocationNav from './LocationNav';
 import ModalManager from './ModalManager';
 import AudioManager from './AudioManager';
@@ -17,6 +18,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
   const { currentScreen, setScreen, setSleepWaitMode, openModal, activeModal, closeModal } = useUIStore();
   const { currentLocationId } = useLocationStore();
   const { hour } = useWorldTimeStore();
+  const introMode = useWorldStateStore((state) => state.introMode);
 
   const getDynamicBackground = React.useCallback(() => {
     if (currentScreen === 'mainMenu') return '/assets/backgrounds/main_menu.png';
@@ -46,8 +48,13 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
       if (!isGameplayState) return;
 
       const isLibrary = currentScreen === 'library';
+      const shortcutKey = e.key.toLowerCase();
 
-      switch (e.key.toLowerCase()) {
+      if (introMode && ['i', 'c', 'j', 'd', 't'].includes(shortcutKey)) {
+        return;
+      }
+
+      switch (shortcutKey) {
         case 'i':
             if (activeModal || isLibrary) break; // Don't toggle screens if a modal is open or in library
             if (currentScreen === 'inventory') setScreen('inGame');

@@ -116,6 +116,7 @@ const ScreenManager: React.FC = () => {
       // Intro: Roberta at Lighthouse (Step 2 -> 3)
       if (world.introMode && loc.id === 'leo_lighthouse' && world.tutorialStep <= 2 && npcId === 'npc_old_leo') {
         useWorldStateStore.getState().setTutorialStep(3);
+        useWorldTimeStore.setState({ hour: 9, minute: 0 });
         try { useJournalStore.getState().setQuestStage('luke_tutorial', 4); } catch {}
         
         const spokeRoberta = world.getFlag('intro_spoke_roberta');
@@ -131,6 +132,7 @@ const ScreenManager: React.FC = () => {
         // Use setTimeout to avoid synchronous state conflicts
         setTimeout(() => {
             useWorldStateStore.getState().setTutorialStep(6);
+            useWorldTimeStore.setState({ hour: 20, minute: 0 });
             try { useJournalStore.getState().setQuestStage('luke_tutorial', 6); } catch {}
             
             const ui = useUIStore.getState();

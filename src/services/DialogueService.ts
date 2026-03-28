@@ -741,6 +741,10 @@ export class DialogueService {
         }
       }
 
+      if (npcId === 'npc_ben' && useWorldStateStore.getState().getFlag('ben_cheat_collect_pending')) {
+        dialogueId = 'ben_cheat_collect';
+      }
+
       if (npcId === 'npc_boric') {
         const greetedFlagBoric = 'greeted_npc_boric';
         if (!useWorldStateStore.getState().getFlag(greetedFlagBoric)) {
@@ -990,6 +994,9 @@ export class DialogueService {
   }
 
   static endDialogue(): void {
+    if (useWorldStateStore.getState().getFlag('ben_cheat_collect_pending')) {
+      useWorldStateStore.getState().setFlag('ben_cheat_collect_pending', false);
+    }
     if (this.state.npcId) {
       const npcName = typedNpcsData[this.state.npcId]?.name || this.state.npcId;
       useDiaryStore.getState().addInteraction(`${this.state.npcId}: Spoke with ${npcName}.`);

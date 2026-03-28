@@ -4,7 +4,7 @@ import type { FC, ReactNode } from 'react';
 interface ActionButtonProps {
   icon?: ReactNode;
   text: string;
-  category?: 'dialogue' | 'action' | 'travel' | 'timedTravel' | 'normal' | 'explore' | 'highlighted';
+  category?: 'dialogue' | 'action' | 'travel' | 'timedTravel' | 'normal' | 'explore' | 'quest' | 'highlighted';
   onClick?: () => void;
   disabled?: boolean;
   highlight?: boolean;
@@ -19,10 +19,11 @@ const ActionButton: FC<ActionButtonProps> = ({ icon, text, category, onClick, di
         timedTravel: 'border-l-emerald-700',
         normal: 'border-l-zinc-400',
         explore: 'border-l-rose-400',
+        quest: 'border-l-yellow-400',
         highlighted: 'border-l-yellow-400'
     };
     
-    const isHighlighted = Boolean(highlight) || category === 'highlighted';
+    const isHighlighted = Boolean(highlight) || category === 'highlighted' || category === 'quest';
     const borderClass = isHighlighted ? 'border-l-2 border-l-yellow-400 border-yellow-400' : (category ? `border-l-2 ${categoryStyles[category]}` : 'border-l-transparent');
 
     return (

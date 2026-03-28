@@ -292,6 +292,7 @@ const ScreenManager: React.FC = () => {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             useWorldStateStore.getState().setFlag('ben_cheat_done', true);
+            useWorldStateStore.getState().setFlag('ben_cheat_collect_pending', true);
             useWorldTimeStore.getState().passTime(120);
             useCharacterStore.getState().updateStats({ energy: -15 });
             useUIStore.getState().setDialogueNpcId('npc_ben');

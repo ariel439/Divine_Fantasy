@@ -607,6 +607,33 @@ const LocationScreen: React.FC = () => {
     }
   };
 
+  const isQuestAction = (action: any) => {
+    if (action.type === 'use' && action.target === 'repair_wall') return true;
+    if (action.type !== 'trigger_event') return false;
+
+    const questEventIds = new Set([
+      'smuggler_combat_start',
+      'beryl_delivery_event',
+      'elara_delivery_event',
+      'ben_cheat_event',
+      'sell_locket_event',
+      'raid_salty_mug_intro',
+    ]);
+
+    if (questEventIds.has(action.eventId)) return true;
+
+    const condition = String(action.condition || '');
+    return (
+      condition.includes('quest.') ||
+      condition.includes('finn_debt_collection_active') ||
+      condition.includes('debt_paid') ||
+      condition.includes('beryl_noble_parcel') ||
+      condition.includes('elara_medicine_parcel') ||
+      condition.includes('smuggler_help_available') ||
+      condition.includes('raid_ready')
+    );
+  };
+
   const handleConfirmTravel = () => {
     if (!pendingTravelAction) return;
 
@@ -878,19 +905,11 @@ const LocationScreen: React.FC = () => {
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-zinc-700/20 to-transparent" />
             
             <div className="overflow-y-auto flex-grow pr-2 space-y-3 custom-scrollbar mt-2">
-              {dynamicNpcs.map((npc) => (
-                <ActionButton
-                  key={`dynamic-${npc.id}`}
-                  onClick={() => handleAction(npc)}
-                  category="dialogue"
-                  icon={<MessageSquare size={20} className="text-sky-300" />}
-                  text={npc.text}
-                />
-              ))}
-              {currentLocation.actions
+              {[...currentLocation.actions, ...dynamicNpcs]
                 .slice()
                 .sort((a: any, b: any) => {
                   const getPriority = (action: any) => {
+                    if (isQuestAction(action)) return 0;
                     if (['job', 'craft', 'woodcut', 'fish', 'cook'].includes(action.type)) return 1;
                     if (['shop', 'library', 'sleep', 'tutorial_sleep', 'trigger_event', 'rent', 'use'].includes(action.type)) return 2;
                     if (action.type === 'explore') return 3;
@@ -1084,7 +1103,13 @@ const LocationScreen: React.FC = () => {
                     <ActionButton
                       key={index}
                       onClick={() => handleAction(action)}
-                      category={highlight ? 'highlighted' : (action.type === 'navigate' && action.time_cost && action.time_cost > 0 ? 'timedTravel' : getActionCategory(action.type))}
+                      category={
+                        highlight
+                          ? 'highlighted'
+                          : isQuestAction(action)
+                            ? 'quest'
+                            : (action.type === 'navigate' && action.time_cost && action.time_cost > 0 ? 'timedTravel' : getActionCategory(action.type))
+                      }
                       icon={action.type === 'navigate' && action.time_cost && action.time_cost > 0 ? <MapPin size={20} className="text-emerald-700" /> : getActionIcon(action.type)}
                       text={action.text}
                       highlight={highlight}

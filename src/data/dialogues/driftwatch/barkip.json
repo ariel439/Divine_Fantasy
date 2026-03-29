@@ -20,12 +20,6 @@
           {
             "text": "Leave.",
             "closes_dialogue": true
-          },
-          {
-            "text": "Ale, please.",
-            "action": "remove_money:1|add_item:ale:1",
-            "closes_dialogue": true,
-            "condition": "money>=1"
           }
         ]
       },

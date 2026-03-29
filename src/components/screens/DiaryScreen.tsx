@@ -74,7 +74,10 @@ const DiaryScreen: FC = () => {
             love: { value: 0, max: 100 },
             fear: { value: 0, max: 100 },
         };
-        const npcHistory = interactionHistory.filter((entry) => entry.startsWith(`${selectedNpc.id}:`));
+        const npcHistory = interactionHistory
+            .filter((entry) => entry.startsWith(`${selectedNpc.id}:`))
+            .slice()
+            .reverse();
 
         return {
             id: selectedNpc.id,

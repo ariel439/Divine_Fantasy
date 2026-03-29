@@ -177,7 +177,7 @@
           {
             "text": "Pleasure doing business.",
             "closes_dialogue": true,
-            "action": "collect_debt_from:npc_beryl|remove_item:beryl_noble_letter:1|social_action:npc_beryl:coerce:threaten"
+            "action": "collect_debt_from:npc_beryl|remove_item:beryl_noble_letter:1|social_action:npc_beryl:coerce:threaten|update_relationship:npc_beryl:-20|update_relationship:npc_beryl:5:fear"
           }
         ]
       },
@@ -187,7 +187,7 @@
           {
             "text": "Pleasure doing business.",
             "closes_dialogue": true,
-            "action": "collect_debt_from:npc_beryl|add_money:50|remove_item:beryl_noble_letter:1|social_action:npc_beryl:coerce:threaten"
+            "action": "collect_debt_from:npc_beryl|add_money:50|remove_item:beryl_noble_letter:1|social_action:npc_beryl:coerce:threaten|update_relationship:npc_beryl:-20|update_relationship:npc_beryl:5:fear"
           }
         ]
       }
@@ -234,7 +234,7 @@
           {
             "text": "Pleasure doing business.",
             "closes_dialogue": true,
-            "action": "collect_debt_from:npc_beryl|remove_item:beryl_noble_letter:1|social_action:npc_beryl:coerce:threaten"
+            "action": "collect_debt_from:npc_beryl|remove_item:beryl_noble_letter:1|social_action:npc_beryl:coerce:threaten|update_relationship:npc_beryl:-20|update_relationship:npc_beryl:5:fear"
           }
         ]
       },
@@ -384,7 +384,7 @@
         "player_choices": [
           {
             "text": "Pleasure doing business.",
-            "action": "collect_debt_from:npc_beryl",
+            "action": "collect_debt_from:npc_beryl|update_relationship:npc_beryl:-20|update_relationship:npc_beryl:5:fear",
             "closes_dialogue": true
           }
         ]

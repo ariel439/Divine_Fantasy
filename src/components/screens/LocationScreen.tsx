@@ -921,6 +921,16 @@ const LocationScreen: React.FC = () => {
                   const pA = getPriority(a);
                   const pB = getPriority(b);
                   if (pA !== pB) return pA - pB;
+                  if (currentLocation.id === 'salty_mug' && a.type === 'dialogue' && b.type === 'dialogue') {
+                    const order = ['npc_finn', 'npc_barkip'];
+                    const aIndex = order.indexOf(a.target);
+                    const bIndex = order.indexOf(b.target);
+                    if (aIndex !== -1 || bIndex !== -1) {
+                      if (aIndex === -1) return 1;
+                      if (bIndex === -1) return -1;
+                      if (aIndex !== bIndex) return aIndex - bIndex;
+                    }
+                  }
                   if (a.type === 'navigate' && b.type === 'navigate') {
                     const isAHub = a.target === 'driftwatch' || /Hub/i.test(a.text);
                     const isBHub = b.target === 'driftwatch' || /Hub/i.test(b.text);

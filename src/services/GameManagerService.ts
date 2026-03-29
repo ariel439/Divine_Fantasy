@@ -629,7 +629,11 @@ export class GameManagerService {
     useCombatStore.getState().startCombat(player, null, [enemy], {
       encounterType: 'brawl',
       defeatMode: 'knockout',
-      victoryActions: ['collect_debt_from:npc_ben'],
+      victoryActions: [
+        'collect_debt_from:npc_ben',
+        'update_relationship:npc_ben:-50',
+        'update_relationship:npc_ben:20:fear',
+      ],
       victoryToast: 'You rough Ben up and take Finn\'s silver.',
       defeatToast: 'Ben leaves you bruised and throws you out of the fight.',
     });

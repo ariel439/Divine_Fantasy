@@ -695,7 +695,7 @@ export class DialogueService {
     if (!wasKnown) {
       worldStateStore.addKnownNpc(npcId);
       const npcName = typedNpcsData[npcId]?.name || 'Unknown NPC';
-      useDiaryStore.getState().addInteraction(`Met ${npcName} for the first time.`);
+      useDiaryStore.getState().addInteraction(`${npcId}: Met ${npcName} for the first time.`);
     }
 
     // Find the default dialogue for this NPC
@@ -736,7 +736,10 @@ export class DialogueService {
 
       if (npcId === 'npc_beryl') {
         const world = useWorldStateStore.getState();
-        if (world.getFlag('finn_debt_collection_active')) {
+        const currentLocationId = useLocationStore.getState().currentLocationId;
+        if (currentLocationId === 'salty_mug') {
+          dialogueId = 'beryl_tavern';
+        } else if (world.getFlag('finn_debt_collection_active')) {
           dialogueId = 'beryl_debt_approach';
         }
       }
@@ -996,10 +999,6 @@ export class DialogueService {
   static endDialogue(): void {
     if (useWorldStateStore.getState().getFlag('ben_cheat_collect_pending')) {
       useWorldStateStore.getState().setFlag('ben_cheat_collect_pending', false);
-    }
-    if (this.state.npcId) {
-      const npcName = typedNpcsData[this.state.npcId]?.name || this.state.npcId;
-      useDiaryStore.getState().addInteraction(`${this.state.npcId}: Spoke with ${npcName}.`);
     }
     this.resetRuntimeState();
   }
@@ -1308,7 +1307,7 @@ export class DialogueService {
       case 'offer_debt_payment':
         {
           // No-op placeholder: UI could present choices in dialogue JSON
-          diaryStore.addInteraction('Discussed debt with Finn.');
+          diaryStore.addInteraction('npc_finn: Finn laid out the debt collection job.');
         }
         break;
 
@@ -1351,7 +1350,20 @@ export class DialogueService {
           }
           useCharacterStore.getState().addCurrency('silver', amount);
           world.setFlag(flag, true);
-          diaryStore.addInteraction('Collected ' + amount + ' silvers from ' + (typedNpcsData[targetNpcId]?.name || targetNpcId) + '.');
+          diaryStore.addInteraction(targetNpcId + ': Collected ' + amount + ' silvers.');
+
+          try {
+            const journal = useJournalStore.getState();
+            const debtQuest = journal.quests['finn_debt_collection'];
+            if (debtQuest?.active) {
+              const allCollected =
+                world.getFlag('debt_paid_by_ben') &&
+                (world.getFlag('debt_paid_by_beryl') || world.getFlag('beryl_debt_forgiven')) &&
+                world.getFlag('debt_paid_by_elara');
+
+              journal.setQuestStage('finn_debt_collection', allCollected ? 4 : (debtQuest.currentStage || 1));
+            }
+          } catch {}
         }
         break;
 

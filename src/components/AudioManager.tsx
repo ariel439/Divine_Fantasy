@@ -352,6 +352,8 @@ const AudioManager: React.FC = () => {
     if (GAME_ACTIVE_SCREENS.includes(currentScreen)) {
         if (loc.id === 'salty_mug') {
              desiredSfxSrc = '/assets/sfx/bar.mp3';
+        } else if (loc.id === 'mountain_paths') {
+             desiredSfxSrc = '/assets/sfx/ambience_mountain_wind.mp3';
         } else if (isRural) {
              desiredSfxSrc = (hour >= 6 && hour < 18) ? '/assets/sfx/ambience_rural_day.mp3' : '/assets/sfx/ambience_rural_night.mp3';
         } else {

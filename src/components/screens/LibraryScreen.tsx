@@ -115,7 +115,10 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
         return books.filter(book => {
             const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                 book.author.toLowerCase().includes(searchTerm.toLowerCase());
-            const matchesShelf = activeShelf === 'All' || book.shelf === activeShelf;
+            const matchesShelf =
+                activeShelf === 'All'
+                    ? book.shelf !== 'Maps'
+                    : book.shelf === activeShelf;
             return matchesSearch && matchesShelf;
         });
     }, [searchTerm, books, activeShelf]);
@@ -260,23 +263,44 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
                                 {/* Grid */}
                                 <div className="flex-grow overflow-y-auto custom-scrollbar pr-2 min-h-0">
                                     {filteredBooks.length > 0 ? (
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 pb-6">
+                                        <div className={`grid gap-6 pb-6 ${
+                                            activeShelf === 'Maps'
+                                                ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'
+                                                : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'
+                                        }`}>
                                             {filteredBooks.map(book => (
                                                 <button
                                                     key={book.id}
                                                     onClick={() => handleBookClick(book)}
-                                                    className="group flex flex-col gap-3 transition-all duration-500"
+                                                    className={`group flex flex-col gap-3 transition-all duration-300 ${
+                                                        book.shelf === 'Maps' ? 'items-stretch' : ''
+                                                    }`}
                                                 >
-                                                    <div className="relative aspect-[3/4] rounded-xl overflow-hidden border border-zinc-800 shadow-xl group-hover:shadow-2xl group-hover:border-zinc-700 transition-all">
+                                                    <div className={`relative ${
+                                                        book.shelf === 'Maps'
+                                                            ? 'aspect-[3/2]'
+                                                            : 'aspect-[2/3]'
+                                                    }`}>
                                                         {book.coverUrl ? (
-                                                            <img src={book.coverUrl} alt={book.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                                            <img
+                                                                src={book.coverUrl}
+                                                                alt={book.title}
+                                                                className={`w-full h-full transition-transform duration-300 ${
+                                                                    book.shelf === 'Maps'
+                                                                        ? 'object-contain'
+                                                                        : 'object-cover'
+                                                                }`}
+                                                            />
                                                         ) : (
-                                                            <div className="w-full h-full bg-zinc-900/60 flex items-center justify-center group-hover:bg-zinc-800 transition-colors">
-                                                                <BookOpen size={40} className="text-zinc-700 group-hover:text-zinc-500 transition-colors" />
+                                                            <div className="w-full h-full bg-zinc-900/60 flex items-center justify-center transition-colors">
+                                                                {book.shelf === 'Maps'
+                                                                    ? <Map size={40} className="text-zinc-700 group-hover:text-zinc-500 transition-colors" />
+                                                                    : <BookOpen size={40} className="text-zinc-700 group-hover:text-zinc-500 transition-colors" />
+                                                                }
                                                             </div>
                                                         )}
-                                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                        <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                                                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                                                        <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0 pointer-events-none">
                                                             <p className="text-[8px] font-black uppercase tracking-widest text-white truncate">{book.shelf}</p>
                                                         </div>
                                                     </div>

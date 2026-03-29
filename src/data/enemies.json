@@ -96,7 +96,7 @@
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
     "attack_type": "slash",
     "combat_tags": ["human", "armed", "boss"],
-    "stats": { "hp": 200, "attack": 25, "defence": 10, "dexterity": 8 },
+    "stats": { "hp": 180, "attack": 20, "defence": 10, "dexterity": 8 },
     "loot_table": [
       { "item_id": "coins", "quantity": 100, "chance": 1 }
     ]

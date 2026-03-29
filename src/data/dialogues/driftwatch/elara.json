@@ -131,7 +131,7 @@
         "player_choices": [
           {
             "text": "Pleasure doing business.",
-            "action": "collect_debt_from:npc_elara|social_action:npc_elara:coerce:threaten|set_flag:elara_blackmailed:true",
+            "action": "collect_debt_from:npc_elara|social_action:npc_elara:coerce:threaten|set_flag:elara_blackmailed:true|update_relationship:npc_elara:-20|update_relationship:npc_elara:5:fear",
             "closes_dialogue": true
           }
         ]

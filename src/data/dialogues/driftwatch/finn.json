@@ -35,9 +35,9 @@
         "player_choices": [
           {
             "text": "We settle this now.",
-            "action": "trigger_event:whitefang_finn_end",
+            "action": "start_finn_betrayal_combat",
             "closes_dialogue": true,
-            "condition": "world_flags.whitefang_bound==true && world_flags.finn_dead==false"
+            "condition": "world_flags.finn_debt_collection_active==true && world_flags.finn_dead==false"
           },
           {
             "text": "About the collection job.",
@@ -140,13 +140,13 @@
           },
           {
             "text": "...",
-            "next_node": "finn_attack",
+            "next_node": "finn_dismissed",
             "condition": "world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==false"
           }
         ]
       },
       "finn_mockery_elara": {
-        "npc_text": "Oh, you was a drug mule for the woman.",
+        "npc_text": "You ran poison for her. Quiet, dirty work. The kind cowards dress up as mercy.",
         "player_choices": [
           {
             "text": "...",
@@ -155,22 +155,27 @@
           },
           {
             "text": "...",
-            "next_node": "finn_attack",
+            "next_node": "finn_dismissed",
             "condition": "world_flags.beryl_helped_pimp==false"
           }
         ]
       },
       "finn_mockery_beryl": {
-        "npc_text": "You were a pimp for Beryl.",
+        "npc_text": "Beryl needed a procurer and you stepped into the part easy enough. That tells me plenty.",
         "player_choices": [
           {
             "text": "...",
-            "next_node": "finn_attack"
+            "next_node": "finn_attack",
+            "condition": "world_flags.ben_cheat_done==true && world_flags.elara_helped_drug==true && world_flags.beryl_helped_pimp==true"
+          },
+          {
+            "text": "...",
+            "next_node": "finn_dismissed"
           }
         ]
       },
       "finn_attack": {
-        "npc_text": "That is weakness. And the Guild has no room for weakness.",
+        "npc_text": "Cruelty I understand. Necessity I respect. But weakness dressed up as resolve? That gets men killed.",
         "player_choices": [
           {
             "text": "Wait!",
@@ -207,6 +212,15 @@
             "text": "...",
             "closes_dialogue": true,
             "condition": "world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==true && world_flags.beryl_helped_pimp==true"
+          }
+        ]
+      },
+      "finn_dismissed": {
+        "npc_text": "Maybe there's a little steel in you after all. You got me my silver. But I hear how you got it, and I don't need that kind of weakness lingering under my roof. Take your lesson and get out of my sight.",
+        "player_choices": [
+          {
+            "text": "...",
+            "closes_dialogue": true
           }
         ]
       },

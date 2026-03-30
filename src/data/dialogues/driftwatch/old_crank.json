@@ -29,6 +29,13 @@
             "condition": "inventory.beer>=1 && world_flags.crank_beer_2==true && world_flags.crank_beer_3==false && world_flags.whitefang_bound==false"
           },
           {
+            "text": "Slide him a beer.",
+            "player_text": "One more, old man.",
+            "next_node": "crank_gossip_3_whitefang",
+            "action": "remove_item:beer:1|set_flag:crank_beer_3:true",
+            "condition": "inventory.beer>=1 && world_flags.crank_beer_2==true && world_flags.crank_beer_3==false && world_flags.whitefang_bound==true"
+          },
+          {
             "text": "I'd like to talk.",
             "next_node": "__social_root__"
           },
@@ -85,6 +92,15 @@
         "player_choices": [
           {
             "text": "I'll investigate.",
+            "next_node": "0"
+          }
+        ]
+      },
+      "crank_gossip_3_whitefang": {
+        "npc_text": "You? Chasing tavern rumors still? Hah. Forget Cyrus. Driftwatch's small rot won't matter much to a man carrying mountain weather in his bones. Buy me another beer tomorrow and I'll tell you which fools in this city have already started noticing.",
+        "player_choices": [
+          {
+            "text": "Maybe another time.",
             "next_node": "0"
           }
         ]

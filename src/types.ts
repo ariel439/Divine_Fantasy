@@ -123,6 +123,7 @@ export interface CombatEncounterConfig {
   defeatMode?: CombatDefeatMode;
   defeatToast?: string;
   forcePlayerFirstTurn?: boolean;
+  allowFlee?: boolean;
 }
 
 // Dialogue

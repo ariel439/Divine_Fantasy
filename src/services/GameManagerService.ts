@@ -585,6 +585,7 @@ export class GameManagerService {
 
     useCombatStore.getState().startCombat(player, companionCombatant, enemies, {
       forcePlayerFirstTurn: true,
+      allowFlee: false,
     });
     useWorldStateStore.getState().setFlag('smuggler_scripted_loss', true);
     useUIStore.getState().setScreen('combat');
@@ -876,6 +877,7 @@ export class GameManagerService {
 
     useCombatStore.getState().startCombat(player, companions, enemies, {
       victoryEventId: 'raid_victory',
+      allowFlee: false,
     });
     useUIStore.getState().setScreen('combat');
   }
@@ -945,6 +947,7 @@ export class GameManagerService {
 
     useCombatStore.getState().startCombat(player, null, enemies, {
       victoryEventId: whiteFangBound ? 'whitefang_finn_end' : 'finn_personal_kill_end',
+      allowFlee: false,
     });
     useUIStore.getState().setScreen('combat');
   }
@@ -1012,6 +1015,7 @@ export class GameManagerService {
 
     useCombatStore.getState().startCombat(player, null, enemies, {
       victoryEventId: whiteFangBound ? 'whitefang_finn_end' : 'finn_personal_kill_end',
+      allowFlee: false,
     });
     useUIStore.getState().setScreen('combat');
   }
@@ -1079,6 +1083,7 @@ export class GameManagerService {
 
     useCombatStore.getState().startCombat(player, retainers, [shadow], {
       victoryToast: 'The storm falls silent. Something older than victory waits for you in the dark.',
+      allowFlee: false,
     });
     useUIStore.getState().setScreen('combat');
   }
@@ -1086,6 +1091,12 @@ export class GameManagerService {
   static bindWhiteFangToLuke(): void {
     const world = useWorldStateStore.getState();
     if (world.getFlag('whitefang_bound')) return;
+
+    const rebelQuest = useJournalStore.getState().quests['rebel_path'];
+    if (rebelQuest?.active && !rebelQuest.completed) {
+      try { useJournalStore.getState().updateQuest('rebel_path', { currentStage: 0 }); } catch {}
+      try { useJournalStore.getState().failQuest('rebel_path'); } catch {}
+    }
 
     world.setFlag('whitefang_bound', true);
     world.setFlag('raid_ready', false);

@@ -29,6 +29,7 @@ const CombatManager: React.FC = () => {
     victoryEventId,
     defeatMode,
     defeatToast,
+    allowFlee,
     log,
     getCurrentParticipant,
     getAliveEnemies,
@@ -513,7 +514,7 @@ const CombatManager: React.FC = () => {
   };
 
   const handleFlee = () => {
-    if (!isPlayerTurn() || actionLocked) return;
+    if (!allowFlee || !isPlayerTurn() || actionLocked) return;
     
     // Simple flee logic - base chance modified by dexterity difference
     const partyDexterity = getAliveParty().reduce((sum, p) => sum + p.dexterity, 0) / getAliveParty().length;
@@ -765,6 +766,7 @@ const CombatManager: React.FC = () => {
         }}
         onAttack={handleAttack}
         onFlee={handleFlee}
+        canFlee={allowFlee}
         combatLog={log}
       />
   );

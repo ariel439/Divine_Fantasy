@@ -80,24 +80,24 @@
             "text": "Here is the 30 silvers.",
             "next_node": "finn_weakness_reveal",
             "action": "remove_money:30|complete_quest:finn_debt_collection",
-            "condition": "money>=30 && world_flags.ben_cheat_done==true"
+            "condition": "money>=30 && world_flags.debt_paid_by_ben==true && world_flags.debt_paid_by_elara==true && world_flags.debt_paid_by_beryl==true && world_flags.ben_cheat_done==true"
           },
           {
             "text": "Here is the 30 silvers.",
             "next_node": "finn_weakness_reveal",
             "action": "remove_money:30|complete_quest:finn_debt_collection",
-            "condition": "money>=30 && world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==true"
+            "condition": "money>=30 && world_flags.debt_paid_by_ben==true && world_flags.debt_paid_by_elara==true && world_flags.debt_paid_by_beryl==true && world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==true"
           },
           {
             "text": "Here is the 30 silvers.",
             "next_node": "finn_weakness_reveal",
             "action": "remove_money:30|complete_quest:finn_debt_collection",
-            "condition": "money>=30 && world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==true"
+            "condition": "money>=30 && world_flags.debt_paid_by_ben==true && world_flags.debt_paid_by_elara==true && world_flags.debt_paid_by_beryl==true && world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==true"
           },
           {
-            "text": "I collected most of it... but I forgave Beryl.",
-            "next_node": "finn_fail_beryl",
-            "condition": "world_flags.beryl_debt_forgiven==true"
+            "text": "Here. Thirty silvers. End this.",
+            "next_node": "finn_buyout_neutral",
+            "condition": "money>=30 && (world_flags.debt_paid_by_ben==false || world_flags.debt_paid_by_elara==false || world_flags.debt_paid_by_beryl==false)"
           },
           {
             "text": "I'll get back to it.",
@@ -234,6 +234,16 @@
           }
         ]
       },
+      "finn_buyout_neutral": {
+        "npc_text": "Thirty silvers spends the same whether you dragged it out of my marks or pulled it from your own skin. Debt's settled. You did not prove much, but you did not waste any more of my time either.",
+        "player_choices": [
+          {
+            "text": "Then we're done.",
+            "closes_dialogue": true,
+            "action": "remove_money:30|complete_quest:finn_debt_collection|trigger_event:finn_hybrid_end"
+          }
+        ]
+      },
       "finn_fail_beryl": {
         "npc_text": "You what? You let a mark cry you into submission? Pathetic. You're paying his share out of your own pocket then. Do you have the 30 silvers?",
         "player_choices": [
@@ -292,7 +302,7 @@
         ]
       },
       "math": {
-        "npc_text": "Three months at twenty copper a day. Eighteen silvers you owe, and you don't have it. Here's the job, make three pay for you: Ben at the farm, Beryl at General Goods, and Elara in her hovel. Ten silvers from each. Thirty days. Bring me thirty silvers. And listen close: no violence. We're professionals, not thugs.",
+        "npc_text": "Three months at twenty copper a day. Eighteen silvers you owe, and you don't have it. Here's the job, make three pay for you: Ben at the farm, Beryl at General Goods, and Elara in her hovel. Ten silvers from each. Seven days. Bring me thirty silvers. And listen close: no violence. We're professionals, not thugs.",
         "player_choices": [
           {
             "text": "I accept.",

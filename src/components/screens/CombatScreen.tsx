@@ -18,6 +18,7 @@ interface CombatScreenProps {
   onSelectTarget: (enemyId: string) => void;
   onAttack: () => void;
   onFlee: () => void;
+  canFlee: boolean;
   combatLog: string[];
 }
 
@@ -121,6 +122,7 @@ const CombatScreen: FC<CombatScreenProps> = ({
   onSelectTarget,
   onAttack,
   onFlee,
+  canFlee,
   combatLog
 }) => {
     const logEndRef = useRef<HTMLDivElement>(null);
@@ -584,7 +586,7 @@ const CombatScreen: FC<CombatScreenProps> = ({
                         </div>
                         <div className="flex gap-4">
                             <CombatActionButton icon={<Swords size={18} />} text="Attack" onClick={onAttack} disabled={!isPlayerTurn || isCompanionTurn || !selectedTargetId} />
-                            <CombatActionButton icon={<Footprints size={18} />} text="Flee" onClick={onFlee} disabled={!isPlayerTurn || isCompanionTurn} />
+                            <CombatActionButton icon={<Footprints size={18} />} text="Flee" onClick={onFlee} disabled={!canFlee || !isPlayerTurn || isCompanionTurn} />
                         </div>
                     </div>
                 </div>

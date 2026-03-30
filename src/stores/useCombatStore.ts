@@ -27,6 +27,7 @@ export interface CombatState {
   victoryEventId?: string;
   defeatMode: CombatDefeatMode;
   defeatToast?: string;
+  allowFlee: boolean;
   
   // Log
   log: string[];
@@ -71,6 +72,7 @@ const initialState: CombatState = {
   victoryEventId: undefined,
   defeatMode: 'standard',
   defeatToast: undefined,
+  allowFlee: true,
   log: [],
 };
 
@@ -149,6 +151,7 @@ export const useCombatStore = create<CombatStore>((set, get) => ({
       victoryEventId: config?.victoryEventId,
       defeatMode: config?.defeatMode || 'standard',
       defeatToast: config?.defeatToast,
+      allowFlee: config?.allowFlee ?? true,
       log: ['Combat begins!'],
     });
   },

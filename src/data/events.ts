@@ -51,6 +51,9 @@ type ChoiceEventId =
   | 'arena_desperate_brawler'
   | 'arena_brawler'
   | 'arena_pit_brawler'
+  | 'slum_quiet_run'
+  | 'slum_scrounged_copper'
+  | 'slum_found_food'
   | 'slum_thug_ambush'
   | 'slum_knife_thug_ambush';
 
@@ -136,6 +139,24 @@ export const choiceEvents: Record<ChoiceEventId, ChoiceEventConfig> = {
     imageUrl: '/assets/locations/driftwatch_slums_night.png',
     text:
       'The pit champion is all scars and bad intent. The room quiets when he steps up. If you take this fight, you are taking it for real.',
+  },
+  slum_quiet_run: {
+    id: 'slum_quiet_run',
+    title: 'Quiet Night',
+    imageUrl: '/assets/locations/driftwatch_slums_night.png',
+    text: 'Nothing breaks your way tonight, but nothing breaks against you either.',
+  },
+  slum_scrounged_copper: {
+    id: 'slum_scrounged_copper',
+    title: 'Street Luck',
+    imageUrl: '/assets/locations/driftwatch_slums_night.png',
+    text: 'Some nights the alleys give up a little copper.',
+  },
+  slum_found_food: {
+    id: 'slum_found_food',
+    title: 'Something Edible',
+    imageUrl: '/assets/locations/driftwatch_slums_night.png',
+    text: 'You manage to come away with something you can actually eat.',
   },
   slum_thug_ambush: {
     id: 'slum_thug_ambush',

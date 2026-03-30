@@ -24,6 +24,7 @@ import type { ActionSummary, Slide } from '../../types';
 import { ExplorationService } from '../../services/ExplorationService';
 import { mockBooks } from '../../data';
 import locationsData from '../../data/locations.json';
+import itemsJson from '../../data/items.json';
 import { breakfastEventSlides, rebelRaidIntroSlides, sellLocketSlides, elaraDeliverySlides, berylDeliverySlides, benCheatEventSlides, whitefangUnreadableWoodsSlides, whitefangUnreadableBeachSlides, whitefangUnreadableMountainSlides, whitefangWoodsVisionSlides, whitefangBeachVisionSlides, whitefangMountainVisionSlides, whitefangCaveBlockedSlides, whitefangExpeditionBreachSlides } from '../../data/events';
 import { useToastStore } from '../../stores/useToastStore';
 
@@ -242,29 +243,6 @@ const LocationScreen: React.FC = () => {
           useUIStore.getState().setEventSlides(whitefangExpeditionBreachSlides);
           useUIStore.getState().setCurrentEventId('whitefang_expedition_breach');
           setScreen('event');
-        } else if (eventId === 'slum_night_roam') {
-          useWorldTimeStore.getState().passTime(15);
-          const roll = Math.random();
-          if (roll < 0.28) {
-            useUIStore.getState().setCurrentEventId('slum_thug_ambush');
-            setScreen('choiceEvent');
-          } else if (roll < 0.42) {
-            useUIStore.getState().setCurrentEventId('slum_knife_thug_ambush');
-            setScreen('choiceEvent');
-          } else if (roll < 0.62) {
-            const foundCopper = Math.floor(Math.random() * 7) + 3;
-            useCharacterStore.getState().addCurrency('copper', foundCopper);
-            useDiaryStore.getState().addInteraction(`You work the alleys and come away with ${foundCopper} copper.`);
-            useToastStore.getState().addToast(`You scrounge up ${foundCopper} copper in the dark.`, 'success', 2600, 'Street Luck');
-          } else if (roll < 0.78) {
-            const hungerLoss = Math.random() < 0.5 ? 1 : 2;
-            useCharacterStore.getState().updateStats({ hunger: -hungerLoss });
-            useDiaryStore.getState().addInteraction('You drift through the slums, hear scraps of rumor, and learn nothing you can sell.');
-            useToastStore.getState().addToast('You hear rumors, but nothing useful comes of them.', 'info', 2600, 'Loose Talk');
-          } else {
-            useDiaryStore.getState().addInteraction('You work the alleys for a while and keep your head low. Nothing breaks your way tonight.');
-            useToastStore.getState().addToast('Nothing comes of the alley run tonight.', 'info', 2600, 'Quiet Night');
-          }
         } else {
           useUIStore.getState().setCurrentEventId(eventId);
           setScreen('choiceEvent');
@@ -323,7 +301,31 @@ const LocationScreen: React.FC = () => {
           const result = ExplorationService.explore(currentLocation.id);
           ExplorationService.processResult(result);
 
-          if (result.type === 'combat' && result.data && result.data.wolfCount) {
+          if (currentLocation.id === 'driftwatch_slums' && (result.type === 'nothing' || result.type === 'resource' || result.type === 'item')) {
+            const world = useWorldStateStore.getState();
+            const resultItemId = result.data?.itemId;
+            const resultQuantity = result.data?.quantity || 1;
+            const itemName = resultItemId && resultItemId !== 'coins'
+              ? ((itemsJson as any)[resultItemId]?.name || resultItemId)
+              : '';
+
+            let eventId = 'slum_quiet_run';
+            let resultText = result.description;
+
+            if (resultItemId === 'coins') {
+              eventId = 'slum_scrounged_copper';
+              resultText = `You keep moving until a little luck breaks your way. By the end of it, you come away with ${resultQuantity} copper.`;
+            } else if (resultItemId) {
+              eventId = 'slum_found_food';
+              resultText = `The alleys give up something useful tonight. You manage to come away with ${itemName}.`;
+            }
+
+            world.setData('slum_explore_result_text', resultText);
+            world.setData('slum_explore_result_item', resultItemId || '');
+            world.setData('slum_explore_result_quantity', String(resultQuantity));
+            useUIStore.getState().setCurrentEventId(eventId);
+            setScreen('choiceEvent');
+          } else if (result.type === 'combat' && result.data && result.data.wolfCount) {
             if (currentLocation.id === 'driftwatch_woods') {
               const wolfCount = result.data.wolfCount;
               const enemies = result.data.enemies && result.data.enemies.length > 0

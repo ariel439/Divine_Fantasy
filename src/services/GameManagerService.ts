@@ -17,6 +17,7 @@ import characterTemplates from '../data/character_templates.json';
 import enemiesJson from '../data/enemies.json';
 import itemsJson from '../data/items.json';
 import type { CombatParticipant, Item } from '../types';
+import type { Companion } from '../stores/useCompanionStore';
 import { DataValidator } from './DataValidator';
 import { WorldEventManager } from './WorldEventManager';
 import { QuestObserverService } from './QuestObserverService';
@@ -193,6 +194,28 @@ export class GameManagerService {
 
     const template = allyTemplates[templateId];
     return template ? { ...template } : null;
+  }
+
+  private static getCompanionPortrait(companion: Companion): string {
+    if (companion.portraitUrl) return companion.portraitUrl;
+    if (companion.type === 'wolf') return '/assets/portraits/WolfPuppy.png';
+    if (companion.id.includes('robert') || companion.type === 'human') return '/assets/portraits/Robert.png';
+    return '/assets/portraits/CompanionPlaceholder.png';
+  }
+
+  private static buildPartyCompanionCombatants(): CombatParticipant[] {
+    return useCompanionStore.getState().getPartyCompanions().map((companion) => ({
+      id: companion.id,
+      name: companion.name,
+      hp: companion.stats.hp,
+      maxHp: companion.stats.maxHp,
+      attack: companion.stats.attack,
+      defence: companion.stats.defence,
+      dexterity: companion.stats.dexterity,
+      portraitUrl: this.getCompanionPortrait(companion),
+      isPlayer: false,
+      isCompanion: true,
+    }));
   }
 
   static init(): void {
@@ -387,6 +410,8 @@ export class GameManagerService {
 
     useCompanionStore.setState({
       activeCompanion: null,
+      companions: [],
+      formation: ['player', null, null, null],
     });
 
     useShopStore.getState().loadShops();
@@ -437,6 +462,7 @@ export class GameManagerService {
     useWorldStateStore.getState().setFlag('intro_completed', true);
     useWorldStateStore.getState().setTutorialStep(100);
     useWorldStateStore.getState().removeKnownNpc('npc_robert');
+    useCompanionStore.getState().setCompanion(null);
     useWorldStateStore.getState().setFlag('finn_debt_intro_pending', false);
 
     useWorldTimeStore.setState({
@@ -476,7 +502,6 @@ export class GameManagerService {
 
   static startWoodsCombat(wolfCountParam?: number): void {
     const character = useCharacterStore.getState();
-    const companion = useCompanionStore.getState().activeCompanion;
 
     // Pick 1-4 wolves randomly
     const finalWolfCount = wolfCountParam || Math.floor(Math.random() * 4) + 1; // 1 to 4
@@ -505,24 +530,10 @@ export class GameManagerService {
     };
 
     // Add companion if present
-    let companionCombatant: CombatParticipant | null = null;
-    if (companion) {
-      companionCombatant = {
-        id: companion.id,
-        name: companion.name,
-        hp: companion.stats.hp,
-        maxHp: companion.stats.maxHp,
-        attack: companion.stats.attack,
-        defence: companion.stats.defence,
-        dexterity: companion.stats.dexterity,
-        portraitUrl: '/assets/portraits/WolfPuppy.png', // TODO: Add companion portrait
-        isPlayer: false,
-        isCompanion: true,
-      };
-    }
+    const companionCombatants = this.buildPartyCompanionCombatants();
 
     // Start combat
-    useCombatStore.getState().startCombat(player, companionCombatant, selectedWolves);
+    useCombatStore.getState().startCombat(player, companionCombatants.length > 0 ? companionCombatants : null, selectedWolves);
     useUIStore.getState().setScreen('combat');
   }
 
@@ -672,7 +683,6 @@ export class GameManagerService {
 
   static startStreetAmbush(enemyTemplateIds: string[]): void {
     const character = useCharacterStore.getState();
-    const companion = useCompanionStore.getState().activeCompanion;
 
     const enemies = enemyTemplateIds
       .map((templateId, index) => this.buildEnemyCombatant(templateId, index))
@@ -694,23 +704,8 @@ export class GameManagerService {
       isCompanion: false,
     };
 
-    let companionCombatant: CombatParticipant | null = null;
-    if (companion) {
-      companionCombatant = {
-        id: companion.id,
-        name: companion.name,
-        hp: companion.stats.hp,
-        maxHp: companion.stats.maxHp,
-        attack: companion.stats.attack,
-        defence: companion.stats.defence,
-        dexterity: companion.stats.dexterity,
-        portraitUrl: companion.type === 'wolf' ? '/assets/portraits/WolfPuppy.png' : '/assets/portraits/Robert.png',
-        isPlayer: false,
-        isCompanion: true,
-      };
-    }
-
-    useCombatStore.getState().startCombat(player, companionCombatant, enemies);
+    const companionCombatants = this.buildPartyCompanionCombatants();
+    useCombatStore.getState().startCombat(player, companionCombatants.length > 0 ? companionCombatants : null, enemies);
     useUIStore.getState().setScreen('combat');
   }
 

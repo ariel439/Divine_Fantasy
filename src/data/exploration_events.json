@@ -61,7 +61,7 @@
   {
     "id": "wolf_pack",
     "locations": ["driftwatch_woods"],
-    "weight": 25,
+      "weight": 20,
     "result": {
       "type": "combat",
       "title": "Wild Wolves",
@@ -100,7 +100,7 @@
   {
     "id": "slum_quiet_run",
     "locations": ["driftwatch_slums"],
-    "weight": 22,
+    "weight": 20,
     "result": {
       "type": "nothing",
       "title": "Quiet Night",
@@ -115,20 +115,21 @@
     "result": {
       "type": "item",
       "title": "Street Luck",
-      "description": "You work the alleys and come away with a few hard-earned copper coins.",
+      "description": "You sniff out a little opportunity in the dark and come away with a few hard-earned copper coins.",
       "image": "/assets/locations/driftwatch_slums_night.png",
-      "data": { "itemId": "coins", "quantity": 6 }
+      "data": { "itemId": "coins", "quantityOptions": [5, 10, 20] }
     }
   },
   {
-    "id": "slum_loose_talk",
+    "id": "slum_found_food",
     "locations": ["driftwatch_slums"],
-    "weight": 18,
+    "weight": 25,
     "result": {
-      "type": "nothing",
-      "title": "Loose Talk",
-      "description": "You drift between cookfires and broken walls, hearing scraps of rumor that never quite turn into money.",
-      "image": "/assets/locations/driftwatch_slums_night.png"
+      "type": "item",
+      "title": "Something Edible",
+      "description": "Tonight the alleys give up something you can actually eat.",
+      "image": "/assets/locations/driftwatch_slums_night.png",
+      "data": { "itemPool": ["stale_bread", "bread", "food_trout_grilled"], "quantity": 1 }
     }
   },
   {
@@ -146,7 +147,7 @@
   {
     "id": "slum_knife_ambush",
     "locations": ["driftwatch_slums"],
-    "weight": 15,
+      "weight": 10,
     "result": {
       "type": "unique",
       "title": "Knife in the Dark",

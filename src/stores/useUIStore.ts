@@ -17,6 +17,7 @@ interface UIState {
   libraryReturnScreen: GameState;
   craftingSkill: CraftingSkill | null;
   confirmationType: string | null;
+  diaryTab: 'diary' | 'party';
   // Actions
   setScreen: (screen: GameState) => void;
   openModal: (modal: Modal) => void;
@@ -32,6 +33,7 @@ interface UIState {
   setLibraryReturnScreen: (screen: GameState) => void;
   setCraftingSkill: (skill: CraftingSkill | null) => void;
   setConfirmationType: (type: string | null) => void;
+  setDiaryTab: (tab: 'diary' | 'party') => void;
 }
 
 export const useUIStore = create<UIState>((set, get) => ({
@@ -48,6 +50,7 @@ export const useUIStore = create<UIState>((set, get) => ({
   libraryReturnScreen: 'inGame',
   craftingSkill: null,
   confirmationType: null,
+  diaryTab: 'diary',
   setScreen: (screen) => {
     set({ currentScreen: screen });
   },
@@ -89,5 +92,8 @@ export const useUIStore = create<UIState>((set, get) => ({
   },
   setConfirmationType: (type) => {
     set({ confirmationType: type });
+  },
+  setDiaryTab: (tab) => {
+    set({ diaryTab: tab });
   },
 }));

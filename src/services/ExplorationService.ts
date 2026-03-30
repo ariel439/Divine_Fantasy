@@ -1,6 +1,5 @@
 import { useCharacterStore } from '../stores/useCharacterStore';
 import { useInventoryStore } from '../stores/useInventoryStore';
-import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useUIStore } from '../stores/useUIStore';
 import { gameOverSlides } from '../data/events';
@@ -14,6 +13,8 @@ export interface ExplorationResult {
   data?: {
     itemId?: string;
     quantity?: number;
+    quantityOptions?: number[];
+    itemPool?: string[];
     enemies?: string[];
     wolfCount?: number;
     hpLoss?: number;
@@ -34,20 +35,28 @@ export class ExplorationService {
   static processResult(result: ExplorationResult): void {
     const charStore = useCharacterStore.getState();
     const invStore = useInventoryStore.getState();
-    const skillStore = useSkillStore.getState();
     const uiStore = useUIStore.getState();
     const worldStore = useWorldStateStore.getState();
 
-    // Grant XP for exploration
-    skillStore.addXp('exploration', 10);
-
     // Handle Resources and Items
     if (result.type === 'resource' || result.type === 'item') {
-      if (result.data?.itemId) {
-         if (result.data.itemId === 'coins') {
-             charStore.addCurrency('copper', result.data.quantity || 0);
+      const resolvedItemId = result.data?.itemPool?.length
+        ? result.data.itemPool[Math.floor(Math.random() * result.data.itemPool.length)]
+        : result.data?.itemId;
+      const resolvedQuantity = result.data?.quantityOptions?.length
+        ? result.data.quantityOptions[Math.floor(Math.random() * result.data.quantityOptions.length)]
+        : (result.data?.quantity || 1);
+
+      if (resolvedItemId) {
+         result.data = {
+           ...result.data,
+           itemId: resolvedItemId,
+           quantity: resolvedQuantity,
+         };
+         if (resolvedItemId === 'coins') {
+             charStore.addCurrency('copper', resolvedQuantity);
          } else {
-             invStore.addItem(result.data.itemId, result.data.quantity || 1);
+             invStore.addItem(resolvedItemId, resolvedQuantity);
          }
       }
       if (result.data?.energyGain) {

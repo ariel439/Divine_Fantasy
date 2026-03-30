@@ -1,38 +1,20 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import type { FC, ReactNode } from 'react';
-import { Search, User, Heart, Zap, Sparkles, Shield, ArrowLeft, BookOpen, ScrollText, MessageSquare, PawPrint, Bone, Hand, Swords, XCircle, KeyRound, Gem } from 'lucide-react';
+import type { FC } from 'react';
+import { Search, User, Heart, ArrowLeft, BookOpen, ScrollText, MessageSquare, XCircle } from 'lucide-react';
 import type { Npc } from '../../types';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import { useDiaryStore } from '../../stores/useDiaryStore';
 import { useUIStore } from '../../stores/useUIStore';
-import { useCompanionStore } from '../../stores/useCompanionStore';
 import npcsData from '../../data/npcs.json';
 import ProgressBar from '../ui/ProgressBar';
-import Section from '../ui/Section';
-import Stat from '../ui/Stat';
-import ActionButton from '../ui/ActionButton';
-import { getDescriptiveAttributeLabel } from '../../data';
-
-const EquipmentSlot: FC<{ icon: ReactNode; name: string; }> = ({ icon, name }) => (
-    <div className="flex items-center gap-4 bg-black/40 p-3 rounded-xl border border-zinc-800/50 group hover:border-zinc-700 transition-all">
-        <div className="p-3 bg-zinc-800/50 rounded-lg text-zinc-500 border border-zinc-700/50 group-hover:text-zinc-400 transition-colors">
-            {icon}
-        </div>
-        <div>
-            <p className="font-bold text-white text-sm uppercase tracking-tight">{name}</p>
-            <p className="text-[10px] text-zinc-600 font-black uppercase tracking-tighter">Empty Slot</p>
-        </div>
-    </div>
-);
+import CompanionTab from './CompanionTab';
 
 const DiaryScreen: FC = () => {
-    const { setScreen } = useUIStore();
+    const { setScreen, diaryTab, setDiaryTab } = useUIStore();
     const [searchTerm, setSearchTerm] = useState('');
-    const [mainTab, setMainTab] = useState<'diary' | 'party'>('diary');
     const knownNpcs = useWorldStateStore((state) => state.knownNpcs);
     const relationships = useDiaryStore((state) => state.relationships);
     const interactionHistory = useDiaryStore((state) => state.interactionHistory);
-    const activeCompanion = useCompanionStore((state) => state.activeCompanion);
     const worldState = useWorldStateStore();
 
     const allNpcs: Npc[] = useMemo(() => {
@@ -130,14 +112,14 @@ const DiaryScreen: FC = () => {
                 </div>
                 <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-zinc-800/50">
                     <button 
-                        onClick={() => setMainTab('diary')}
-                        className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${mainTab === 'diary' ? 'bg-zinc-100 text-black shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
+                        onClick={() => setDiaryTab('diary')}
+                        className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${diaryTab === 'diary' ? 'bg-zinc-100 text-black shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
                     >
                         Diary
                     </button>
                     <button 
-                        onClick={() => setMainTab('party')}
-                        className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${mainTab === 'party' ? 'bg-zinc-100 text-black shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
+                        onClick={() => setDiaryTab('party')}
+                        className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${diaryTab === 'party' ? 'bg-zinc-100 text-black shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
                     >
                         Party
                     </button>
@@ -147,7 +129,7 @@ const DiaryScreen: FC = () => {
             {/* Main Content Area - Symmetrical Layout */}
             <div className="relative z-10 w-full h-[86vh] flex flex-col lg:flex-row gap-6 p-4 lg:p-6 items-stretch overflow-hidden">
                 
-                {mainTab === 'diary' ? (
+                {diaryTab === 'diary' ? (
                     <>
                         {/* Left Panel: NPC List */}
                         <div className="w-full lg:w-[400px] xl:w-[450px] h-full flex-shrink-0">
@@ -357,119 +339,7 @@ const DiaryScreen: FC = () => {
                         </div>
                     </>
                 ) : (
-                    // Party Integration (Companion)
-                    <div className="w-full h-full flex flex-col lg:flex-row gap-6 items-stretch animate-fade-in-up">
-                        {!activeCompanion ? (
-                            <div className="w-full h-full flex flex-col items-center justify-center text-center p-8">
-                                <div className="bg-zinc-900/40 backdrop-blur-xl rounded-2xl border border-zinc-800/50 p-12 shadow-2xl max-w-md">
-                                    <PawPrint size={64} className="text-zinc-600 mb-6 mx-auto opacity-20" />
-                                    <h2 className="text-3xl font-bold text-zinc-400 mb-4" style={{ fontFamily: 'Cinzel, serif' }}>Solitary Wanderer</h2>
-                                    <p className="text-zinc-500 font-medium leading-relaxed">
-                                        You currently have no companions in your party. Explore the world to find loyal friends who will aid you in your journey.
-                                    </p>
-                                </div>
-                            </div>
-                        ) : (() => {
-                            const companion = {
-                                name: activeCompanion.name,
-                                title: "Loyal Companion",
-                                portraitUrl: "/assets/portraits/CompanionPlaceholder.png",
-                                vitals: {
-                                    hp: { current: Math.floor(activeCompanion.stats.hp), max: Math.floor(activeCompanion.stats.maxHp || activeCompanion.stats.hp) },
-                                    energy: { current: 100, max: 100 },
-                                },
-                                attributes: { 
-                                    attack: activeCompanion.stats.attack, 
-                                    dexterity: activeCompanion.stats.dexterity 
-                                },
-                                info: "Your loyal companion who fights by your side."
-                            };
-
-                            return (
-                                <>
-                                    {/* Left Column (Portrait & Vitals) */}
-                                    <div className="w-full lg:w-[400px] xl:w-[450px] h-full flex flex-col gap-6 flex-shrink-0">
-                                        <div className="bg-zinc-900/40 backdrop-blur-xl rounded-2xl border border-zinc-800/50 p-6 shadow-2xl flex flex-col h-full">
-                                            <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden border-2 border-zinc-700/50 shadow-2xl mb-8 group">
-                                                <img src={companion.portraitUrl} alt={companion.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                                            </div>
-                                            <div className="space-y-6">
-                                                <div>
-                                                    <div className="flex justify-between items-end mb-2 px-1">
-                                                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Vitality</span>
-                                                        <span className="text-[11px] font-sans font-black text-red-400">{companion.vitals.hp.current} / {companion.vitals.hp.max}</span>
-                                                    </div>
-                                                    <ProgressBar value={companion.vitals.hp.current} max={companion.vitals.hp.max} colorClass="bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]" variant="thick" showText={false} />
-                                                </div>
-                                                <div>
-                                                    <div className="flex justify-between items-end mb-2 px-1">
-                                                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Spirit</span>
-                                                        <span className="text-[11px] font-sans font-black text-sky-400">{companion.vitals.energy.current} / {companion.vitals.energy.max}</span>
-                                                    </div>
-                                                    <ProgressBar value={companion.vitals.energy.current} max={companion.vitals.energy.max} colorClass="bg-sky-500 shadow-[0_0_15px_rgba(14,165,233,0.3)]" variant="thick" showText={false} />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Right Column (Info, Stats, Gear) */}
-                                    <div className="flex-grow h-full overflow-y-auto custom-scrollbar pr-4">
-                                        <div className="bg-zinc-900/40 backdrop-blur-xl rounded-2xl border border-zinc-800/50 p-8 shadow-2xl flex flex-col min-h-full space-y-12">
-                                            {/* Header */}
-                                            <div className="pb-8 border-b border-zinc-800/50">
-                                                <div className="flex items-center gap-3 mb-2">
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">Party Member Dossier</span>
-                                                    <div className="h-px w-12 bg-zinc-800" />
-                                                </div>
-                                                <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight mb-2" style={{ fontFamily: 'Cinzel, serif' }}>
-                                                    {companion.name}
-                                                </h2>
-                                                <p className="text-zinc-400 text-lg italic font-medium tracking-wide">
-                                                    "{companion.title}"
-                                                </p>
-                                            </div>
-
-                                            {/* Sections */}
-                                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
-                                                <div className="space-y-12">
-                                                    <Section title="Nature & Background">
-                                                        <p className="text-zinc-300 text-sm leading-relaxed bg-black/40 p-5 rounded-2xl border border-zinc-800/50 italic">
-                                                            "{companion.info}"
-                                                        </p>
-                                                    </Section>
-
-                                                    <Section title="Combat Prowess">
-                                                        <div className="p-5 bg-black/40 rounded-2xl border border-zinc-800/50 space-y-3">
-                                                            <Stat label="Offensive Power" value={getDescriptiveAttributeLabel('attack', companion.attributes.attack)} />
-                                                            <Stat label="Swiftness" value={getDescriptiveAttributeLabel('dexterity', companion.attributes.dexterity)} />
-                                                        </div>
-                                                    </Section>
-                                                </div>
-
-                                                <div className="space-y-12">
-                                                    <Section title="Interaction">
-                                                        <div className="grid grid-cols-2 gap-3">
-                                                            <ActionButton icon={<Bone size={18} className="text-orange-300" />} text="Feed" category="action" />
-                                                            <ActionButton icon={<Hand size={18} className="text-sky-300" />} text="Bond" category="dialogue" />
-                                                            <ActionButton icon={<Swords size={18} className="text-red-400" />} text="Spar" category="action" />
-                                                            <ActionButton icon={<XCircle size={18} className="text-zinc-400" />} text="Dismiss" category="explore" />
-                                                        </div>
-                                                    </Section>
-
-                                                    <Section title="Equipments & Charms">
-                                                        <div className="grid grid-cols-1 gap-4">
-                                                            <EquipmentSlot icon={<KeyRound size={20} />} name="Collar Attachment" />
-                                                            <EquipmentSlot icon={<Gem size={20} />} name="Amulet / Charm" />
-                                                        </div>
-                                                    </Section>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </>
-                            );
-                        })()}
-                    </div>
+                    <CompanionTab />
                 )}
             </div>
 

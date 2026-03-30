@@ -15,7 +15,7 @@ interface GameLayoutProps {
 }
 
 const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
-  const { currentScreen, setScreen, setSleepWaitMode, openModal, activeModal, closeModal } = useUIStore();
+  const { currentScreen, setScreen, setSleepWaitMode, openModal, activeModal, closeModal, setDiaryTab } = useUIStore();
   const { currentLocationId } = useLocationStore();
   const { hour } = useWorldTimeStore();
   const introMode = useWorldStateStore((state) => state.introMode);
@@ -41,6 +41,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
 
       // Only allow shortcuts if we are "in game" or in a sub-screen
       const isGameplayState = ['inGame', 'characterScreen', 'inventory', 'journal', 'diary', 'crafting', 'trade', 'library'].includes(currentScreen);
@@ -50,7 +51,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
       const isLibrary = currentScreen === 'library';
       const shortcutKey = e.key.toLowerCase();
 
-      if (introMode && ['i', 'c', 'j', 'd', 't'].includes(shortcutKey)) {
+      if (introMode && ['i', 'c', 'j', 'd', 'p', 't'].includes(shortcutKey)) {
         return;
       }
 
@@ -73,7 +74,19 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
         case 'd':
             if (activeModal || isLibrary) break;
             if (currentScreen === 'diary') setScreen('inGame');
-            else setScreen('diary');
+            else {
+                setDiaryTab('diary');
+                setScreen('diary');
+            }
+            break;
+        case 'p':
+            if (activeModal || isLibrary) break;
+            if (currentScreen === 'diary') {
+                setDiaryTab('party');
+            } else {
+                setDiaryTab('party');
+                setScreen('diary');
+            }
             break;
         case 't':
             if (activeModal || isLibrary) break;

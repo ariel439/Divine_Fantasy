@@ -255,6 +255,7 @@ const ScreenManager: React.FC = () => {
             ui.setCurrentEventId(null);
             useWorldStateStore.getState().setIntroMode(false);
             useWorldStateStore.getState().removeKnownNpc('npc_robert');
+            useCompanionStore.getState().setCompanion(null);
             useWorldStateStore.getState().setIntroCompleted(true);
             useWorldStateStore.getState().setFlag('intro_completed', true);
             useWorldStateStore.getState().setFlag('smuggler_help_available', false);
@@ -286,6 +287,7 @@ const ScreenManager: React.FC = () => {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             useLocationStore.getState().setLocation('orphanage_room');
+            useCompanionStore.getState().setCompanion(null);
             useWorldStateStore.getState().setFlag('start_finn_debt_on_sleep', true);
             setScreen('inGame');
             return;
@@ -1155,6 +1157,28 @@ const ScreenManager: React.FC = () => {
                 {
                   text: 'Back off',
                   onSelect: closeChoiceEvent,
+                },
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'slum_quiet_run' || eventId === 'slum_scrounged_copper' || eventId === 'slum_found_food') {
+          const world = useWorldStateStore.getState();
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={world.getData('slum_explore_result_text') || cfg.text}
+              choices={[
+                {
+                  text: 'Continue',
+                  onSelect: () => {
+                    world.setData('slum_explore_result_text', '');
+                    world.setData('slum_explore_result_item', '');
+                    world.setData('slum_explore_result_quantity', '');
+                    closeChoiceEvent();
+                  },
                 },
               ]}
             />

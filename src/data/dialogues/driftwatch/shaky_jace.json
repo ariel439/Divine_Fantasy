@@ -8,13 +8,15 @@
         "npc_text": "Spare a coin? Just one coin... I need my fix...",
         "player_choices": [
           {
-            "text": "Give him 1 copper.",
+            "text": "Slip him 1 copper.",
+            "player_text": "Here. Get yourself through the night.",
             "action": "remove_money:1:copper",
             "next_node": "jace_talk",
             "condition": "currency.copper>=1 && world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_elara==false && world_flags.elara_secret_known==false"
           },
           {
-            "text": "Give him 1 copper.",
+            "text": "Slip him 1 copper.",
+            "player_text": "Here. Don't waste it.",
             "action": "remove_money:1:copper",
             "next_node": "jace_thanks",
             "condition": "currency.copper>=1 && world_flags.elara_secret_known==true"
@@ -52,13 +54,15 @@
         "npc_text": "Well? Coin or questions?",
         "player_choices": [
           {
-            "text": "Here's 1 copper.",
+            "text": "Slip him 1 copper.",
+            "player_text": "Here. Get yourself through the night.",
             "action": "remove_money:1:copper",
             "next_node": "jace_talk",
             "condition": "currency.copper>=1 && world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_elara==false && world_flags.elara_secret_known==false"
           },
           {
-            "text": "Here's 1 copper.",
+            "text": "Slip him 1 copper.",
+            "player_text": "Here. Don't waste it.",
             "action": "remove_money:1:copper",
             "next_node": "jace_thanks",
             "condition": "currency.copper>=1 && world_flags.elara_secret_known==true"

@@ -48,6 +48,28 @@
       { "type": "p", "content": "The docks are the heart of the city, bustling with activity from dawn until dusk. Beware the 'Sea Rats'—urchins who are quicker with their fingers than a silver-tongued diplomat." }
     ]
   },
+  "note_beryl_crumpled_letter": {
+    "id": "note_beryl_crumpled_letter",
+    "title": "Crumpled Letter",
+    "author": "Unsigned",
+    "shelf": "Miscellaneous",
+    "coverUrl": "/assets/items/crumpled_letter.png",
+    "content": [
+      { "type": "h1", "content": "Crumpled Letter" },
+      { "type": "note", "content": "Beryl,\n\nPlease stop sending money through boys who look hungry enough to steal it before they arrive. If you mean to help, come yourself. If you do not, then stop pretending this is kindness.\n\nYou promised you would not leave us to beg for scraps while you sell soap and lamp oil to merchants who would not spit on us if we were burning.\n\nYour son keeps asking when you will come.\n\n- E." }
+    ]
+  },
+  "note_marked_crate_note": {
+    "id": "note_marked_crate_note",
+    "title": "Marked Crate Note",
+    "author": "Forge tally hand",
+    "shelf": "Miscellaneous",
+    "coverUrl": "/assets/items/crumpled_letter.png",
+    "content": [
+      { "type": "h1", "content": "Marked Crate Note" },
+      { "type": "note", "content": "Dusk tally:\n\n3 marked crates from Kaelen's forge\n1 wrapped parcel with hollow-hilt blades\nMove by dock crew after sunset\nUse the back entrance only\nUnload to Mug cellar\nFinn's count settled in advance" }
+    ]
+  },
   "map_driftwatch_vicinity": {
     "id": "map_driftwatch_vicinity",
     "title": "Driftwatch & Vicinity",

@@ -425,10 +425,18 @@ export class DialogueService {
     };
   }
 
-  private static reorderOpeningNodeChoices(node: DialogueNode): DialogueNode {
-    const choices = node.player_choices || [];
+  private static hasVisibleSocialRootOptions(dialogueEntry: DialogueEntry): boolean {
+    const socialRoot = this.buildSocialRootNode(dialogueEntry);
+    return (socialRoot.player_choices || []).some((choice) => !this.isNavigationChoice(choice) && !choice.disabled);
+  }
+
+  private static reorderOpeningNodeChoices(dialogueEntry: DialogueEntry, node: DialogueNode): DialogueNode {
+    const choices = (node.player_choices || []).filter((choice) => {
+      if (choice.next_node !== this.SOCIAL_ROOT_NODE_ID) return true;
+      return this.hasVisibleSocialRootOptions(dialogueEntry);
+    });
     if (choices.length <= 1) {
-      return node;
+      return { ...node, player_choices: choices };
     }
 
     const sorted = [...choices].sort((a, b) => {
@@ -461,8 +469,12 @@ export class DialogueService {
     }
 
     if (nodeId === dialogueEntry.first_meet_node || nodeId === dialogueEntry.repeat_meet_node) {
-      const reorderedNode = this.reorderOpeningNodeChoices(node);
+      const reorderedNode = this.reorderOpeningNodeChoices(dialogueEntry, node);
       return reorderedNode;
+    }
+
+    if (nodeId === '0') {
+      return this.reorderOpeningNodeChoices(dialogueEntry, node);
     }
 
     return node;
@@ -911,7 +923,9 @@ export class DialogueService {
     let resolvedToClose = false;
     if (nextNodeId === this.SOCIAL_RETURN_NODE_ID) {
       if (this.state.currentMenuKind === 'category_root') {
-        nextNodeId = this.SOCIAL_ROOT_NODE_ID;
+        nextNodeId = this.hasVisibleSocialRootOptions(currentDialogue)
+          ? this.SOCIAL_ROOT_NODE_ID
+          : (this.state.entryNodeId || undefined);
       } else if (this.state.currentMenuKind === 'social_root') {
         if (this.state.shouldLeaveFromSocialRoot) {
           nextNodeId = undefined;
@@ -1059,12 +1073,15 @@ export class DialogueService {
         } else if (eventId === 'whitefang_finn_end') {
           useWorldStateStore.getState().setFlag('finn_whitefang_branch_complete', true);
           useWorldStateStore.getState().setFlag('finn_dead', true);
+          if (!useWorldStateStore.getState().getData('npc_finn_death_date')) {
+            useWorldStateStore.getState().setData('npc_finn_death_date', useWorldTimeStore.getState().getFormattedDate());
+          }
           useWorldStateStore.getState().setFlag('finn_resolved', true);
           useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
           useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
           useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
           useWorldStateStore.getState().setFlag('raid_ready', false);
-          try { useJournalStore.getState().completeQuest('finn_debt_collection'); } catch {}
+          try { useJournalStore.getState().failQuest('finn_debt_collection'); } catch {}
           useUIStore.getState().setEventSlides(whitefangFinnKillSlides);
           useUIStore.getState().setCurrentEventId('whitefang_finn_end');
           useUIStore.getState().setScreen('event');

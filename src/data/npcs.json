@@ -108,7 +108,7 @@
     "default_dialogue_id": "rodrick_default",
     "portrait": "/assets/portraits/Rodrick.png",
     "schedules": [
-      { "location_id": "tidehunter_quarter", "start_hour": 8, "end_hour": 20 }
+      { "location_id": "tidehunter_quarter", "start_hour": 8, "end_hour": 23 }
     ]
   },
   "npc_boric": {
@@ -152,6 +152,7 @@
     "home_location": "salty_mug",
     "default_dialogue_id": "finn_default",
     "portrait": "/assets/portraits/OldManFinn.png",
+    "death_flag": "finn_dead",
     "hidden_if_flag": "finn_dead",
     "schedules": [
       { "location_id": "salty_mug", "start_hour": 6, "end_hour": 18 }

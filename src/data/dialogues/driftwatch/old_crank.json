@@ -1,13 +1,33 @@
 {
   "old_crank_default": {
     "interaction_roots": {
-      "ask": "crank_ask_root",
-      "quest": "crank_quest_root"
+      "ask": "crank_ask_root"
     },
     "nodes": {
       "0": {
         "npc_text": "Bah! Another whelp in the tavern. (He eyes your drink).",
         "player_choices": [
+          {
+            "text": "Slide him a beer.",
+            "player_text": "Here. Have a drink.",
+            "next_node": "crank_gossip_1",
+            "action": "remove_item:beer:1|set_flag:crank_beer_1:true",
+            "condition": "inventory.beer>=1 && world_flags.crank_beer_1==false"
+          },
+          {
+            "text": "Slide him a beer.",
+            "player_text": "Another one for you.",
+            "next_node": "crank_gossip_2",
+            "action": "remove_item:beer:1|set_flag:crank_beer_2:true",
+            "condition": "inventory.beer>=1 && world_flags.crank_beer_1==true && world_flags.crank_beer_2==false"
+          },
+          {
+            "text": "Slide him a beer.",
+            "player_text": "One more, old man.",
+            "next_node": "crank_gossip_3",
+            "action": "remove_item:beer:1|set_flag:crank_beer_3:true|start_quest:rebel_path|advance_quest_stage:rebel_path",
+            "condition": "inventory.beer>=1 && world_flags.crank_beer_2==true && world_flags.crank_beer_3==false && world_flags.whitefang_bound==false"
+          },
           {
             "text": "I'd like to talk.",
             "next_node": "__social_root__"
@@ -42,39 +62,12 @@
           }
         ]
       },
-      "crank_quest_root": {
-        "npc_text": "If you've got beer, maybe I've got words.",
-        "player_choices": [
-          {
-            "text": "Give Beer (Gossip)",
-            "next_node": "crank_gossip_1",
-            "action": "remove_item:beer:1|set_flag:crank_beer_1:true",
-            "condition": "inventory.beer>=1 && world_flags.crank_beer_1==false"
-          },
-          {
-            "text": "Give Beer (Gossip)",
-            "next_node": "crank_gossip_2",
-            "action": "remove_item:beer:1|set_flag:crank_beer_2:true",
-            "condition": "inventory.beer>=1 && world_flags.crank_beer_1==true && world_flags.crank_beer_2==false"
-          },
-          {
-            "text": "Give Beer (Gossip)",
-            "next_node": "crank_gossip_3",
-            "action": "remove_item:beer:1|set_flag:crank_beer_3:true|start_quest:rebel_path|advance_quest_stage:rebel_path",
-            "condition": "inventory.beer>=1 && world_flags.crank_beer_2==true && world_flags.crank_beer_3==false && world_flags.whitefang_bound==false"
-          },
-          {
-            "text": "Back.",
-            "next_node": "__social_root__"
-          }
-        ]
-      },
       "crank_gossip_1": {
         "npc_text": "Ah... that hits the spot. Did you know Roberta at Tide & Trade has been skimming off the top? Her 'fresh' fish ain't always fresh.",
         "player_choices": [
           {
             "text": "Interesting.",
-            "next_node": "crank_quest_root"
+            "next_node": "0"
           }
         ]
       },
@@ -83,7 +76,7 @@
         "player_choices": [
           {
             "text": "Is that so?",
-            "next_node": "crank_quest_root"
+            "next_node": "0"
           }
         ]
       },
@@ -92,7 +85,7 @@
         "player_choices": [
           {
             "text": "I'll investigate.",
-            "closes_dialogue": true
+            "next_node": "0"
           }
         ]
       }

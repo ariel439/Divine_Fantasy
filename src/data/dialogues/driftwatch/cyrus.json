@@ -66,18 +66,18 @@
         ]
       },
       "cyrus_confess": {
-        "npc_text": "They made me forge these... odd blades. They call them 'Shadow Blades'. I kept one... a prototype. I was going to show the guards, but I was too scared.",
+        "npc_text": "They made me forge these... odd blades. They call them 'Shadow Blades'. I kept one... a prototype. But that is not the worst of it. The finished crates were marked for dusk delivery back to the Mug cellar. There were tally slips with them. If Kaelen has not burned them, the forge still holds proof.",
         "player_choices": [
           {
             "text": "Give it to me. I'll take it to the guards.",
             "next_node": "cyrus_give",
-            "action": "add_item:prototype_blade:1|advance_quest_stage:rebel_path",
+            "action": "add_item:prototype_blade:1|set_flag:cyrus_weapons_lead_confirmed:true|advance_quest_stage:rebel_path",
             "condition": "world_flags.whitefang_bound==false"
           }
         ]
       },
       "cyrus_give": {
-        "npc_text": "Here. Please, don't tell Finn I gave it to you.",
+        "npc_text": "Here. Please, don't tell Finn I gave it to you. If the records are still in the forge, they'll prove this was never one blade. It was a business.",
         "player_choices": [
           {
             "text": "You're safe now.",

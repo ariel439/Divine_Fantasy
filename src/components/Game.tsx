@@ -74,8 +74,24 @@ const Game: React.FC = () => {
 
   useEffect(() => {
     const wt = useWorldTimeStore.getState();
-    const modalOpen = Boolean(activeModal);
-    const shouldPause = modalOpen || introMode || currentScreen === 'dialogue' || currentScreen !== 'inGame';
+    const pausedScreens = new Set([
+      'mainMenu',
+      'characterSelection',
+      'prologue',
+      'dialogue',
+      'event',
+      'choiceEvent',
+      'combat',
+    ]);
+    const pausedModals = new Set([
+      'sleepWait',
+      'confirmation',
+      'tutorial',
+    ]);
+    const shouldPause =
+      introMode ||
+      pausedScreens.has(currentScreen) ||
+      (activeModal ? pausedModals.has(activeModal) : false);
     wt.setClockPaused(shouldPause);
   }, [currentScreen, activeModal, introMode]);
 

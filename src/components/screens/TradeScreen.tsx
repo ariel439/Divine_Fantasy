@@ -259,22 +259,21 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
 
             {/* Main Content Area */}
             <div className="relative z-10 w-full h-[86vh] flex flex-col lg:flex-row gap-6 p-6 items-stretch overflow-hidden">
-                {/* Left Panel: Merchant Inventory */}
+                {/* Left Panel: Player Inventory */}
                 <div className="w-full lg:w-[45%] h-full flex flex-col min-h-0 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
                     <div className="flex-grow bg-zinc-950/80 backdrop-blur-xl rounded-2xl border border-zinc-800/50 shadow-2xl overflow-hidden flex flex-col h-full relative">
                         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-700/20 to-transparent" />
                         <ItemSelectionPanel
-                            title={`${shop.name}'s Wares`}
-                            items={shop.inventory.map(si => ({ ...si.item, quantity: si.quantity }))}
-                            onItemSelect={(item) => handleItemSelect(item, 'merchant')}
-                            selectedItemId={selectedMerchantItemId}
-                            highlightedItemIds={merchantOfferIds}
-                            valueMultiplier={shop.sell_multiplier}
-                            currency={{
-                                gold: Math.floor(merchantTotalCopper / 10000),
-                                silver: Math.floor((merchantTotalCopper % 10000) / 100),
-                                copper: merchantTotalCopper % 100,
-                            }}
+                            title="Your Belongings"
+                            items={playerInventory
+                                .filter(invItem => itemsMap[invItem.id])
+                                .map(invItem => ({ ...itemsMap[invItem.id], quantity: invItem.quantity, uuid: invItem.uuid }))}
+                            onItemSelect={(item) => handleItemSelect(item, 'player')}
+                            selectedItemId={selectedPlayerItemId}
+                            highlightedItemIds={playerOfferIds}
+                            valueMultiplier={shop.buy_multiplier}
+                            acceptedCategories={shop.accepted_categories}
+                            currency={currency}
                         />
                     </div>
                 </div>
@@ -301,21 +300,22 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
                     </button>
                 </div>
 
-                {/* Right Panel: Player Inventory */}
+                {/* Right Panel: Merchant Inventory */}
                 <div className="w-full lg:w-[45%] h-full flex flex-col min-h-0 animate-fade-in-up" style={{ animationDelay: '600ms' }}>
                     <div className="flex-grow bg-zinc-950/80 backdrop-blur-xl rounded-2xl border border-zinc-800/50 shadow-2xl overflow-hidden flex flex-col h-full relative">
                         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-700/20 to-transparent" />
                         <ItemSelectionPanel
-                            title="Your Belongings"
-                            items={playerInventory
-                                .filter(invItem => itemsMap[invItem.id])
-                                .map(invItem => ({ ...itemsMap[invItem.id], quantity: invItem.quantity, uuid: invItem.uuid }))}
-                            onItemSelect={(item) => handleItemSelect(item, 'player')}
-                            selectedItemId={selectedPlayerItemId}
-                            highlightedItemIds={playerOfferIds}
-                            valueMultiplier={shop.buy_multiplier}
-                            acceptedCategories={shop.accepted_categories}
-                            currency={currency}
+                            title={`${shop.name}'s Wares`}
+                            items={shop.inventory.map(si => ({ ...si.item, quantity: si.quantity }))}
+                            onItemSelect={(item) => handleItemSelect(item, 'merchant')}
+                            selectedItemId={selectedMerchantItemId}
+                            highlightedItemIds={merchantOfferIds}
+                            valueMultiplier={shop.sell_multiplier}
+                            currency={{
+                                gold: Math.floor(merchantTotalCopper / 10000),
+                                silver: Math.floor((merchantTotalCopper % 10000) / 100),
+                                copper: merchantTotalCopper % 100,
+                            }}
                         />
                     </div>
                 </div>

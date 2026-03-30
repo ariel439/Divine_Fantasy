@@ -42,6 +42,7 @@ export const whitefangBindingSlides: Slide[] = events.whitefangBindingSlides;
 type ChoiceEventId =
   | 'intro_pastime_choice'
   | 'beryl_letter_pickup'
+  | 'forge_crate_note_pickup'
   | 'apple_tree_event'
   | 'fallen_log_event'
   | 'abandoned_campsite_event'
@@ -73,6 +74,12 @@ export const choiceEvents: Record<ChoiceEventId, ChoiceEventConfig> = {
     title: 'Crumpled Letter',
     imageUrl: '/assets/items/crumpled_letter.png',
     text: "A crumpled letter lies in the puddle. It's soaked but legible.",
+  },
+  forge_crate_note_pickup: {
+    id: 'forge_crate_note_pickup',
+    title: 'Marked Crate Note',
+    imageUrl: '/assets/items/crumpled_letter.png',
+    text: "Near a stack of cargo at the docks, you spot a grease-stained tally note tucked under a rope spool. The markings tie dusk shipments back to the Salty Mug cellar.",
   },
   apple_tree_event: {
     id: 'apple_tree_event',

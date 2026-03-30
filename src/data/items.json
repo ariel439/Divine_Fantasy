@@ -6,7 +6,18 @@
     "stackable": false,
     "weight": 0.0,
     "base_value": 0,
-    "image": "/assets/items/crumpled_letter.png"
+    "image": "/assets/items/crumpled_letter.png",
+    "bookId": "note_beryl_crumpled_letter"
+  },
+  "marked_crate_note": {
+    "name": "Marked Crate Note",
+    "description": "A grease-stained tally note listing dusk crate movements from the forge to the Salty Mug cellar. It ties the contraband work to Finn's operation.",
+    "type": "key_item",
+    "stackable": false,
+    "weight": 0.0,
+    "base_value": 0,
+    "image": "/assets/items/crumpled_letter.png",
+    "bookId": "note_marked_crate_note"
   },
   "book_white_tiger_sea": {
     "name": "When the White Tiger Crossed the Sea",

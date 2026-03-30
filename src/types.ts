@@ -148,6 +148,7 @@ export interface Choice {
   onSelect: () => void;
   disabled?: boolean;
   skillCheck?: { skill: string; level?: number };
+  variant?: 'default' | 'quest';
 }
 
 // Location types
@@ -211,7 +212,7 @@ export interface Npc {
   history: string[];
 }
 
-export type QuestStatus = 'active' | 'completed';
+export type QuestStatus = 'active' | 'completed' | 'failed';
 
 export interface QuestObjective {
   text: string;

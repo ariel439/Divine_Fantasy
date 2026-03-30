@@ -69,6 +69,15 @@ const ScreenManager: React.FC = () => {
   const [dialogueNode, setDialogueNode] = useState<any>(null);
   const [dialogueHistory, setDialogueHistory] = useState<any[]>([]);
 
+  const markNpcDeath = (npcId: string) => {
+    const world = useWorldStateStore.getState();
+    const npcKey = npcId.replace(/^npc_/, '');
+    world.setFlag(`${npcKey}_dead`, true);
+    if (!world.getData(`${npcId}_death_date`)) {
+      world.setData(`${npcId}_death_date`, useWorldTimeStore.getState().getFormattedDate());
+    }
+  };
+
   const completeIntroPastime = (fallbackChoice: 'robert' | 'kids' | 'study') => {
     const world = useWorldStateStore.getState();
     const selectedPastime = world.getData('intro_pastime_choice') || fallbackChoice;
@@ -338,11 +347,12 @@ const ScreenManager: React.FC = () => {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             useWorldStateStore.getState().setFlag('finn_rebel_branch_complete', true);
-            useWorldStateStore.getState().setFlag('finn_dead', true);
+            markNpcDeath('npc_finn');
             useWorldStateStore.getState().setFlag('finn_resolved', true);
             useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
             useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
             useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
+            try { useJournalStore.getState().failQuest('finn_debt_collection'); } catch {}
             try { useJournalStore.getState().completeQuest('rebel_path'); } catch {}
             useLocationStore.getState().setLocation('driftwatch_slums');
             setScreen('inGame');
@@ -378,9 +388,13 @@ const ScreenManager: React.FC = () => {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             useWorldStateStore.getState().setFlag('finn_whitefang_branch_complete', true);
-            useWorldStateStore.getState().setFlag('finn_dead', true);
+            markNpcDeath('npc_finn');
             useWorldStateStore.getState().setFlag('finn_resolved', true);
+            useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
+            useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
+            useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
             useWorldStateStore.getState().setFlag('raid_ready', false);
+            try { useJournalStore.getState().failQuest('finn_debt_collection'); } catch {}
             useLocationStore.getState().setLocation('shihan_camp');
             setScreen('inGame');
             return;
@@ -389,12 +403,13 @@ const ScreenManager: React.FC = () => {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             useWorldStateStore.getState().setFlag('finn_hybrid_branch_complete', true);
-            useWorldStateStore.getState().setFlag('finn_dead', true);
+            markNpcDeath('npc_finn');
             useWorldStateStore.getState().setFlag('finn_resolved', true);
             useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
             useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
             useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
             useWorldStateStore.getState().setFlag('raid_ready', false);
+            try { useJournalStore.getState().failQuest('finn_debt_collection'); } catch {}
             setScreen('inGame');
             return;
           }
@@ -402,11 +417,12 @@ const ScreenManager: React.FC = () => {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             useWorldStateStore.getState().setFlag('finn_rebel_branch_complete', true);
-            useWorldStateStore.getState().setFlag('finn_dead', true);
+            markNpcDeath('npc_finn');
             useWorldStateStore.getState().setFlag('finn_resolved', true);
             useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
             useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
             useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
+            try { useJournalStore.getState().failQuest('finn_debt_collection'); } catch {}
             try { useJournalStore.getState().completeQuest('rebel_path'); } catch {}
             useLocationStore.getState().setLocation('driftwatch_slums');
             setScreen('inGame');
@@ -707,6 +723,7 @@ const ScreenManager: React.FC = () => {
               choices={[
                 {
                   text: 'Take the letter',
+                  variant: 'quest',
                   onSelect: () => {
                     useInventoryStore.getState().addItem('beryl_noble_letter', 1);
                     useWorldStateStore.getState().setFlag('beryl_letter_found', true);
@@ -720,6 +737,45 @@ const ScreenManager: React.FC = () => {
                                 setScreen('inGame');
                             }
                         }]
+                    });
+                  },
+                },
+                {
+                  text: 'Leave it',
+                  onSelect: () => {
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'forge_crate_note_pickup') {
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Take the note',
+                  variant: 'quest',
+                  onSelect: () => {
+                    useInventoryStore.getState().addItem('marked_crate_note', 1);
+                    useWorldStateStore.getState().setFlag('forge_crate_note_found', true);
+                    try { useJournalStore.getState().setQuestStage('rebel_path', 3); } catch {}
+                    useDiaryStore.getState().addInteraction('Picked up Marked Crate Note.');
+                    setEventResult({
+                      text: "The tally note lists marked crates moving from the forge to the Salty Mug cellar after dusk. Between this and Cyrus's prototype, Finn's route finally has a shape.",
+                      choices: [{
+                        text: 'Continue',
+                        onSelect: () => {
+                          useUIStore.getState().setCurrentEventId(null);
+                          setScreen('inGame');
+                        }
+                      }]
                     });
                   },
                 },

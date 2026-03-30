@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, ReactNode } from 'react';
 import type { FC } from 'react';
-import { CheckSquare, Square, Search, XCircle, ArrowLeft, BookOpen, ScrollText, Award, User, Target, Briefcase, Coins, Clock, Zap, ChevronLeft, ChevronRight, UserX, ClipboardList, CalendarDays, UserRound, Check, X } from 'lucide-react';
+import { CheckSquare, Square, Search, XCircle, ArrowLeft, BookOpen, ScrollText, User, Target, Briefcase, Coins, Clock, Zap, ChevronLeft, ChevronRight, UserX, ClipboardList, CalendarDays, UserRound, Check, X } from 'lucide-react';
 import type { Quest } from '../../types';
 import { useJournalStore } from '../../stores/useJournalStore';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
@@ -17,8 +17,8 @@ const JournalScreen: FC = () => {
     const [selectedQuestId, setSelectedQuestId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [mainTab, setMainTab] = useState<'quests' | 'job'>('quests');
-    const [questStatusTab, setQuestStatusTab] = useState<'active' | 'completed'>('active');
-    const { questsList, quests } = useJournalStore();
+    const [questStatusTab, setQuestStatusTab] = useState<'active' | 'completed' | 'failed'>('active');
+    const { questsList } = useJournalStore();
 
     // Derive selected quest from store to ensure it's always up to date
     const selectedQuest = useMemo(() => {
@@ -28,7 +28,7 @@ const JournalScreen: FC = () => {
 
     // Job Data
     const { activeJob, jobs, attendance } = useJobStore();
-    const { year, month, dayOfMonth } = useWorldTimeStore();
+    const { year, month, dayOfMonth, day, hour, minute } = useWorldTimeStore();
     const { relationships } = useDiaryStore();
 
     const filteredQuests = useMemo(() => {
@@ -42,6 +42,37 @@ const JournalScreen: FC = () => {
         }
         return quests;
     }, [questStatusTab, searchTerm, questsList]);
+
+    const finnDebtCountdown = useMemo(() => {
+        if (selectedQuest?.id !== 'finn_debt_collection' || selectedQuest.status !== 'active') return null;
+
+        const deadlineRaw = useWorldStateStore.getState().getData('finn_debt_deadline_day');
+        const deadlineDay = deadlineRaw ? Number(deadlineRaw) : 0;
+        if (!deadlineDay) return null;
+
+        const minutesRemaining = ((deadlineDay - day) * 24 * 60) - (hour * 60 + minute);
+        if (minutesRemaining <= 0) {
+            return {
+                label: 'Deadline Missed',
+                detail: 'Finn has already run out of patience.'
+            };
+        }
+
+        const daysRemaining = Math.floor(minutesRemaining / (24 * 60));
+        const hoursRemaining = Math.floor((minutesRemaining % (24 * 60)) / 60);
+
+        if (daysRemaining > 0) {
+            return {
+                label: `${daysRemaining} day${daysRemaining === 1 ? '' : 's'} left`,
+                detail: `${hoursRemaining} hour${hoursRemaining === 1 ? '' : 's'} remain after the current day.`
+            };
+        }
+
+        return {
+            label: `${hoursRemaining} hour${hoursRemaining === 1 ? '' : 's'} left`,
+            detail: 'The deadline expires before another full day passes.'
+        };
+    }, [selectedQuest, day, hour, minute]);
     
     // Set initial quest on tab change or first load
     useEffect(() => {
@@ -186,7 +217,7 @@ const JournalScreen: FC = () => {
                         <div className="w-full lg:w-[400px] xl:w-[450px] h-full flex-shrink-0">
                             <div className="bg-zinc-900/40 backdrop-blur-xl rounded-2xl border border-zinc-800/50 p-5 shadow-2xl flex flex-col h-full animate-fade-in-up">
                                 <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-zinc-800/50 mb-4 shrink-0">
-                                    {(['active', 'completed'] as const).map(tab => (
+                                    {(['active', 'completed', 'failed'] as const).map(tab => (
                                         <button 
                                             key={tab} 
                                             onClick={() => setQuestStatusTab(tab)} 
@@ -262,11 +293,30 @@ const JournalScreen: FC = () => {
                                                 </div>
                                                 <h2 className="text-3xl lg:text-4xl font-bold text-white tracking-tight" style={{ fontFamily: 'Cinzel, serif' }}>{selectedQuest.title}</h2>
                                             </div>
-                                            <div className="flex items-center gap-3 bg-black/40 px-3 py-1.5 rounded-xl border border-zinc-800/50">
-                                                <User size={14} className="text-zinc-500" />
-                                                <div className="text-right">
-                                                    <p className="text-[7px] font-black uppercase tracking-tighter text-zinc-600">Contract Giver</p>
-                                                    <p className="text-[10px] font-bold text-zinc-300">{selectedQuest.giver}</p>
+                                            <div className="flex flex-wrap items-center gap-3">
+                                                <div className={`px-3 py-1.5 rounded-xl border ${
+                                                    selectedQuest.status === 'completed'
+                                                        ? 'bg-emerald-950/15 border-emerald-900/30'
+                                                        : selectedQuest.status === 'failed'
+                                                            ? 'bg-red-950/15 border-red-900/30'
+                                                            : 'bg-black/40 border-zinc-800/50'
+                                                }`}>
+                                                    <p className={`text-[9px] font-black uppercase tracking-[0.2em] ${
+                                                        selectedQuest.status === 'completed'
+                                                            ? 'text-emerald-300'
+                                                            : selectedQuest.status === 'failed'
+                                                                ? 'text-red-300'
+                                                                : 'text-zinc-300'
+                                                    }`}>
+                                                        {selectedQuest.status}
+                                                    </p>
+                                                </div>
+                                                <div className="flex items-center gap-3 bg-black/40 px-3 py-1.5 rounded-xl border border-zinc-800/50">
+                                                    <User size={14} className="text-zinc-500" />
+                                                    <div className="text-right">
+                                                        <p className="text-[7px] font-black uppercase tracking-tighter text-zinc-600">Contract Giver</p>
+                                                        <p className="text-[10px] font-bold text-zinc-300">{selectedQuest.giver}</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -274,6 +324,21 @@ const JournalScreen: FC = () => {
 
                                     {/* Content */}
                                     <div className="pt-6 lg:pt-8 space-y-8 flex-grow">
+                                        {finnDebtCountdown && (
+                                            <div className="space-y-3">
+                                                <div className="flex items-center gap-3">
+                                                    <Clock size={16} className="text-amber-400" />
+                                                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">Debt Deadline</h3>
+                                                </div>
+                                                <div className="pl-6">
+                                                    <div className="bg-amber-950/15 border border-amber-900/30 rounded-xl p-4">
+                                                        <p className="text-sm font-black uppercase tracking-widest text-amber-200">{finnDebtCountdown.label}</p>
+                                                        <p className="text-xs text-zinc-400 mt-2">{finnDebtCountdown.detail}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         {/* Description */}
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-3">
@@ -323,21 +388,18 @@ const JournalScreen: FC = () => {
                                                 })}
                                             </div>
                                         </div>
-
-                                        {/* Rewards Section */}
-                                        {selectedQuest.status === 'completed' && (
-                                            <div className="space-y-4 animate-fade-in pt-4" style={{ animationDelay: '400ms' }}>
+                                        {selectedQuest.status === 'failed' && (
+                                            <div className="space-y-3 pt-2">
                                                 <div className="flex items-center gap-3">
-                                                    <Award size={16} className="text-yellow-500" />
-                                                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-500/80">Spoils of Adventure</h3>
+                                                    <XCircle size={16} className="text-red-400" />
+                                                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-red-300">Failed Outcome</h3>
                                                 </div>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-6">
-                                                    {selectedQuest.rewards.map((reward, index) => (
-                                                        <div key={index} className="flex items-center gap-3 bg-yellow-950/10 border border-yellow-900/30 p-3 rounded-xl group hover:bg-yellow-900/20 transition-all">
-                                                            <Award size={14} className="text-yellow-600 group-hover:scale-110 transition-transform" />
-                                                            <span className="text-[10px] font-black text-yellow-200 uppercase tracking-tight">{reward}</span>
-                                                        </div>
-                                                    ))}
+                                                <div className="pl-6">
+                                                    <div className="bg-red-950/15 border border-red-900/30 rounded-xl p-4">
+                                                        <p className="text-sm text-zinc-300 italic">
+                                                            This trail was cut short. The objective was left unresolved as events moved in another direction.
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         )}

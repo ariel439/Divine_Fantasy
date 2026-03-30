@@ -82,6 +82,7 @@ interface JournalState {
   addQuest: (quest: Quest) => void;
   updateQuest: (questId: string, updates: Partial<Quest>) => void;
   completeQuest: (questId: string) => void;
+  failQuest: (questId: string) => void;
   setQuestStage: (questId: string, stageIndex: number) => void;
   advanceQuestStage: (questId: string) => void;
   setQuestsList: (quests: UiQuest[]) => void;
@@ -170,6 +171,26 @@ export const useJournalStore = create<JournalState>((set, get) => ({
         ),
       });
     });
+  },
+  failQuest: (questId) => {
+    set((state) => ({
+      quests: {
+        ...state.quests,
+        [questId]: {
+          ...state.quests[questId],
+          completed: false,
+          active: false,
+        },
+      },
+      questsList: state.questsList.map(q => q.id === questId
+        ? {
+            ...q,
+            status: 'failed',
+            rewards: [],
+          }
+        : q
+      ),
+    }));
   },
   setQuestStage: (questId, stageIndex) => {
     set((state) => {

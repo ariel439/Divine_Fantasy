@@ -11,15 +11,22 @@ interface ChoiceEventScreenProps {
 }
 
 const ChoiceButton: FC<{ choice: Choice, index: number }> = ({ choice, index }) => {
+    const isQuestChoice = choice.variant === 'quest';
     return (
         <button
             style={{ animationDelay: `${200 + index * 150}ms`}}
             onClick={choice.onSelect}
             disabled={choice.disabled}
-            className="w-full text-left p-4 bg-zinc-950/50 backdrop-blur-md border border-zinc-800/50 rounded-xl transition-all duration-500 hover:bg-white/10 hover:border-zinc-400 hover:shadow-2xl hover:-translate-y-1 group disabled:bg-zinc-900/30 disabled:border-zinc-800/50 disabled:text-zinc-600 disabled:cursor-not-allowed disabled:transform-none animate-fade-in-up"
+            className={`w-full text-left p-4 backdrop-blur-md border rounded-xl transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 group disabled:bg-zinc-900/30 disabled:border-zinc-800/50 disabled:text-zinc-600 disabled:cursor-not-allowed disabled:transform-none animate-fade-in-up ${
+              isQuestChoice
+                ? 'bg-amber-950/25 border-amber-500/50 hover:bg-amber-900/30 hover:border-amber-300/70'
+                : 'bg-zinc-950/50 border-zinc-800/50 hover:bg-white/10 hover:border-zinc-400'
+            }`}
           >
             <div className="flex items-center justify-between">
-                <span className="font-bold tracking-widest uppercase text-xs text-zinc-100 group-hover:text-white transition-colors">
+                <span className={`font-bold tracking-widest uppercase text-xs transition-colors ${
+                  isQuestChoice ? 'text-amber-100 group-hover:text-amber-50' : 'text-zinc-100 group-hover:text-white'
+                }`}>
                   {choice.skillCheck && (
                     <span className={`mr-3 font-black ${choice.disabled ? 'text-zinc-600' : 'text-yellow-500'}`}>
                       [{choice.skillCheck.skill}]
@@ -27,8 +34,12 @@ const ChoiceButton: FC<{ choice: Choice, index: number }> = ({ choice, index }) 
                   )}
                   {choice.text}
                 </span>
-                <div className="w-6 h-6 rounded-full border border-zinc-700 flex items-center justify-center group-hover:border-zinc-400 transition-colors">
-                    <div className="w-1.5 h-1.5 bg-zinc-700 rounded-full group-hover:bg-zinc-400 transition-colors" />
+                <div className={`w-6 h-6 rounded-full border flex items-center justify-center transition-colors ${
+                  isQuestChoice ? 'border-amber-500/60 group-hover:border-amber-200' : 'border-zinc-700 group-hover:border-zinc-400'
+                }`}>
+                    <div className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                      isQuestChoice ? 'bg-amber-400 group-hover:bg-amber-100' : 'bg-zinc-700 group-hover:bg-zinc-400'
+                    }`} />
                 </div>
             </div>
         </button>

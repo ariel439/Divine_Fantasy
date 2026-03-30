@@ -51,6 +51,8 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
     const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
     const books = libraryBooks || [];
     const shouldCloseDirectlyFromSelectedBook = libraryReturnScreen === 'inventory' && books.length <= 1;
+    const isDocumentView = Boolean(selectedBook && libraryReturnScreen === 'inventory' && selectedBook.shelf === 'Miscellaneous');
+    const topTitle = libraryReturnScreen === 'inventory' ? '' : 'The Great Library';
 
     const handleClose = () => {
         setSelectedLibraryBookId(null);
@@ -159,9 +161,11 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
                     </span>
                 </button>
                 <div className="text-center">
-                    <h1 className="text-xl font-bold text-white tracking-[0.3em] uppercase" style={{ fontFamily: 'Cinzel, serif' }}>
-                        The Great Library
-                    </h1>
+                    {topTitle ? (
+                        <h1 className="text-xl font-bold text-white tracking-[0.3em] uppercase" style={{ fontFamily: 'Cinzel, serif' }}>
+                            {topTitle}
+                        </h1>
+                    ) : null}
                 </div>
                 <div className="w-32"></div>
             </header>
@@ -174,27 +178,53 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
                     <div className="w-full h-full animate-fade-in-up">
                         <div className="bg-zinc-900/40 backdrop-blur-xl rounded-2xl border border-zinc-800/50 shadow-2xl h-full flex flex-col overflow-hidden">
                             <div className="flex-grow overflow-y-auto custom-scrollbar p-6 lg:p-12">
-                                <article className="max-w-4xl mx-auto pb-24">
-                                    <header className="text-center border-b border-zinc-800/50 pb-10 mb-12">
-                                        <div className="flex items-center justify-center gap-3 mb-4">
-                                            <div className="h-px w-12 bg-zinc-800" />
-                                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">Ancient Manuscript</span>
-                                            <div className="h-px w-12 bg-zinc-800" />
+                                {isDocumentView ? (
+                                    <article className="max-w-2xl mx-auto pb-24">
+                                        <div className="bg-[#f1e3bf] text-stone-900 rounded-2xl border border-amber-200 shadow-2xl p-8 lg:p-12">
+                                            <header className="text-center border-b border-stone-400/40 pb-8 mb-8">
+                                                <p className="text-[10px] font-black uppercase tracking-[0.35em] text-stone-500 mb-4">Recovered Document</p>
+                                                <h1 className="text-3xl lg:text-5xl font-bold tracking-tight mb-3" style={{ fontFamily: 'Cinzel, serif' }}>
+                                                    {selectedBook.title}
+                                                </h1>
+                                                <p className="text-sm uppercase tracking-[0.2em] text-stone-500 font-black">{selectedBook.author}</p>
+                                            </header>
+                                            <div className="space-y-6">
+                                                {selectedBook.content.map((content, index) => {
+                                                    if (content.type === 'h1') return null;
+                                                    if (content.type === 'note') {
+                                                        return <div key={index} className="whitespace-pre-line text-base lg:text-lg leading-relaxed text-stone-800">{content.content}</div>;
+                                                    }
+                                                    if (content.type === 'p') {
+                                                        return <p key={index} className="text-base lg:text-lg leading-relaxed text-stone-800">{content.content}</p>;
+                                                    }
+                                                    return renderContent(content, index);
+                                                })}
+                                            </div>
                                         </div>
-                                        <h1 className="text-4xl lg:text-6xl font-bold text-white tracking-tight mb-4" style={{ fontFamily: 'Cinzel, serif' }}>
-                                            {selectedBook.title}
-                                        </h1>
-                                        <div className="space-y-2">
-                                            <p className="text-xl text-zinc-400 italic font-medium">By {selectedBook.author}</p>
-                                            {selectedBook.releaseYear && (
-                                                <p className="text-[11px] text-zinc-600 font-black uppercase tracking-[0.2em]">{selectedBook.releaseYear}</p>
-                                            )}
+                                    </article>
+                                ) : (
+                                    <article className="max-w-4xl mx-auto pb-24">
+                                        <header className="text-center border-b border-zinc-800/50 pb-10 mb-12">
+                                            <div className="flex items-center justify-center gap-3 mb-4">
+                                                <div className="h-px w-12 bg-zinc-800" />
+                                                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">Ancient Manuscript</span>
+                                                <div className="h-px w-12 bg-zinc-800" />
+                                            </div>
+                                            <h1 className="text-4xl lg:text-6xl font-bold text-white tracking-tight mb-4" style={{ fontFamily: 'Cinzel, serif' }}>
+                                                {selectedBook.title}
+                                            </h1>
+                                            <div className="space-y-2">
+                                                <p className="text-xl text-zinc-400 italic font-medium">By {selectedBook.author}</p>
+                                                {selectedBook.releaseYear && (
+                                                    <p className="text-[11px] text-zinc-600 font-black uppercase tracking-[0.2em]">{selectedBook.releaseYear}</p>
+                                                )}
+                                            </div>
+                                        </header>
+                                        <div className="prose prose-invert max-w-none">
+                                            {selectedBook.content.map(renderContent)}
                                         </div>
-                                    </header>
-                                    <div className="prose prose-invert max-w-none">
-                                        {selectedBook.content.map(renderContent)}
-                                    </div>
-                                </article>
+                                    </article>
+                                )}
                             </div>
                         </div>
                     </div>

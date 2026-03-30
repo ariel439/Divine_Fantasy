@@ -613,9 +613,11 @@ const LocationScreen: React.FC = () => {
 
     const questEventIds = new Set([
       'smuggler_combat_start',
+      'beryl_letter_pickup',
       'beryl_delivery_event',
       'elara_delivery_event',
       'ben_cheat_event',
+      'forge_crate_note_pickup',
       'sell_locket_event',
       'raid_salty_mug_intro',
     ]);

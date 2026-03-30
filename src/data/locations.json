@@ -128,10 +128,9 @@
     "night_background": "/assets/locations/mosswatch_keep_night.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "is_indoor": true,
-    "opening_hour": 8,
-    "closing_hour": 20,
     "exit_location": "driftwatch_noble_quarter",
     "actions": [
+      { "text": "Travel to Tidehunter Quarter", "type": "navigate", "target": "tidehunter_quarter", "condition": "quest.rebel_path.stage>=4" },
       { "text": "Travel to Noble Quarter", "type": "navigate", "target": "driftwatch_noble_quarter" }
     ]
   },
@@ -157,7 +156,8 @@
     "day_background": "/assets/locations/tidehunter_quarter.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
-      { "text": "Travel to Mosswatch Keep", "type": "navigate", "target": "mosswatch_keep" }
+      { "text": "Travel to Mosswatch Keep", "type": "navigate", "target": "mosswatch_keep" },
+      { "text": "Travel to Noble Quarter", "type": "navigate", "target": "driftwatch_noble_quarter" }
     ]
   },
   "driftwatch_docks": {
@@ -167,8 +167,10 @@
     "day_background": "/assets/locations/driftwatch_docks_day.png",
     "night_background": "/assets/locations/driftwatch_docks_night.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
+    "is_indoor": true,
     "actions": [
       { "text": "Help Robert", "type": "trigger_event", "eventId": "smuggler_combat_start", "condition": "world_flags.smuggler_help_available==true" },
+      { "text": "Inspect the marked cargo ledger", "type": "trigger_event", "eventId": "forge_crate_note_pickup", "condition": "world_flags.cyrus_weapons_lead_confirmed==true && world_flags.forge_crate_note_found==false && time.is_night==true && world_flags.whitefang_bound==false" },
       { "text": "Fish", "type": "fish", "target": "fish_docks" },
       { "text": "Work", "type": "job", "target": "job_dockhand" },
       { "text": "Travel to Tide & Trade", "type": "navigate", "target": "tide_trade" },

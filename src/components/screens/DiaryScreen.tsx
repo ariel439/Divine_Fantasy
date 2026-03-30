@@ -33,6 +33,7 @@ const DiaryScreen: FC = () => {
     const relationships = useDiaryStore((state) => state.relationships);
     const interactionHistory = useDiaryStore((state) => state.interactionHistory);
     const activeCompanion = useCompanionStore((state) => state.activeCompanion);
+    const worldState = useWorldStateStore();
 
     const allNpcs: Npc[] = useMemo(() => {
         return Object.entries(npcsData).map(([id, npc]) => ({
@@ -51,12 +52,24 @@ const DiaryScreen: FC = () => {
 
     const [selectedNpc, setSelectedNpc] = useState<Npc | null>(null);
 
+    const getNpcIsDead = (npcId: string) => {
+        const npcMeta = (npcsData as any)[npcId];
+        const deathFlag = npcMeta?.death_flag as string | undefined;
+        if (!deathFlag) return false;
+        return worldState.getFlag(deathFlag);
+    };
+
     const filteredNpcs = useMemo(() => {
         const knownNpcObjects = allNpcs.filter(npc => knownNpcs.includes(npc.id));
-        return knownNpcObjects.filter(npc => 
-            npc.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    }, [searchTerm, knownNpcs, allNpcs]);
+        return knownNpcObjects
+            .filter(npc => npc.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            .sort((a, b) => {
+                const aDead = getNpcIsDead(a.id);
+                const bDead = getNpcIsDead(b.id);
+                if (aDead !== bDead) return aDead ? 1 : -1;
+                return a.name.localeCompare(b.name);
+            });
+    }, [searchTerm, knownNpcs, allNpcs, worldState.worldFlags]);
 
     // Set initial selected NPC to the first known NPC if available
     useEffect(() => {
@@ -84,6 +97,8 @@ const DiaryScreen: FC = () => {
             name: npcData?.name || 'Unknown',
             title: (npcData as any)?.title || npcData?.name || 'Unknown',
             portrait: npcData?.portrait || '',
+            isDead: getNpcIsDead(selectedNpc.id),
+            deathDate: getNpcIsDead(selectedNpc.id) ? worldState.getData(`${selectedNpc.id}_death_date`) || '' : '',
             relationships: {
                 friendship: { value: npcRelationship.friendship?.value || 0, max: 100 },
                 love: { value: npcRelationship.love?.value || 0, max: 100 },
@@ -91,7 +106,7 @@ const DiaryScreen: FC = () => {
             },
             history: npcHistory,
         };
-    }, [selectedNpc, relationships, interactionHistory]);
+    }, [selectedNpc, relationships, interactionHistory, worldState.worldFlags, worldState.stringData]);
 
     return (
         <div className="relative w-screen h-screen bg-zinc-950 flex flex-col overflow-hidden">
@@ -167,32 +182,52 @@ const DiaryScreen: FC = () => {
                                             <User size={40} className="mx-auto mb-4 opacity-10" />
                                             <p className="font-black uppercase tracking-widest text-[9px]">No Acquaintances Found</p>
                                         </div>
-                                    ) : filteredNpcs.map(npc => (
-                                        <button
-                                            key={npc.id}
-                                            onClick={() => setSelectedNpc(npc)}
-                                            className={`w-full flex items-center gap-4 text-left p-3 rounded-xl transition-all group ${
-                                                selectedNpc?.id === npc.id 
-                                                ? 'bg-zinc-100 text-black shadow-[0_0_15px_rgba(255,255,255,0.1)]' 
-                                                : 'hover:bg-white/5 text-zinc-400 hover:text-white border border-transparent hover:border-zinc-800/50'
-                                            }`}
-                                        >
-                                            <div className="relative shrink-0">
-                                                <img src={npc.portrait} alt={npc.name} className={`w-12 h-12 rounded-full object-cover border-2 ${selectedNpc?.id === npc.id ? 'border-zinc-900' : 'border-zinc-800 group-hover:border-zinc-600'}`}/>
-                                                <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 ${selectedNpc?.id === npc.id ? 'bg-zinc-900 border-zinc-100' : 'bg-zinc-800 border-zinc-950'} flex items-center justify-center`}>
-                                                    <div className={`w-1.5 h-1.5 rounded-full ${selectedNpc?.id === npc.id ? 'bg-zinc-100' : 'bg-zinc-500'}`} />
+                                    ) : filteredNpcs.map(npc => {
+                                        const isDead = getNpcIsDead(npc.id);
+                                        return (
+                                            <button
+                                                key={npc.id}
+                                                onClick={() => setSelectedNpc(npc)}
+                                                className={`w-full flex items-center gap-4 text-left p-3 rounded-xl transition-all group ${
+                                                    selectedNpc?.id === npc.id 
+                                                    ? 'bg-zinc-100 text-black shadow-[0_0_15px_rgba(255,255,255,0.1)]' 
+                                                    : isDead
+                                                        ? 'bg-red-950/10 text-zinc-400 hover:text-white border border-red-900/20 hover:border-red-700/40 hover:bg-red-900/10'
+                                                        : 'hover:bg-white/5 text-zinc-400 hover:text-white border border-transparent hover:border-zinc-800/50'
+                                                }`}
+                                            >
+                                                <div className="relative shrink-0">
+                                                    <img src={npc.portrait} alt={npc.name} className={`w-12 h-12 rounded-full object-cover border-2 ${selectedNpc?.id === npc.id ? 'border-zinc-900' : 'border-zinc-800 group-hover:border-zinc-600'} ${isDead ? 'grayscale opacity-75' : ''}`}/>
+                                                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 ${selectedNpc?.id === npc.id ? 'bg-zinc-900 border-zinc-100' : 'bg-zinc-800 border-zinc-950'} flex items-center justify-center`}>
+                                                        <div className={`w-1.5 h-1.5 rounded-full ${
+                                                            isDead
+                                                                ? 'bg-red-500'
+                                                                : selectedNpc?.id === npc.id
+                                                                    ? 'bg-emerald-400'
+                                                                    : 'bg-emerald-500'
+                                                        }`} />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="min-w-0">
-                                                <span className={`block text-sm font-bold truncate ${selectedNpc?.id === npc.id ? 'font-black' : ''}`}>
-                                                    {npc.name}
-                                                </span>
-                                                <span className={`block text-[9px] uppercase font-black tracking-tighter truncate opacity-60 ${selectedNpc?.id === npc.id ? 'text-zinc-900' : 'text-zinc-500'}`}>
-                                                    {npc.title}
-                                                </span>
-                                            </div>
-                                        </button>
-                                    ))}
+                                                <div className="min-w-0 flex-grow">
+                                                    <span className={`block text-sm font-bold truncate ${selectedNpc?.id === npc.id ? 'font-black' : ''}`}>
+                                                        {npc.name}
+                                                    </span>
+                                                    <span className={`block text-[9px] uppercase font-black tracking-tighter truncate opacity-60 ${selectedNpc?.id === npc.id ? 'text-zinc-900' : isDead ? 'text-red-400/80' : 'text-zinc-500'}`}>
+                                                        {npc.title}
+                                                    </span>
+                                                </div>
+                                                {isDead && (
+                                                    <div className={`shrink-0 px-2.5 py-1 rounded-full border text-[8px] font-black uppercase tracking-[0.2em] ${
+                                                        selectedNpc?.id === npc.id
+                                                            ? 'bg-zinc-900 text-red-300 border-zinc-800'
+                                                            : 'bg-red-950/40 text-red-300 border-red-900/40'
+                                                    }`}>
+                                                        Dead
+                                                    </div>
+                                                )}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </div>
@@ -206,10 +241,14 @@ const DiaryScreen: FC = () => {
                                         <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
                                             <div className="relative group shrink-0">
                                                 <div className="w-32 h-32 rounded-2xl overflow-hidden border-2 border-zinc-700/50 shadow-2xl">
-                                                    <img src={displayNpc.portrait} alt={displayNpc.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                                    <img src={displayNpc.portrait} alt={displayNpc.name} className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${displayNpc.isDead ? 'grayscale opacity-75' : ''}`} />
                                                 </div>
-                                                <div className="absolute -bottom-3 -right-3 p-2.5 bg-zinc-800 rounded-xl border border-zinc-700 text-zinc-200 shadow-xl">
-                                                    <User size={20} />
+                                                <div className={`absolute -bottom-3 -right-3 p-2.5 rounded-xl border shadow-xl ${
+                                                    displayNpc.isDead
+                                                        ? 'bg-red-950/80 border-red-800/60 text-red-200'
+                                                        : 'bg-zinc-800 border-zinc-700 text-zinc-200'
+                                                }`}>
+                                                    {displayNpc.isDead ? <XCircle size={20} /> : <User size={20} />}
                                                 </div>
                                             </div>
                                             
@@ -217,48 +256,72 @@ const DiaryScreen: FC = () => {
                                                 <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
                                                     <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">Character Dossier</span>
                                                     <div className="h-px w-12 bg-zinc-800" />
+                                                    <div className={`w-2.5 h-2.5 rounded-full ${displayNpc.isDead ? 'bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.45)]' : 'bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.35)]'}`} />
                                                 </div>
                                                 <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight mb-2" style={{ fontFamily: 'Cinzel, serif' }}>
                                                     {displayNpc.name}
                                                 </h2>
-                                                <p className="text-zinc-400 text-lg italic font-medium tracking-wide">
-                                                    "{displayNpc.title}"
-                                                </p>
+                                                <div className="flex flex-col md:flex-row md:items-center gap-3">
+                                                    <p className={`text-lg italic font-medium tracking-wide ${displayNpc.isDead ? 'text-red-400/80' : 'text-zinc-400'}`}>
+                                                        {`"${displayNpc.title}"`}
+                                                    </p>
+                                                    {displayNpc.isDead && (
+                                                        <span className="inline-flex items-center justify-center px-3 py-1 rounded-full border border-red-900/40 bg-red-950/30 text-[9px] font-black uppercase tracking-[0.25em] text-red-300">
+                                                            Dead
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Content Sections */}
                                     <div className="pt-8 lg:pt-10 space-y-12">
-                                        {/* Relationships Section */}
-                                        <div className="space-y-6">
-                                            <div className="flex items-center gap-3">
-                                                <Heart size={18} className="text-zinc-500" />
-                                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-200">Social Standing</h3>
+                                        {!displayNpc.isDead ? (
+                                            <div className="space-y-6">
+                                                <div className="flex items-center gap-3">
+                                                    <Heart size={18} className="text-zinc-500" />
+                                                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-200">Social Standing</h3>
+                                                </div>
+                                                
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pl-6 border-l-2 border-zinc-800/50">
+                                                    <ProgressBar 
+                                                        label="Friendship" 
+                                                        value={displayNpc.relationships.friendship.value} 
+                                                        max={displayNpc.relationships.friendship.max} 
+                                                        colorClass="bg-emerald-500/80" 
+                                                        negativeColorClass="bg-red-500/80" 
+                                                    />
+                                                    <ProgressBar 
+                                                        label="Love" 
+                                                        value={displayNpc.relationships.love.value} 
+                                                        max={displayNpc.relationships.love.max} 
+                                                        colorClass="bg-pink-500/80" 
+                                                    />
+                                                    <ProgressBar 
+                                                        label="Fear" 
+                                                        value={displayNpc.relationships.fear.value} 
+                                                        max={displayNpc.relationships.fear.max} 
+                                                        colorClass="bg-amber-500/80" 
+                                                    />
+                                                </div>
                                             </div>
-                                            
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pl-6 border-l-2 border-zinc-800/50">
-                                                <ProgressBar 
-                                                    label="Friendship" 
-                                                    value={displayNpc.relationships.friendship.value} 
-                                                    max={displayNpc.relationships.friendship.max} 
-                                                    colorClass="bg-emerald-500/80" 
-                                                    negativeColorClass="bg-red-500/80" 
-                                                />
-                                                <ProgressBar 
-                                                    label="Love" 
-                                                    value={displayNpc.relationships.love.value} 
-                                                    max={displayNpc.relationships.love.max} 
-                                                    colorClass="bg-pink-500/80" 
-                                                />
-                                                <ProgressBar 
-                                                    label="Fear" 
-                                                    value={displayNpc.relationships.fear.value} 
-                                                    max={displayNpc.relationships.fear.max} 
-                                                    colorClass="bg-amber-500/80" 
-                                                />
+                                        ) : (
+                                            <div className="space-y-6">
+                                                <div className="flex items-center gap-3">
+                                                    <XCircle size={18} className="text-red-400/80" />
+                                                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-red-300/80">Memorial Record</h3>
+                                                </div>
+                                                <div className="pl-6 border-l-2 border-red-900/30">
+                                                    <div className="bg-red-950/10 border border-red-900/20 rounded-xl p-5 space-y-3">
+                                                        <p className="text-[10px] font-black uppercase tracking-[0.25em] text-red-300/80">Final Status</p>
+                                                        <p className="text-sm text-zinc-300 italic leading-relaxed">
+                                                            This character passed away{displayNpc.deathDate ? ` on ${displayNpc.deathDate}` : ''}. Their social standing is no longer tracked, but their history remains recorded here.
+                                                        </p>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
 
                                         {/* Interaction History */}
                                         <div className="space-y-6">

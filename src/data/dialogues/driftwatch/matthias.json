@@ -59,9 +59,19 @@
         "npc_text": "I don't have time for drunk talk. Make it quick.",
         "player_choices": [
           {
+            "text": "[Show Blade and Note] I found proof Finn is moving contraband through the Mug.",
+            "next_node": "matthias_evidence_full",
+            "condition": "inventory.prototype_blade>=1 && inventory.marked_crate_note>=1 && world_flags.whitefang_bound==false"
+          },
+          {
             "text": "[Show Blade] I found this prototype.",
-            "next_node": "matthias_evidence",
-            "condition": "inventory.prototype_blade>=1 && world_flags.whitefang_bound==false"
+            "next_node": "matthias_evidence_blade_only",
+            "condition": "inventory.prototype_blade>=1 && inventory.marked_crate_note<1 && world_flags.whitefang_bound==false"
+          },
+          {
+            "text": "[Show Note] I found this tally note from the forge.",
+            "next_node": "matthias_evidence_note_only",
+            "condition": "inventory.marked_crate_note>=1 && inventory.prototype_blade<1 && world_flags.whitefang_bound==false"
           },
           {
             "text": "Never mind.",
@@ -69,11 +79,29 @@
           }
         ]
       },
-      "matthias_evidence": {
-        "npc_text": "Let me see that. ... This alloy... this is contraband. Shadow steel. Finn has been smuggling this under our noses?",
+      "matthias_evidence_blade_only": {
+        "npc_text": "Let me see that. ... This alloy... contraband shadow steel. Enough to trouble me, not enough to move on Finn. I need proof this reaches back to his operation, not just a single forged curiosity.",
         "player_choices": [
           {
-            "text": "There's more where that came from.",
+            "text": "Then I will keep digging.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "matthias_evidence_note_only": {
+        "npc_text": "A tally note proves someone was moving crates at dusk, not what was inside them. Suspicious, yes. Not enough for a warrant against Finn.",
+        "player_choices": [
+          {
+            "text": "I need harder proof.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "matthias_evidence_full": {
+        "npc_text": "Let me see both. ... Shadow steel in prototype form, and a forge tally routing marked crates to the Mug cellar after dusk. That ties the contraband to Finn's operation cleanly enough for me.",
+        "player_choices": [
+          {
+            "text": "So we can move on him?",
             "next_node": "matthias_plan"
           }
         ]
@@ -84,7 +112,7 @@
           {
             "text": "I'll go now.",
             "closes_dialogue": true,
-            "action": "advance_quest_stage:rebel_path|remove_item:prototype_blade:1",
+            "action": "advance_quest_stage:rebel_path|remove_item:prototype_blade:1|remove_item:marked_crate_note:1",
             "condition": "world_flags.whitefang_bound==false"
           }
         ]

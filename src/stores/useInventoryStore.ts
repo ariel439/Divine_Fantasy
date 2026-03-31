@@ -165,13 +165,20 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
   },
   getCurrentWeight: () => {
     const inventoryWeight = get().currentWeight;
-    const equippedWeight = Object.entries(useCharacterStore.getState().equippedItems).reduce((sum, [slot, item]) => {
+    const character = useCharacterStore.getState();
+    const combatEquippedWeight = Object.entries(character.equippedItems).reduce((sum, [slot, item]) => {
       if (!item) return sum;
       if (slot === 'shield' && item.combatTags?.includes('two_handed')) return sum;
       return sum + (item.weight * 0.5);
     }, 0);
+    const socialEquippedWeight = Object.values(character.equipmentLoadouts[2] || {}).reduce((sum, itemId) => {
+      if (!itemId) return sum;
+      const itemData = itemsData[itemId as keyof typeof itemsData];
+      if (!itemData) return sum;
+      return sum + (itemData.weight * 0.5);
+    }, 0);
 
-    return inventoryWeight + equippedWeight;
+    return inventoryWeight + combatEquippedWeight + socialEquippedWeight;
   },
   getItemQuantity: (itemId) => {
     const item = get().items.find(item => item.id === itemId);

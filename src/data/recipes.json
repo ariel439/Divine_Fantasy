@@ -69,16 +69,6 @@
     "time_cost_minutes": 45,
     "energy_cost": 8
   },
-  "recipe_wolf_amulet": {
-    "name": "Wolf Tooth Amulet",
-    "skill": "crafting",
-    "level_required": 3,
-    "xp_granted": 80,
-    "output": { "item_id": "wolf_tooth_amulet", "quantity": 1 },
-    "ingredients": [{ "item_id": "wolf_tooth", "quantity": 5 }, { "item_id": "rope", "quantity": 1 }],
-    "time_cost_minutes": 30,
-    "energy_cost": 6
-  },
   "recipe_cooked_meat": {
     "name": "Cooked Meat",
     "skill": "cooking",

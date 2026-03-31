@@ -115,6 +115,13 @@ const DebugMenuScreen: FC = () => {
     setScreen('inGame');
   };
 
+  const handleStartFinnWeekRich = () => {
+    GameManagerService.startNewGame('luke_orphan');
+    GameManagerService.skipStoryIntroToFinnWeek();
+    useCharacterStore.getState().addCurrency('gold', 99);
+    setScreen('inGame');
+  };
+
   return (
     <div className="w-full h-full flex items-center justify-center bg-black/80">
       <div className="w-full max-w-3xl mx-auto bg-zinc-950/95 border border-zinc-700 rounded-xl p-6 shadow-lg overflow-y-auto max-h-[90vh]">
@@ -151,6 +158,12 @@ const DebugMenuScreen: FC = () => {
                 className="w-full px-4 py-2 rounded-md bg-purple-900/40 hover:bg-purple-800/60 text-purple-100 text-sm font-semibold border border-purple-800/50 transition-all hover:shadow-[0_0_10px_rgba(147,51,234,0.2)]"
               >
                 Start Smuggler Intro Fight (Luke + Robert)
+              </button>
+              <button
+                onClick={handleStartFinnWeekRich}
+                className="w-full px-4 py-2 rounded-md bg-emerald-900/40 hover:bg-emerald-800/60 text-emerald-100 text-sm font-semibold border border-emerald-800/50 transition-all hover:shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+              >
+                Start Luke at Finn Week (99 Gold)
               </button>
               <div className="flex gap-3">
                 <button

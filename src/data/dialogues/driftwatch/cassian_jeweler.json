@@ -1,0 +1,66 @@
+{
+  "cassian_jeweler_default": {
+    "trade_shop_id": "silvershore_jeweler",
+    "interaction_roots": {
+      "ask": "cassian_jeweler_ask_root"
+    },
+    "nodes": {
+      "0": {
+        "npc_text": "Looking for something modest, or something expensive enough to change how a room sees you?",
+        "player_choices": [
+          {
+            "text": "Show me your stock.",
+            "action": "open_shop:silvershore_jeweler"
+          },
+          {
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "cassian_jeweler_ask_root": {
+        "npc_text": "Ask, then. Jewelry is only half metal. The rest is timing.",
+        "player_choices": [
+          {
+            "text": "Who buys jewelry like this in Driftwatch?",
+            "next_node": "cassian_jeweler_ask_clients",
+            "condition": "world_flags.cassian_lore_clients_seen==false"
+          },
+          {
+            "text": "What makes one piece matter more than another?",
+            "next_node": "cassian_jeweler_ask_quality",
+            "condition": "world_flags.cassian_lore_quality_seen==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "cassian_jeweler_ask_clients": {
+        "npc_text": "Nobles buy to be noticed. Merchants buy to be taken seriously. Everyone else buys because they are tired of being mistaken for less than they are.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "cassian_jeweler_ask_root",
+            "action": "set_flag:cassian_lore_clients_seen:true"
+          }
+        ]
+      },
+      "cassian_jeweler_ask_quality": {
+        "npc_text": "Metal matters, yes, but finish matters more. Cheap silver can look respectable in the right light. Bad gold still looks vulgar. The trick is knowing what kind of eyes you expect to be judged by.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "cassian_jeweler_ask_root",
+            "action": "set_flag:cassian_lore_quality_seen:true"
+          }
+        ]
+      }
+    }
+  }
+}

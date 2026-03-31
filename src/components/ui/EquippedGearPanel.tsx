@@ -36,7 +36,7 @@ const Slot: FC<{
   return (
     <Component
       onClick={handleClick}
-      className={`relative flex h-20 w-20 items-center justify-center rounded-2xl border border-zinc-800 bg-black/40 transition-all duration-300 md:h-24 md:w-24 ${
+      className={`relative flex h-20 w-20 items-center justify-center rounded-2xl border border-zinc-800 bg-black/40 transition-all duration-300 sm:h-24 sm:w-24 lg:h-28 lg:w-28 ${
         item ? 'group cursor-pointer shadow-xl hover:border-white hover:bg-zinc-100' : 'group hover:border-zinc-700'
       }`}
       title={item ? item.name : slot.charAt(0).toUpperCase() + slot.slice(1)}
@@ -48,9 +48,9 @@ const Slot: FC<{
             if (iconEl && typeof iconEl.type === 'string' && iconEl.type === 'img') {
               const src = (iconEl.props && (iconEl.props as any).src) || '';
               const alt = (iconEl.props && (iconEl.props as any).alt) || item.name;
-              return <img src={src} alt={alt} className="h-10 w-10 rounded object-contain transition-transform group-hover:scale-110" />;
+              return <img src={src} alt={alt} className="h-10 w-10 rounded object-contain transition-transform group-hover:scale-110 sm:h-12 sm:w-12 lg:h-14 lg:w-14" />;
             }
-            return iconEl ? React.cloneElement(iconEl, { size: 36 }) : null;
+            return iconEl ? React.cloneElement(iconEl, { size: 36, className: 'sm:w-11 sm:h-11 lg:w-12 lg:h-12' }) : null;
           })()}
         </div>
       ) : (
@@ -58,7 +58,7 @@ const Slot: FC<{
       )}
 
       <span
-        className={`absolute -bottom-2 left-1/2 -translate-x-1/2 rounded border px-2 py-0.5 text-[8px] font-black uppercase tracking-tighter transition-all ${
+        className={`absolute -bottom-2 left-1/2 -translate-x-1/2 rounded border px-2 py-0.5 text-[7px] font-black uppercase tracking-tighter transition-all sm:text-[8px] ${
           item ? 'border-zinc-700 bg-zinc-800 text-zinc-300' : 'border-zinc-800 bg-zinc-900 text-zinc-600'
         }`}
       >
@@ -69,8 +69,8 @@ const Slot: FC<{
 };
 
 const EquippedGearPanel: FC<EquippedGearPanelProps> = ({ equippedItems, onItemSelect }) => {
-  const EmptySlot = () => <div className="h-20 w-20 md:h-24 md:w-24" />;
-  const { equipmentLoadouts, activeEquipmentLoadout, saveEquipmentLoadout, applyEquipmentLoadout } = useCharacterStore();
+  const EmptySlot = () => <div className="h-20 w-20 sm:h-24 sm:w-24 lg:h-28 lg:w-28" />;
+  const { activeEquipmentLoadout, setActiveEquipmentLoadout } = useCharacterStore();
   const socialPresence = getSocialPresenceSummary();
 
   const slots: { slot: EquipmentSlot; placeholder: ReactNode }[] = [
@@ -92,71 +92,75 @@ const EquippedGearPanel: FC<EquippedGearPanelProps> = ({ equippedItems, onItemSe
   };
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto bg-transparent p-6 custom-scrollbar">
-      <div className="mb-6 flex flex-shrink-0 items-center justify-center">
+    <div className="flex h-full flex-col overflow-y-auto bg-transparent p-4 sm:p-6 custom-scrollbar">
+      <div className="mb-5 flex flex-shrink-0 items-center justify-center">
         <div className="flex items-center gap-2">
           {[1, 2].map((slot) => {
-            const loadout = equipmentLoadouts[slot as 1 | 2];
-            const savedCount = Object.keys(loadout || {}).length;
-            const isEmpty = savedCount === 0;
             const isSelected = activeEquipmentLoadout === (slot as 1 | 2);
             return (
               <button
                 key={slot}
-                onClick={(event) => {
-                  if (event.shiftKey || isEmpty) saveEquipmentLoadout(slot as 1 | 2);
-                  else applyEquipmentLoadout(slot as 1 | 2);
-                }}
-                className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border text-sm font-black uppercase tracking-[0.2em] transition-all ${
+                onClick={() => setActiveEquipmentLoadout(slot as 1 | 2)}
+                className={`inline-flex h-10 min-w-[92px] items-center justify-center rounded-xl border px-3 text-[10px] font-black uppercase tracking-[0.2em] transition-all sm:min-w-[108px] sm:px-4 sm:text-[11px] ${
                   isSelected
                     ? 'border-amber-300 bg-amber-100 text-black shadow-[0_0_20px_rgba(251,191,36,0.18)]'
-                    : isEmpty
-                      ? 'border-zinc-700 bg-zinc-900/60 text-zinc-300 hover:border-zinc-500'
-                      : 'border-amber-800/50 bg-amber-950/30 text-amber-200 hover:border-amber-600'
+                    : 'border-amber-800/50 bg-amber-950/30 text-amber-200 hover:border-amber-600'
                 }`}
-                title={isEmpty ? `Save current gear to Loadout ${slot}` : `Apply Loadout ${slot} (Shift+Click to overwrite)`}
+                title={slot === 1 ? 'Combat / Threat set' : 'Social / Presentation set'}
               >
-                {slot === 1 ? 'I' : 'II'}
+                {slot === 1 ? 'Combat' : 'Social'}
               </button>
             );
           })}
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-col gap-4">
-        <div className="flex justify-center">
-          <div className="grid grid-cols-3 gap-x-5 gap-y-7 justify-items-center">
-            <EmptySlot />
-            {getSlot('head')}
-            <EmptySlot />
+      <div className="flex min-h-0 flex-1 flex-col">
+        <div className="flex flex-1 items-center justify-center pb-6">
+          {activeEquipmentLoadout === 1 ? (
+            <div className="grid grid-cols-3 gap-x-4 gap-y-7 justify-items-center sm:gap-x-6 sm:gap-y-8 lg:gap-x-8 lg:gap-y-9">
+              <EmptySlot />
+              {getSlot('head')}
+              <EmptySlot />
 
-            {getSlot('cape')}
-            {getSlot('amulet')}
-            {getSlot('ring')}
+              {getSlot('weapon')}
+              {getSlot('chest')}
+              {getSlot('shield')}
 
-            {getSlot('weapon')}
-            {getSlot('chest')}
-            {getSlot('shield')}
+              <EmptySlot />
+              {getSlot('legs')}
+              <EmptySlot />
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-x-4 gap-y-7 justify-items-center sm:gap-x-6 sm:gap-y-8 lg:gap-x-8 lg:gap-y-9">
+              {getSlot('cape')}
+              {getSlot('amulet')}
+              {getSlot('ring')}
 
-            {getSlot('gloves')}
-            {getSlot('legs')}
-            {getSlot('boots')}
-          </div>
+              <EmptySlot />
+              {getSlot('chest')}
+              <EmptySlot />
+
+              {getSlot('gloves')}
+              {getSlot('legs')}
+              {getSlot('boots')}
+            </div>
+          )}
         </div>
 
-        <div className="rounded-2xl border border-zinc-800/60 bg-black/30 p-4">
-          <div className="flex items-center gap-2 text-zinc-300 mb-3">
+        <div className="mt-auto pt-2">
+          <div className="mb-2 flex items-center gap-2 text-zinc-300">
             <Eye size={16} className="text-amber-300" />
             <span className="text-[10px] font-black uppercase tracking-[0.2em]">Social Presence</span>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl border border-zinc-800/50 bg-zinc-950/40 px-4 py-3">
+          <div className="grid grid-cols-2 gap-4 border-t border-zinc-800/60 pt-3 sm:gap-6">
+            <div>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Presentation</p>
-              <p className="mt-1 text-base font-bold text-zinc-100">{socialPresence.presentationLabel}</p>
+              <p className="mt-1 text-lg font-bold text-zinc-100">{socialPresence.presentationLabel}</p>
             </div>
-            <div className="rounded-xl border border-zinc-800/50 bg-zinc-950/40 px-4 py-3">
+            <div>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Threat</p>
-              <p className="mt-1 text-base font-bold text-zinc-100">{socialPresence.threatLabel}</p>
+              <p className="mt-1 text-lg font-bold text-zinc-100">{socialPresence.threatLabel}</p>
             </div>
           </div>
         </div>

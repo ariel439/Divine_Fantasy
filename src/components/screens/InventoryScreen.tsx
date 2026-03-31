@@ -9,18 +9,29 @@ import ProgressBar from '../ui/ProgressBar';
 import ItemSelectionPanel from '../ui/ItemSelectionPanel';
 import EquippedGearPanel from '../ui/EquippedGearPanel';
 import ItemDetailsPanel from '../ui/ItemDetailsPanel';
+import ConfirmationModal from '../modals/ConfirmationModal';
+import QuantityModal from '../modals/QuantityModal';
 import itemsData from '../../data/items.json';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
+
+const isSocialEquipment = (item: Item): boolean => {
+    if (!item.equipmentSlot) return false;
+    if (item.equipmentSlot === 'weapon' || item.equipmentSlot === 'shield') return false;
+    if ((item.threatTier ?? 0) > 0) return false;
+    return (item.presentationTier ?? 0) > 0;
+};
 
 const InventoryScreen: FC = () => {
     const { setScreen } = useUIStore();
     const { items: inventoryItems, getCurrentWeight, useItem, removeItem, currentWeight } = useInventoryStore();
-    const { currency, maxWeight, equippedItems, equipItem, unequipItem, hunger } = useCharacterStore();
+    const { currency, maxWeight, equippedItems, equipmentLoadouts, activeEquipmentLoadout, equipItem, unequipItem, hunger } = useCharacterStore();
     const { getData, setData } = useWorldStateStore();
 
     const [selectedItem, setSelectedItem] = useState<Item | null>(null);
     const [rightPanelView, setRightPanelView] = useState<'equipment' | 'details'>('equipment');
     const [showAutoEatSettings, setShowAutoEatSettings] = useState(false);
+    const [dropConfirmItem, setDropConfirmItem] = useState<Item | null>(null);
+    const [dropQuantityItem, setDropQuantityItem] = useState<Item | null>(null);
 
     const buildDisplayItem = (baseItem: { id: string; quantity?: number }): Item | null => {
         const itemData = itemsData[baseItem.id as keyof typeof itemsData];
@@ -60,7 +71,11 @@ const InventoryScreen: FC = () => {
             bookId: (itemData as any).bookId,
             combatTags: (itemData as any).combatTags,
             equipmentSlot: equipSlot,
-            stats: (itemData as any).stats || {}
+            stats: (itemData as any).stats || {},
+            presentationTier: (itemData as any).presentationTier,
+            presentationRole: (itemData as any).presentationRole,
+            threatTier: (itemData as any).threatTier,
+            threatRole: (itemData as any).threatRole,
         } as Item;
     };
 
@@ -71,7 +86,20 @@ const InventoryScreen: FC = () => {
         }).filter(Boolean) as Item[];
     }, [inventoryItems]);
 
-    const enrichedEquippedItems = useMemo(() => {
+    const socialEquippedItems = useMemo(() => {
+        const enriched: Partial<Record<EquipmentSlot, Item>> = {};
+
+        (Object.entries(equipmentLoadouts[2] || {}) as [EquipmentSlot, string | undefined][]).forEach(([slot, itemId]) => {
+            if (!itemId) return;
+            const displayItem = buildDisplayItem({ id: itemId, quantity: 1 });
+            if (!displayItem) return;
+            enriched[slot] = displayItem;
+        });
+
+        return enriched;
+    }, [equipmentLoadouts]);
+
+    const combatEquippedItems = useMemo(() => {
         const enriched: Partial<Record<EquipmentSlot, Item>> = {};
 
         (Object.entries(equippedItems) as [EquipmentSlot, Item | undefined][]).forEach(([slot, item]) => {
@@ -84,21 +112,28 @@ const InventoryScreen: FC = () => {
         return enriched;
     }, [equippedItems]);
 
+    const displayedEquippedItems = useMemo(() => {
+        return activeEquipmentLoadout === 1 ? combatEquippedItems : socialEquippedItems;
+    }, [activeEquipmentLoadout, combatEquippedItems, socialEquippedItems]);
+
     const totalWeight = useMemo(() => {
         return getCurrentWeight();
-    }, [currentWeight, enrichedEquippedItems, getCurrentWeight]);
+    }, [currentWeight, combatEquippedItems, socialEquippedItems, getCurrentWeight]);
     
     const equippedItemForComparison = useMemo(() => {
         if (!selectedItem || !selectedItem.equipmentSlot || rightPanelView !== 'details') {
             return null;
         }
-        return enrichedEquippedItems[selectedItem.equipmentSlot] || null;
-    }, [selectedItem, enrichedEquippedItems, rightPanelView]);
+        const source = isSocialEquipment(selectedItem) ? socialEquippedItems : combatEquippedItems;
+        return source[selectedItem.equipmentSlot] || null;
+    }, [selectedItem, socialEquippedItems, combatEquippedItems, rightPanelView]);
 
     const isSelectedItemEquipped = useMemo(() => {
         if (!selectedItem) return false;
-        return Object.values(enrichedEquippedItems).filter((item): item is Item => !!item).some(item => item.id === selectedItem.id);
-    }, [selectedItem, enrichedEquippedItems]);
+        return [...Object.values(combatEquippedItems), ...Object.values(socialEquippedItems)]
+            .filter((item): item is Item => !!item)
+            .some(item => item.id === selectedItem.id);
+    }, [selectedItem, combatEquippedItems, socialEquippedItems]);
 
     const handleSelectItem = (item: Item) => {
         setSelectedItem(item);
@@ -125,7 +160,12 @@ const InventoryScreen: FC = () => {
                 remaining -= 1;
             }
         } else if (action === 'Drop') {
-            removeItem(selectedItem.id, 1);
+            if ((selectedItem.quantity ?? 1) > 1) {
+                setDropQuantityItem(selectedItem);
+                return;
+            }
+            setDropConfirmItem(selectedItem);
+            return;
         } else if (action === 'Equip') {
             equipItem(selectedItem);
         } else if (action === 'Unequip') {
@@ -136,8 +176,26 @@ const InventoryScreen: FC = () => {
     };
 
     const autoEatThreshold = parseInt(getData('auto_eat_threshold') || '0', 10) || 0;
+
+    const handleConfirmSingleDrop = () => {
+        if (!dropConfirmItem) return;
+        removeItem(dropConfirmItem.id, 1);
+        setDropConfirmItem(null);
+        handleShowEquipment();
+    };
+
+    const handleConfirmQuantityDrop = (quantity: number) => {
+        if (!dropQuantityItem || quantity <= 0) {
+            setDropQuantityItem(null);
+            return;
+        }
+        removeItem(dropQuantityItem.id, quantity);
+        setDropQuantityItem(null);
+        handleShowEquipment();
+    };
     
     return (
+        <>
         <div className="relative w-screen h-screen bg-zinc-950 flex flex-col overflow-hidden">
             {/* Background Layer */}
             <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 blur-sm" style={{ backgroundImage: `url(/assets/backgrounds/minimal_bg.png)` }} />
@@ -227,7 +285,7 @@ const InventoryScreen: FC = () => {
                        <div className="flex-grow bg-zinc-900/40 backdrop-blur-xl rounded-2xl border border-zinc-800/50 shadow-2xl overflow-hidden flex flex-col h-full">
                             {rightPanelView === 'equipment' ? (
                                 <EquippedGearPanel
-                                    equippedItems={enrichedEquippedItems}
+                                    equippedItems={displayedEquippedItems}
                                     onItemSelect={handleSelectItem}
                                 />
                             ) : (
@@ -260,6 +318,23 @@ const InventoryScreen: FC = () => {
                 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
             `}</style>
         </div>
+        <ConfirmationModal
+            isOpen={Boolean(dropConfirmItem)}
+            title="Drop Item"
+            message={dropConfirmItem ? `Drop ${dropConfirmItem.name}?` : ''}
+            onConfirm={handleConfirmSingleDrop}
+            onCancel={() => setDropConfirmItem(null)}
+            confirmText="Drop"
+            cancelText="Cancel"
+        />
+        <QuantityModal
+            isOpen={Boolean(dropQuantityItem)}
+            item={dropQuantityItem}
+            maxQuantity={dropQuantityItem?.quantity ?? 1}
+            onConfirm={handleConfirmQuantityDrop}
+            onCancel={() => setDropQuantityItem(null)}
+        />
+        </>
     );
 };
 

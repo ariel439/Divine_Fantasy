@@ -13,6 +13,16 @@
       "text": "This branch ends here in the current version. Driftwatch goes on, and so can you."
     }
   ],
+  "raidVictoryWeekPassageSlides": [
+    {
+      "image": "/assets/events/raid_victory_barracks.png",
+      "text": "The week after Finn's fall disappears into bruises, reports, and hard sleep. Luke helps the Tidehunters sort the wreckage left behind in Driftwatch's underbelly while the city slowly settles around the absence."
+    },
+    {
+      "image": "/assets/events/raid_tidehunter_offer.png",
+      "text": "Seven days pass before he properly returns to himself. By then the investigation has cooled, his strength has come back, and whatever Shihan was doing in Driftwatch has moved on."
+    }
+  ],
   "lukePrologueSlides": [
     {
       "image": "/assets/events/luke_breakfast.png",
@@ -181,6 +191,16 @@
     {
       "image": "/assets/events/demo_end_screen.png",
       "text": "This branch ends here in the current version. You can keep playing and see what else Driftwatch is willing to show you."
+    }
+  ],
+  "evilEndingWeekPassageSlides": [
+    {
+      "image": "/assets/events/finn_loyalist_reward_2.png",
+      "text": "Luke does not rush back below immediately. The week that follows is spent resting, keeping low, and letting the last stretch of violence settle into something he can carry."
+    },
+    {
+      "image": "/assets/events/demo_end_screen.png",
+      "text": "Seven days pass. His body heals, his strength returns, and by the time he is ready to move again, Driftwatch has shifted around him in small but final ways."
     }
   ],
   "hybridEndingSlides": [

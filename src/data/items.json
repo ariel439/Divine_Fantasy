@@ -303,20 +303,101 @@
       "defence": 5
     }
   },
-  "wolf_tooth_amulet": {
-    "name": "Wolf Tooth Amulet",
-    "description": "A necklace made of wolf teeth. Looks fierce.",
+  "bronze_ring": {
+    "name": "Bronze Ring",
+    "description": "A simple bronze ring. Cheap, modest, and just polished enough to look intentional.",
     "type": "accessory",
     "stackable": false,
-    "weight": 0.2,
-    "base_value": 15,
-    "image": "/assets/items/wolf_amulet.png",
+    "weight": 0.1,
+    "base_value": 35,
+    "image": "/assets/items/bronze_ring.png",
+    "equipmentSlot": "ring",
+    "presentationTier": 1,
+    "presentationRole": "minor"
+  },
+  "bronze_amulet": {
+    "name": "Bronze Amulet",
+    "description": "A plain bronze amulet on a cord. Poor jewelry, but still better than none.",
+    "type": "accessory",
+    "stackable": false,
+    "weight": 0.1,
+    "base_value": 35,
+    "image": "/assets/items/bronze_amulet.png",
+    "equipmentSlot": "amulet",
+    "presentationTier": 1,
+    "presentationRole": "minor"
+  },
+  "simple_silver_ring": {
+    "name": "Simple Silver Ring",
+    "description": "A clean silver ring with no ornament beyond good metal and steady workmanship.",
+    "type": "accessory",
+    "stackable": false,
+    "weight": 0.1,
+    "base_value": 120,
+    "image": "/assets/items/simple_silver_ring.png",
+    "equipmentSlot": "ring",
+    "presentationTier": 2,
+    "presentationRole": "minor"
+  },
+  "simple_silver_amulet": {
+    "name": "Simple Silver Amulet",
+    "description": "A modest silver amulet, understated but respectable in better company.",
+    "type": "accessory",
+    "stackable": false,
+    "weight": 0.1,
+    "base_value": 120,
+    "image": "/assets/items/simple_silver_amulet.png",
     "equipmentSlot": "amulet",
     "presentationTier": 2,
-    "presentationRole": "minor",
-    "stats": {
-      "attack": 1
-    }
+    "presentationRole": "minor"
+  },
+  "engraved_silver_ring": {
+    "name": "Engraved Silver Ring",
+    "description": "A refined silver ring with tasteful engraving. Not noble, but clearly above common station.",
+    "type": "accessory",
+    "stackable": false,
+    "weight": 0.1,
+    "base_value": 320,
+    "image": "/assets/items/engraved_silver_ring.png",
+    "equipmentSlot": "ring",
+    "presentationTier": 3,
+    "presentationRole": "minor"
+  },
+  "engraved_silver_amulet": {
+    "name": "Engraved Silver Amulet",
+    "description": "A polished silver amulet with delicate engraving and a more expensive chain.",
+    "type": "accessory",
+    "stackable": false,
+    "weight": 0.1,
+    "base_value": 320,
+    "image": "/assets/items/engraved_silver_amulet.png",
+    "equipmentSlot": "amulet",
+    "presentationTier": 3,
+    "presentationRole": "minor"
+  },
+  "gold_signet_ring": {
+    "name": "Gold Signet Ring",
+    "description": "A rich gold signet ring. Costly enough to change how people place you at a glance.",
+    "type": "accessory",
+    "stackable": false,
+    "weight": 0.1,
+    "base_value": 750,
+    "image": "/assets/items/gold_signet_ring.png",
+    "equipmentSlot": "ring",
+    "presentationTier": 4,
+    "presentationRole": "minor"
+  },
+  "gold_pendant_amulet": {
+    "name": "Gold Pendant Amulet",
+    "description": "A gold pendant amulet meant to be seen. Wealth worn openly rather than merely carried.",
+    "type": "accessory",
+    "stackable": false,
+    "weight": 0.1,
+    "base_value": 750,
+    "image": "/assets/items/gold_pendant_amulet.png",
+    "equipmentSlot": "amulet",
+    "presentationTier": 4,
+    "presentationRole": "minor"
   },
   "iron_helmet": {
     "name": "Iron Helmet",

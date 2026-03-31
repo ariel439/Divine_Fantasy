@@ -366,20 +366,6 @@ export const mockRecipes: Recipe[] = [
         energyCost: 8,
         xpGranted: 60,
     },
-    {
-        id: 'recipe_wolf_amulet',
-        skill: 'Crafting',
-        levelRequired: 3,
-        result: {
-            id: 'wolf_tooth_amulet', name: 'Wolf Tooth Amulet', description: 'A necklace made of wolf teeth.', icon: React.createElement(Gem, { size: 24, className: "text-zinc-400" }), category: 'Equipment', weight: 0.2, base_value: 15, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'amulet', stats: { 'strength': 2 }
-        },
-        ingredients: [
-            { itemId: 'wolf_tooth', quantity: 3 },
-        ],
-        timeCost: 15,
-        energyCost: 6,
-        xpGranted: 80,
-    }
 ];
 
 export const mockParty: CombatParticipant[] = [

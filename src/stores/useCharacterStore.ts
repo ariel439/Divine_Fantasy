@@ -59,10 +59,28 @@ interface CharacterState {
   getMaxEnergy: () => number;
   saveEquipmentLoadout: (slot: 1 | 2) => void;
   applyEquipmentLoadout: (slot: 1 | 2) => void;
+  setActiveEquipmentLoadout: (slot: 1 | 2) => void;
   refreshSocialEnergyCap: () => void;
 }
 
 import { useWorldStateStore } from './useWorldStateStore';
+
+const SOCIAL_FORWARD_SLOTS: EquipmentSlot[] = ['head', 'cape', 'amulet', 'chest', 'gloves', 'legs', 'boots', 'ring'];
+const COMBAT_SLOTS: EquipmentSlot[] = ['head', 'chest', 'legs', 'weapon', 'shield'];
+
+const isSocialEquipment = (item: Item): boolean => {
+  if (!item.equipmentSlot) return false;
+  if (item.equipmentSlot === 'weapon' || item.equipmentSlot === 'shield') return false;
+  if ((item.threatTier ?? 0) > 0) return false;
+  return SOCIAL_FORWARD_SLOTS.includes(item.equipmentSlot) && (item.presentationTier ?? 0) > 0;
+};
+
+const snapshotEquipment = (equippedItems: Partial<Record<EquipmentSlot, Item>>) =>
+  Object.entries(equippedItems).reduce<EquipmentLoadoutSlotMap>((acc, [key, equipped]) => {
+    if (!equipped) return acc;
+    acc[key as EquipmentSlot] = equipped.id;
+    return acc;
+  }, {});
 
 export const useCharacterStore = create<CharacterState>((set, get) => ({
   // Initial state - will be set by GameManagerService on new game
@@ -179,9 +197,33 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   equipItem: (item) => {
     const { equipmentSlot } = item;
     if (!equipmentSlot) return;
+    const targetLoadout = isSocialEquipment(item) ? 2 : 1;
     if (equipmentSlot === 'weapon' && useWorldStateStore.getState().getFlag('whitefang_bound')) {
       const lockedWeapon = get().equippedItems.weapon;
       if (lockedWeapon?.id === 'white_fang_of_heaven') return;
+    }
+
+    if (targetLoadout === 2) {
+      const removed = useInventoryStore.getState().removeItem(item.id, 1);
+      if (!removed) return;
+
+      set((state) => {
+        const nextSocialLoadout = { ...state.equipmentLoadouts[2] };
+        const currentlyEquippedSocialId = nextSocialLoadout[equipmentSlot];
+        if (currentlyEquippedSocialId && currentlyEquippedSocialId !== item.id) {
+          useInventoryStore.getState().addItem(currentlyEquippedSocialId, 1);
+        }
+        nextSocialLoadout[equipmentSlot] = item.id;
+
+        return {
+          equipmentLoadouts: {
+            ...state.equipmentLoadouts,
+            2: nextSocialLoadout,
+          },
+          activeEquipmentLoadout: 2,
+        };
+      });
+      return;
     }
 
     const { equippedItems } = get();
@@ -208,17 +250,14 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
         [equipmentSlot]: item,
         ...(isTwoHandedWeapon ? { shield: item } : {}),
       };
-      const snapshot = Object.entries(nextEquippedItems).reduce<EquipmentLoadoutSlotMap>((acc, [key, equipped]) => {
-        if (!equipped) return acc;
-        acc[key as EquipmentSlot] = equipped.id;
-        return acc;
-      }, {});
+      const snapshot = snapshotEquipment(nextEquippedItems);
       return {
         equippedItems: nextEquippedItems,
         equipmentLoadouts: {
           ...state.equipmentLoadouts,
-          [state.activeEquipmentLoadout]: snapshot,
+          1: snapshot,
         },
+        activeEquipmentLoadout: 1,
       };
     });
     get().recalculateStats();
@@ -226,6 +265,26 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   unequipItem: (item) => {
     const { equipmentSlot } = item;
     if (!equipmentSlot) return;
+    const socialLoadout = get().equipmentLoadouts[2];
+    const isSocialItemEquipped = socialLoadout[equipmentSlot] === item.id;
+
+    if (isSocialItemEquipped) {
+      const added = useInventoryStore.getState().addItem(item.id, 1);
+      if (!added) return;
+      set((state) => {
+        const nextSocialLoadout = { ...state.equipmentLoadouts[2] };
+        delete nextSocialLoadout[equipmentSlot];
+        return {
+          equipmentLoadouts: {
+            ...state.equipmentLoadouts,
+            2: nextSocialLoadout,
+          },
+          activeEquipmentLoadout: 2,
+        };
+      });
+      return;
+    }
+
     if (
       equipmentSlot === 'weapon' &&
       useWorldStateStore.getState().getFlag('whitefang_bound') &&
@@ -245,17 +304,14 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
       if (equipmentSlot === 'weapon' && item.combatTags?.includes('two_handed')) {
         delete newEquippedItems.shield;
       }
-      const snapshot = Object.entries(newEquippedItems).reduce<EquipmentLoadoutSlotMap>((acc, [key, equipped]) => {
-        if (!equipped) return acc;
-        acc[key as EquipmentSlot] = equipped.id;
-        return acc;
-      }, {});
+      const snapshot = snapshotEquipment(newEquippedItems);
       return {
         equippedItems: newEquippedItems,
         equipmentLoadouts: {
           ...state.equipmentLoadouts,
-          [state.activeEquipmentLoadout]: snapshot,
+          1: snapshot,
         },
+        activeEquipmentLoadout: 1,
       };
     });
     get().recalculateStats();
@@ -379,100 +435,30 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     }));
   },
   saveEquipmentLoadout: (slot) => {
-    const equipped = get().equippedItems;
-    const snapshot = Object.entries(equipped).reduce<EquipmentLoadoutSlotMap>((acc, [key, item]) => {
-      if (!item) return acc;
-      acc[key as EquipmentSlot] = item.id;
-      return acc;
-    }, {});
-
-    set((state) => ({
-      equipmentLoadouts: {
-        ...state.equipmentLoadouts,
-        [slot]: snapshot,
-      },
-      activeEquipmentLoadout: slot,
-    }));
-  },
-  applyEquipmentLoadout: (slot) => {
-    const state = get();
-    const loadout = state.equipmentLoadouts[slot];
-    const currentSnapshot = Object.entries(state.equippedItems).reduce<EquipmentLoadoutSlotMap>((acc, [key, item]) => {
-      if (!item) return acc;
-      acc[key as EquipmentSlot] = item.id;
-      return acc;
-    }, {});
-
-    if (!loadout || Object.keys(loadout).length === 0) {
-      set((current) => ({
+    if (slot === 1) {
+      const snapshot = snapshotEquipment(get().equippedItems);
+      set((state) => ({
         equipmentLoadouts: {
-          ...current.equipmentLoadouts,
-          [slot]: currentSnapshot,
+          ...state.equipmentLoadouts,
+          1: snapshot,
         },
-        activeEquipmentLoadout: slot,
+        activeEquipmentLoadout: 1,
       }));
       return;
     }
 
-    set({ activeEquipmentLoadout: slot });
-
-    const desiredWeaponId = loadout.weapon;
-    const desiredShieldId = loadout.shield;
-
-    const hasDesiredItemAvailable = (itemId: string) => {
-      const currentlyEquipped = Object.values(get().equippedItems).some((item) => item?.id === itemId);
-      const inInventory = useInventoryStore.getState().getItemQuantity(itemId) > 0;
-      return currentlyEquipped || inInventory;
-    };
-
-    const desiredSlots = (Object.keys(loadout) as EquipmentSlot[]).filter((slotKey) => {
-      const itemId = loadout[slotKey];
-      if (!itemId) return false;
-      if (slotKey === 'shield' && desiredWeaponId && desiredShieldId === desiredWeaponId) return false;
-      return hasDesiredItemAvailable(itemId);
-    });
-
-    const slotsToClear = (Object.keys(get().equippedItems) as EquipmentSlot[]).filter((slotKey) => {
-      const equippedItem = get().equippedItems[slotKey];
-      if (!equippedItem) return false;
-      const desiredItemId = loadout[slotKey];
-      if (slotKey === 'shield' && desiredWeaponId && equippedItem.id === desiredWeaponId && desiredShieldId === desiredWeaponId) {
-        return false;
-      }
-      return !desiredItemId || desiredItemId !== equippedItem.id;
-    });
-
-    slotsToClear.forEach((slotKey) => {
-      const equippedItem = get().equippedItems[slotKey];
-      if (!equippedItem) return;
-      get().unequipItem(equippedItem);
-    });
-
-    desiredSlots.forEach((slotKey) => {
-      const itemId = loadout[slotKey];
-      if (!itemId) return;
-      const currentlyEquipped = get().equippedItems[slotKey];
-      if (currentlyEquipped?.id === itemId) return;
-
-      const itemData = itemsData[itemId as keyof typeof itemsData] as any;
-      if (!itemData) return;
-      if (useInventoryStore.getState().getItemQuantity(itemId) <= 0) return;
-
-      get().equipItem({
-        id: itemId,
-        name: itemData.name,
-        description: itemData.description,
-        type: itemData.type,
-        weight: itemData.weight,
-        base_value: itemData.base_value,
-        stackable: itemData.stackable,
-        bookId: itemData.bookId,
-        combatTags: itemData.combatTags,
-        equipmentSlot: itemData.equipmentSlot,
-        stats: itemData.stats || {},
-      } as Item);
-    });
+    set((state) => ({
+      equipmentLoadouts: {
+        ...state.equipmentLoadouts,
+        2: { ...state.equipmentLoadouts[2] },
+      },
+      activeEquipmentLoadout: 2,
+    }));
   },
+  applyEquipmentLoadout: (slot) => {
+    set({ activeEquipmentLoadout: slot });
+  },
+  setActiveEquipmentLoadout: (slot) => set({ activeEquipmentLoadout: slot }),
   getMaxEnergy: () => {
     const { hunger } = get();
     // Full (80-100): +10%

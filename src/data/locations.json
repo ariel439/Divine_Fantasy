@@ -44,6 +44,20 @@
       { "text": "Travel to Noble Quarter", "type": "navigate", "target": "driftwatch_noble_quarter" }
     ]
   },
+  "silvershore_jeweler": {
+    "name": "Silvershore Jeweler",
+    "day_description": "A polished little jeweler's shop with velvet trays, locked cases, and enough silver and gold to make poverty feel louder.",
+    "night_description": "The jeweler's shutters are closed tight, with only a faint glint left behind the glass.",
+    "day_background": "/assets/locations/silvershore_jeweler.png",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
+    "is_indoor": true,
+    "opening_hour": 9,
+    "closing_hour": 18,
+    "exit_location": "driftwatch_noble_quarter",
+    "actions": [
+      { "text": "Travel to Noble Quarter", "type": "navigate", "target": "driftwatch_noble_quarter" }
+    ]
+  },
   "leo_lighthouse": {
     "name": "Leo's Lighthouse",
     "day_description": "A repurposed lighthouse that now serves as a home for the city's orphans, run by the kindly Old Leo.",
@@ -114,6 +128,7 @@
     "actions": [
       { "text": "Travel to Mosswatch Keep", "type": "navigate", "target": "mosswatch_keep" },
       { "text": "Travel to Harbor Clothier", "type": "navigate", "target": "harbor_clothier" },
+      { "text": "Travel to Silvershore Jeweler", "type": "navigate", "target": "silvershore_jeweler" },
       { "text": "Sell Antique Locket", "type": "trigger_event", "eventId": "sell_locket_event", "condition": "has_item:antique_locket && time.is_day==true" },
       { "text": "Travel to The Grand Library", "type": "navigate", "target": "grand_library" },
       { "text": "Deliver Parcel", "type": "trigger_event", "eventId": "beryl_delivery_event", "condition": "inventory.beryl_noble_parcel>0" },
@@ -185,7 +200,7 @@
     "night_background": "/assets/locations/isolated_beach_night.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
-      { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_beach_sign", "condition": "world_flags.whitefang_beach_vision_seen==false" },
+      { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_beach_sign", "condition": "world_flags.whitefang_beach_vision_seen==false && world_flags.whitefang_week_closed==false" },
       { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 }
     ]
   },
@@ -317,7 +332,7 @@
       { "text": "Explore", "type": "explore", "target": "explore_woods" },
       { "text": "Chop Wood", "type": "woodcut", "target": "woodcut_basic" },
       { "text": "Fish", "type": "fish", "target": "fish_river" },
-      { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_woods_sign", "condition": "world_flags.whitefang_woods_vision_seen==false" },
+      { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_woods_sign", "condition": "world_flags.whitefang_woods_vision_seen==false && world_flags.whitefang_week_closed==false" },
       { "text": "Travel to Shihan's Camp", "type": "navigate", "target": "shihan_camp", "condition": "world_flags.whitefang_camp_unlocked==true" },
       { "text": "Travel to Hunter's Cabin", "type": "navigate", "target": "hunters_cabin" },
       { "text": "Travel to Sawmill", "type": "navigate", "target": "sawmill" },
@@ -344,9 +359,9 @@
     "night_background": "/assets/locations/mountain_paths_night.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
-      { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_mountain_sign", "condition": "world_flags.whitefang_mountain_vision_seen==false" },
-      { "text": "Investigate the sealed cave", "type": "trigger_event", "eventId": "whitefang_sealed_cave", "condition": "world_flags.whitefang_cave_discovered==true && world_flags.whitefang_expedition_agreed==false && world_flags.whitefang_cave_breached==false" },
-      { "text": "Return to the sealed cave with Shihan's retainers", "type": "trigger_event", "eventId": "whitefang_expedition_breach", "condition": "world_flags.whitefang_expedition_agreed==true && world_flags.whitefang_cave_breached==false" },
+      { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_mountain_sign", "condition": "world_flags.whitefang_mountain_vision_seen==false && world_flags.whitefang_week_closed==false" },
+      { "text": "Investigate the sealed cave", "type": "trigger_event", "eventId": "whitefang_sealed_cave", "condition": "world_flags.whitefang_cave_discovered==true && world_flags.whitefang_expedition_agreed==false && world_flags.whitefang_cave_breached==false && world_flags.whitefang_week_closed==false" },
+      { "text": "Return to the sealed cave with Shihan's retainers", "type": "trigger_event", "eventId": "whitefang_expedition_breach", "condition": "world_flags.whitefang_expedition_agreed==true && world_flags.whitefang_cave_breached==false && world_flags.whitefang_week_closed==false" },
       { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 }
     ]
   },

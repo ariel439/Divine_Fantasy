@@ -51,7 +51,7 @@ const GEAR_PRESETS: Array<{ id: string; label: string; gear: GearSelection }> = 
       legs: 'wolf_leather_legs',
       boots: '',
       weapon: 'crude_knife',
-      amulet: 'wolf_tooth_amulet',
+      amulet: '',
     },
   },
   {

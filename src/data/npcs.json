@@ -147,6 +147,15 @@
       { "location_id": "harbor_clothier", "start_hour": 8, "end_hour": 18 }
     ]
   },
+  "npc_silvershore_jeweler": {
+    "name": "Cassian",
+    "home_location": "silvershore_jeweler",
+    "default_dialogue_id": "cassian_jeweler_default",
+    "portrait": "/assets/portraits/Cassian.png",
+    "schedules": [
+      { "location_id": "silvershore_jeweler", "start_hour": 9, "end_hour": 18 }
+    ]
+  },
   "npc_finn": {
     "name": "Finn",
     "home_location": "salty_mug",

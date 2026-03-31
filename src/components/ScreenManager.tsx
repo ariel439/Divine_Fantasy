@@ -45,6 +45,8 @@ import {
   elaraDeliverySlides, 
   berylDeliverySlides, 
   rebelVictorySlides,
+  raidVictoryWeekPassageSlides,
+  evilEndingWeekPassageSlides,
   introRobertTrainingSlides,
   introKidsHelpingSlides,
   introStudyShenhaicSlides,
@@ -77,6 +79,12 @@ const ScreenManager: React.FC = () => {
     if (!world.getData(`${npcId}_death_date`)) {
       world.setData(`${npcId}_death_date`, useWorldTimeStore.getState().getFormattedDate());
     }
+  };
+
+  const finishWeekLockedWhiteFangEnding = (locationId: string) => {
+    GameManagerService.applyPostEndingWeekRecovery();
+    useLocationStore.getState().setLocation(locationId);
+    setScreen('inGame');
   };
 
   const completeIntroPastime = (fallbackChoice: 'robert' | 'kids' | 'study') => {
@@ -357,8 +365,9 @@ const ScreenManager: React.FC = () => {
             useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
             try { useJournalStore.getState().failQuest('finn_debt_collection'); } catch {}
             try { useJournalStore.getState().completeQuest('rebel_path'); } catch {}
-            useLocationStore.getState().setLocation('driftwatch_slums');
-            setScreen('inGame');
+            ui.setEventSlides(raidVictoryWeekPassageSlides);
+            ui.setCurrentEventId('raid_victory_week_passage');
+            setScreen('event');
             return;
           }
           if (id === 'timeout_game_over') {
@@ -376,8 +385,9 @@ const ScreenManager: React.FC = () => {
           if (id === 'evil_path_end') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
-            useLocationStore.getState().setLocation('salty_mug');
-            setScreen('inGame');
+            ui.setEventSlides(evilEndingWeekPassageSlides);
+            ui.setCurrentEventId('evil_path_end_week_passage');
+            setScreen('event');
             return;
           }
           if (id === 'finn_hybrid_end') {
@@ -427,8 +437,21 @@ const ScreenManager: React.FC = () => {
             useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
             try { useJournalStore.getState().failQuest('finn_debt_collection'); } catch {}
             try { useJournalStore.getState().completeQuest('rebel_path'); } catch {}
-            useLocationStore.getState().setLocation('driftwatch_slums');
-            setScreen('inGame');
+            ui.setEventSlides(raidVictoryWeekPassageSlides);
+            ui.setCurrentEventId('rebel_victory_week_passage');
+            setScreen('event');
+            return;
+          }
+          if (id === 'raid_victory_week_passage' || id === 'rebel_victory_week_passage') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            finishWeekLockedWhiteFangEnding('driftwatch_slums');
+            return;
+          }
+          if (id === 'evil_path_end_week_passage') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            finishWeekLockedWhiteFangEnding('salty_mug');
             return;
           }
           if (id === 'elara_delivery_event') {

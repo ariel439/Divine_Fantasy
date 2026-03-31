@@ -407,6 +407,7 @@ export class GameManagerService {
       seenLeoTutorial: false,
       stringData: {},
     });
+    useWorldStateStore.getState().setFlag('whitefang_week_closed', false);
 
     useCompanionStore.setState({
       activeCompanion: null,
@@ -454,6 +455,29 @@ export class GameManagerService {
       ...state,
       hp: Math.min(state.maxHp || 100, 80),
       energy: 60,
+    }));
+  }
+
+  static closeWhiteFangWeekWindow(): void {
+    const world = useWorldStateStore.getState();
+    world.setFlag('whitefang_week_closed', true);
+
+    const whiteFangQuest = useJournalStore.getState().quests['white_fang_route'];
+    if (whiteFangQuest && whiteFangQuest.active && !whiteFangQuest.completed) {
+      try { useJournalStore.getState().failQuest('white_fang_route'); } catch {}
+    }
+  }
+
+  static applyPostEndingWeekRecovery(): void {
+    useWorldTimeStore.getState().passTime(7 * 24 * 60);
+    this.closeWhiteFangWeekWindow();
+
+    useCharacterStore.setState((state) => ({
+      ...state,
+      hp: state.maxHp,
+      energy: 100,
+      hunger: 100,
+      socialEnergy: state.maxSocialEnergy,
     }));
   }
 

@@ -94,7 +94,7 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
                         onClick={() => onAction(isEquipped ? 'Unequip' : 'Equip')} 
                         className="col-span-2 py-4 bg-white text-black font-black uppercase tracking-[0.3em] text-sm rounded-xl transition-all hover:bg-zinc-200 active:scale-95 shadow-xl"
                     >
-                        {isEquipped ? 'Unequip' : 'Equip Gear'}
+                        {isEquipped ? 'Unequip' : 'Equip'}
                     </button>
                 )}
                 {actionsToShow.map(action => (

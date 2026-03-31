@@ -1,0 +1,46 @@
+{
+  "qiao_ren_camp_default": {
+    "interaction_roots": {
+      "ask": "qiao_ren_ask_root"
+    },
+    "nodes": {
+      "0": {
+        "npc_text": "Qiao Ren says nothing for a long moment. Then: \"You are still alive. That is more than most men would have managed.\"",
+        "player_choices": [
+          {
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "qiao_ren_ask_root": {
+        "npc_text": "\"If you have a question, ask it before the night gets old.\"",
+        "player_choices": [
+          {
+            "text": "How long have you been with Shihan?",
+            "next_node": "qiao_ren_ask_service",
+            "condition": "world_flags.qiao_ren_asked_service==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "qiao_ren_ask_service": {
+        "npc_text": "\"Long enough to know when she is curious, when she is reckless, and when those are the same thing. This journey has been all three.\"",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "action": "set_flag:qiao_ren_asked_service:true",
+            "next_node": "qiao_ren_ask_root"
+          }
+        ]
+      }
+    }
+  }
+}

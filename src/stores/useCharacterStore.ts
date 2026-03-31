@@ -175,6 +175,8 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
 
     const { equippedItems } = get();
     const currentlyEquipped = equippedItems[equipmentSlot];
+    const isTwoHandedWeapon = equipmentSlot === 'weapon' && Boolean(item.combatTags?.includes('two_handed'));
+    const equippedShield = equippedItems.shield;
 
     // Remove from inventory first
     const removed = useInventoryStore.getState().removeItem(item.id, 1);
@@ -184,12 +186,16 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     if (currentlyEquipped) {
       useInventoryStore.getState().addItem(currentlyEquipped.id, 1);
     }
+    if (isTwoHandedWeapon && equippedShield && equippedShield.id !== item.id) {
+      useInventoryStore.getState().addItem(equippedShield.id, 1);
+    }
 
     // Equip the new item
     set((state) => ({
       equippedItems: {
         ...state.equippedItems,
         [equipmentSlot]: item,
+        ...(isTwoHandedWeapon ? { shield: item } : {}),
       },
     }));
     get().recalculateStats();
@@ -213,6 +219,9 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     set((state) => {
       const newEquippedItems = { ...state.equippedItems };
       delete newEquippedItems[equipmentSlot];
+      if (equipmentSlot === 'weapon' && item.combatTags?.includes('two_handed')) {
+        delete newEquippedItems.shield;
+      }
       return { equippedItems: newEquippedItems };
     });
     get().recalculateStats();
@@ -285,8 +294,9 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
       
       // Calculate Max HP: Base 50 + (Strength * 10) + Item Bonuses
       let bonusHp = 0;
-      Object.values(state.equippedItems).forEach((item: any) => {
+      Object.entries(state.equippedItems).forEach(([slot, item]: any) => {
         if (item && item.stats) {
+           if (slot === 'shield' && item.combatTags?.includes('two_handed')) return;
            // Handle case-insensitive keys
            const stats = Object.keys(item.stats).reduce((acc: any, key) => {
              acc[key.toLowerCase()] = item.stats[key];

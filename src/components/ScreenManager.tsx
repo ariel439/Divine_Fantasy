@@ -47,7 +47,8 @@ import {
   rebelVictorySlides,
   introRobertTrainingSlides,
   introKidsHelpingSlides,
-  introStudyShenhaicSlides
+  introStudyShenhaicSlides,
+  whitefangBindingSlides
 } from '../data/events';
 import { getIntimidationSummary } from '../utils/socialPresentation';
 
@@ -490,7 +491,7 @@ const ScreenManager: React.FC = () => {
             GameManagerService.startWhiteFangCombat();
             return;
           }
-          if (id === 'whitefang_binding') {
+          if (id === 'whitefang_binding_accept') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             GameManagerService.bindWhiteFangToLuke();
@@ -825,6 +826,40 @@ const ScreenManager: React.FC = () => {
                     useUIStore.getState().setEventSlides(introStudyShenhaicSlides);
                     useUIStore.getState().setCurrentEventId('intro_study_shenhaic');
                     setScreen('event');
+                  },
+                },
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'whitefang_binding_choice') {
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Give in to the pull',
+                  variant: 'quest',
+                  onSelect: () => {
+                    useUIStore.getState().setEventSlides(whitefangBindingSlides);
+                    useUIStore.getState().setCurrentEventId('whitefang_binding_accept');
+                    setScreen('event');
+                  },
+                },
+                {
+                  text: 'Resist it',
+                  onSelect: () => {
+                    setEventResult(null);
+                    useUIStore.getState().setCurrentEventId(null);
+                    GameManagerService.resistWhiteFang();
+                    useJournalStore.getState().completeQuest('white_fang_route');
+                    useLocationStore.getState().setLocation('shihan_camp');
+                    useUIStore.getState().setDialogueNpcId('npc_shihan_camp');
+                    useWorldStateStore.getState().setFlag('shihan_camp_intro_seen', false);
+                    setScreen('dialogue');
                   },
                 },
               ]}

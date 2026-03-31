@@ -332,5 +332,11 @@ export const socialNpcInteractionConfigs: Record<string, SocialNpcInteractionCon
       coerce: ['threaten'],
     },
   },
+  npc_shihan_camp: {
+    availableInteractions: {
+      friendly: ['smalltalk', 'helpful', 'honest', 'compliment'],
+      flirt: ['flirt_compliment'],
+      coerce: ['threaten'],
+    },
+  },
 };
-

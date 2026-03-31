@@ -1094,6 +1094,8 @@ export class GameManagerService {
     }
 
     world.setFlag('whitefang_bound', true);
+    world.setFlag('whitefang_resisted', false);
+    world.setFlag('whitefang_camp_unlocked', true);
     world.setFlag('raid_ready', false);
 
     const inventory = useInventoryStore.getState();
@@ -1139,6 +1141,23 @@ export class GameManagerService {
     useDiaryStore.getState().addInteraction('White Fang of Heaven has bound itself to Luke.');
   }
 
+  static resistWhiteFang(): void {
+    const world = useWorldStateStore.getState();
+    if (world.getFlag('whitefang_bound') || world.getFlag('whitefang_resisted')) return;
+
+    const rebelQuest = useJournalStore.getState().quests['rebel_path'];
+    if (rebelQuest?.active && !rebelQuest.completed) {
+      try { useJournalStore.getState().updateQuest('rebel_path', { currentStage: 0 }); } catch {}
+      try { useJournalStore.getState().failQuest('rebel_path'); } catch {}
+    }
+
+    world.setFlag('whitefang_resisted', true);
+    world.setFlag('whitefang_camp_unlocked', true);
+    world.setFlag('raid_ready', false);
+
+    useDiaryStore.getState().addInteraction('Luke resisted White Fang of Heaven and left it sealed beneath the mountain.');
+  }
+
   private static calculatePlayerStats(character: any): { attack: number; defence: number; dexterity: number } {
     let totalAttack = character.attributes.strength || 0;
     // Base defence is average of strength and dexterity
@@ -1146,8 +1165,9 @@ export class GameManagerService {
     let totalDexterity = character.attributes.dexterity || 0;
 
     if (character.equippedItems) {
-      Object.values(character.equippedItems).forEach((item: any) => {
+      Object.entries(character.equippedItems).forEach(([slot, item]: any) => {
         if (item && item.stats) {
+          if (slot === 'shield' && item.combatTags?.includes('two_handed')) return;
           // Normalize keys to lowercase to handle potential inconsistencies (Attack vs attack)
           const stats = Object.keys(item.stats).reduce((acc: any, key) => {
             acc[key.toLowerCase()] = item.stats[key];

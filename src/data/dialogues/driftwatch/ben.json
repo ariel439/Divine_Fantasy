@@ -68,9 +68,14 @@
             "condition": "world_flags.ben_cheat_done==true && world_flags.debt_paid_by_ben==false"
           },
           {
+            "text": "About the debt.",
+            "next_node": "ben_household_extorted",
+            "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_ben==false && world_flags.ben_household_extorted==true"
+          },
+          {
             "text": "Finn sent me. Pay 10 silvers.",
             "next_node": "debt_collection",
-            "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_ben==false && world_flags.ben_cheat_agreed==false"
+            "condition": "world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_ben==false && world_flags.ben_cheat_agreed==false && world_flags.ben_household_extorted==false"
           },
           {
             "text": "About tonight at the Mug.",
@@ -86,6 +91,19 @@
       "ben_quest_cheat_reminder": {
         "npc_text": "Tonight, at the Salty Mug. Stick close, keep your face calm, and don't ruin the one good bad idea I've had all month.",
         "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "ben_quest_root"
+          }
+        ]
+      },
+      "ben_household_extorted": {
+        "npc_text": "You already squeezed Elisa for her locket. There is nothing left in that house for you to bargain over. Sell it and call the debt settled.",
+        "player_choices": [
+          {
+            "text": "Fine.",
+            "closes_dialogue": true
+          },
           {
             "text": "Back.",
             "next_node": "ben_quest_root"

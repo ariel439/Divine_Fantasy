@@ -48,7 +48,7 @@
           {
             "text": "I need to talk to you.",
             "next_node": "elisa_night_raid",
-            "condition": "time.is_night==true"
+            "condition": "time.is_night==true && world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_ben==false && world_flags.ben_cheat_agreed==false && world_flags.ben_cheat_done==false && world_flags.ben_household_extorted==false"
           },
           {
             "text": "Back.",
@@ -101,7 +101,7 @@
           {
             "text": "Pleasure doing business.",
             "closes_dialogue": true,
-            "action": "add_item:antique_locket:1|update_relationship:npc_elisa:-50"
+            "action": "add_item:antique_locket:1|update_relationship:npc_elisa:-50|set_flag:ben_household_extorted:true"
           }
         ]
       },

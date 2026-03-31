@@ -90,7 +90,7 @@
       { "id": 5, "text": "I found where Ren Zhen sealed himself. I need to tell Shihan.", "type": "flag", "target": "whitefang_expedition_agreed" },
       { "id": 6, "text": "Shihan's retainers can breach the sealed cave if I bring them back to the mountain.", "type": "flag", "target": "whitefang_cave_breached" },
       { "id": 7, "text": "Ren Zhen's shadow guards what was sealed there. I have to survive it.", "type": "flag", "target": "whitefang_renzhen_shadow_defeated" },
-      { "id": 8, "text": "White Fang of Heaven has chosen me. Whatever comes next, I am not leaving this mountain unchanged.", "type": "flag", "target": "whitefang_bound" }
+      { "id": 8, "text": "What happened in the mountain cannot be carried back into Driftwatch unchanged. Shihan will keep camp in the woods for now.", "type": "flag", "target": "whitefang_camp_unlocked" }
     ],
     "rewards": {
       "xp": [{ "skill": "combat", "amount": 250 }, { "skill": "persuasion", "amount": 100 }],

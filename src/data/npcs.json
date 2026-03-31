@@ -43,7 +43,7 @@
     "home_location": "grand_library",
     "default_dialogue_id": "shihan_default",
     "portrait": "/assets/portraits/ShihanYue.png",
-    "hidden_if_flag": "whitefang_bound",
+    "hidden_if_flag": "whitefang_camp_unlocked",
     "available_from": { "month": 5, "dayOfMonth": 3 },
     "available_until": { "month": 5, "dayOfMonth": 10 },
     "schedules": [
@@ -57,7 +57,7 @@
     "home_location": "shihan_camp",
     "default_dialogue_id": "shihan_camp_default",
     "portrait": "/assets/portraits/ShihanYue.png",
-    "required_flag": "whitefang_bound",
+    "required_flag": "whitefang_camp_unlocked",
     "schedules": [
       { "location_id": "shihan_camp", "start_hour": 0, "end_hour": 24 }
     ]
@@ -67,7 +67,7 @@
     "home_location": "shihan_camp",
     "default_dialogue_id": "lin_shao_camp_default",
     "portrait": "/assets/portraits/LinShao.png",
-    "required_flag": "whitefang_bound",
+    "required_flag": "whitefang_camp_unlocked",
     "schedules": [
       { "location_id": "shihan_camp", "start_hour": 0, "end_hour": 24 }
     ]
@@ -77,7 +77,7 @@
     "home_location": "shihan_camp",
     "default_dialogue_id": "wei_taren_camp_default",
     "portrait": "/assets/portraits/WeiTaren.png",
-    "required_flag": "whitefang_bound",
+    "required_flag": "whitefang_camp_unlocked",
     "schedules": [
       { "location_id": "shihan_camp", "start_hour": 0, "end_hour": 24 }
     ]
@@ -87,7 +87,7 @@
     "home_location": "shihan_camp",
     "default_dialogue_id": "qiao_ren_camp_default",
     "portrait": "/assets/portraits/QiaoRen.png",
-    "required_flag": "whitefang_bound",
+    "required_flag": "whitefang_camp_unlocked",
     "schedules": [
       { "location_id": "shihan_camp", "start_hour": 0, "end_hour": 24 }
     ]

@@ -182,7 +182,7 @@
     "day_description": "A lonely stretch of coast beyond the busy harbor, all broken shells, dark stones, and restless surf.",
     "night_description": "The tide whispers over the stones while the rest of Driftwatch feels impossibly far away.",
     "day_background": "/assets/locations/isolated_beach.png",
-    "night_background": "/assets/locations/isolated_beach.png",
+    "night_background": "/assets/locations/isolated_beach_night.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
       { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_beach_sign", "condition": "world_flags.whitefang_beach_vision_seen==false" },
@@ -318,7 +318,7 @@
       { "text": "Chop Wood", "type": "woodcut", "target": "woodcut_basic" },
       { "text": "Fish", "type": "fish", "target": "fish_river" },
       { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_woods_sign", "condition": "world_flags.whitefang_woods_vision_seen==false" },
-      { "text": "Travel to Shihan's Camp", "type": "navigate", "target": "shihan_camp", "condition": "world_flags.whitefang_bound==true" },
+      { "text": "Travel to Shihan's Camp", "type": "navigate", "target": "shihan_camp", "condition": "world_flags.whitefang_camp_unlocked==true" },
       { "text": "Travel to Hunter's Cabin", "type": "navigate", "target": "hunters_cabin" },
       { "text": "Travel to Sawmill", "type": "navigate", "target": "sawmill" },
       { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 },
@@ -341,7 +341,7 @@
     "day_description": "Thin trails and cold stone rise above Driftwatch, where wind and distance strip the coast down to something older.",
     "night_description": "The mountain dark is sharp and silent, broken only by distant surf and loose stone underfoot.",
     "day_background": "/assets/locations/mountain_paths.png",
-    "night_background": "/assets/locations/mountain_paths.png",
+    "night_background": "/assets/locations/mountain_paths_night.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
       { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_mountain_sign", "condition": "world_flags.whitefang_mountain_vision_seen==false" },

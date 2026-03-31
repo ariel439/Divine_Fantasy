@@ -2,6 +2,18 @@
 // Utility functions for formatting data for display
 
 export class FormattingService {
+  static formatCopperValue(totalCopper: number): string {
+    const absoluteCopper = Math.abs(totalCopper);
+    const gold = Math.floor(absoluteCopper / 10000);
+    const silver = Math.floor((absoluteCopper % 10000) / 100);
+    const copper = absoluteCopper % 100;
+    const parts = [];
+    if (gold > 0) parts.push(`${gold}g`);
+    if (silver > 0) parts.push(`${silver}s`);
+    if (copper > 0 || parts.length === 0) parts.push(`${copper}c`);
+    return `${totalCopper < 0 ? '-' : ''}${parts.join(' ')}`;
+  }
+
   static formatCurrency(copper: number, silver: number, gold: number): string {
     const parts = [];
     if (gold > 0) parts.push(`${gold}g`);

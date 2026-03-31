@@ -1,0 +1,46 @@
+{
+  "lin_shao_camp_default": {
+    "interaction_roots": {
+      "ask": "lin_shao_ask_root"
+    },
+    "nodes": {
+      "0": {
+        "npc_text": "Captain Lin Shao inclines his head, but his hand never strays far from his weapon. \"Lady Yue is resting. If you need her, speak plainly.\"",
+        "player_choices": [
+          {
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "lin_shao_ask_root": {
+        "npc_text": "\"Questions, then. Be brief.\"",
+        "player_choices": [
+          {
+            "text": "What is your role in Shihan's household?",
+            "next_node": "lin_shao_ask_role",
+            "condition": "world_flags.lin_shao_asked_role==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "lin_shao_ask_role": {
+        "npc_text": "\"Captain of her escort. My duty is to keep her alive, moving, and unembarrassed by western chaos. Driftwatch has tested all three.\"",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "action": "set_flag:lin_shao_asked_role:true",
+            "next_node": "lin_shao_ask_root"
+          }
+        ]
+      }
+    }
+  }
+}

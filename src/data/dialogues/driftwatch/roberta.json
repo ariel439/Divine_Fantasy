@@ -12,6 +12,53 @@
       "quest": "rb_quest_root"
     },
     "nodes": {
+      "rb_intro_reunion": {
+        "npc_text": "Well, if it isn't Luke. Long time no see. I figured Old Leo still had you running errands across half the district.",
+        "player_choices": [
+          {
+            "text": "Missed seeing you around, Roberta. The street looked better with you in it.",
+            "action": "set_flag:roberta_first_meet_done:true|update_relationship:npc_roberta:3:love|add_xp:persuasion:5",
+            "next_node": "rb_intro_reunion_flirty"
+          },
+          {
+            "text": "It's good seeing you again. I missed this place.",
+            "action": "set_flag:roberta_first_meet_done:true|update_relationship:npc_roberta:5:friendship|add_xp:persuasion:4",
+            "next_node": "rb_intro_reunion_friendly"
+          },
+          {
+            "text": "Truth is, I'm short on coin. Any chance you could spare a little?",
+            "action": "set_flag:roberta_first_meet_done:true|update_relationship:npc_roberta:-3:friendship|add_money:10:copper",
+            "next_node": "rb_intro_reunion_desperate"
+          }
+        ]
+      },
+      "rb_intro_reunion_flirty": {
+        "npc_text": "That is smoother than I remember. Careful, Luke. Keep talking like that and I might start charging you for it. Go on then, say what you came to say.",
+        "player_choices": [
+          {
+            "text": "Let's talk.",
+            "next_node": "rb_repeat_meet"
+          }
+        ]
+      },
+      "rb_intro_reunion_friendly": {
+        "npc_text": "Hm. That's kinder than Driftwatch usually sounds. It's good seeing you in one piece too, Luke. Go on then.",
+        "player_choices": [
+          {
+            "text": "Let's talk.",
+            "next_node": "rb_repeat_meet"
+          }
+        ]
+      },
+      "rb_intro_reunion_desperate": {
+        "npc_text": "You pick an honest opening, I'll give you that. Fine. Ten copper, one time only. Don't make a habit of coming to me with your hand out, Luke.",
+        "player_choices": [
+          {
+            "text": "Let's talk.",
+            "next_node": "rb_repeat_meet"
+          }
+        ]
+      },
       "rb_first_meet": {
         "npc_text": "Tide & Trade, finest goods in Port Kael. First time in my shop?",
         "player_choices": [

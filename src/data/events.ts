@@ -41,6 +41,7 @@ export const whitefangBindingSlides: Slide[] = events.whitefangBindingSlides;
 
 type ChoiceEventId =
   | 'intro_pastime_choice'
+  | 'whitefang_binding_choice'
   | 'beryl_letter_pickup'
   | 'forge_crate_note_pickup'
   | 'apple_tree_event'
@@ -71,6 +72,13 @@ export const choiceEvents: Record<ChoiceEventId, ChoiceEventConfig> = {
     imageUrl: '/assets/events/luke_afternoon_choice.png',
     text:
       "The chores are done and Old Leo is occupied for a while. For once, Luke has a little time that belongs only to him. How does he spend it?",
+  },
+  whitefang_binding_choice: {
+    id: 'whitefang_binding_choice',
+    title: 'White Fang of Heaven',
+    imageUrl: '/assets/items/white_fang_of_heaven.png',
+    text:
+      "Ren Zhen's shadow breaks apart, but the glaive does not fall still. Its storm-dark hunger drags at Luke's chest like a hand trying to pull open everything in him that was already raw, bitter, and unresolved.",
   },
   beryl_letter_pickup: {
     id: 'beryl_letter_pickup',

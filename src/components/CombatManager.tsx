@@ -11,7 +11,7 @@ import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useToastStore } from '../stores/useToastStore';
 import { COMBAT_CONFIG } from '../config/combat';
 import CombatScreen from './screens/CombatScreen';
-import { robertCaughtSlides, gameOverSlides, raidVictorySlides, whitefangBindingSlides, finnPersonalKillSlides } from '../data/events';
+import { robertCaughtSlides, gameOverSlides, raidVictorySlides, finnPersonalKillSlides } from '../data/events';
 import { DialogueService } from '../services/DialogueService';
 
 type DamageType = 'slash' | 'pierce' | 'blunt';
@@ -288,9 +288,9 @@ const CombatManager: React.FC = () => {
         setTimeout(() => {
           useWorldStateStore.getState().setFlag('whitefang_renzhen_shadow_defeated', true);
           const ui = useUIStore.getState();
-          ui.setEventSlides(whitefangBindingSlides);
-          ui.setCurrentEventId('whitefang_binding');
-          setScreen('event');
+          ui.setEventSlides(null);
+          ui.setCurrentEventId('whitefang_binding_choice');
+          setScreen('choiceEvent');
           endCombat();
         }, 1400);
         return;

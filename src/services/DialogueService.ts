@@ -392,11 +392,16 @@ export class DialogueService {
     const player_choices = orderedCategories
       .filter((category) => {
         const nodeId = interactionRoots[category];
-        if (!nodeId || !dialogueEntry.nodes[nodeId]) {
+        if (!nodeId) {
           return false;
         }
 
-        const categoryNode = this.applyConditionsToNode(dialogueEntry.nodes[nodeId]);
+        const resolvedNode = this.getNode(dialogueEntry, nodeId);
+        if (!resolvedNode) {
+          return false;
+        }
+
+        const categoryNode = this.applyConditionsToNode(resolvedNode);
         const categoryChoices = categoryNode.player_choices || [];
         return categoryChoices.some((choice) => !this.isNavigationChoice(choice) && !choice.disabled);
       })
@@ -785,6 +790,16 @@ export class DialogueService {
       : !wasKnown;
 
     const startingNodeId = (() => {
+      if (
+        !overrideDialogueId &&
+        npcId === 'npc_roberta' &&
+        useWorldStateStore.getState().getFlag('intro_spoke_roberta') &&
+        !useWorldStateStore.getState().getFlag('roberta_first_meet_done') &&
+        dialogueEntry.nodes['rb_intro_reunion']
+      ) {
+        return 'rb_intro_reunion';
+      }
+
       if (!overrideDialogueId && firstMeetPending && dialogueEntry.first_meet_node && dialogueEntry.nodes[dialogueEntry.first_meet_node]) {
         return dialogueEntry.first_meet_node;
       }

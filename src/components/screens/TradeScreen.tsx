@@ -12,6 +12,7 @@ import { X, ArrowRightLeft } from 'lucide-react';
 import locationsData from '../../data/locations.json';
 import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
 import { useLocationStore } from '../../stores/useLocationStore';
+import { FormattingService } from '../../services/FormattingService';
 
 interface TradeScreenProps {
   shopId: string;
@@ -287,7 +288,7 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
                     <div className="flex flex-col items-center gap-2">
                         <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Balance</span>
                         <div className={`text-xl font-bold font-mono tracking-tighter ${balance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {balance >= 0 ? `+${balance}` : balance}
+                            {balance >= 0 ? `+${FormattingService.formatCopperValue(balance)}` : FormattingService.formatCopperValue(balance)}
                         </div>
                     </div>
 
@@ -337,6 +338,8 @@ const TradeScreen: FC<TradeScreenProps> = ({ shopId, onClose, onConfirmTrade }) 
                     merchantOffer={merchantOffer}
                     balance={balance}
                     canAfford={canAfford}
+                    playerValueMultiplier={tradeMode === 'selling' || tradeMode === 'bartering' ? shop.buy_multiplier : 1}
+                    merchantValueMultiplier={tradeMode === 'buying' || tradeMode === 'bartering' ? shop.sell_multiplier : shop.buy_multiplier}
                     onConfirm={handleFinalizeTrade}
                     onCancel={() => setShowConfirmation(false)}
                 />

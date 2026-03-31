@@ -387,7 +387,7 @@
     "image": "/assets/items/white_fang_of_heaven.png",
     "equipmentSlot": "weapon",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
-    "combatTags": ["row_cleave", "storm_board", "first_strike"],
+    "combatTags": ["row_cleave", "storm_board", "first_strike", "two_handed"],
     "stats": {
       "attack": 18
     }
@@ -402,7 +402,7 @@
     "image": "/assets/items/white_fang_of_heaven.png",
     "equipmentSlot": "weapon",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
-    "combatTags": ["row_cleave", "storm_board", "first_strike"],
+    "combatTags": ["row_cleave", "storm_board", "first_strike", "two_handed"],
     "stats": {
       "attack": 18
     }

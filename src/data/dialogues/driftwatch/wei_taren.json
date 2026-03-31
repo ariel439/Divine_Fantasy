@@ -1,0 +1,46 @@
+{
+  "wei_taren_camp_default": {
+    "interaction_roots": {
+      "ask": "wei_taren_ask_root"
+    },
+    "nodes": {
+      "0": {
+        "npc_text": "Wei Taren studies you without warmth. \"The weapon sits on you badly. Perhaps that is the kindest shape it can take.\"",
+        "player_choices": [
+          {
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "wei_taren_ask_root": {
+        "npc_text": "\"Ask.\"",
+        "player_choices": [
+          {
+            "text": "What do you make of Driftwatch?",
+            "next_node": "wei_taren_ask_driftwatch",
+            "condition": "world_flags.wei_taren_asked_driftwatch==false"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "wei_taren_ask_driftwatch": {
+        "npc_text": "\"Rot built on salt and profit. Useful only because old things keep washing ashore here instead of dying where they should.\"",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "action": "set_flag:wei_taren_asked_driftwatch:true",
+            "next_node": "wei_taren_ask_root"
+          }
+        ]
+      }
+    }
+  }
+}

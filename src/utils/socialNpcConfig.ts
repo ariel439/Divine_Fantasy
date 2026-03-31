@@ -61,6 +61,13 @@ const SOCIAL_NPC_CONFIGS: Record<string, SocialNpcConfig> = {
     personality: ['practical', 'guarded'],
     dailyMeaningfulActions: 2,
   },
+  npc_shihan_camp: {
+    socialClass: 'noble',
+    personality: ['guarded', 'observant', 'practical'],
+    flirtable: true,
+    flirtFriendshipRequired: 15,
+    dailyMeaningfulActions: 2,
+  },
 };
 
 export function getSocialNpcConfig(npcId: string): SocialNpcConfig {

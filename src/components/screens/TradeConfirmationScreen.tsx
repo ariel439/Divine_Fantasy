@@ -4,6 +4,7 @@ import type { FC, ReactNode } from 'react';
 import { Coins, Package } from 'lucide-react';
 import type { OfferItem, Item } from '../../types';
 import { convertCopperToGSC } from '../../data';
+import { FormattingService } from '../../services/FormattingService';
 
 interface TradeConfirmationScreenProps {
   onConfirm: () => void;
@@ -12,17 +13,19 @@ interface TradeConfirmationScreenProps {
   merchantOffer: OfferItem[];
   balance: number;
   canAfford: boolean;
+  playerValueMultiplier: number;
+  merchantValueMultiplier: number;
 }
 
-const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onConfirm, onCancel, playerOffer, merchantOffer, balance, canAfford }) => {
+const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onConfirm, onCancel, playerOffer, merchantOffer, balance, canAfford, playerValueMultiplier, merchantValueMultiplier }) => {
     
     const playerOfferValue = useMemo(() => playerOffer.reduce((sum, offer) => {
-        return sum + (offer.item.base_value * offer.quantity);
-    }, 0), [playerOffer]);
+        return sum + (Math.floor(offer.item.base_value * playerValueMultiplier) * offer.quantity);
+    }, 0), [playerOffer, playerValueMultiplier]);
 
     const merchantOfferValue = useMemo(() => merchantOffer.reduce((sum, offer) => {
-        return sum + (offer.item.base_value * offer.quantity);
-    }, 0), [merchantOffer]);
+        return sum + (Math.floor(offer.item.base_value * merchantValueMultiplier) * offer.quantity);
+    }, 0), [merchantOffer, merchantValueMultiplier]);
 
     const BalanceDisplay: FC<{ amount: number }> = ({ amount }) => {
         if (amount === 0) {
@@ -37,12 +40,12 @@ const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onConfirm, 
         return <div className="flex items-center justify-center gap-4">{parts}</div>;
     };
 
-    const OfferList: FC<{title: string, items: OfferItem[], totalValue: number}> = ({ title, items, totalValue }) => (
+    const OfferList: FC<{title: string, items: OfferItem[], totalValue: number, valueMultiplier: number}> = ({ title, items, totalValue, valueMultiplier }) => (
         <div className="bg-black/40 rounded-lg border border-zinc-800 p-4 flex flex-col h-full min-h-0">
             <h2 className="text-xl font-bold text-white mb-2 flex-shrink-0 border-b border-zinc-700 pb-2" style={{ fontFamily: 'Cinzel, serif' }}>{title}</h2>
              <div className="overflow-y-auto flex-grow min-h-0 custom-scrollbar pr-2 space-y-2 py-2">
                 {items.length > 0 ? items.map(offer => {
-                    const itemValue = offer.item.base_value;
+                    const itemValue = Math.floor(offer.item.base_value * valueMultiplier);
                     return (
                         <div key={offer.item.id} className="flex justify-between items-center p-2 rounded-md bg-zinc-900/80">
                             <div className="flex items-center gap-3">
@@ -52,7 +55,7 @@ const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onConfirm, 
                                 <span className="truncate">{offer.item.name}</span>
                                 {offer.item.stackable && offer.quantity > 1 && <span className="text-xs text-zinc-400">({offer.quantity})</span>}
                             </div>
-                            <span className="text-right text-yellow-300/90 font-mono">{`${convertCopperToGSC(itemValue * offer.quantity).gold}g ${convertCopperToGSC(itemValue * offer.quantity).silver}s ${convertCopperToGSC(itemValue * offer.quantity).copper}c`}</span>
+                            <span className="text-right text-yellow-300/90 font-mono">{FormattingService.formatCopperValue(itemValue * offer.quantity)}</span>
                         </div>
                     );
                 }) : (
@@ -64,7 +67,7 @@ const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onConfirm, 
             </div>
             <div className="flex-shrink-0 flex justify-between items-center pt-3 mt-2 border-t border-zinc-700">
                 <span className="font-bold text-lg">Total Value:</span>
-                <span className="font-bold text-lg text-yellow-300">{totalValue}c</span>
+                <span className="font-bold text-lg text-yellow-300">{FormattingService.formatCopperValue(totalValue)}</span>
             </div>
         </div>
     );
@@ -78,8 +81,8 @@ const TradeConfirmationScreen: FC<TradeConfirmationScreenProps> = ({ onConfirm, 
             <h1 className="text-4xl lg:text-5xl font-bold text-center mb-10 tracking-[0.2em] uppercase text-white" style={{ fontFamily: 'Cinzel, serif' }}>Confirm Exchange</h1>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-grow min-h-0">
-                <OfferList title="Offering" items={playerOffer} totalValue={playerOfferValue} />
-                <OfferList title="Receiving" items={merchantOffer} totalValue={merchantOfferValue} />
+                <OfferList title="Offering" items={playerOffer} totalValue={playerOfferValue} valueMultiplier={playerValueMultiplier} />
+                <OfferList title="Receiving" items={merchantOffer} totalValue={merchantOfferValue} valueMultiplier={merchantValueMultiplier} />
             </div>
 
             <div className="mt-8 p-6 rounded-xl bg-black/60 border border-zinc-800/50 flex flex-col items-center flex-shrink-0">

@@ -622,6 +622,11 @@ const LocationScreen: React.FC = () => {
       'forge_crate_note_pickup',
       'sell_locket_event',
       'raid_salty_mug_intro',
+      'whitefang_woods_sign',
+      'whitefang_beach_sign',
+      'whitefang_mountain_sign',
+      'whitefang_sealed_cave',
+      'whitefang_expedition_breach',
     ]);
 
     if (questEventIds.has(action.eventId)) return true;

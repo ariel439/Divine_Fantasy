@@ -23,7 +23,6 @@ import { WorldEventManager } from './WorldEventManager';
 import { QuestObserverService } from './QuestObserverService';
 import { DialogueService } from './DialogueService';
 import { timeoutSlides, starvationSlides, gameOverSlides } from '../data/events';
-import { getMaxSocialEnergy } from '../utils/socialEnergy';
 
 export class GameManagerService {
   private static currentDay: number = 0;
@@ -344,18 +343,19 @@ export class GameManagerService {
         born: '10th of July, 760', // TODO: Add to template
       },
       equippedItems: {},
+      equipmentLoadouts: {
+        1: {},
+        2: {},
+      },
+      activeEquipmentLoadout: 1,
     });
     useSkillStore.setState({
       skills: {},
     });
     try {
       useCharacterStore.getState().recalculateStats();
-      const maxSocial = getMaxSocialEnergy(
-        template.starting_attributes.Charisma,
-        useSkillStore.getState().getSkillLevel('persuasion'),
-        useSkillStore.getState().getSkillLevel('coercion')
-      );
-      useCharacterStore.setState({ maxSocialEnergy: maxSocial, socialEnergy: maxSocial });
+      useCharacterStore.getState().refreshSocialEnergyCap();
+      useCharacterStore.setState((state) => ({ socialEnergy: state.maxSocialEnergy }));
     } catch {}
 
     useDiaryStore.setState({
@@ -429,6 +429,7 @@ export class GameManagerService {
         useCharacterStore.getState().equipItem({ ...itemData, id: itemId } as unknown as Item);
       }
     });
+    useCharacterStore.getState().saveEquipmentLoadout(1);
 
     // After all items are added, recalculate currentWeight
     useInventoryStore.getState().getCurrentWeight();
@@ -1102,9 +1103,6 @@ export class GameManagerService {
     const character = useCharacterStore.getState();
     const whiteFang = itemsJson['white_fang_of_heaven' as keyof typeof itemsJson] as any;
 
-    if (inventory.getItemQuantity('white_fang_of_heaven_u') > 0) {
-      inventory.removeItem('white_fang_of_heaven_u', inventory.getItemQuantity('white_fang_of_heaven_u'));
-    }
     if (inventory.getItemQuantity('white_fang_of_heaven') <= 0) {
       inventory.addItem('white_fang_of_heaven', 1);
     }
@@ -1126,13 +1124,14 @@ export class GameManagerService {
           : state.bio,
       }));
       useCharacterStore.getState().recalculateStats();
+      useCharacterStore.getState().refreshSocialEnergyCap();
       useCharacterStore.setState((state) => ({
         ...state,
         hp: Math.min(state.maxHp, state.hp + 30),
       }));
 
       const currentlyEquipped = useCharacterStore.getState().equippedItems.weapon;
-      if (!currentlyEquipped || (currentlyEquipped.id !== 'white_fang_of_heaven' && currentlyEquipped.id !== 'white_fang_of_heaven_u')) {
+      if (!currentlyEquipped || currentlyEquipped.id !== 'white_fang_of_heaven') {
         useCharacterStore.getState().equipItem({ ...whiteFang, id: 'white_fang_of_heaven' } as unknown as Item);
       }
     }

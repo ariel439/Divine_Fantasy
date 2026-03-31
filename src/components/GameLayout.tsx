@@ -3,6 +3,7 @@ import { useUIStore } from '../stores/useUIStore';
 import { useLocationStore } from '../stores/useLocationStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
+import { useCharacterStore } from '../stores/useCharacterStore';
 import LocationNav from './LocationNav';
 import ModalManager from './ModalManager';
 import AudioManager from './AudioManager';
@@ -87,6 +88,11 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
                 setDiaryTab('party');
                 setScreen('diary');
             }
+            break;
+        case '1':
+        case '2':
+            if (activeModal || isLibrary) break;
+            useCharacterStore.getState().applyEquipmentLoadout(shortcutKey === '1' ? 1 : 2);
             break;
         case 't':
             if (activeModal || isLibrary) break;

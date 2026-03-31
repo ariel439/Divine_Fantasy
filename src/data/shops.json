@@ -54,12 +54,21 @@
     "sell_multiplier": 1.35,
     "accepted_categories": ["clothing"],
     "inventory": [
+      { "item_id": "patched_shirt", "quantity": 2 },
+      { "item_id": "patched_legs", "quantity": 2 },
+      { "item_id": "patched_shoes", "quantity": 2 },
+      { "item_id": "patched_gloves", "quantity": 2 },
+      { "item_id": "patched_cape", "quantity": 2 },
       { "item_id": "common_shirt", "quantity": 2 },
       { "item_id": "common_legs", "quantity": 2 },
       { "item_id": "common_shoes", "quantity": 2 },
+      { "item_id": "common_gloves", "quantity": 2 },
+      { "item_id": "common_cape", "quantity": 2 },
       { "item_id": "fine_shirt", "quantity": 1 },
       { "item_id": "fine_legs", "quantity": 1 },
-      { "item_id": "fine_shoes", "quantity": 1 }
+      { "item_id": "fine_shoes", "quantity": 1 },
+      { "item_id": "fine_gloves", "quantity": 1 },
+      { "item_id": "fine_cape", "quantity": 1 }
     ]
   },
   {

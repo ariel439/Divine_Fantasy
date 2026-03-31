@@ -9,7 +9,6 @@ import ProgressBar from '../ui/ProgressBar';
 import { useCharacterStore } from '../../stores/useCharacterStore';
 import { useSkillStore } from '../../stores/useSkillStore';
 import { useUIStore } from '../../stores/useUIStore';
-import { getIntimidationSummary, getPresentationSummary } from '../../utils/socialPresentation';
 
 const AttributeIcon = ({ label }: { label: string }) => {
     switch (label.toLowerCase()) {
@@ -61,8 +60,6 @@ const CharacterScreen: FC = () => {
     const { setScreen } = useUIStore();
     const { attributes, hp, energy, hunger, socialEnergy, maxSocialEnergy, bio, languages } = useCharacterStore();
     const { skills, getSkillLevel } = useSkillStore();
-    const presentation = getPresentationSummary();
-    const intimidation = getIntimidationSummary();
 
     const characterData = {
         name: bio?.name || 'Unknown',
@@ -153,8 +150,6 @@ const CharacterScreen: FC = () => {
                             <Stat label="Race" value={characterData.bio.race} icon={<Sparkles size={12} className="text-zinc-500" />} />
                             <Stat label="Birthplace" value={characterData.bio.birthplace} icon={<ScrollText size={12} className="text-zinc-500" />} />
                             <Stat label="Born" value={characterData.bio.born} icon={<BookOpen size={12} className="text-zinc-500" />} />
-                            <Stat label="Presentation" value={`${presentation.label} (${presentation.score >= 0 ? '+' : ''}${presentation.score})`} icon={<MessageSquare size={12} className="text-zinc-500" />} />
-                            <Stat label="Intimidation" value={`${intimidation.label} (${intimidation.score >= 0 ? '+' : ''}${intimidation.score})`} icon={<Angry size={12} className="text-zinc-500" />} />
                         </div>
                         <div className="mt-6 border-t border-zinc-800/50 pt-6">
                             <div className="flex items-center gap-3 mb-4">

@@ -1,5 +1,8 @@
+import itemsData from '../data/items.json';
 import { useCharacterStore } from '../stores/useCharacterStore';
-import type { Item } from '../types';
+import { useWorldStateStore } from '../stores/useWorldStateStore';
+import type { EquipmentSlot, Item } from '../types';
+import { averageToTier, type SocialTier } from './socialTiers';
 
 export interface EquippedPresentation {
   isUnderdressed: boolean;
@@ -9,115 +12,264 @@ export interface EquippedPresentation {
   visibleWeapon: string | null;
   clothingScore: number;
   clothingLabel: string;
-  intimidationScore: number;
+  presentationScore: number;
+  threatScore: number;
+  presentationTier: SocialTier;
+  threatTier: SocialTier;
+  isCursedPresence: boolean;
 }
 
-const ITEM_SOCIAL_MODIFIERS: Record<string, { presentation: number; intimidation: number; label?: string }> = {
-  ragged_shirt: { presentation: 0, intimidation: 0, label: 'Ragged' },
-  ragged_legs: { presentation: 0, intimidation: 0, label: 'Ragged' },
-  common_shirt: { presentation: 1, intimidation: 0, label: 'Common' },
-  common_legs: { presentation: 0, intimidation: 0, label: 'Common' },
-  common_shoes: { presentation: 0, intimidation: 0, label: 'Common' },
-  fine_shirt: { presentation: 2, intimidation: 0, label: 'Fine' },
-  fine_legs: { presentation: 0, intimidation: 0, label: 'Fine' },
-  fine_shoes: { presentation: 0, intimidation: 0, label: 'Fine' },
-  wolf_leather_helmet: { presentation: 0, intimidation: 1, label: 'Rough' },
-  wolf_leather_armor: { presentation: 0, intimidation: 2, label: 'Rough' },
-  wolf_leather_legs: { presentation: 0, intimidation: 1, label: 'Rough' },
-  iron_helmet: { presentation: 1, intimidation: 1, label: 'Ironclad' },
-  iron_chainmail: { presentation: 1, intimidation: 2, label: 'Ironclad' },
-  iron_leggings: { presentation: 1, intimidation: 1, label: 'Ironclad' },
-  crude_knife: { presentation: 0, intimidation: 1 },
-  iron_sword: { presentation: 0, intimidation: 2 },
+export interface SocialPresenceSummary {
+  presentationScore: number;
+  presentationTier: SocialTier;
+  presentationLabel:
+    | 'Miserable'
+    | 'Pitiful'
+    | 'Ragged'
+    | 'Plain'
+    | 'Decent'
+    | 'Respectable'
+    | 'Refined'
+    | 'Noble'
+    | 'Regal'
+    | 'Divine';
+  threatScore: number;
+  threatTier: SocialTier;
+  threatLabel:
+    | 'Feeble'
+    | 'Unsettling'
+    | 'Threatening'
+    | 'Harsh'
+    | 'Dangerous'
+    | 'Severe'
+    | 'Menacing'
+    | 'Terrifying'
+    | 'Ruler'
+    | 'Demonic Presence';
+  isUnderdressed: boolean;
+  hasVisibleArmor: boolean;
+  hasVisibleWeapon: boolean;
+  isCursedPresence: boolean;
+}
+
+type SocialItemData = {
+  presentationTier?: number;
+  presentationRole?: 'major' | 'minor';
+  threatTier?: number;
+  threatRole?: 'major' | 'minor';
+  combatTags?: string[];
 };
 
-function getClothingPresentation(equippedItems: ReturnType<typeof useCharacterStore.getState>['equippedItems']): { score: number; label: string; isUnderdressed: boolean } {
+const PRESENTATION_SLOT_WEIGHTS: Record<EquipmentSlot, number> = {
+  chest: 3,
+  legs: 3,
+  boots: 1,
+  cape: 0.5,
+  amulet: 0.5,
+  ring: 0.5,
+  gloves: 0.5,
+  head: 0,
+  weapon: 0,
+  shield: 0,
+};
+
+const THREAT_SLOT_WEIGHTS: Record<EquipmentSlot, number> = {
+  weapon: 4,
+  chest: 3,
+  shield: 2,
+  head: 1,
+  legs: 1,
+  cape: 0,
+  amulet: 0,
+  ring: 0,
+  gloves: 0,
+  boots: 0,
+};
+
+const PRESENTATION_MAJOR_SLOTS: EquipmentSlot[] = ['chest', 'legs', 'boots'];
+const THREAT_RELEVANT_SLOTS: EquipmentSlot[] = ['weapon', 'head', 'chest', 'shield', 'legs'];
+
+function getEquippedItems() {
+  return useCharacterStore.getState().equippedItems;
+}
+
+function getItemMeta(itemId: string): SocialItemData | null {
+  return (itemsData[itemId as keyof typeof itemsData] as SocialItemData | undefined) || null;
+}
+
+function getPresentationLabel(tier: SocialTier): SocialPresenceSummary['presentationLabel'] {
+  switch (tier) {
+    case 1: return 'Miserable';
+    case 2: return 'Pitiful';
+    case 3: return 'Ragged';
+    case 4: return 'Plain';
+    case 5: return 'Decent';
+    case 6: return 'Respectable';
+    case 7: return 'Refined';
+    case 8: return 'Noble';
+    case 9: return 'Regal';
+    case 10: return 'Divine';
+  }
+}
+
+function getThreatLabel(tier: SocialTier): SocialPresenceSummary['threatLabel'] {
+  switch (tier) {
+    case 1: return 'Feeble';
+    case 2: return 'Unsettling';
+    case 3: return 'Threatening';
+    case 4: return 'Harsh';
+    case 5: return 'Dangerous';
+    case 6: return 'Severe';
+    case 7: return 'Menacing';
+    case 8: return 'Terrifying';
+    case 9: return 'Ruler';
+    case 10: return 'Demonic Presence';
+  }
+}
+
+function getClothingFlags(equippedItems: ReturnType<typeof useCharacterStore.getState>['equippedItems']) {
   const chestId = equippedItems.chest?.id;
   const legsId = equippedItems.legs?.id;
   const bootsId = equippedItems.boots?.id;
-
   const hasChest = Boolean(chestId);
   const hasLegs = Boolean(legsId);
   const hasBoots = Boolean(bootsId);
-
-  const wearingRags = chestId === 'ragged_shirt' || legsId === 'ragged_legs';
   const fullRags = chestId === 'ragged_shirt' && legsId === 'ragged_legs';
-  const commonSetPieces = [chestId === 'common_shirt', legsId === 'common_legs', bootsId === 'common_shoes'].filter(Boolean).length;
-  const fineSetPieces = [chestId === 'fine_shirt', legsId === 'fine_legs', bootsId === 'fine_shoes'].filter(Boolean).length;
+  const mismatchedRags = !fullRags && (chestId === 'ragged_shirt' || legsId === 'ragged_legs');
+
+  let clothingLabel = 'Plain';
+  let clothingScore = 0;
+  let isUnderdressed = false;
 
   if (!hasChest && !hasLegs) {
-    return { score: -3, label: 'Naked', isUnderdressed: true };
+    clothingLabel = 'Naked';
+    clothingScore = 1;
+    isUnderdressed = true;
+  } else if (!hasChest || !hasLegs) {
+    clothingLabel = 'Underdressed';
+    clothingScore = 1;
+    isUnderdressed = true;
+  } else if (fullRags) {
+    clothingLabel = 'Ragged';
+    clothingScore = 1;
+    isUnderdressed = true;
+  } else if (mismatchedRags) {
+    clothingLabel = 'Mismatched';
+    clothingScore = 2;
+    isUnderdressed = true;
+  } else {
+    const majorTiers = PRESENTATION_MAJOR_SLOTS.map((slot) => {
+      const id = equippedItems[slot]?.id;
+      if (!id) return 0;
+      return getItemMeta(id)?.presentationTier || 0;
+    });
+    const baseAverage = majorTiers.reduce((sum, tier) => sum + tier, 0) / PRESENTATION_MAJOR_SLOTS.length;
+    clothingScore = averageToTier(baseAverage, 1);
+    if (!hasBoots) isUnderdressed = true;
+    clothingLabel = getPresentationLabel(clothingScore as SocialTier);
   }
 
-  if (!hasChest || !hasLegs) {
-    return { score: -2, label: 'Underdressed', isUnderdressed: true };
-  }
-
-  if (fullRags) {
-    return { score: -1, label: 'Ragged', isUnderdressed: true };
-  }
-
-  if (wearingRags) {
-    return { score: -2, label: 'Mismatched', isUnderdressed: true };
-  }
-
-  if (fineSetPieces >= 2) {
-    return { score: fineSetPieces === 3 ? 3 : 2, label: 'Fine', isUnderdressed: !hasBoots };
-  }
-
-  if (commonSetPieces >= 2) {
-    return { score: commonSetPieces === 3 ? 1 : 0, label: 'Common', isUnderdressed: !hasBoots };
-  }
-
-  return { score: 0, label: hasBoots ? 'Plain' : 'Underdressed', isUnderdressed: !hasBoots };
+  return { clothingLabel, clothingScore, isUnderdressed };
 }
 
-function getIntimidationScore(itemList: Item[]): number {
-  return itemList.reduce((sum, item) => sum + (ITEM_SOCIAL_MODIFIERS[item.id]?.intimidation ?? 0), 0);
+function getPresentationTier(
+  equippedItems: ReturnType<typeof useCharacterStore.getState>['equippedItems']
+): SocialTier {
+  let weightedScore = 0;
+  let totalWeight = 0;
+
+  PRESENTATION_MAJOR_SLOTS.forEach((slot) => {
+    const item = equippedItems[slot];
+    const tier = item ? getItemMeta(item.id)?.presentationTier || 0 : 0;
+    const weight = PRESENTATION_SLOT_WEIGHTS[slot];
+    weightedScore += tier * weight;
+    totalWeight += weight;
+  });
+
+  (['cape', 'amulet', 'ring', 'gloves'] as EquipmentSlot[]).forEach((slot) => {
+    const item = equippedItems[slot];
+    const tier = item ? getItemMeta(item.id)?.presentationTier || 0 : 0;
+    const weight = PRESENTATION_SLOT_WEIGHTS[slot];
+    weightedScore += tier * weight;
+    totalWeight += weight;
+  });
+
+  return averageToTier(weightedScore, totalWeight);
+}
+
+function getThreatTier(
+  equippedItems: ReturnType<typeof useCharacterStore.getState>['equippedItems']
+): SocialTier {
+  let weightedScore = 0;
+  let totalWeight = 0;
+  THREAT_RELEVANT_SLOTS.forEach((slot) => {
+    const item = equippedItems[slot];
+    const weight = THREAT_SLOT_WEIGHTS[slot];
+    if (slot === 'shield' && item?.combatTags?.includes('two_handed')) return;
+    if (!item) return;
+    totalWeight += weight;
+    const tier = getItemMeta(item.id)?.threatTier || 0;
+    weightedScore += tier * weight;
+  });
+  return averageToTier(weightedScore, totalWeight);
 }
 
 export function getEquippedPresentation(): EquippedPresentation {
-  const equippedItems = useCharacterStore.getState().equippedItems;
-  const itemList = Object.values(equippedItems).filter((item): item is Item => Boolean(item));
-  const chest = equippedItems.chest;
-  const legs = equippedItems.legs;
-  const head = equippedItems.head;
-  const weapon = equippedItems.weapon;
-  const clothingPresentation = getClothingPresentation(equippedItems);
-  const intimidationScore = getIntimidationScore(itemList);
+  const equippedItems = getEquippedItems();
+  const { clothingLabel, clothingScore, isUnderdressed } = getClothingFlags(equippedItems);
+
+  const presentationTier = getPresentationTier(equippedItems);
+  const threatTier = getThreatTier(equippedItems);
+
+  const itemList = Object.entries(equippedItems).reduce<Item[]>((acc, [slot, item]) => {
+    if (!item) return acc;
+    if (slot === 'shield' && item.combatTags?.includes('two_handed')) return acc;
+    acc.push(item);
+    return acc;
+  }, []);
 
   return {
-    isUnderdressed: clothingPresentation.isUnderdressed,
-    hasVisibleArmor: Boolean(chest || legs || head),
+    isUnderdressed,
+    hasVisibleArmor: Boolean(equippedItems.chest || equippedItems.legs || equippedItems.head || equippedItems.shield),
     heavyArmorPieces: itemList.filter((item) => item.id.startsWith('iron_')).length,
     roughArmorPieces: itemList.filter((item) => item.id.startsWith('wolf_')).length,
-    visibleWeapon: weapon?.id ?? null,
-    clothingScore: clothingPresentation.score,
-    clothingLabel: clothingPresentation.label,
-    intimidationScore,
+    visibleWeapon: equippedItems.weapon?.id ?? null,
+    clothingScore,
+    clothingLabel,
+    presentationScore: presentationTier,
+    threatScore: threatTier,
+    presentationTier,
+    threatTier,
+    isCursedPresence: useWorldStateStore.getState().getFlag('whitefang_bound'),
+  };
+}
+
+export function getSocialPresenceSummary(): SocialPresenceSummary {
+  const presence = getEquippedPresentation();
+  return {
+    presentationScore: presence.presentationTier,
+    presentationTier: presence.presentationTier,
+    presentationLabel: getPresentationLabel(presence.presentationTier),
+    threatScore: presence.threatTier,
+    threatTier: presence.threatTier,
+    threatLabel: getThreatLabel(presence.threatTier),
+    isUnderdressed: presence.isUnderdressed,
+    hasVisibleArmor: presence.hasVisibleArmor,
+    hasVisibleWeapon: Boolean(presence.visibleWeapon),
+    isCursedPresence: presence.isCursedPresence,
   };
 }
 
 export function getPresentationSummary(): { label: string; score: number } {
-  const presentation = getEquippedPresentation();
-  let score = presentation.clothingScore;
-  score += presentation.roughArmorPieces;
-  score += presentation.heavyArmorPieces * 2;
-  if (presentation.visibleWeapon === 'crude_knife') score += 1;
-  else if (presentation.visibleWeapon) score += 2;
+  const summary = getSocialPresenceSummary();
+  return { label: summary.presentationLabel, score: summary.presentationTier };
+}
 
-  if (presentation.clothingLabel === 'Naked' && score <= -3) return { label: 'Naked', score };
-  if (score <= -2) return { label: presentation.clothingLabel === 'Mismatched' ? 'Mismatched' : 'Ragged', score };
-  if (score <= 0) return { label: presentation.clothingLabel === 'Common' ? 'Plain' : presentation.clothingLabel, score };
-  if (score <= 3) return { label: presentation.heavyArmorPieces > 0 ? 'Imposing' : (presentation.clothingLabel === 'Fine' ? 'Presentable' : 'Rough'), score };
-  return { label: 'Imposing', score };
+export function getThreatSummary(): { label: string; score: number } {
+  const summary = getSocialPresenceSummary();
+  return { label: summary.threatLabel, score: summary.threatTier };
 }
 
 export function getIntimidationSummary(): { label: string; score: number } {
-  const intimidation = getEquippedPresentation().intimidationScore;
-
-  if (intimidation <= 0) return { label: 'Unthreatening', score: intimidation };
-  if (intimidation <= 2) return { label: 'Edged', score: intimidation };
-  if (intimidation <= 4) return { label: 'Threatening', score: intimidation };
-  return { label: 'Menacing', score: intimidation };
+  return getThreatSummary();
 }

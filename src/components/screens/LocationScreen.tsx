@@ -554,6 +554,13 @@ const LocationScreen: React.FC = () => {
       }
       case 'navigate': {
         const targetId = action.target;
+        const currentCarryWeight = useInventoryStore.getState().getCurrentWeight();
+        const carryLimit = useCharacterStore.getState().maxWeight;
+
+        if (currentCarryWeight > carryLimit * 1.5) {
+          useToastStore.getState().addToast('Luke is carrying too much to travel. Drop some weight first.', 'warning');
+          break;
+        }
         
         if (!LocationService.isLocationOpen(targetId)) {
           const name = LocationService.getLocationName(targetId);

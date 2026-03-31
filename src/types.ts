@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import type { SocialTier } from './utils/socialTiers';
 
 // Core navigation/game state types
 export type GameState =
@@ -68,7 +69,13 @@ export interface Item {
   equipmentSlot?: EquipmentSlot;
   stats?: Record<string, number>;
   attack_sound?: string;
+  presentationTier?: SocialTier;
+  presentationRole?: 'major' | 'minor';
+  threatTier?: SocialTier;
+  threatRole?: 'major' | 'minor';
 }
+
+export type EquipmentLoadoutSlotMap = Partial<Record<EquipmentSlot, string>>;
 
 // Trading
 export interface OfferItem {

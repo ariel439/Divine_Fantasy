@@ -14,7 +14,7 @@ import { useWorldStateStore } from '../../stores/useWorldStateStore';
 
 const InventoryScreen: FC = () => {
     const { setScreen } = useUIStore();
-    const { items: inventoryItems, getCurrentWeight, useItem, removeItem } = useInventoryStore();
+    const { items: inventoryItems, getCurrentWeight, useItem, removeItem, currentWeight } = useInventoryStore();
     const { currency, maxWeight, equippedItems, equipItem, unequipItem, hunger } = useCharacterStore();
     const { getData, setData } = useWorldStateStore();
 
@@ -86,7 +86,7 @@ const InventoryScreen: FC = () => {
 
     const totalWeight = useMemo(() => {
         return getCurrentWeight();
-    }, [getCurrentWeight]);
+    }, [currentWeight, enrichedEquippedItems, getCurrentWeight]);
     
     const equippedItemForComparison = useMemo(() => {
         if (!selectedItem || !selectedItem.equipmentSlot || rightPanelView !== 'details') {

@@ -1,5 +1,6 @@
-import { getEquippedPresentation } from './socialPresentation';
+import { getSocialPresenceSummary } from './socialPresentation';
 import { getSocialNpcConfig, type PersonalityTrait, type SocialClass } from './socialNpcConfig';
+import { tierFromLevel } from './socialTiers';
 
 export type SocialActionType = 'friendly' | 'flirt' | 'coerce';
 export type SocialStyle =
@@ -12,7 +13,7 @@ export type SocialStyle =
   | 'playful'
   | 'threaten';
 
-type SocialOutcome = 'fail' | 'weak' | 'strong';
+export type SocialOutcome = 'fail' | 'weak' | 'strong' | 'neutral';
 
 interface SocialResolution {
   outcome: SocialOutcome;
@@ -20,6 +21,13 @@ interface SocialResolution {
   xpSkill: 'persuasion' | 'coercion';
   xpAmount: number;
   diaryText: string;
+}
+
+function isWhiteFangSocialSuppressed(npcId: string, type: SocialActionType): boolean {
+  if (type === 'coerce') return false;
+  const profile = getSocialNpcConfig(npcId);
+  const presence = getSocialPresenceSummary();
+  return presence.isCursedPresence && !profile.whiteFangSocialExempt;
 }
 
 const PERSONALITY_STYLE_MODIFIERS: Partial<Record<PersonalityTrait, Partial<Record<SocialStyle, number>>>> = {
@@ -98,42 +106,28 @@ function getPersonalityModifier(npcId: string, style: SocialStyle): number {
 
 function getPresentationModifier(npcId: string, type: SocialActionType): number {
   const profile = getSocialNpcConfig(npcId);
+  const presence = getSocialPresenceSummary();
+  const presentationDelta = presence.presentationTier - profile.presentationStandard;
+  const threatDelta = presence.threatTier - profile.threatTolerance;
 
-  const presentation = getEquippedPresentation();
-  let modifier = 0;
-
-  const clothingLabel = presentation.clothingLabel;
-
-  if (type === 'friendly' || type === 'flirt') {
-    if (clothingLabel === 'Naked') modifier -= 3;
-    else if (clothingLabel === 'Underdressed') modifier -= 2;
-    else if (clothingLabel === 'Ragged' || clothingLabel === 'Mismatched') modifier -= 1;
-    else if (clothingLabel === 'Fine') modifier += profile.socialClass === 'merchant' ? 1 : 0;
+  if (type === 'friendly') {
+    let modifier = presentationDelta;
+    if (threatDelta > 0) modifier -= threatDelta;
+    return modifier;
   }
 
-  if (presentation.roughArmorPieces > 0) {
-    if (type === 'coerce') modifier += 1;
-    if (type === 'flirt') modifier -= 1;
-    if (profile.socialClass === 'merchant' && type === 'friendly') modifier -= 1;
+  if (type === 'flirt') {
+    let modifier = presentationDelta * 2;
+    if (threatDelta > 0) modifier -= threatDelta * 2;
+    return modifier;
   }
 
-  if (presentation.heavyArmorPieces > 0) {
-    if (type === 'coerce') modifier += Math.min(2, presentation.heavyArmorPieces);
-    if (type === 'friendly') modifier -= 1;
-    if (type === 'flirt') modifier -= 2;
-  }
+  let modifier = threatDelta;
 
-  if (presentation.visibleWeapon) {
-    if (type === 'coerce') modifier += presentation.visibleWeapon === 'crude_knife' ? 1 : 2;
-    if (type === 'friendly') modifier -= 1;
-    if (type === 'flirt') modifier -= 1;
-  }
+  if (profile.socialClass === 'criminal' && presence.presentationTier <= 3) modifier += 1;
+  if (profile.socialClass === 'criminal' && presence.presentationTier >= 8) modifier -= 1;
 
-  if (type === 'coerce') {
-    return Math.max(-1, Math.min(2, modifier));
-  }
-
-  return Math.max(-2, Math.min(1, modifier));
+  return modifier;
 }
 
 export function resolveSocialAction(params: {
@@ -145,7 +139,7 @@ export function resolveSocialAction(params: {
 }): SocialResolution {
   const { npcId, type, style, persuasionLevel, coercionLevel } = params;
   const rawSkillLevel = type === 'coerce' ? coercionLevel : persuasionLevel;
-  const skillLevel = Math.min(6, Math.floor(rawSkillLevel / 2) + 1);
+  const skillLevel = tierFromLevel(rawSkillLevel);
   const personalityModifier = getPersonalityModifier(npcId, style);
   const presentationModifier = getPresentationModifier(npcId, type);
   const roll = Math.floor(Math.random() * 10) + 1;
@@ -156,13 +150,32 @@ export function resolveSocialAction(params: {
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ');
 
+  if (isWhiteFangSocialSuppressed(npcId, type)) {
+    if (type === 'friendly') {
+      return {
+        outcome: 'neutral',
+        relationshipChanges: {},
+        xpSkill: 'persuasion',
+        xpAmount: 5,
+        diaryText: `${profileName} kept an uneasy distance.`,
+      };
+    }
+    return {
+      outcome: 'neutral',
+      relationshipChanges: {},
+      xpSkill: 'persuasion',
+      xpAmount: 5,
+      diaryText: `${profileName} did not draw any closer.`,
+    };
+  }
+
   if (type === 'friendly') {
     if (score >= 16) {
       return {
         outcome: 'strong',
         relationshipChanges: { friendship: 4 },
         xpSkill: 'persuasion',
-        xpAmount: 8,
+        xpAmount: 15,
         diaryText: `${profileName} warmed to you.`,
       };
     }
@@ -171,7 +184,7 @@ export function resolveSocialAction(params: {
         outcome: 'weak',
         relationshipChanges: { friendship: 2 },
         xpSkill: 'persuasion',
-        xpAmount: 5,
+        xpAmount: 10,
         diaryText: `${profileName} seemed a little more open.`,
       };
     }
@@ -179,7 +192,7 @@ export function resolveSocialAction(params: {
       outcome: 'fail',
       relationshipChanges: {},
       xpSkill: 'persuasion',
-      xpAmount: 2,
+      xpAmount: 5,
       diaryText: `${profileName} did not seem convinced.`,
     };
   }
@@ -190,7 +203,7 @@ export function resolveSocialAction(params: {
         outcome: 'strong',
         relationshipChanges: { friendship: 1, love: 2 },
         xpSkill: 'persuasion',
-        xpAmount: 7,
+        xpAmount: 15,
         diaryText: `${profileName} reacted to the attention.`,
       };
     }
@@ -199,7 +212,7 @@ export function resolveSocialAction(params: {
         outcome: 'weak',
         relationshipChanges: { love: 1 },
         xpSkill: 'persuasion',
-        xpAmount: 4,
+        xpAmount: 10,
         diaryText: `${profileName} did not shut you down.`,
       };
     }
@@ -207,7 +220,7 @@ export function resolveSocialAction(params: {
       outcome: 'fail',
       relationshipChanges: { friendship: -1 },
       xpSkill: 'persuasion',
-      xpAmount: 2,
+      xpAmount: 5,
       diaryText: `${profileName} looked unimpressed.`,
     };
   }
@@ -217,7 +230,7 @@ export function resolveSocialAction(params: {
       outcome: 'strong',
       relationshipChanges: { fear: 4, friendship: -2 },
       xpSkill: 'coercion',
-      xpAmount: 7,
+      xpAmount: 15,
       diaryText: `${profileName} yielded under pressure.`,
     };
   }
@@ -226,7 +239,7 @@ export function resolveSocialAction(params: {
       outcome: 'weak',
       relationshipChanges: { fear: 2, friendship: -1 },
       xpSkill: 'coercion',
-      xpAmount: 4,
+      xpAmount: 10,
       diaryText: `${profileName} flinched, but not by much.`,
     };
   }
@@ -234,7 +247,7 @@ export function resolveSocialAction(params: {
     outcome: 'fail',
     relationshipChanges: { friendship: -1 },
     xpSkill: 'coercion',
-    xpAmount: 2,
+    xpAmount: 5,
     diaryText: `${profileName} did not buy the threat.`,
   };
 }

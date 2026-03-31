@@ -8,7 +8,7 @@ import { useJournalStore } from '../stores/useJournalStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useJobStore } from '../stores/useJobStore';
-import { getEquippedPresentation, getPresentationSummary, getIntimidationSummary } from '../utils/socialPresentation';
+import { getEquippedPresentation, getPresentationSummary, getThreatSummary } from '../utils/socialPresentation';
 
 type ConditionOperator = '==' | '!=' | '>' | '<' | '>=' | '<=';
 
@@ -249,9 +249,12 @@ export class ConditionEvaluator {
   private static evaluatePresentationCondition(lhs: string, op: ConditionOperator, rhsRaw: string, rhsBool?: boolean, rhsNum?: number): boolean {
       const presentation = getEquippedPresentation();
       const summary = getPresentationSummary();
-      const intimidation = getIntimidationSummary();
+      const threat = getThreatSummary();
 
       if (lhs === 'presentation.score') {
+          return this.compare(summary.score, op, rhsNum ?? 0);
+      }
+      if (lhs === 'presentation.tier') {
           return this.compare(summary.score, op, rhsNum ?? 0);
       }
       if (lhs === 'presentation.label') {
@@ -267,7 +270,13 @@ export class ConditionEvaluator {
           return this.compare(Boolean(presentation.visibleWeapon), op, rhsBool ?? true);
       }
       if (lhs === 'presentation.intimidation') {
-          return this.compare(intimidation.score, op, rhsNum ?? 0);
+          return this.compare(threat.score, op, rhsNum ?? 0);
+      }
+      if (lhs === 'presentation.threat') {
+          return this.compare(threat.score, op, rhsNum ?? 0);
+      }
+      if (lhs === 'presentation.threat_tier') {
+          return this.compare(threat.score, op, rhsNum ?? 0);
       }
 
       return false;

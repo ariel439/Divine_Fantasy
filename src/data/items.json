@@ -267,6 +267,8 @@
     "base_value": 56,
     "image": "/assets/items/wolf_helm.png",
     "equipmentSlot": "head",
+    "threatTier": 2,
+    "threatRole": "minor",
     "stats": {
       "defence": 4
     }
@@ -280,6 +282,8 @@
     "base_value": 140,
     "image": "/assets/items/wolf_body.png",
     "equipmentSlot": "chest",
+    "threatTier": 2,
+    "threatRole": "major",
     "stats": {
       "defence": 9
     }
@@ -293,6 +297,8 @@
     "base_value": 84,
     "image": "/assets/items/wolf_legs.png",
     "equipmentSlot": "legs",
+    "threatTier": 2,
+    "threatRole": "minor",
     "stats": {
       "defence": 5
     }
@@ -306,6 +312,8 @@
     "base_value": 15,
     "image": "/assets/items/wolf_amulet.png",
     "equipmentSlot": "amulet",
+    "presentationTier": 2,
+    "presentationRole": "minor",
     "stats": {
       "attack": 1
     }
@@ -319,6 +327,8 @@
     "base_value": 214,
     "image": "/assets/items/iron_helmet.png",
     "equipmentSlot": "head",
+    "threatTier": 3,
+    "threatRole": "minor",
     "stats": {
       "defence": 6
     }
@@ -332,6 +342,8 @@
     "base_value": 572,
     "image": "/assets/items/iron_chainmail.png",
     "equipmentSlot": "chest",
+    "threatTier": 3,
+    "threatRole": "major",
     "stats": {
       "defence": 11
     }
@@ -345,6 +357,8 @@
     "base_value": 359,
     "image": "/assets/items/iron_chainlegs.png",
     "equipmentSlot": "legs",
+    "threatTier": 3,
+    "threatRole": "minor",
     "stats": {
       "defence": 6
     }
@@ -358,6 +372,8 @@
     "base_value": 25,
     "image": "/assets/items/crude_knife.png",
     "equipmentSlot": "weapon",
+    "threatTier": 2,
+    "threatRole": "major",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
     "stats": {
       "attack": 4
@@ -372,6 +388,8 @@
     "base_value": 429,
     "image": "/assets/items/iron_sword.png",
     "equipmentSlot": "weapon",
+    "threatTier": 3,
+    "threatRole": "major",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
     "stats": {
       "attack": 8
@@ -386,21 +404,8 @@
     "base_value": 0,
     "image": "/assets/items/white_fang_of_heaven.png",
     "equipmentSlot": "weapon",
-    "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
-    "combatTags": ["row_cleave", "storm_board", "first_strike", "two_handed"],
-    "stats": {
-      "attack": 18
-    }
-  },
-  "white_fang_of_heaven_u": {
-    "name": "White Fang of Heaven",
-    "description": "A fully awakened White Fang of Heaven. Each sweep tears through the line before storm-light lashes the whole battlefield.",
-    "type": "weapon",
-    "stackable": false,
-    "weight": 4.8,
-    "base_value": 0,
-    "image": "/assets/items/white_fang_of_heaven.png",
-    "equipmentSlot": "weapon",
+    "threatTier": 6,
+    "threatRole": "major",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
     "combatTags": ["row_cleave", "storm_board", "first_strike", "two_handed"],
     "stats": {
@@ -416,48 +421,11 @@
     "base_value": 429,
     "image": "/assets/items/hammer.png",
     "equipmentSlot": "weapon",
+    "threatTier": 3,
+    "threatRole": "major",
     "attack_sound": "/assets/sfx/combat_punch.mp3",
     "stats": {
       "attack": 8
-    }
-  },
-  "leather_cap": {
-    "name": "Leather Cap",
-    "description": "A simple leather cap that takes the edge off a hard blow.",
-    "type": "armor",
-    "stackable": false,
-    "weight": 1.0,
-    "base_value": 20,
-    "image": "/assets/items/common_shoes.png",
-    "equipmentSlot": "head",
-    "stats": {
-      "defence": 1
-    }
-  },
-  "padded_gambeson": {
-    "name": "Padded Gambeson",
-    "description": "Layered cloth armor. Not elegant, but far better than a shirt in a fight.",
-    "type": "armor",
-    "stackable": false,
-    "weight": 3.5,
-    "base_value": 38,
-    "image": "/assets/items/common_shirt.png",
-    "equipmentSlot": "chest",
-    "stats": {
-      "defence": 3
-    }
-  },
-  "leather_leg_wraps": {
-    "name": "Leather Leg Wraps",
-    "description": "Tough wraps and patches that help keep your legs intact in a dirty fight.",
-    "type": "armor",
-    "stackable": false,
-    "weight": 1.8,
-    "base_value": 26,
-    "image": "/assets/items/common_legs.png",
-    "equipmentSlot": "legs",
-    "stats": {
-      "defence": 2
     }
   },
   "vanessas_charm": {
@@ -513,7 +481,9 @@
     "weight": 0.6,
     "base_value": 0,
     "image": "/assets/items/ragged_shirt.png",
-    "equipmentSlot": "chest"
+    "equipmentSlot": "chest",
+    "presentationTier": 1,
+    "presentationRole": "major"
   },
   "ragged_legs": {
     "name": "Ragged Trousers",
@@ -523,7 +493,69 @@
     "weight": 0.6,
     "base_value": 0,
     "image": "/assets/items/ragged_legs.png",
-    "equipmentSlot": "legs"
+    "equipmentSlot": "legs",
+    "presentationTier": 1,
+    "presentationRole": "major"
+  },
+  "patched_shirt": {
+    "name": "Patched Shirt",
+    "description": "A repaired shirt stitched from better days. Poor, but presentable at a glance.",
+    "type": "clothing",
+    "stackable": false,
+    "weight": 0.6,
+    "base_value": 20,
+    "image": "/assets/items/patched_shirt.png",
+    "equipmentSlot": "chest",
+    "presentationTier": 2,
+    "presentationRole": "major"
+  },
+  "patched_legs": {
+    "name": "Patched Trousers",
+    "description": "Worn trousers carefully mended enough to pass for decent from a distance.",
+    "type": "clothing",
+    "stackable": false,
+    "weight": 0.7,
+    "base_value": 18,
+    "image": "/assets/items/patched_legs.png",
+    "equipmentSlot": "legs",
+    "presentationTier": 2,
+    "presentationRole": "major"
+  },
+  "patched_shoes": {
+    "name": "Patched Shoes",
+    "description": "Scuffed shoes with fresh stitching and replacement leather at the toes.",
+    "type": "clothing",
+    "stackable": false,
+    "weight": 0.5,
+    "base_value": 14,
+    "image": "/assets/items/patched_shoes.png",
+    "equipmentSlot": "boots",
+    "presentationTier": 2,
+    "presentationRole": "major"
+  },
+  "patched_gloves": {
+    "name": "Patched Gloves",
+    "description": "Finger-worn gloves stitched back together enough to look intentional.",
+    "type": "clothing",
+    "stackable": false,
+    "weight": 0.2,
+    "base_value": 10,
+    "image": "/assets/items/patched_gloves.png",
+    "equipmentSlot": "gloves",
+    "presentationTier": 2,
+    "presentationRole": "minor"
+  },
+  "patched_cape": {
+    "name": "Patched Cape",
+    "description": "A rough shoulder-wrap pinned into service as a poor man's cape.",
+    "type": "clothing",
+    "stackable": false,
+    "weight": 0.6,
+    "base_value": 12,
+    "image": "/assets/items/patched_cape.png",
+    "equipmentSlot": "cape",
+    "presentationTier": 2,
+    "presentationRole": "minor"
   },
   "common_shirt": {
     "name": "Common Shirt",
@@ -531,9 +563,11 @@
     "type": "clothing",
     "stackable": false,
     "weight": 0.6,
-    "base_value": 16,
+    "base_value": 130,
     "image": "/assets/items/common_shirt.png",
-    "equipmentSlot": "chest"
+    "equipmentSlot": "chest",
+    "presentationTier": 3,
+    "presentationRole": "major"
   },
   "common_legs": {
     "name": "Common Trousers",
@@ -541,9 +575,11 @@
     "type": "clothing",
     "stackable": false,
     "weight": 0.7,
-    "base_value": 14,
+    "base_value": 115,
     "image": "/assets/items/common_legs.png",
-    "equipmentSlot": "legs"
+    "equipmentSlot": "legs",
+    "presentationTier": 3,
+    "presentationRole": "major"
   },
   "common_shoes": {
     "name": "Common Shoes",
@@ -551,9 +587,35 @@
     "type": "clothing",
     "stackable": false,
     "weight": 0.5,
-    "base_value": 10,
+    "base_value": 85,
     "image": "/assets/items/common_shoes.png",
-    "equipmentSlot": "boots"
+    "equipmentSlot": "boots",
+    "presentationTier": 3,
+    "presentationRole": "major"
+  },
+  "common_gloves": {
+    "name": "Common Gloves",
+    "description": "Plain work gloves that finish a respectable town outfit.",
+    "type": "clothing",
+    "stackable": false,
+    "weight": 0.2,
+    "base_value": 54,
+    "image": "/assets/items/common_gloves.png",
+    "equipmentSlot": "gloves",
+    "presentationTier": 3,
+    "presentationRole": "minor"
+  },
+  "common_cape": {
+    "name": "Common Cape",
+    "description": "A simple traveling cape that helps tie an everyday outfit together.",
+    "type": "clothing",
+    "stackable": false,
+    "weight": 0.6,
+    "base_value": 60,
+    "image": "/assets/items/common_cape.png",
+    "equipmentSlot": "cape",
+    "presentationTier": 3,
+    "presentationRole": "minor"
   },
   "fine_shirt": {
     "name": "Fine Shirt",
@@ -561,9 +623,11 @@
     "type": "clothing",
     "stackable": false,
     "weight": 0.6,
-    "base_value": 28,
+    "base_value": 330,
     "image": "/assets/items/fine_shirt.png",
-    "equipmentSlot": "chest"
+    "equipmentSlot": "chest",
+    "presentationTier": 4,
+    "presentationRole": "major"
   },
   "fine_legs": {
     "name": "Fine Trousers",
@@ -571,9 +635,11 @@
     "type": "clothing",
     "stackable": false,
     "weight": 0.7,
-    "base_value": 24,
+    "base_value": 290,
     "image": "/assets/items/fine_legs.png",
-    "equipmentSlot": "legs"
+    "equipmentSlot": "legs",
+    "presentationTier": 4,
+    "presentationRole": "major"
   },
   "fine_shoes": {
     "name": "Fine Shoes",
@@ -581,9 +647,35 @@
     "type": "clothing",
     "stackable": false,
     "weight": 0.5,
-    "base_value": 18,
+    "base_value": 220,
     "image": "/assets/items/fine_shoes.png",
-    "equipmentSlot": "boots"
+    "equipmentSlot": "boots",
+    "presentationTier": 4,
+    "presentationRole": "major"
+  },
+  "fine_gloves": {
+    "name": "Fine Gloves",
+    "description": "Tailored gloves meant for polished hands and better company.",
+    "type": "clothing",
+    "stackable": false,
+    "weight": 0.2,
+    "base_value": 130,
+    "image": "/assets/items/fine_gloves.png",
+    "equipmentSlot": "gloves",
+    "presentationTier": 4,
+    "presentationRole": "minor"
+  },
+  "fine_cape": {
+    "name": "Fine Cape",
+    "description": "A draped cape of better cloth, cut to be seen before it is felt.",
+    "type": "clothing",
+    "stackable": false,
+    "weight": 0.6,
+    "base_value": 141,
+    "image": "/assets/items/fine_cape.png",
+    "equipmentSlot": "cape",
+    "presentationTier": 4,
+    "presentationRole": "minor"
   },
   "spade": {
     "name": "Spade",

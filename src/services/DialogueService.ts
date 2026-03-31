@@ -19,7 +19,6 @@ import { benCheatEventSlides, rebelRaidIntroSlides, evilEndingSlides, hybridEndi
 import type { ConversationEntry } from '../types';
 import { GameManagerService } from './GameManagerService';
 import { ConditionEvaluator } from './ConditionEvaluator';
-import { getMaxSocialEnergy } from '../utils/socialEnergy';
 import { resolveSocialAction, type SocialActionType, type SocialStyle } from '../utils/socialResolver';
 import { getSocialNpcConfig } from '../utils/socialNpcConfig';
 import {
@@ -47,7 +46,7 @@ interface DialogueNode {
     fail_node?: string;
     social_cost?: number;
     disabled?: boolean;
-    social_result_nodes?: Partial<Record<'fail' | 'weak' | 'strong', string>>;
+    social_result_nodes?: Partial<Record<'fail' | 'weak' | 'strong' | 'neutral', string>>;
   }[];
 }
 
@@ -112,7 +111,7 @@ interface DialogueRuntimeState {
   currentCategoryRootId: string | null;
   currentMenuKind: DialogueMenuKind;
   shouldLeaveFromSocialRoot: boolean;
-  lastSocialOutcome: 'fail' | 'weak' | 'strong' | null;
+  lastSocialOutcome: 'fail' | 'weak' | 'strong' | 'neutral' | null;
   dialogueHistory: ConversationEntry[];
   generatedNodes: Record<string, DialogueNode>;
 }
@@ -259,7 +258,7 @@ export class DialogueService {
   private static resolveGenericInteractionNpcResponse(
     npcId: string,
     template: SocialInteractionTemplate,
-    outcome: 'strong' | 'weak' | 'fail'
+    outcome: 'strong' | 'weak' | 'fail' | 'neutral'
   ): string {
     const merged = this.getMergedInteractionTemplate(npcId, template.key) || template;
     const npcConfig = getSocialNpcConfig(npcId);
@@ -278,8 +277,9 @@ export class DialogueService {
       return classLine;
     }
 
-    return this.getNextPooledLine(`npc:${npcId}:${template.key}:default:${outcome}`, merged.defaultNpcResponses[outcome])
-      || merged.defaultNpcResponses[outcome][0]
+    const defaultPool = merged.defaultNpcResponses[outcome] || merged.defaultNpcResponses.fail;
+    return this.getNextPooledLine(`npc:${npcId}:${template.key}:default:${outcome}`, defaultPool)
+      || defaultPool?.[0]
       || 'They give you a hard-to-read look.';
   }
 
@@ -1553,17 +1553,9 @@ export class DialogueService {
           // Type-safe update if possible, or cast
           const attributes = { ...char.attributes, [attr]: val };
           useCharacterStore.setState({ attributes });
-          // Recalculate derived stats (maxWeight, socialEnergy)
+          // Recalculate derived stats
           useCharacterStore.getState().recalculateStats();
-          const maxSocial = getMaxSocialEnergy(
-            attributes.charisma,
-            useSkillStore.getState().getSkillLevel('persuasion'),
-            useSkillStore.getState().getSkillLevel('coercion')
-          );
-          useCharacterStore.setState((state) => ({
-            maxSocialEnergy: maxSocial,
-            socialEnergy: Math.min(state.socialEnergy, maxSocial),
-          }));
+          useCharacterStore.getState().refreshSocialEnergyCap();
           
           diaryStore.addInteraction(`Set attribute ${attr} to ${val}`);
           console.log(`[DialogueService] Set attribute ${attr} to ${val}. New attributes:`, attributes);

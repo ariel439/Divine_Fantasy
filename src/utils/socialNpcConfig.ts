@@ -15,6 +15,9 @@ export type PersonalityTrait =
 export interface SocialNpcConfig {
   socialClass: SocialClass;
   personality: PersonalityTrait[];
+  presentationStandard: number;
+  threatTolerance: number;
+  whiteFangSocialExempt?: boolean;
   flirtable?: boolean;
   flirtFriendshipRequired?: number;
   dailyMeaningfulActions?: number;
@@ -23,6 +26,9 @@ export interface SocialNpcConfig {
 const DEFAULT_SOCIAL_NPC_CONFIG: SocialNpcConfig = {
   socialClass: 'working',
   personality: ['guarded'],
+  presentationStandard: 2,
+  threatTolerance: 2,
+  whiteFangSocialExempt: false,
   flirtable: false,
   flirtFriendshipRequired: 999,
   dailyMeaningfulActions: 2,
@@ -32,40 +38,44 @@ const SOCIAL_NPC_CONFIGS: Record<string, SocialNpcConfig> = {
   npc_roberta: {
     socialClass: 'merchant',
     personality: ['guarded', 'practical', 'lonely'],
+    presentationStandard: 2,
+    threatTolerance: 3,
     flirtable: true,
     flirtFriendshipRequired: 20,
-    dailyMeaningfulActions: 2,
-  },
-  npc_beryl: {
-    socialClass: 'merchant',
-    personality: ['guarded', 'fearful', 'greedy'],
-    dailyMeaningfulActions: 2,
-  },
-  npc_elara: {
-    socialClass: 'working',
-    personality: ['guarded', 'warm', 'practical'],
-    dailyMeaningfulActions: 2,
-  },
-  npc_finn: {
-    socialClass: 'criminal',
-    personality: ['cold', 'proud'],
-    dailyMeaningfulActions: 2,
-  },
-  npc_old_leo: {
-    socialClass: 'working',
-    personality: ['warm', 'dutiful', 'observant'],
-    dailyMeaningfulActions: 2,
-  },
-  npc_boric: {
-    socialClass: 'working',
-    personality: ['practical', 'guarded'],
     dailyMeaningfulActions: 2,
   },
   npc_shihan_camp: {
     socialClass: 'noble',
     personality: ['guarded', 'observant', 'practical'],
+    presentationStandard: 4,
+    threatTolerance: 5,
+    whiteFangSocialExempt: true,
     flirtable: true,
     flirtFriendshipRequired: 15,
+    dailyMeaningfulActions: 2,
+  },
+  npc_lin_shao: {
+    socialClass: 'noble',
+    personality: ['guarded', 'dutiful'],
+    presentationStandard: 3,
+    threatTolerance: 5,
+    whiteFangSocialExempt: true,
+    dailyMeaningfulActions: 2,
+  },
+  npc_wei_taren: {
+    socialClass: 'noble',
+    personality: ['guarded', 'observant'],
+    presentationStandard: 3,
+    threatTolerance: 5,
+    whiteFangSocialExempt: true,
+    dailyMeaningfulActions: 2,
+  },
+  npc_qiao_ren: {
+    socialClass: 'noble',
+    personality: ['guarded', 'dutiful'],
+    presentationStandard: 3,
+    threatTolerance: 5,
+    whiteFangSocialExempt: true,
     dailyMeaningfulActions: 2,
   },
 };

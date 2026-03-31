@@ -3,7 +3,8 @@ import { useWorldTimeStore } from './useWorldTimeStore';
 import { useInventoryStore } from './useInventoryStore';
 import { useAudioStore } from './useAudioStore';
 import itemsData from '../data/items.json';
-import type { EquipmentSlot, Item } from '../types';
+import type { EquipmentLoadoutSlotMap, EquipmentSlot, Item } from '../types';
+import { getMaxSocialEnergy } from '../utils/socialEnergy';
 
 interface CharacterState {
   // Core Attributes
@@ -42,6 +43,8 @@ interface CharacterState {
   languages: Record<string, 'None' | 'Basic' | 'Fluent' | 'Native'>;
   // Equipment
   equippedItems: Partial<Record<EquipmentSlot, Item>>;
+  equipmentLoadouts: Record<1 | 2, EquipmentLoadoutSlotMap>;
+  activeEquipmentLoadout: 1 | 2;
   // Actions
   eat: (itemId: string) => void;
   sleep: (hours: number, quality?: number) => void;
@@ -54,6 +57,9 @@ interface CharacterState {
   recalculateStats: () => void;
   updateStats: (changes: Partial<{ hp: number; energy: number; hunger: number; socialEnergy: number }>) => void;
   getMaxEnergy: () => number;
+  saveEquipmentLoadout: (slot: 1 | 2) => void;
+  applyEquipmentLoadout: (slot: 1 | 2) => void;
+  refreshSocialEnergyCap: () => void;
 }
 
 import { useWorldStateStore } from './useWorldStateStore';
@@ -83,6 +89,11 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     shenhaic: 'None',
   },
   equippedItems: {},
+  equipmentLoadouts: {
+    1: {},
+    2: {},
+  },
+  activeEquipmentLoadout: 1,
   eat: (itemId) => {
     const itemData = itemsData[itemId as keyof typeof itemsData] as { effects?: { hunger?: number; energy?: number } } | undefined;
     
@@ -170,7 +181,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     if (!equipmentSlot) return;
     if (equipmentSlot === 'weapon' && useWorldStateStore.getState().getFlag('whitefang_bound')) {
       const lockedWeapon = get().equippedItems.weapon;
-      if (lockedWeapon?.id === 'white_fang_of_heaven' || lockedWeapon?.id === 'white_fang_of_heaven_u') return;
+      if (lockedWeapon?.id === 'white_fang_of_heaven') return;
     }
 
     const { equippedItems } = get();
@@ -191,13 +202,25 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     }
 
     // Equip the new item
-    set((state) => ({
-      equippedItems: {
+    set((state) => {
+      const nextEquippedItems = {
         ...state.equippedItems,
         [equipmentSlot]: item,
         ...(isTwoHandedWeapon ? { shield: item } : {}),
-      },
-    }));
+      };
+      const snapshot = Object.entries(nextEquippedItems).reduce<EquipmentLoadoutSlotMap>((acc, [key, equipped]) => {
+        if (!equipped) return acc;
+        acc[key as EquipmentSlot] = equipped.id;
+        return acc;
+      }, {});
+      return {
+        equippedItems: nextEquippedItems,
+        equipmentLoadouts: {
+          ...state.equipmentLoadouts,
+          [state.activeEquipmentLoadout]: snapshot,
+        },
+      };
+    });
     get().recalculateStats();
   },
   unequipItem: (item) => {
@@ -206,7 +229,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     if (
       equipmentSlot === 'weapon' &&
       useWorldStateStore.getState().getFlag('whitefang_bound') &&
-      (item.id === 'white_fang_of_heaven' || item.id === 'white_fang_of_heaven_u')
+      item.id === 'white_fang_of_heaven'
     ) {
       return;
     }
@@ -222,7 +245,18 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
       if (equipmentSlot === 'weapon' && item.combatTags?.includes('two_handed')) {
         delete newEquippedItems.shield;
       }
-      return { equippedItems: newEquippedItems };
+      const snapshot = Object.entries(newEquippedItems).reduce<EquipmentLoadoutSlotMap>((acc, [key, equipped]) => {
+        if (!equipped) return acc;
+        acc[key as EquipmentSlot] = equipped.id;
+        return acc;
+      }, {});
+      return {
+        equippedItems: newEquippedItems,
+        equipmentLoadouts: {
+          ...state.equipmentLoadouts,
+          [state.activeEquipmentLoadout]: snapshot,
+        },
+      };
     });
     get().recalculateStats();
   },
@@ -290,7 +324,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   },
   recalculateStats: () => {
     set((state) => {
-      const { strength, charisma } = state.attributes;
+      const { strength } = state.attributes;
       
       // Calculate Max HP: Base 50 + (Strength * 10) + Item Bonuses
       let bonusHp = 0;
@@ -312,13 +346,131 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
 
       return {
         maxWeight: 30 + (strength * 5),
-        maxSocialEnergy: charisma,
-        // Ensure social energy doesn't exceed new max
-        socialEnergy: Math.min(state.socialEnergy, charisma),
         maxHp: newMaxHp,
         // Cap current HP to new Max HP
         hp: Math.min(state.hp, newMaxHp)
       };
+    });
+  },
+  refreshSocialEnergyCap: () => {
+    const state = get();
+    let persuasionLevel = 1;
+    let coercionLevel = 1;
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { useSkillStore } = require('./useSkillStore');
+      persuasionLevel = useSkillStore.getState().getSkillLevel('persuasion');
+      coercionLevel = useSkillStore.getState().getSkillLevel('coercion');
+    } catch {
+      persuasionLevel = 1;
+      coercionLevel = 1;
+    }
+
+    const maxSocialEnergy = getMaxSocialEnergy(
+      state.attributes.charisma,
+      persuasionLevel,
+      coercionLevel
+    );
+
+    set((current) => ({
+      maxSocialEnergy,
+      socialEnergy: Math.min(current.socialEnergy, maxSocialEnergy),
+    }));
+  },
+  saveEquipmentLoadout: (slot) => {
+    const equipped = get().equippedItems;
+    const snapshot = Object.entries(equipped).reduce<EquipmentLoadoutSlotMap>((acc, [key, item]) => {
+      if (!item) return acc;
+      acc[key as EquipmentSlot] = item.id;
+      return acc;
+    }, {});
+
+    set((state) => ({
+      equipmentLoadouts: {
+        ...state.equipmentLoadouts,
+        [slot]: snapshot,
+      },
+      activeEquipmentLoadout: slot,
+    }));
+  },
+  applyEquipmentLoadout: (slot) => {
+    const state = get();
+    const loadout = state.equipmentLoadouts[slot];
+    const currentSnapshot = Object.entries(state.equippedItems).reduce<EquipmentLoadoutSlotMap>((acc, [key, item]) => {
+      if (!item) return acc;
+      acc[key as EquipmentSlot] = item.id;
+      return acc;
+    }, {});
+
+    if (!loadout || Object.keys(loadout).length === 0) {
+      set((current) => ({
+        equipmentLoadouts: {
+          ...current.equipmentLoadouts,
+          [slot]: currentSnapshot,
+        },
+        activeEquipmentLoadout: slot,
+      }));
+      return;
+    }
+
+    set({ activeEquipmentLoadout: slot });
+
+    const desiredWeaponId = loadout.weapon;
+    const desiredShieldId = loadout.shield;
+
+    const hasDesiredItemAvailable = (itemId: string) => {
+      const currentlyEquipped = Object.values(get().equippedItems).some((item) => item?.id === itemId);
+      const inInventory = useInventoryStore.getState().getItemQuantity(itemId) > 0;
+      return currentlyEquipped || inInventory;
+    };
+
+    const desiredSlots = (Object.keys(loadout) as EquipmentSlot[]).filter((slotKey) => {
+      const itemId = loadout[slotKey];
+      if (!itemId) return false;
+      if (slotKey === 'shield' && desiredWeaponId && desiredShieldId === desiredWeaponId) return false;
+      return hasDesiredItemAvailable(itemId);
+    });
+
+    const slotsToClear = (Object.keys(get().equippedItems) as EquipmentSlot[]).filter((slotKey) => {
+      const equippedItem = get().equippedItems[slotKey];
+      if (!equippedItem) return false;
+      const desiredItemId = loadout[slotKey];
+      if (slotKey === 'shield' && desiredWeaponId && equippedItem.id === desiredWeaponId && desiredShieldId === desiredWeaponId) {
+        return false;
+      }
+      return !desiredItemId || desiredItemId !== equippedItem.id;
+    });
+
+    slotsToClear.forEach((slotKey) => {
+      const equippedItem = get().equippedItems[slotKey];
+      if (!equippedItem) return;
+      get().unequipItem(equippedItem);
+    });
+
+    desiredSlots.forEach((slotKey) => {
+      const itemId = loadout[slotKey];
+      if (!itemId) return;
+      const currentlyEquipped = get().equippedItems[slotKey];
+      if (currentlyEquipped?.id === itemId) return;
+
+      const itemData = itemsData[itemId as keyof typeof itemsData] as any;
+      if (!itemData) return;
+      if (useInventoryStore.getState().getItemQuantity(itemId) <= 0) return;
+
+      get().equipItem({
+        id: itemId,
+        name: itemData.name,
+        description: itemData.description,
+        type: itemData.type,
+        weight: itemData.weight,
+        base_value: itemData.base_value,
+        stackable: itemData.stackable,
+        bookId: itemData.bookId,
+        combatTags: itemData.combatTags,
+        equipmentSlot: itemData.equipmentSlot,
+        stats: itemData.stats || {},
+      } as Item);
     });
   },
   getMaxEnergy: () => {

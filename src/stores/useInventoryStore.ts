@@ -29,11 +29,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
   addItem: (itemId, quantity) => {
     const itemData = itemsData[itemId as keyof typeof itemsData];
     if (!itemData) return false;
-
     const newWeight = get().currentWeight + (itemData.weight * quantity);
-    const maxWeight = useCharacterStore.getState().maxWeight;
-
-    if (newWeight > maxWeight) return false;
 
     set((state) => {
       const itemData = itemsData[itemId as keyof typeof itemsData];
@@ -168,7 +164,14 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     return true;
   },
   getCurrentWeight: () => {
-    return get().currentWeight;
+    const inventoryWeight = get().currentWeight;
+    const equippedWeight = Object.entries(useCharacterStore.getState().equippedItems).reduce((sum, [slot, item]) => {
+      if (!item) return sum;
+      if (slot === 'shield' && item.combatTags?.includes('two_handed')) return sum;
+      return sum + (item.weight * 0.5);
+    }, 0);
+
+    return inventoryWeight + equippedWeight;
   },
   getItemQuantity: (itemId) => {
     const item = get().items.find(item => item.id === itemId);
@@ -177,8 +180,6 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
   canAddItem: (itemId, quantity) => {
     const itemData = itemsData[itemId as keyof typeof itemsData];
     if (!itemData) return false;
-
-    const newWeight = get().currentWeight + (itemData.weight * quantity);
-    return newWeight <= useCharacterStore.getState().maxWeight;
+    return quantity > 0;
   },
 }));

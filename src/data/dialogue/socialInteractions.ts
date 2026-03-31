@@ -2,8 +2,8 @@ import type { SocialActionType, SocialStyle } from '../../utils/socialResolver';
 import type { PersonalityTrait, SocialClass } from '../../utils/socialNpcConfig';
 
 export type SocialInteractionCategory = 'friendly' | 'flirt' | 'coerce';
-type Outcome = 'strong' | 'weak' | 'fail';
-type ResponseSet = Record<Outcome, string[]>;
+type Outcome = 'strong' | 'weak' | 'fail' | 'neutral';
+type ResponseSet = Record<'strong' | 'weak' | 'fail', string[]> & Partial<Record<'neutral', string[]>>;
 
 export interface SocialInteractionTemplate {
   key: string;
@@ -47,6 +47,7 @@ export const socialInteractionTemplates: Record<string, SocialInteractionTemplat
       strong: ['That is kinder than most people bother being.'],
       weak: ['I have had worse.'],
       fail: ['That depends who is asking.'],
+      neutral: ['There is a strange distance in the air around you.'],
     },
     personalityResponses: {
       warm: {
@@ -97,6 +98,7 @@ export const socialInteractionTemplates: Record<string, SocialInteractionTemplat
       strong: ['Maybe I judged you too quickly.'],
       weak: ['We will see.'],
       fail: ['I did not ask for help.'],
+      neutral: ['Keep your distance. Something about you feels wrong tonight.'],
     },
     personalityResponses: {
       warm: {
@@ -147,6 +149,7 @@ export const socialInteractionTemplates: Record<string, SocialInteractionTemplat
       strong: ['Plain words are rarer than they should be.'],
       weak: ['Maybe. I am still listening.'],
       fail: ['Honesty and bluntness are not the same thing.'],
+      neutral: ['I hear you. I just do not feel easy standing this close to you.'],
     },
     personalityResponses: {
       warm: {
@@ -197,6 +200,7 @@ export const socialInteractionTemplates: Record<string, SocialInteractionTemplat
       strong: ['That was more thoughtful than I expected.'],
       weak: ['I have heard worse.'],
       fail: ['Flattery travels cheap in this town.'],
+      neutral: ['Do not dress it up. Something about you sets my teeth on edge.'],
     },
     personalityResponses: {
       warm: {
@@ -242,6 +246,7 @@ export const socialInteractionTemplates: Record<string, SocialInteractionTemplat
       strong: ['Careful. That almost sounded sincere.'],
       weak: ['You should practice that line before using it twice.'],
       fail: ['That sounded better in your head, did it not?'],
+      neutral: ['No. Whatever is clinging to you kills the mood before you speak.'],
     },
     personalityResponses: {
       warm: {

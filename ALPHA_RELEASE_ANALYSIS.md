@@ -1,472 +1,449 @@
 # Divine Fantasy: Alpha Release Analysis
 
-## Scope
+## Purpose
 
-This document re-evaluates `Divine Fantasy` as it exists now, not as it existed when the project was mainly framed around a short Finn debt demo plus a separate sandbox mode.
+This document is a fresh assessment of `Divine Fantasy` as it exists now.
 
-The build has moved forward in an important way:
+It is not a revision of the older "debt-demo plus sandbox" framing. That description is no longer accurate enough for the current build. The game has grown into a more unified story alpha with a clearer chapter structure, stronger route identity, and a more distinct split between grounded Driftwatch survival and the mythic White Fang branch.
 
-- the game is now a unified story alpha
-- the player begins through Luke's orphanage prologue or skips directly to Driftwatch's debt week
-- the Finn route still matters, but it is no longer the whole identity of the build
-- the White Fang route expands the game beyond a grounded survival premise into a larger mythic branch
-- several branch endings now exist, even if some of them still stop at "current version ends here"
+The real question now is not "does this prototype have potential?"
 
-So the right question is no longer:
+The real question is:
 
-- "Is this a good first concept demo?"
+- what kind of alpha this is now
+- what it already does well
+- what still feels undercooked
+- and what would most improve its public-facing strength
 
-The better question is:
+## Executive Summary
 
-- "Is this already a strong alpha chapter, and what still keeps it from feeling like a fuller RPG release?"
+`Divine Fantasy` is now best understood as a **story-first alpha RPG chapter** with:
 
-## High-Level Verdict
+- a real opening arc
+- a strong city identity
+- multiple branch outcomes around Finn
+- a meaningful mythic escalation through White Fang
+- enough authored structure to feel like a game in progress rather than a pure concept prototype
 
-`Divine Fantasy` is no longer just a promising prototype slice. It now reads as a **real alpha chapter with multiple routes, stronger authored progression, and a clearer campaign identity**.
+My honest read:
 
-That said, it is still not yet a content-wide RPG alpha in the broad commercial sense.
+- the project has **clear identity**
+- the build is **substantial enough to be taken seriously as an alpha**
+- the strongest content is **very promising**
+- the weakest areas are still mostly about **breadth, consistency, and follow-through**
 
-My honest verdict:
+This is no longer a tiny demo. It is also not yet a broad, content-rich RPG alpha with evenly developed systems.
 
-- **Strong enough to present as a real alpha build**
-- **No longer best described as "7-day debt demo + sandbox"**
-- **Still not broad enough to market as a deep open-ended sandbox RPG**
+The project is in the middle ground:
 
-The project's biggest upgrade since the older analysis is structural. The game now feels like one connected build:
+- strong enough to make a real impression
+- not yet wide enough to fully cash in on everything its UI and systems imply
 
-- orphanage prologue
-- Driftwatch survival and debt pressure
-- loyalist / hybrid / personal / rebel outcomes around Finn
-- White Fang escalation into a higher-stakes mythic path
-- continued free play after route endpoints
+## Current Snapshot
 
-That is a meaningful leap. The game has crossed from "concept promise" into "playable chapter with a real identity."
+Based on the current repo data, the project now roughly contains:
 
-## What Has Changed Since The Older Analysis
-
-The older analysis is outdated in three major ways.
-
-### 1. The Build Is Unified Now
-
-The old framing treated the game as:
-
-- a 7-day debt story demo
-- plus a sandbox mode
-
-That is no longer the real player-facing structure.
-
-Current flow is:
-
-- `Play Intro`
-- or `Skip Intro`
-
-Both are the same story build. One simply starts earlier.
-
-In code, `gameMode` is story-only, and the start modal is about entry point, not separate game identity. That means the game should now be discussed as one alpha campaign with optional onboarding depth, not as story mode versus sandbox mode.
-
-### 2. Luke Has A Real Opening Arc Now
-
-The orphanage prologue matters.
-
-It gives the build:
-
-- a stronger emotional beginning
-- clearer character grounding for Luke
-- better onboarding
-- an actual sense of early life before Driftwatch hardens the tone
-
-That helps the game feel less like "systems start here" and more like "a story has begun."
-
-### 3. The White Fang Route Changes The Scale Of The Game
-
-The White Fang content is the single strongest argument that this is no longer just a narrow survival slice.
-
-It adds:
-
-- multi-step mythic investigation
-- lore-driven route progression
-- expedition escalation
-- a distinct combat climax
-- a transformational character state for Luke
-
-This route materially changes the ceiling of the current build. Even if it still ends in an alpha stopping point, it makes the game feel larger, stranger, and more authored than before.
-
-## Current Project Snapshot
-
-Based on the current repo data, the build roughly contains:
-
-- 27 locations
-- 30 NPCs
-- 58 items
+- 28 locations
+- 31 NPCs
+- 71 items
 - 5 quests
-- 11 enemy types
+- 11 enemy definitions
 - 13 exploration events
-- 9 recipes
-- 5 shops worth of commerce data
-- 6 books
-- 1 formal job track
-- 26 dialogue files
-- 33 event slide packages / scripted event sequences
+- 8 books
+- 8 recipes
+- 6 shops
+- 1 formal job
+- 30 Driftwatch dialogue files
+- 35 scripted event packages
 
-This is no longer tiny. It is still selective, but it is enough to support a meaningful alpha experience.
-
-The important qualifier is that the content is still **unevenly distributed**. The game has clearly grown, but not all systems have grown at the same pace.
+That is enough material to support a meaningful alpha chapter, especially because the content is not purely systemic. A lot of the build's value comes from authored route structure, atmosphere, and event-driven delivery rather than raw volume alone.
 
 ## What The Game Is Right Now
 
-The current build is best understood as:
+The current build feels like:
 
-- a dark fantasy alpha RPG chapter
-- centered on Luke, Driftwatch, survival pressure, and factional tension
-- with a grounded opening that can escalate into a more mythic route
-- supported by strong UI, event presentation, and world flavor
+- a dark fantasy city-chapter RPG
+- centered on Luke and Driftwatch
+- with social pressure, debt, survival, and factional tension as the grounded core
+- and a supernatural escalation route that reframes Luke's identity through White Fang
 
-That is a better and more accurate pitch than:
+That is a much sharper identity than the older framing.
 
-- survival sandbox
-- life sim
-- broad systems RPG
-- debt-demo prototype
+The project is not strongest when described as:
 
-## What Is Already Strong
+- a sandbox life sim
+- a broad systems RPG
+- or a huge open alpha
 
-### 1. The Game Has A Better Spine
+It is strongest when described as:
 
-This is the most important improvement.
+- a focused alpha chapter with branching routes, strong atmosphere, and growing mythic scope
 
-The current build has a much stronger chapter shape:
+## Where The Project Feels Strong
 
-- prologue
-- first hardship
-- survival pressure
-- branching response to Finn
-- optional mythic escalation
+### 1. The Game Has A Real Spine Now
 
-That gives the game a sense of progression the old version did not fully have. It is no longer just "Driftwatch has promise." There is now a clearer feeling that the player is moving through a designed arc.
+This is the single biggest improvement.
 
-### 2. Driftwatch Still Carries The Project
+The build now has a much more recognizable shape:
 
-Driftwatch remains the best authored asset in the game.
+- intro or skip-intro entry
+- Driftwatch pressure
+- Finn debt structure
+- multiple meaningful route outcomes
+- optional White Fang escalation
+- continued world state after route beats
 
-What continues to work well:
+That gives the game rhythm. It no longer feels like a set of cool systems waiting to become a story. It already feels like a story chapter that systems are supporting.
 
-- visual mood
-- names and lore consistency
-- social and economic tone
-- feeling of class tension and local history
-- the contrast between slums, guards, shops, and outskirts
+### 2. Driftwatch Is Still The Best Asset In The Project
 
-Even when a mechanic is still thin, the city helps the game feel intentional instead of placeholder-heavy.
+Driftwatch continues to carry the game extremely well.
 
-### 3. Presentation Is Strong For Alpha
+What works especially well:
 
-The game looks much more complete than a typical alpha in this stage.
+- naming and tone
+- class tension
+- mood and place identity
+- shop and district flavor
+- the sense that Luke is surviving inside a city with history and pressure
 
-Standout areas:
+Even when a mechanic is still thin, the city often makes the experience feel authored rather than placeholder-heavy.
 
-- journal
-- library
+### 3. UI And Presentation Are Strong For This Stage
+
+The project still benefits enormously from how readable and intentional it looks.
+
+Especially strong:
+
 - dialogue presentation
-- event slide sequences
-- location framing
-- overall menu and modal presentation
+- journal and diary framing
+- location screens
+- event slides and route aftermath sequences
+- the overall feeling of "this has a point of view"
 
-The project benefits a lot from this. It buys trust. Players can see that the game has a point of view.
+This matters because it creates trust. Players are far more willing to forgive missing breadth when the game already feels deliberate.
 
-### 4. The White Fang Route Adds Range
+### 4. White Fang Gives The Build Range
 
-This route matters not just as more content, but as proof of range.
+White Fang is one of the game's biggest differentiators.
 
-It shows the game can handle:
+It proves the project can support:
 
-- grounded hardship
-- city intrigue
-- historical mystery
-- martial mythology
-- transformation and altered social identity
+- lore-driven investigation
+- route-based escalation
+- altered social identity
+- supernatural consequence
+- a shift from grounded hardship into mythic danger
 
-That is much more compelling than a build that only says "survive Driftwatch for a week."
+That broadens the game's ceiling significantly. It also helps answer a crucial question: "what makes this world more than just another poor-medieval-survival setup?"
 
-### 5. Route Endings Give The Alpha Better Payoff
+### 5. Recent System Cohesion Is Better
 
-Several current branches end with explicit alpha stopping points while still allowing continued play.
-
-That is smart for this stage because it gives:
-
-- a sense of payoff
-- clearer branch identity
-- a better feeling of "I reached something"
-- room to keep exploring the build after the branch cap
-
-The game still has unfinished edges, but it now ends thoughts more often than it used to.
-
-## Main Weaknesses
-
-### 1. Content Breadth Still Lags Behind System Breadth
-
-This is still the central issue.
-
-The game now has more content, but the system surface is still larger than the authored depth under it.
+Some of the newer work meaningfully improves coherence rather than just adding more content.
 
 Examples:
 
+- White Fang now closes cleanly through the endings that actually consume the week
+- Shihan's availability and route timing feel more intentional
+- the combat/social equipment split is a strong quality-of-life idea
+- the jewelry shop and clothing progression make the social-presence system feel more like a real economy layer instead of pure abstraction
+
+This kind of work is valuable because it strengthens the game's internal logic.
+
+## Where The Project Still Feels Weak
+
+### 1. Content Breadth Still Lags Behind The Fantasy
+
+This remains the core issue.
+
+The game now presents a strong fantasy of:
+
+- relationships
+- work
+- combat progression
+- exploration
+- social identity
+- gear-based presence
+- branching route play
+
+But the authored content supporting those systems is still uneven.
+
+The biggest examples:
+
 - only 5 quests
 - only 1 formal job
-- only 9 recipes
-- only 13 exploration events
-- only 11 enemy types
+- limited exploration event volume
+- a still fairly small enemy roster
+- only a handful of NPCs with truly developed interactive depth
 
-The project feels much healthier than before, but it still risks implying a broader simulation than the current content can fully support over long sessions.
+That does not make the alpha weak. It just means the game currently promises more width than it fully delivers over longer play.
 
-### 2. The Social Layer Is Thematic Before It Is Deep
+### 2. The Social Layer Is Strong In Theme, Mixed In Payoff
 
-The social fantasy is attractive:
+This is one of the most interesting parts of the project, but it is not fully settled yet.
 
-- relationships
-- friendship/fear/love vectors
-- diary framing
-- social energy
-- reactive route identity after White Fang
+The social system now has:
 
-But in practice, the system still reads more as a promising framework than a fully mature gameplay pillar.
+- relationship vectors
+- presentation and threat
+- split social/combat loadouts
+- social XP progression
+- White Fang-specific social consequences
 
-This is especially important because the game's personality depends heavily on:
+That is a compelling design direction.
 
-- who Luke becomes
-- how people respond to him
-- whether Driftwatch feels socially reactive
+But the layer is still mid-rework in practice:
 
-That promise is visible. The fully satisfying payoff is not there yet.
+- tuning is still moving
+- the UI is still finding its cleanest form
+- only a few NPCs really show the system at its best
+- some of the depth currently exists more in structure than in player-visible consequence
 
-### 3. The Build Now Needs Better Midgame-to-Endgame Clarity
+In other words: the social system is now a major identity pillar, but not yet a completely mature gameplay pillar.
 
-The old problem was "is there enough to do?"
+### 3. The Project Is Starting To Depend On Balance
 
-The newer problem is:
+At the current size, balance problems no longer just make a demo rough. They distort the chapter.
 
-- "What is the intended chapter boundary?"
+Important balance-sensitive areas now include:
 
-Right now, several routes end with:
+- early survival pressure
+- Finn route pacing
+- social XP growth
+- clothing and presentation value
+- threat progression
+- White Fang's route power and social cost
+- store pricing and gear aspiration
 
-- strong event payoff
-- then "this branch ends here in the current version"
-- then continued free play
+This is a good sign in one sense, because it means systems matter now. But it also means the game is entering the stage where tuning quality starts shaping overall perception.
 
-That is acceptable for alpha, but it means the build needs to communicate very clearly that:
+### 4. Some Route Peaks Are Stronger Than The Space Around Them
 
-- some major paths are currently capped
-- free play after them is still lighter than the critical path
+This is a newer and subtler issue.
 
-Otherwise players may feel like the game suddenly loses authored momentum after a strong peak.
+The best scenes and route beats are now strong enough that they expose the surrounding thinness more clearly.
 
-### 4. Balance Is More Important Now Than Before
+Examples of where this can happen:
 
-When the game was smaller, rough balance mostly affected a short demo.
+- a big ending or White Fang beat lands well
+- then free play continues in a lighter state
+- or a route resolves clearly while adjacent systems still feel underfed
 
-Now balance affects:
+That means the project now needs better "after the peak" support:
 
-- prologue pacing
-- Finn week tension
-- route viability
-- combat danger
-- job usefulness
-- White Fang power fantasy
-- post-branch free play feel
+- more side content
+- more reactive follow-through
+- or clearer communication that a branch is currently capped
 
-This raises the stakes of tuning. The build is now large enough that uneven economy or stat balance can distort the whole chapter, not just one small route.
+### 5. The Root Documentation Is Behind The Game
 
-### 5. Some Systems Still Feel Underfed Compared To Their UI
+Even outside gameplay, the project has outgrown some of its framing.
 
-This remains true even though the project has improved.
+For example, the root [README.md](c:/Users/dolza/OneDrive/Documentos/Divine_Fantasy/README.md) still describes a much earlier development phase and even references an old structure that does not match the current repo reality.
 
-The UI suggests a game with substantial depth in:
+That matters because once a build becomes real enough to show, outdated framing starts making the project look less coherent than it actually is.
 
-- jobs
-- skills
-- relationships
-- exploration
-- progression
+## Current Design Read
 
-The foundations are there, but not every system yet produces enough meaningful, repeated, player-visible payoff to match the presentation layer.
+### Narrative
 
-That is not a failure. It just means expectations need to be set carefully.
+Status:
 
-## Release Positioning
+- strong for alpha
 
-## Recommended Pitch
+Why:
 
-If released soon, I would pitch the game as:
+- Luke has a more grounded start
+- Driftwatch has a clear dramatic purpose
+- Finn gives the chapter tension
+- White Fang gives the chapter mystery and scale
 
-**"A dark fantasy alpha RPG set in Driftwatch, where survival, debt, social tension, and buried myth shape Luke's first chapter."**
+Main risk:
 
-That pitch is better because it matches the current build:
+- route endpoints can currently feel more finished than the surrounding mid-layer content
 
-- grounded opening
-- authored city chapter
-- branching responses to Finn
-- mythic White Fang escalation
+### Combat
 
-It also avoids pretending the game is already a giant content sandbox.
+Status:
 
-### Good Positioning Terms
+- solid enough to support the chapter, still not broad
+
+Why:
+
+- there is enough combat structure for authored encounters and route climaxes
+- party/formation work is heading in the right direction
+
+Main risk:
+
+- content variety and long-session combat texture still lag behind the framework
+
+### Social / Relationship Play
+
+Status:
+
+- one of the project's most interesting systems, but still mid-construction
+
+Why:
+
+- the design ambition is strong
+- the White Fang branch gives it a meaningful identity twist
+- gear and social state now matter more concretely
+
+Main risk:
+
+- too much of its promise is still concentrated in system design rather than broad authored payoff
+
+### Economy / Gear
+
+Status:
+
+- increasingly promising
+
+Why:
+
+- gear tiers now have clearer meaning
+- clothing, jewelry, and social presence are starting to link together well
+- shops feel more like progression anchors instead of pure utility
+
+Main risk:
+
+- pricing, reward pacing, and access still need a lot of hands-on feel testing
+
+### Exploration / World Reactivity
+
+Status:
+
+- useful and atmospheric, still fairly light
+
+Why:
+
+- exploration supports tone and route structure
+- event framing is good
+
+Main risk:
+
+- event variety and persistent world response are not yet deep enough to fully sell long-term replay on their own
+
+## What The Game Most Likely Feels Like To A New Player
+
+If a new player starts the build now, the likely impression is:
+
+1. the game looks polished and intentional
+2. Driftwatch feels like a real place quickly
+3. Luke's early pressure gives the chapter urgency
+4. route choice feels meaningful
+5. White Fang is a notable surprise escalation
+6. after a while, the player starts noticing where the world's breadth is still thinner than the strongest content suggests
+
+That is not a bad place to be at all.
+
+In fact, it is one of the healthier alpha positions:
+
+- the player is more likely to want more
+- than to think there is nothing here
+
+## Current Release Positioning
+
+If this build were being described publicly right now, the most honest and strongest positioning would be something like:
+
+**A dark fantasy alpha RPG chapter set in Driftwatch, where debt, survival, social pressure, and buried myth shape Luke's first major path through the world.**
+
+That framing works because it is:
+
+- accurate
+- ambitious without lying
+- centered on what the game already does well
+
+Terms that fit well:
 
 - alpha RPG
-- story-driven RPG
+- story-first RPG
 - dark fantasy
-- survival pressure
 - branching city chapter
-- dialogue and choice
-- lore-rich world
-- early access alpha build
+- dialogue and route choice
+- lore-rich low-fantasy world
 
-### Terms To Avoid Or Use Carefully
+Terms to avoid or use carefully:
 
 - full sandbox RPG
-- life sim
-- deep social sim
-- open-ended systemic world
+- deep life sim
+- fully systemic world
 - large content alpha
+- open-ended sim
 
-Those descriptions oversell the current scope.
+Those would make the current build sound broader than it is.
 
-## What Players Are Likely To Praise
+## Where I Think The Project Is Right Now
 
-- atmosphere
-- the city itself
-- polished UI
-- strong event presentation
-- Luke's opening context
-- the feeling that routes actually diverge
-- White Fang as a surprise scale shift
-- the library and broader world lore
+My overall read is:
 
-## What Players Are Likely To Criticize
+`Divine Fantasy` is in a strong transitional phase.
 
-- not enough quest volume yet
-- only one real job line
-- social systems not going far enough yet
-- some branches ending sharply
-- post-branch free play being thinner than the route buildup
-- systems that imply more replay depth than currently exists
+It has already crossed the line from "interesting prototype" to "real game chapter in progress." That matters. A lot of projects never get this far.
 
-## Updated Assessment Of The Build's Identity
+But it has not yet crossed the next line:
 
-The project is no longer best judged as a small alpha curiosity.
+- from strong chapter prototype to fully convincing wide alpha RPG slice
 
-It is now better described as:
+That second jump is mostly about:
 
-- **a focused alpha chapter with multiple path identities**
+- more sideways content
+- more reactive follow-through
+- more stable balance
+- and more systems that feel finished in player hands, not just well-conceived in design
 
-That matters because it changes the release standard.
+So the project is in a good place, but not a safe place. It has enough identity that its rough edges matter more now.
 
-The build does not need to compete with huge RPGs yet.
-It does need to:
+That is a healthy problem.
 
-- make its first chapter feel intentional
-- make its branch endpoints feel earned
-- make its current limitations legible rather than surprising
+## Best Next Priorities
 
-If it does those three things well, it can make a strong public impression.
+### Tier 1: Highest Value
 
-## Priority Recommendations
+1. Finish a proper tuning pass on social presence, social XP, and clothing/jewelry progression.
+2. Deepen the post-route world state so major route beats have more visible aftermath.
+3. Expand side content outside the Finn spine so the chapter breathes more.
+4. Keep smoothing the inventory / equipment / social UI so the system complexity stays readable.
+5. Update outward-facing project documentation to match the actual game.
 
-## Tier 1: Most Important Before A Bigger Public Push
+### Tier 2: Content Growth
 
-1. Make the current chapter boundary explicit and satisfying.
-2. Strengthen the post-route state so free play does not feel hollow after big branch climaxes.
-3. Do a serious balance pass on survival, Finn pressure, combat, and White Fang progression.
-4. Add at least a small amount of new authored content to underfed systems.
-5. Make sure the store page and in-game messaging no longer imply a separate sandbox identity.
+1. Add more non-Finn quests.
+2. Add at least one more real job path.
+3. Give more NPCs authored interaction depth instead of only system scaffolding.
+4. Expand exploration events and enemy variety.
+5. Strengthen companion integration so party identity matters outside combat too.
 
-## Tier 2: Highest Value Content Expansion
+### Tier 3: Longer-Term Identity Payoff
 
-1. Add 2 to 4 more quests that live outside the Finn spine.
-2. Add at least one more formal job or work route.
-3. Deepen a handful of NPCs into multi-step relationship arcs.
-4. Add more exploration events and more enemy encounter variety.
-5. Increase visible skill payoff through more checks, unlocks, or branch consequences.
+1. Make White Fang consequences echo more deeply through the city.
+2. Make relationships matter more in access, prices, help, danger, or route resolution.
+3. Build more visible class response around how Luke dresses, threatens, and presents himself.
+4. Increase reasons to keep playing after route caps beyond curiosity alone.
 
-## Tier 3: Longer-Term Growth
+## Final Verdict
 
-1. Expand companion presence and party identity.
-2. Give social reputation more visible world feedback.
-3. Connect White Fang consequences more deeply into city life.
-4. Broaden recipes, item utility, and economy loops.
-5. Build stronger reasons to keep playing after a route cap beyond pure curiosity.
+`Divine Fantasy` is now a **legitimate alpha chapter with a real voice**.
 
-## Design Focus Recommendations
+Its best qualities are not vague anymore. They are visible:
 
-### Narrative Structure
+- strong atmosphere
+- strong city identity
+- memorable route structure
+- promising social ambition
+- an effective grounded-to-mythic escalation
 
-Status: much stronger than before
+Its biggest weaknesses are also visible:
 
-Recommendation:
+- content breadth is still uneven
+- some systems are still more promising than fully satisfying
+- balance and follow-through matter more now than they used to
 
-- keep building the game as a chaptered alpha, not as a vague feature sandbox
-- preserve the prologue -> Driftwatch -> branch escalation structure
-- make route caps feel like deliberate episode endings
+That means the project is in a very credible but very consequential phase.
 
-### Content
+The current build is good enough to make people care.
 
-Status: enough for a serious alpha, still not broad
+The next challenge is making sure the surrounding depth catches up to the strongest parts of the game.
 
-Recommendation:
-
-- expand sideways now, not just upward
-- the game needs more non-critical-path content to support replay and downtime
-
-### Social Simulation
-
-Status: evocative framework, partial payoff
-
-Recommendation:
-
-- make relationships matter more in outcomes, access, prices, jobs, or protection
-- if a system is central to identity, it must alter play more visibly
-
-### Economy And Survival
-
-Status: still highly tune-sensitive
-
-Recommendation:
-
-- decide exactly how harsh Luke's intended baseline should be
-- test both intro start and skip-intro start as separate balance cases
-- protect tension without making early recovery routes too narrow
-
-### White Fang Content
-
-Status: a major strength, but also a risk
-
-Recommendation:
-
-- keep it as a differentiator
-- make sure it does not accidentally make the grounded city routes feel minor or obsolete
-- use it to widen the game's identity, not to replace the social-survival core
-
-## Final Recommendation
-
-Yes, I would now describe `Divine Fantasy` as a **strong alpha project with a real first chapter**, not just a concept demo.
-
-The older "7-day plus sandbox" framing should be retired. It undersells the current build in some ways and misdescribes it in others.
-
-The more accurate truth is:
-
-- this is a unified story alpha
-- it has a grounded beginning and a meaningful branch structure
-- it already has enough authored identity to interest players
-- it still needs more sideways depth before it can be sold as a broad RPG experience
-
-If released or updated publicly in its current direction, the game should be framed as:
-
-- a dark fantasy alpha chapter
-- centered on Driftwatch
-- with survival pressure, dialogue, route choice, and growing mythic scope
-
-If that framing is honest, the project has a lot going for it.
-
-The right player reaction at this stage should be:
-
-"This already feels like a real opening chapter. It is not huge yet, but it has identity, direction, and clear room to grow."
-
-That is a very good place for an alpha to be.
+That is a very good problem for an alpha to have.

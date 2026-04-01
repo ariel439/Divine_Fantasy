@@ -386,7 +386,6 @@ export class DialogueService {
       'ask',
       'friendly',
       'flirt',
-      'coerce',
     ];
 
     const player_choices = orderedCategories

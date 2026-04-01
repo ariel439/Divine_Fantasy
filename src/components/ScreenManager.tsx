@@ -114,7 +114,7 @@ const ScreenManager: React.FC = () => {
     } else if (selectedPastime === 'kids') {
       useDiaryStore.getState().updateRelationship('npc_sarah', { friendship: 8 });
       useDiaryStore.getState().updateRelationship('npc_kyle', { friendship: 8 });
-      useSkillStore.getState().setSkillLevel('carpentry', 2);
+      useSkillStore.getState().setSkillLevel('carpentry', 3);
     } else if (selectedPastime === 'study') {
       useCharacterStore.setState((state) => ({
         ...state,

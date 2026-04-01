@@ -8,7 +8,6 @@
       "ask": "rb_ask_root",
       "friendly": "rb_friendly_root",
       "flirt": "rb_flirt_root",
-      "coerce": "rb_coerce_root",
       "quest": "rb_quest_root"
     },
     "nodes": {

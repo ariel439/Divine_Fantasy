@@ -22,6 +22,8 @@ interface CharacterState {
   hunger: number;
   socialEnergy: number;
   maxSocialEnergy: number;
+  explorationEscapes: number;
+  maxExplorationEscapes: number;
   // Currency
   currency: {
     copper: number;
@@ -96,6 +98,8 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   hunger: 60,
   socialEnergy: 1,
   maxSocialEnergy: 1,
+  explorationEscapes: 0,
+  maxExplorationEscapes: 0,
   currency: {
     copper: 0,
     silver: 0,
@@ -381,6 +385,15 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   recalculateStats: () => {
     set((state) => {
       const { strength } = state.attributes;
+      let constitutionLevel = 1;
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { useSkillStore } = require('./useSkillStore');
+        constitutionLevel = useSkillStore.getState().getSkillLevel('constitution');
+      } catch {
+        constitutionLevel = 1;
+      }
+      const constitutionHpBonus = Math.floor(constitutionLevel / 10);
       
       // Calculate Max HP: Base 50 + (Strength * 10) + Item Bonuses
       let bonusHp = 0;
@@ -398,7 +411,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
         }
       });
 
-      const newMaxHp = 50 + (strength * 10) + bonusHp;
+      const newMaxHp = 50 + (strength * 10) + constitutionHpBonus + bonusHp;
 
       return {
         maxWeight: 30 + (strength * 5),

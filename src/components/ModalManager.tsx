@@ -53,6 +53,7 @@ const ModalManager: React.FC = () => {
           const world = useWorldStateStore.getState();
           const loc = useLocationStore.getState().getCurrentLocation();
           const isIntroSleep = world.introMode && (world.tutorialStep === 6 || world.tutorialStep === 7) && loc.id === 'intro_orphanage_room';
+          const canSleepOnGround = !isIntroSleep && sleepWaitMode === 'wait' && loc.is_indoor !== true;
           const currentSeconds = isIntroSleep ? (20 * 3600) : (useWorldTimeStore.getState().hour * 3600 + useWorldTimeStore.getState().minute * 60);
           const fixedDuration = isIntroSleep ? 10 : undefined;
           
@@ -61,16 +62,14 @@ const ModalManager: React.FC = () => {
               isOpen={true}
               mode={sleepWaitMode || 'wait'}
               sleepQuality={sleepQuality ?? 1.0}
+              canSleepOnGround={canSleepOnGround}
               currentTimeInSeconds={currentSeconds}
               fixedDuration={fixedDuration}
-              onComplete={(hours) => {
-                console.log(`[SleepWait] complete mode=${sleepWaitMode} hours=${fixedDuration ?? hours}`);
-                const worldState = useWorldStateStore.getState();
-                
-                if (sleepWaitMode === 'sleep') {
-                  const quality = sleepQuality ?? 1.0;
+              onComplete={(hours, resolvedMode, resolvedSleepQuality) => {
+                console.log(`[SleepWait] complete mode=${resolvedMode} hours=${fixedDuration ?? hours}`);
+                if (resolvedMode === 'sleep') {
                   const duration = fixedDuration ?? hours;
-                  useCharacterStore.getState().sleep(duration, quality);
+                  useCharacterStore.getState().sleep(duration, resolvedSleepQuality);
                 }
                 
                 if (useWorldStateStore.getState().getFlag('start_finn_debt_on_sleep')) {

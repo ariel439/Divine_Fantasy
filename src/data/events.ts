@@ -49,9 +49,12 @@ type ChoiceEventId =
   | 'beryl_letter_pickup'
   | 'forge_crate_note_pickup'
   | 'apple_tree_event'
+  | 'pear_tree_event'
+  | 'blackberry_bramble_event'
   | 'fallen_log_event'
   | 'abandoned_campsite_event'
-  | 'hollow_stump_event';
+  | 'hollow_stump_event'
+  | 'fresh_grave_event';
 
 export interface ChoiceEventConfig {
   id: ChoiceEventId;
@@ -94,6 +97,20 @@ export const choiceEvents: Record<ChoiceEventId, ChoiceEventConfig> = {
     text:
       'You come across a wild apple tree, its branches heavy with ripe fruit. The apples look tempting, but the bark is rough and the ground uneven beneath your feet.',
   },
+  pear_tree_event: {
+    id: 'pear_tree_event',
+    title: 'Pear Tree',
+    imageUrl: '/assets/events/event_apple_tree.png',
+    text:
+      'A pear tree leans over the trail, its branches bowed by fruit. The bark is slick with moss and the ground beneath it is soft and uneven.',
+  },
+  blackberry_bramble_event: {
+    id: 'blackberry_bramble_event',
+    title: 'Blackberry Bramble',
+    imageUrl: '/assets/events/event_apple_tree.png',
+    text:
+      'A bramble thicket has gone wild at the edge of the path, heavy with blackberries and thick with thorns.',
+  },
   fallen_log_event: {
     id: 'fallen_log_event',
     title: 'Fallen Log',
@@ -114,6 +131,13 @@ export const choiceEvents: Record<ChoiceEventId, ChoiceEventConfig> = {
     imageUrl: '/assets/events/event_hollow_stump.png',
     text:
       'In a small clearing sits a moss-covered stump with a dark, hollow center. Something glints faintly inside when the light catches it.',
+  },
+  fresh_grave_event: {
+    id: 'fresh_grave_event',
+    title: 'Fresh Grave',
+    imageUrl: '/assets/events/event_hollow_stump.png',
+    text:
+      'The earth here looks freshly turned. A rough marker stone leans crookedly over a grave that cannot have been dug very long ago.',
   },
 };
 

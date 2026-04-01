@@ -29,7 +29,7 @@ import { breakfastEventSlides, rebelRaidIntroSlides, sellLocketSlides, elaraDeli
 import { useToastStore } from '../../stores/useToastStore';
 
 const LocationScreen: React.FC = () => {
-  const { hp, maxHp, energy, hunger } = useCharacterStore();
+  const { hp, maxHp, energy, hunger, explorationEscapes, maxExplorationEscapes } = useCharacterStore();
   const { month, dayOfMonth, hour, getFormattedTime, getFormattedDate, getSeason, getWeather, temperatureC } = useWorldTimeStore();
   const { getCurrentLocation } = useLocationStore();
   const { setScreen } = useUIStore();
@@ -804,12 +804,12 @@ const LocationScreen: React.FC = () => {
             if (fishingLevel >= 5) {
                 if (inventory.addItem('fish_trout', 1)) { trout += 1; skills.addXp('fishing', 15); }
                 else { skills.addXp('fishing', 5); }
-            } else { skills.addXp('fishing', 5); }
-          } else if (roll < 0.45) {
-            if (fishingLevel >= 7) {
+              } else { skills.addXp('fishing', 5); }
+            } else if (roll < 0.45) {
+            if (fishingLevel >= 10) {
               if (inventory.addItem('fish_pike', 1)) { pike += 1; skills.addXp('fishing', 40); }
-              else { skills.addXp('fishing', 10); }
-            } else { skills.addXp('fishing', 10); }
+                else { skills.addXp('fishing', 10); }
+              } else { skills.addXp('fishing', 10); }
           } else { skills.addXp('fishing', 5); }
         }
       }
@@ -1252,6 +1252,21 @@ const LocationScreen: React.FC = () => {
               )}
             </div>
             <div className="flex justify-end">
+              {explorationEscapes > 0 && (
+                <button
+                  onClick={() => {
+                    useCharacterStore.setState((state) => ({
+                      explorationEscapes: Math.max(0, (state.explorationEscapes ?? 0) - 1),
+                    }));
+                    useDiaryStore.getState().addInteraction('You slipped away before the fight could begin.');
+                    setEncounterModalOpen(false);
+                    setPendingEncounter(null);
+                  }}
+                  className="px-5 py-2 mr-3 text-sm font-semibold tracking-wide text-white/90 bg-zinc-800 border border-zinc-600 rounded-md transition-all duration-300 hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                >
+                  Escape ({explorationEscapes}/{maxExplorationEscapes} left this week)
+                </button>
+              )}
               <button
                 onClick={() => {
                   setEncounterModalOpen(false);

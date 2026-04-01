@@ -98,7 +98,7 @@ const ScreenManager: React.FC = () => {
     const selectedPastime = world.getData('intro_pastime_choice') || fallbackChoice;
 
     // Keep the childhood-choice rewards deterministic so old state cannot leak in.
-    useSkillStore.getState().setSkillLevel('defence', 1);
+    useSkillStore.getState().setSkillLevel('constitution', 1);
     useCharacterStore.setState((state) => ({
       ...state,
       languages: {
@@ -110,7 +110,7 @@ const ScreenManager: React.FC = () => {
 
     if (selectedPastime === 'robert') {
       useDiaryStore.getState().updateRelationship('npc_robert', { friendship: 12 });
-      useSkillStore.getState().setSkillLevel('defence', 3);
+      useSkillStore.getState().setSkillLevel('constitution', 3);
     } else if (selectedPastime === 'kids') {
       useDiaryStore.getState().updateRelationship('npc_sarah', { friendship: 8 });
       useDiaryStore.getState().updateRelationship('npc_kyle', { friendship: 8 });
@@ -964,7 +964,7 @@ const ScreenManager: React.FC = () => {
                 {
                   text: 'Pick some apples',
                   onSelect: () => {
-                    const qty = Math.floor(Math.random() * 3) + 1;
+                      const qty = Math.floor(Math.random() * 3) + 1;
                     inventory.addItem('apple', qty);
                     const takeDamage = Math.random() < 0.3;
                     if (takeDamage) {
@@ -1027,6 +1027,133 @@ const ScreenManager: React.FC = () => {
           );
         }
 
+        if (eventId === 'pear_tree_event') {
+          const inventory = useInventoryStore.getState();
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Pick some pears',
+                  onSelect: () => {
+                      const qty = Math.floor(Math.random() * 3) + 1;
+                    inventory.addItem('pear', qty);
+                    const takeDamage = Math.random() < 0.25;
+                    if (takeDamage) {
+                      const damage = 5;
+                      useCharacterStore.setState((state) => {
+                        const newHp = Math.max(0, state.hp - damage);
+                        if (newHp === 0) {
+                          setEventResult({
+                            text: `You picked ${qty} pears, but slipped from the branches and died from the fall.`,
+                            choices: [{
+                              text: 'End',
+                              onSelect: () => {
+                                useUIStore.getState().setEventSlides(gameOverSlides);
+                                useUIStore.getState().setCurrentEventId('game_over');
+                                setScreen('event');
+                              }
+                            }]
+                          });
+                        } else {
+                          setEventResult({
+                            text: `You picked ${qty} pears, but the slick bark sent you sliding hard against the trunk. You took ${damage} damage.`,
+                            choices: [{
+                              text: 'Continue',
+                              onSelect: () => {
+                                useUIStore.getState().setCurrentEventId(null);
+                                setScreen('inGame');
+                              }
+                            }]
+                          });
+                        }
+                        return { hp: newHp };
+                      });
+                      useDiaryStore.getState().addInteraction(`Picked ${qty} pears but got hurt (-5 HP).`);
+                    } else {
+                      useDiaryStore.getState().addInteraction(`Picked ${qty} pears.`);
+                      setEventResult({
+                        text: `You gather ${qty} ripe pears without trouble.`,
+                        choices: [{
+                          text: 'Continue',
+                          onSelect: () => {
+                            useUIStore.getState().setCurrentEventId(null);
+                            setScreen('inGame');
+                          }
+                        }]
+                      });
+                    }
+                  },
+                },
+                {
+                  text: 'Leave the tree alone',
+                  onSelect: () => {
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'blackberry_bramble_event') {
+          const inventory = useInventoryStore.getState();
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Gather blackberries',
+                  onSelect: () => {
+                      const qty = Math.floor(Math.random() * 3) + 1;
+                    inventory.addItem('blackberries', qty);
+                    const takeDamage = Math.random() < 0.35;
+                    if (takeDamage) {
+                      const damage = 3;
+                      useCharacterStore.setState((state) => ({ hp: Math.max(0, state.hp - damage) }));
+                      useDiaryStore.getState().addInteraction(`Gathered ${qty} blackberries and got scratched (-3 HP).`);
+                      setEventResult({
+                        text: `You pull ${qty} handfuls of blackberries from the thorns, but not without catching your hands and arms for ${damage} damage.`,
+                        choices: [{
+                          text: 'Continue',
+                          onSelect: () => {
+                            useUIStore.getState().setCurrentEventId(null);
+                            setScreen('inGame');
+                          }
+                        }]
+                      });
+                    } else {
+                      useDiaryStore.getState().addInteraction(`Gathered ${qty} blackberries.`);
+                      setEventResult({
+                        text: `You gather ${qty} handfuls of blackberries without too much trouble.`,
+                        choices: [{
+                          text: 'Continue',
+                          onSelect: () => {
+                            useUIStore.getState().setCurrentEventId(null);
+                            setScreen('inGame');
+                          }
+                        }]
+                      });
+                    }
+                  },
+                },
+                {
+                  text: 'Leave the bramble alone',
+                  onSelect: () => {
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+              ]}
+            />
+          );
+        }
+
 
 
         if (eventId === 'fallen_log_event') {
@@ -1042,11 +1169,12 @@ const ScreenManager: React.FC = () => {
                   text: 'Chop wood (Requires Axe)',
                   disabled: !hasAxe,
                   onSelect: () => {
-                    const qty = Math.floor(Math.random() * 3) + 1; // 1-3 logs
+                      const qty = Math.floor(Math.random() * 3) + 1;
                     inventory.addItem('log', qty);
+                    useSkillStore.getState().addXp('woodcutting', qty * 30);
                     useDiaryStore.getState().addInteraction(`Chopped ${qty} logs.`);
                     setEventResult({
-                        text: `You used your axe to chop the fallen log. You gathered ${qty} logs.`,
+                        text: `You used your axe to chop the fallen log. You gathered ${qty} logs and earned ${qty * 30} Woodcutting XP.`,
                         choices: [{
                             text: 'Continue',
                             onSelect: () => {
@@ -1081,35 +1209,183 @@ const ScreenManager: React.FC = () => {
                 {
                   text: 'Search for supplies',
                   onSelect: () => {
-                    // Random loot: Rope or Coins
-                    if (Math.random() > 0.5) {
-                         inventory.addItem('rope', 1);
-                         useDiaryStore.getState().addInteraction('Found a rope at the campsite.');
-                         setEventResult({
-                             text: 'You searched the campsite and found a sturdy rope.',
-                             choices: [{
-                                 text: 'Continue',
-                                 onSelect: () => {
-                                     useUIStore.getState().setCurrentEventId(null);
-                                     setScreen('inGame');
-                                 }
-                             }]
-                         });
+                    const roll = Math.random();
+                    if (roll < 0.45) {
+                      const coins = Math.floor(Math.random() * 11) + 5;
+                      character.addCurrency('copper', coins);
+                      useDiaryStore.getState().addInteraction(`Found ${coins} copper coins.`);
+                      setEventResult({
+                        text: `You searched the campsite and found ${coins} copper coins hidden in a pouch.`,
+                        choices: [{
+                          text: 'Continue',
+                          onSelect: () => {
+                            useUIStore.getState().setCurrentEventId(null);
+                            setScreen('inGame');
+                          }
+                        }]
+                      });
+                    } else if (roll < 0.70) {
+                      inventory.addItem('stale_bread', 1);
+                      useDiaryStore.getState().addInteraction('Found stale bread at the campsite.');
+                      setEventResult({
+                        text: 'You search the cold ashes and come away with a hard heel of stale bread.',
+                        choices: [{
+                          text: 'Continue',
+                          onSelect: () => {
+                            useUIStore.getState().setCurrentEventId(null);
+                            setScreen('inGame');
+                          }
+                        }]
+                      });
+                    } else if (roll < 0.85) {
+                      inventory.addItem('bread', 1);
+                      useDiaryStore.getState().addInteraction('Found bread at the campsite.');
+                      setEventResult({
+                        text: 'Under a scrap of cloth, you find a loaf of bread still fit to eat.',
+                        choices: [{
+                          text: 'Continue',
+                          onSelect: () => {
+                            useUIStore.getState().setCurrentEventId(null);
+                            setScreen('inGame');
+                          }
+                        }]
+                      });
                     } else {
-                         const coins = Math.floor(Math.random() * 10) + 5;
-                         character.addCurrency('copper', coins);
-                         useDiaryStore.getState().addInteraction(`Found ${coins} copper coins.`);
-                         setEventResult({
-                             text: `You searched the campsite and found ${coins} copper coins hidden in a pouch.`,
-                             choices: [{
-                                 text: 'Continue',
-                                 onSelect: () => {
-                                     useUIStore.getState().setCurrentEventId(null);
-                                     setScreen('inGame');
-                                 }
-                             }]
-                         });
+                      inventory.addItem('rope', 1);
+                      useDiaryStore.getState().addInteraction('Found a rope at the campsite.');
+                      setEventResult({
+                        text: 'You searched the campsite and found a sturdy rope.',
+                        choices: [{
+                          text: 'Continue',
+                          onSelect: () => {
+                            useUIStore.getState().setCurrentEventId(null);
+                            setScreen('inGame');
+                          }
+                        }]
+                      });
                     }
+                  },
+                },
+                {
+                  text: 'Leave it alone',
+                  onSelect: () => {
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'hollow_stump_event') {
+          const inventory = useInventoryStore.getState();
+          const character = useCharacterStore.getState();
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Reach inside',
+                  onSelect: () => {
+                    const takeDamage = Math.random() < 0.25;
+                    let rewardText = '';
+                    const roll = Math.random();
+                    if (roll < 0.50) {
+                      const coins = Math.floor(Math.random() * 8) + 5;
+                      character.addCurrency('copper', coins);
+                      rewardText = `You fish around in the dark and come away with ${coins} copper.`;
+                      useDiaryStore.getState().addInteraction(`Found ${coins} copper inside a hollow stump.`);
+                    } else if (roll < 0.70) {
+                      inventory.addItem('rope', 1);
+                      rewardText = 'Your fingers close around a coil of old but usable rope.';
+                      useDiaryStore.getState().addInteraction('Found rope inside a hollow stump.');
+                    } else if (roll < 0.90) {
+                      inventory.addItem('apple', 1);
+                      rewardText = 'Someone must have tucked food here once. You pull out a single apple.';
+                      useDiaryStore.getState().addInteraction('Found an apple inside a hollow stump.');
+                    } else {
+                      inventory.addItem('wolf_tooth', 1);
+                      rewardText = 'Your hand brushes something sharp: a wolf tooth left behind in the hollow.';
+                      useDiaryStore.getState().addInteraction('Found a wolf tooth inside a hollow stump.');
+                    }
+                    if (takeDamage) {
+                      useCharacterStore.setState((state) => ({ hp: Math.max(0, state.hp - 3) }));
+                      rewardText += ' Something bites or splinters against your hand for 3 damage.';
+                    }
+                    setEventResult({
+                      text: rewardText,
+                      choices: [{
+                        text: 'Continue',
+                        onSelect: () => {
+                          useUIStore.getState().setCurrentEventId(null);
+                          setScreen('inGame');
+                        }
+                      }]
+                    });
+                  },
+                },
+                {
+                  text: 'Leave it alone',
+                  onSelect: () => {
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'fresh_grave_event') {
+          const inventory = useInventoryStore.getState();
+          const character = useCharacterStore.getState();
+          const hasSpade = inventory.getItemQuantity('spade') > 0;
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Dig carefully (Requires Spade)',
+                  disabled: !hasSpade,
+                  onSelect: () => {
+                    const roll = Math.random();
+                    let resultText = '';
+                    if (roll < 0.70) {
+                      const coins = Math.floor(Math.random() * 16) + 10;
+                      character.addCurrency('copper', coins);
+                      resultText = `You dig into the damp earth and turn up ${coins} copper hidden with the body.`;
+                      useDiaryStore.getState().addInteraction(`Grave digging turned up ${coins} copper.`);
+                    } else if (roll < 0.95) {
+                      inventory.addItem('bronze_ring', 1);
+                      resultText = 'You uncover a bronze ring among the grave goods.';
+                      useDiaryStore.getState().addInteraction('Found a bronze ring in a fresh grave.');
+                    } else {
+                      inventory.addItem('simple_silver_ring', 1);
+                      resultText = 'Buried deeper than the rest, you find a simple silver ring.';
+                      useDiaryStore.getState().addInteraction('Found a simple silver ring in a fresh grave.');
+                    }
+                    setEventResult({
+                      text: resultText,
+                      choices: [{
+                        text: 'Continue',
+                        onSelect: () => {
+                          useUIStore.getState().setCurrentEventId(null);
+                          setScreen('inGame');
+                        }
+                      }]
+                    });
+                  },
+                },
+                {
+                  text: 'Leave it alone',
+                  onSelect: () => {
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
                   },
                 },
               ]}

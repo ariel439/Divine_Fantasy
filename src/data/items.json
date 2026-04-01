@@ -50,13 +50,10 @@
   "raw_meat": {
     "name": "Raw Meat",
     "description": "A chunk of raw meat. Needs cooking.",
-    "type": "consumable",
+    "type": "resource",
     "stackable": true,
     "weight": 0.5,
-    "base_value": 3,
-    "effects": {
-      "hunger": 3
-    },
+    "base_value": 4,
     "image": "/assets/items/raw_meat.png"
   },
   "cooked_meat": {
@@ -65,9 +62,9 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.5,
-    "base_value": 6,
+    "base_value": 8,
     "effects": {
-      "hunger": 14
+      "hunger": 10
     },
     "image": "/assets/items/cooked_meat.png"
   },
@@ -86,9 +83,33 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.2,
-    "base_value": 3,
+    "base_value": 4,
+    "effects": {
+      "hunger": 4
+    },
+    "image": "/assets/items/apple.png"
+  },
+  "pear": {
+    "name": "Pear",
+    "description": "A ripe pear with soft flesh and a clean sweetness.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.25,
+    "base_value": 5,
     "effects": {
       "hunger": 5
+    },
+    "image": "/assets/items/apple.png"
+  },
+  "blackberries": {
+    "name": "Blackberries",
+    "description": "Dark wild berries gathered from thorny brambles in the woods.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.15,
+    "base_value": 3,
+    "effects": {
+      "hunger": 3
     },
     "image": "/assets/items/apple.png"
   },
@@ -104,37 +125,28 @@
   "fish_sardine": {
     "name": "Raw Sardine",
     "description": "A small, oily saltwater fish. Best when cooked.",
-    "type": "consumable",
+    "type": "resource",
     "stackable": true,
     "weight": 0.3,
-    "base_value": 2,
-    "effects": {
-      "hunger": 2
-    },
+    "base_value": 3,
     "image": "/assets/items/raw_sardine.png"
   },
   "fish_trout": {
     "name": "Raw Trout",
     "description": "A common freshwater fish. Best when cooked.",
-    "type": "consumable",
+    "type": "resource",
     "stackable": true,
     "weight": 0.6,
-    "base_value": 5,
-    "effects": {
-      "hunger": 3
-    },
+    "base_value": 7,
     "image": "/assets/items/raw_trout.png"
   },
   "fish_pike": {
     "name": "Raw Pike",
     "description": "A large, predatory freshwater fish. Best when cooked.",
-    "type": "consumable",
+    "type": "resource",
     "stackable": true,
     "weight": 1.2,
-    "base_value": 6,
-    "effects": {
-      "hunger": 5
-    },
+    "base_value": 10,
     "image": "/assets/items/raw_pike.png"
   },
   "food_sardine_grilled": {
@@ -143,9 +155,9 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.3,
-    "base_value": 4,
+    "base_value": 5,
     "effects": {
-      "hunger": 10
+      "hunger": 7
     },
     "image": "/assets/items/grilled_sardine.png"
   },
@@ -155,9 +167,9 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.6,
-    "base_value": 10,
+    "base_value": 12,
     "effects": {
-      "hunger": 15
+      "hunger": 12
     },
     "image": "/assets/items/grilled_trout.png"
   },
@@ -167,11 +179,23 @@
     "type": "consumable",
     "stackable": true,
     "weight": 1.2,
-    "base_value": 10,
+    "base_value": 14,
     "effects": {
-      "hunger": 18
+      "hunger": 14
     },
     "image": "/assets/items/grilled_pike.png"
+  },
+  "food_fruit_salad": {
+    "name": "Fruit Salad",
+    "description": "A bright bowl of mixed fruit. Fresh, filling, and the best light meal you can make right now.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.4,
+    "base_value": 14,
+    "effects": {
+      "hunger": 12
+    },
+    "image": "/assets/items/apple.png"
   },
   "hammer": {
     "name": "Hammer",
@@ -231,13 +255,10 @@
   "beer": {
     "name": "Beer",
     "description": "A mug of frothy beer. Refreshing.",
-    "type": "consumable",
+    "type": "utility",
     "stackable": true,
     "weight": 0.5,
-    "base_value": 6,
-    "effects": {
-      "hunger": 1
-    },
+    "base_value": 8,
     "image": "/assets/items/beer.png"
   },
   "wolf_tooth": {
@@ -803,8 +824,8 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.5,
-    "base_value": 4,
-    "effects": { "hunger": 10 },
+    "base_value": 6,
+    "effects": { "hunger": 8 },
     "image": "/assets/items/bread.png"
   },
   "stale_bread": {
@@ -813,8 +834,8 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.5,
-    "base_value": 3,
-    "effects": { "hunger": 6 },
+    "base_value": 4,
+    "effects": { "hunger": 5 },
     "image": "/assets/items/bread.png"
   },
   "cheese": {
@@ -823,8 +844,8 @@
     "type": "consumable",
     "stackable": true,
     "weight": 0.3,
-    "base_value": 5,
-    "effects": { "hunger": 10 },
+    "base_value": 7,
+    "effects": { "hunger": 7 },
     "image": "/assets/items/cheese.png"
   },
   "burned_food": {

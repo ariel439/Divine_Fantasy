@@ -3,7 +3,6 @@
 import React, { useState, useMemo, useEffect, ReactNode, ReactElement } from 'react';
 import type { FC } from 'react';
 import { X, Search, CookingPot, Hammer, Clock, Zap, Minus, Plus, Coins } from 'lucide-react';
-import { mockRecipes } from '../../data';
 import type { Recipe, Item, CraftingSkill } from '../../types';
 import { ConfirmationModal } from '../modals/ConfirmationModal';
 import { useInventoryStore } from '../../stores/useInventoryStore';
@@ -11,6 +10,38 @@ import { useCharacterStore } from '../../stores/useCharacterStore';
 import { useToastStore } from '../../stores/useToastStore';
 import { useSkillStore } from '../../stores/useSkillStore';
 import itemsData from '../../data/items.json';
+import recipesJson from '../../data/recipes.json';
+
+const standardRecipes: Recipe[] = Object.entries(recipesJson).map(([recipeId, recipeData]: [string, any]) => {
+    const outputItem = itemsData[recipeData.output.item_id as keyof typeof itemsData] as any;
+    const hungerRestore = outputItem?.effects?.hunger;
+
+    return {
+        id: recipeId,
+        skill: recipeData.skill === 'carpentry' ? 'Carpentry' : 'Cooking',
+        levelRequired: recipeData.level_required,
+        result: {
+            id: recipeData.output.item_id,
+            name: outputItem?.name || recipeData.name,
+            description: outputItem?.description || '',
+            category: outputItem?.type === 'consumable' ? 'Consumable' : outputItem?.type === 'resource' ? 'Resource' : undefined,
+            type: outputItem?.type,
+            weight: outputItem?.weight ?? 0,
+            base_value: outputItem?.base_value ?? 0,
+            stackable: outputItem?.stackable ?? true,
+            quantity: recipeData.output.quantity,
+            effects: hungerRestore ? { Restores: `${hungerRestore} Hunger` } : undefined,
+            actions: outputItem?.type === 'consumable' ? ['Use', 'Drop'] : [],
+        },
+        ingredients: recipeData.ingredients.map((ingredient: any) => ({
+            itemId: ingredient.item_id,
+            quantity: ingredient.quantity,
+        })),
+        timeCost: recipeData.time_cost_minutes,
+        energyCost: recipeData.energy_cost,
+        xpGranted: recipeData.xp_granted,
+    };
+});
 
 interface CraftingScreenProps {
   onClose: () => void;
@@ -67,7 +98,7 @@ const CraftingScreen: FC<CraftingScreenProps> = ({
     const sortedAndFilteredRecipes = useMemo(() => {
         if (!initialSkill) return [];
         
-        const sourceRecipes = recipes || mockRecipes;
+        const sourceRecipes = recipes || standardRecipes;
         const filtered = sourceRecipes.filter(recipe => 
             recipe.skill.toLowerCase() === initialSkill.toLowerCase() &&
             recipe.result.name.toLowerCase().includes(searchTerm.toLowerCase())

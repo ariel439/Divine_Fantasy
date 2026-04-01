@@ -324,7 +324,23 @@ export const mockRecipes: Recipe[] = [
         energyCost: 5,
         xpGranted: 20,
     },
-];
+    {
+        id: 'recipe_fruit_salad',
+        skill: 'Cooking',
+        levelRequired: 5,
+        result: {
+            id: 'food_fruit_salad', name: 'Fruit Salad', description: 'A bright bowl of mixed fruit. Fresh, filling, and the best light meal you can make right now.', icon: React.createElement(UtensilsCrossed, { size: 24, className: "text-emerald-300" }), category: 'Consumable', weight: 0.4, base_value: 12, stackable: true, quantity: 1, effects: { 'Restores': '16 Hunger' }, actions: ['Use', 'Drop']
+        },
+        ingredients: [
+            { itemId: 'apple', quantity: 1 },
+            { itemId: 'pear', quantity: 1 },
+            { itemId: 'blackberries', quantity: 1 },
+        ],
+        timeCost: 6,
+        energyCost: 4,
+        xpGranted: 35,
+    },
+  ];
 
 export const mockParty: CombatParticipant[] = [
     {

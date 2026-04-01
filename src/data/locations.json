@@ -278,7 +278,6 @@
     "night_background": "/assets/locations/driftwatch_slums_night.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
-      { "text": "Sleep on the Floor", "type": "sleep", "target": "sleep_floor" },
       { "text": "Cook on Firepit", "type": "cook", "target": "cook_firepit" },
       { "text": "Deliver Medicine", "type": "trigger_event", "eventId": "elara_delivery_event", "condition": "inventory.elara_medicine_parcel>0 && world_flags.debt_paid_by_elara==false && time.is_day==true" },
       { "text": "Travel to Salty Mug", "type": "navigate", "target": "salty_mug" },

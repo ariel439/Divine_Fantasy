@@ -21,7 +21,7 @@
     "currency": 400,
     "buy_multiplier": 0.8,
     "sell_multiplier": 1.2,
-    "accepted_categories": ["consumable"],
+    "accepted_categories": ["consumable", "resource"],
     "inventory": [
       { "item_id": "fish_sardine", "quantity": 15 },
       { "item_id": "fish_trout", "quantity": 10 },

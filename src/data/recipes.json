@@ -12,7 +12,7 @@
   "recipe_grilled_trout": {
     "name": "Grilled Trout",
     "skill": "cooking",
-    "level_required": 3,
+    "level_required": 5,
     "xp_granted": 25,
     "output": { "item_id": "food_trout_grilled", "quantity": 1 },
     "ingredients": [{ "item_id": "fish_trout", "quantity": 1 }],
@@ -22,7 +22,7 @@
   "recipe_grilled_pike": {
     "name": "Grilled Pike",
     "skill": "cooking",
-    "level_required": 5,
+    "level_required": 10,
     "xp_granted": 50,
     "output": { "item_id": "food_pike_grilled", "quantity": 1 },
     "ingredients": [{ "item_id": "fish_pike", "quantity": 1 }],
@@ -48,5 +48,19 @@
     "ingredients": [{ "item_id": "raw_meat", "quantity": 1 }],
     "time_cost_minutes": 10,
     "energy_cost": 5
+  },
+  "recipe_fruit_salad": {
+    "name": "Fruit Salad",
+    "skill": "cooking",
+    "level_required": 5,
+    "xp_granted": 35,
+    "output": { "item_id": "food_fruit_salad", "quantity": 1 },
+    "ingredients": [
+      { "item_id": "apple", "quantity": 1 },
+      { "item_id": "pear", "quantity": 1 },
+      { "item_id": "blackberries", "quantity": 1 }
+    ],
+    "time_cost_minutes": 6,
+    "energy_cost": 4
   }
 }

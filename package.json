@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "sim:ren-zhen": "node scripts/simulate-ren-zhen.mjs"
+    "sim:ren-zhen": "node scripts/simulate-ren-zhen.mjs",
+    "sim:woods": "node scripts/simulate-woods-exploration.mjs"
   },
   "dependencies": {
     "@types/react": "^19.2.2",

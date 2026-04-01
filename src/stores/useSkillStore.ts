@@ -16,6 +16,12 @@ interface SkillState {
   setSkillLevel: (skill: string, level: number) => void;
 }
 
+const normalizeSkillKey = (skill: string) => {
+  if (skill === 'attack') return 'melee';
+  if (skill === 'defence') return 'constitution';
+  return skill;
+};
+
 function refreshSocialEnergyCap() {
   const character = useCharacterStore.getState();
   const skillState = useSkillStore.getState();
@@ -36,8 +42,9 @@ function refreshSocialEnergyCap() {
 export const useSkillStore = create<SkillState>((set, get) => ({
   skills: {},
   addXp: (skill, amount) => {
+    const normalizedSkill = normalizeSkillKey(skill);
     set((state) => {
-      const currentSkill = state.skills[skill] || { level: 1, xp: 0 };
+      const currentSkill = state.skills[normalizedSkill] || state.skills[skill] || { level: 1, xp: 0 };
 
       // Attributes provide passive bonuses to skills
       const attributes = useCharacterStore.getState().attributes;
@@ -62,7 +69,7 @@ export const useSkillStore = create<SkillState>((set, get) => ({
       return {
         skills: {
           ...state.skills,
-          [skill]: {
+          [normalizedSkill]: {
             level: newLevel,
             xp: newXp
           }
@@ -70,25 +77,30 @@ export const useSkillStore = create<SkillState>((set, get) => ({
       };
     });
     refreshSocialEnergyCap();
+    try { useCharacterStore.getState().recalculateStats(); } catch {}
   },
   getSkillLevel: (skill) => {
-    return get().skills[skill]?.level || 1;
+    const normalizedSkill = normalizeSkillKey(skill);
+    return get().skills[normalizedSkill]?.level || get().skills[skill]?.level || 1;
   },
   getXpToNextLevel: (skill) => {
-    const currentSkill = get().skills[skill] || { level: 1, xp: 0 };
+    const normalizedSkill = normalizeSkillKey(skill);
+    const currentSkill = get().skills[normalizedSkill] || get().skills[skill] || { level: 1, xp: 0 };
     const nextLevelData = xpTable.levels.find(l => l.level === currentSkill.level + 1);
     if (!nextLevelData) return 0; // Max level
 
     return nextLevelData.total_xp - currentSkill.xp;
   },
   setSkillLevel: (skill, level) => {
+    const normalizedSkill = normalizeSkillKey(skill);
     const levelData = xpTable.levels.find(l => l.level === level) || { total_xp: 0 };
     set((state) => ({
       skills: {
         ...state.skills,
-        [skill]: { level, xp: levelData.total_xp }
+        [normalizedSkill]: { level, xp: levelData.total_xp }
       }
     }));
     refreshSocialEnergyCap();
+    try { useCharacterStore.getState().recalculateStats(); } catch {}
   },
 }));

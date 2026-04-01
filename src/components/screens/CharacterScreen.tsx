@@ -48,7 +48,7 @@ const CharacterPortrait: FC<{ characterData: any }> = ({ characterData }) => (
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-            <StatusCard label="Health" value={characterData.hp} max={100} icon={<Heart size={14} />} colorClass="bg-red-500" />
+            <StatusCard label="Health" value={characterData.hp} max={characterData.maxHp} icon={<Heart size={14} />} colorClass="bg-red-500" />
             <StatusCard label="Energy" value={characterData.energy} max={100} icon={<Zap size={14} />} colorClass="bg-blue-500" />
             <StatusCard label="Hunger" value={characterData.hunger} max={100} icon={<Utensils size={14} />} colorClass="bg-orange-500" />
             <StatusCard label="Social" value={characterData.socialEnergy} max={characterData.maxSocialEnergy} icon={<MessageSquare size={14} />} colorClass="bg-purple-500" />
@@ -58,7 +58,7 @@ const CharacterPortrait: FC<{ characterData: any }> = ({ characterData }) => (
 
 const CharacterScreen: FC = () => {
     const { setScreen } = useUIStore();
-    const { attributes, hp, energy, hunger, socialEnergy, maxSocialEnergy, bio, languages } = useCharacterStore();
+    const { attributes, hp, maxHp, energy, hunger, socialEnergy, maxSocialEnergy, bio, languages } = useCharacterStore();
     const { skills, getSkillLevel } = useSkillStore();
 
     const characterData = {
@@ -75,6 +75,7 @@ const CharacterScreen: FC = () => {
             Shenhaic: languages?.shenhaic || 'None',
         },
         hp: Math.floor(hp),
+        maxHp: Math.floor(maxHp),
         energy: Math.floor(energy),
         hunger: Math.floor(hunger),
         socialEnergy: Math.floor(socialEnergy),
@@ -86,8 +87,8 @@ const CharacterScreen: FC = () => {
             charisma: attributes.charisma
         },
         skills: [
-            { name: 'Attack', level: getSkillLevel('attack'), icon: <Sword size={18} /> },
-            { name: 'Defense', level: getSkillLevel('defence'), icon: <Shield size={18} /> },
+            { name: 'Melee', level: getSkillLevel('melee'), icon: <Sword size={18} /> },
+            { name: 'Constitution', level: getSkillLevel('constitution'), icon: <Shield size={18} /> },
             { name: 'Agility', level: getSkillLevel('agility'), icon: <Wind size={18} /> },
             { name: 'Woodcutting', level: getSkillLevel('woodcutting'), icon: <Axe size={18} /> },
             { name: 'Fishing', level: getSkillLevel('fishing'), icon: <Fish size={18} /> },

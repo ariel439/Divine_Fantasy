@@ -49,6 +49,21 @@ export class GameManagerService {
     return Boolean(locationId && this.DRIFTWATCH_PROPER_LOCATIONS.has(locationId));
   }
 
+  private static getWeekdayIndex(month: number, dayOfMonth: number): number {
+    const firstDayOfWeekForMonth = ((month - 1) * 30) % 7;
+    return (firstDayOfWeekForMonth + dayOfMonth - 1) % 7;
+  }
+
+  static refreshWeeklyExplorationEscapes(): void {
+    const agilityLevel = useSkillStore.getState().getSkillLevel('agility');
+    const dexterity = useCharacterStore.getState().attributes.dexterity || 0;
+    const maxExplorationEscapes = Math.max(0, Math.floor(agilityLevel / 10) + dexterity);
+    useCharacterStore.setState({
+      maxExplorationEscapes,
+      explorationEscapes: maxExplorationEscapes,
+    });
+  }
+
   private static isFinnTimeoutActiveOrResolved(): boolean {
     const world = useWorldStateStore.getState();
     const ui = useUIStore.getState();
@@ -243,6 +258,10 @@ export class GameManagerService {
             useShopStore.getState().resetAllShops();
           }
 
+          if (GameManagerService.getWeekdayIndex(state.month, state.dayOfMonth) === 1) {
+            GameManagerService.refreshWeeklyExplorationEscapes();
+          }
+
           // Apply daily hunger penalty/regen
           // (Previously this was delta-based, but since we lost delta, we can do it daily or just keep it simple)
           // For now, hunger tick is handled below every minute.
@@ -325,6 +344,8 @@ export class GameManagerService {
       hp: 100,
       energy: 100,
       hunger: 100,
+      explorationEscapes: 0,
+      maxExplorationEscapes: 0,
       currency: { ...template.starting_bonuses.currency },
       maxWeight: 50,
       languages: {
@@ -354,6 +375,7 @@ export class GameManagerService {
       useCharacterStore.getState().recalculateStats();
       useCharacterStore.getState().refreshSocialEnergyCap();
       useCharacterStore.setState((state) => ({ socialEnergy: state.maxSocialEnergy }));
+      GameManagerService.refreshWeeklyExplorationEscapes();
     } catch {}
 
     useDiaryStore.setState({

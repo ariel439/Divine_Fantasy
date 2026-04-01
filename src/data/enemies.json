@@ -7,6 +7,7 @@
     "accuracy_modifier": 0.12,
     "stats": { "hp": 60, "attack": 12, "defence": 1, "dexterity": 7 },
     "loot_table": [
+      { "item_id": "raw_meat", "quantity": 1, "chance": 1 },
       { "item_id": "wolf_pelt", "quantity": 1, "chance": 1 },
       { "item_id": "wolf_tooth", "quantity": 1, "chance": 0.2 }
     ]

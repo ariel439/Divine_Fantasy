@@ -266,7 +266,7 @@ export const mockRecipes: Recipe[] = [
         ],
         timeCost: 1,
         energyCost: 2,
-        xpGranted: 25,
+        xpGranted: 10,
     },
     {
         id: 'recipe_grilled_sardine',

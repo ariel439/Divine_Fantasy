@@ -33,7 +33,7 @@ const InventoryScreen: FC = () => {
     const [dropConfirmItem, setDropConfirmItem] = useState<Item | null>(null);
     const [dropQuantityItem, setDropQuantityItem] = useState<Item | null>(null);
 
-    const buildDisplayItem = (baseItem: { id: string; quantity?: number }): Item | null => {
+    const buildDisplayItem = (baseItem: { id: string; quantity?: number; uuid?: string }): Item | null => {
         const itemData = itemsData[baseItem.id as keyof typeof itemsData];
         if (!itemData) return null;
 
@@ -43,8 +43,22 @@ const InventoryScreen: FC = () => {
         let category: FilterCategory = 'Misc';
         const itemType = (itemData as any).type as string;
 
-        if (itemType === 'weapon' || itemType === 'armor' || itemType === 'accessory') {
-            category = 'Equipment';
+        if (itemType === 'weapon' || itemType === 'armor' || itemType === 'accessory' || itemType === 'clothing') {
+            category = isSocialEquipment({
+                id: baseItem.id,
+                name: itemData.name,
+                description: itemData.description,
+                weight: itemData.weight,
+                base_value: itemData.base_value,
+                quantity: baseItem.quantity ?? 1,
+                stackable: itemData.stackable,
+                type: itemType,
+                equipmentSlot: equipSlot,
+                presentationTier: (itemData as any).presentationTier,
+                threatTier: (itemData as any).threatTier,
+            } as Item)
+                ? 'Cloth'
+                : 'Equipment';
         } else if (itemType === 'resource') {
             category = 'Resource';
         } else if (itemType === 'consumable') {
@@ -57,6 +71,7 @@ const InventoryScreen: FC = () => {
 
         return {
             id: baseItem.id,
+            uuid: baseItem.uuid,
             name: itemData.name,
             description: itemData.description,
             icon: iconSrc ? (<img src={iconSrc} alt={itemData.name} className="w-6 h-6" />) : undefined,

@@ -20,6 +20,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
   const { currentLocationId } = useLocationStore();
   const { hour } = useWorldTimeStore();
   const introMode = useWorldStateStore((state) => state.introMode);
+  const worldFlags = useWorldStateStore((state) => state.worldFlags);
 
   const getDynamicBackground = React.useCallback(() => {
     if (currentScreen === 'mainMenu') return '/assets/backgrounds/main_menu.png';
@@ -28,10 +29,18 @@ const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
     const loc = (locationsData as any)[currentLocationId];
     if (!loc) return '/assets/backgrounds/minimal_bg.png';
 
+    if (currentLocationId === 'tide_trade' && worldFlags.tide_trade_upgraded) {
+      return '/assets/locations/tide_trade_upgraded.png';
+    }
+
+    if (currentLocationId === 'tide_trade' && worldFlags.tide_trade_wall_repaired) {
+      return '/assets/locations/tide_trade_repaired.png';
+    }
+
     const isNight = hour >= 18 || hour < 6;
     if (isNight && loc.night_background) return loc.night_background;
     return loc.day_background || loc.background || '';
-  }, [currentScreen, currentLocationId, hour]);
+  }, [currentScreen, currentLocationId, hour, worldFlags.tide_trade_upgraded, worldFlags.tide_trade_wall_repaired]);
 
   const handleOpenSleepWaitModal = React.useCallback((mode: 'sleep' | 'wait') => {
     setSleepWaitMode(mode);

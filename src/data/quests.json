@@ -11,10 +11,29 @@
       { "id": 4, "text": "The wall is fixed. I should talk to Roberta to receive my reward.", "type": "talk", "target": "npc_roberta" }
     ],
     "rewards": {
-      "xp": [{ "skill": "carpentry", "amount": 500 }],
+      "xp": [{ "skill": "carpentry", "amount": 300 }],
       "items": [],
-      "currency": 200,
-      "relationship": [{ "npc_id": "npc_roberta", "change": 20 }]
+      "currency": 150,
+      "relationship": [{ "npc_id": "npc_roberta", "change": 10 }]
+    }
+  },
+  "roberta_set_the_shop_right": {
+    "title": "Set the Shop Right",
+    "giver_id": "npc_roberta",
+    "nonLinear": true,
+    "description": "Roberta wants Tide & Trade to feel respectable instead of barely patched together. Help her improve the shop one real upgrade at a time.",
+    "stages": [
+      { "id": 0, "text": "Speak to Roberta about improving Tide & Trade.", "type": "talk", "target": "npc_roberta" },
+      { "id": 1, "text": "Refit the front counter.", "type": "flag", "target": "roberta_upgrade_counter_done" },
+      { "id": 2, "text": "Build better displays for the shop floor.", "type": "flag", "target": "roberta_upgrade_displays_done" },
+      { "id": 3, "text": "Set the storefront right.", "type": "flag", "target": "roberta_upgrade_storefront_done" },
+      { "id": 4, "text": "Finish improving Tide & Trade.", "type": "flag", "target": "roberta_shop_upgrades_complete" }
+    ],
+    "rewards": {
+      "xp": [],
+      "items": [],
+      "currency": 0,
+      "relationship": []
     }
   },
   "luke_tutorial": {

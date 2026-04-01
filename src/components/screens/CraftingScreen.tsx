@@ -16,6 +16,10 @@ interface CraftingScreenProps {
   onClose: () => void;
   initialSkill: CraftingSkill | null;
   onStartCrafting: (recipe: Recipe, quantity: number) => void;
+  recipes?: Recipe[];
+  title?: string;
+  craftVerb?: string;
+  lockQuantity?: boolean;
 }
 
 const formatDuration = (totalMinutes: number): string => {
@@ -28,7 +32,15 @@ const formatDuration = (totalMinutes: number): string => {
     return `${hours}h ${minutes > 0 ? `${minutes}m` : ''}`.trim();
 }
 
-const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStartCrafting }) => {
+const CraftingScreen: FC<CraftingScreenProps> = ({
+    onClose,
+    initialSkill,
+    onStartCrafting,
+    recipes,
+    title,
+    craftVerb = 'Craft',
+    lockQuantity = false,
+}) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
     const [craftQuantity, setCraftQuantity] = useState(1);
@@ -55,7 +67,8 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
     const sortedAndFilteredRecipes = useMemo(() => {
         if (!initialSkill) return [];
         
-        const filtered = mockRecipes.filter(recipe => 
+        const sourceRecipes = recipes || mockRecipes;
+        const filtered = sourceRecipes.filter(recipe => 
             recipe.skill.toLowerCase() === initialSkill.toLowerCase() &&
             recipe.result.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
@@ -70,7 +83,7 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
                 return a.result.name.localeCompare(b.result.name);
             }
         });
-    }, [initialSkill, searchTerm, sortBy]);
+    }, [initialSkill, recipes, searchTerm, sortBy]);
 
     useEffect(() => {
         setSelectedRecipe(sortedAndFilteredRecipes[0] || null);
@@ -104,8 +117,8 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
             const maxByCopper = Math.floor(copper / 2);
             baseMax = Math.max(1, Math.min(baseMax, maxByCopper));
         }
-        return baseMax;
-    }, [selectedRecipe, ingredientsWithStatus]);
+        return lockQuantity ? 1 : baseMax;
+    }, [selectedRecipe, ingredientsWithStatus, lockQuantity]);
 
     const canCraftQuantity = useMemo(() => {
         if (!selectedRecipe || craftQuantity === 0) return false;
@@ -144,7 +157,7 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
         const addToast = useToastStore.getState().addToast;
         const itemImage = (itemsData as any)[selectedRecipe.result.id]?.image;
 
-        addToast(`Crafted: ${selectedRecipe.result.name} x${craftQuantity}`, 'success', 3000, 'Crafting Complete', itemImage);
+        addToast(`${craftVerb}: ${selectedRecipe.result.name} x${craftQuantity}`, 'success', 3000, 'Crafting Complete', itemImage);
         onStartCrafting(selectedRecipe, craftQuantity);
         setIsConfirmModalOpen(false);
     };
@@ -155,7 +168,7 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
         return (
           <div>
             <p className="text-zinc-300 leading-relaxed mb-4">
-              Are you sure you want to craft <span className="font-bold text-white">{craftQuantity}x {selectedRecipe.result.name}</span>? This will take some time and the following resources will be used:
+              Are you sure you want to {craftVerb.toLowerCase()} <span className="font-bold text-white">{craftQuantity}x {selectedRecipe.result.name}</span>? This will take some time and the following resources will be used:
             </p>
             <div className="bg-black/20 p-3 rounded-md border border-zinc-700 space-y-2 max-h-32 overflow-y-auto custom-scrollbar">
               {ingredientsWithStatus.map(ing => (
@@ -193,7 +206,7 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
             <div className="w-full h-full max-w-[98vw] bg-zinc-950/80 backdrop-blur-lg rounded-xl border border-zinc-700 p-6 relative flex flex-col">
                 <button onClick={onClose} className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors z-20"><X size={24} /></button>
                 <header className="flex-shrink-0 text-center mb-4">
-                    <h1 className="text-3xl lg:text-4xl font-bold" style={{ fontFamily: 'Cinzel, serif' }}>{initialSkill || 'Crafting'}</h1>
+                    <h1 className="text-3xl lg:text-4xl font-bold" style={{ fontFamily: 'Cinzel, serif' }}>{title || initialSkill || 'Crafting'}</h1>
                 </header>
                 
                 <div className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-6 min-h-0">
@@ -300,12 +313,12 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
                                 
                                 <div className="mt-auto pt-6">
                                     <div className="flex items-center justify-between gap-4">
-                                        <button onClick={() => setCraftQuantity(q => Math.max(1, q - 1))} className="p-3 rounded-full bg-zinc-700 hover:bg-zinc-600 transition-colors"><Minus size={16}/></button>
+                                        <button onClick={() => setCraftQuantity(q => Math.max(1, q - 1))} disabled={lockQuantity} className="p-3 rounded-full bg-zinc-700 hover:bg-zinc-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"><Minus size={16}/></button>
                                         <div className="text-center flex-grow">
                                             <div className="text-2xl font-bold font-mono w-full">{craftQuantity}</div>
-                                            <input type="range" min="1" max={maxCraftable} value={craftQuantity} onChange={handleQuantityChange} className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer range-thumb mt-2"/>
+                                            <input type="range" min="1" max={maxCraftable} value={craftQuantity} onChange={handleQuantityChange} disabled={lockQuantity} className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer range-thumb mt-2 disabled:opacity-50 disabled:cursor-not-allowed"/>
                                         </div>
-                                        <button onClick={() => setCraftQuantity(q => Math.min(maxCraftable, q + 1))} className="p-3 rounded-full bg-zinc-700 hover:bg-zinc-600 transition-colors"><Plus size={16}/></button>
+                                        <button onClick={() => setCraftQuantity(q => Math.min(maxCraftable, q + 1))} disabled={lockQuantity} className="p-3 rounded-full bg-zinc-700 hover:bg-zinc-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"><Plus size={16}/></button>
                                     </div>
                                     <div className="flex justify-around items-center text-xs text-zinc-400 mt-4">
                                         <div className="flex items-center gap-1.5"><Clock size={14}/><span>Time: {formatDuration(selectedRecipe.timeCost * craftQuantity)}</span></div>
@@ -316,7 +329,7 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
                                         disabled={!canCraftQuantity}
                                         className="w-full mt-4 p-3 text-md font-semibold tracking-wide bg-zinc-700 border border-zinc-600 rounded-md transition-all hover:bg-zinc-600 disabled:bg-zinc-600/50 disabled:border-zinc-500 disabled:cursor-not-allowed disabled:text-zinc-400"
                                     >
-                                        {selectedRecipe?.result.id === 'wooden_plank' ? 'Make Planks' : 'Craft'} {craftQuantity > 1 ? `${craftQuantity}x` : ''}
+                                        {selectedRecipe?.result.id === 'wooden_plank' ? 'Make Planks' : craftVerb} {craftQuantity > 1 ? `${craftQuantity}x` : ''}
                                     </button>
                                 </div>
                             </>
@@ -339,7 +352,7 @@ const CraftingScreen: FC<CraftingScreenProps> = ({ onClose, initialSkill, onStar
             message={renderConfirmationMessage()}
             onConfirm={handleConfirmCraft}
             onCancel={() => setIsConfirmModalOpen(false)}
-            confirmText={selectedRecipe?.result.id === 'wooden_plank' ? 'Make Planks' : 'Craft'}
+            confirmText={selectedRecipe?.result.id === 'wooden_plank' ? 'Make Planks' : craftVerb}
         />
     </>
   );

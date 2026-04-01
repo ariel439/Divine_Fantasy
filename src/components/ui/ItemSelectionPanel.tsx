@@ -56,7 +56,7 @@ const ItemSelectionPanel: FC<ItemSelectionPanelProps> = ({
         return filtered;
     }, [items, activeFilter, searchTerm]);
 
-    const filterTabs: FilterCategory[] = ['All', 'Equipment', 'Resource', 'Consumable', 'Tool', 'Quest'];
+    const filterTabs: FilterCategory[] = ['All', 'Equipment', 'Cloth', 'Resource', 'Consumable', 'Tool', 'Quest', 'Misc'];
 
     const formatValue = (totalCopper: number) => {
         const { gold, silver, copper } = convertCopperToGSC(totalCopper);

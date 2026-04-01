@@ -216,6 +216,7 @@
     "exit_location": "driftwatch_docks",
     "actions": [
       { "text": "Repair Wall", "type": "use", "target": "repair_wall", "condition": "quest.roberta_planks_for_the_past.stage==3" },
+      { "text": "Use Workbench", "type": "use", "target": "roberta_workbench", "condition": "quest.roberta_set_the_shop_right.active==true && quest.roberta_set_the_shop_right.completed==false && world_flags.roberta_shop_upgrades_complete==false" },
       { "text": "Travel to Driftwatch Docks", "type": "navigate", "target": "driftwatch_docks" }
     ]
   },

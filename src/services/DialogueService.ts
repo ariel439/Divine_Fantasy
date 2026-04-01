@@ -15,7 +15,7 @@ import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useJobStore } from '../stores/useJobStore';
 import { useLocationStore } from '../stores/useLocationStore';
-import { benCheatEventSlides, rebelRaidIntroSlides, evilEndingSlides, hybridEndingSlides, whitefangFinnKillSlides } from '../data/events';
+import { benCheatEventSlides, rebelRaidIntroSlides, evilEndingSlides, hybridEndingSlides, whitefangFinnKillSlides, robertaKissSlides } from '../data/events';
 import type { ConversationEntry } from '../types';
 import { GameManagerService } from './GameManagerService';
 import { ConditionEvaluator } from './ConditionEvaluator';
@@ -391,6 +391,10 @@ export class DialogueService {
 
     const player_choices = orderedCategories
       .filter((category) => {
+        if (category === 'flirt' && !this.canAccessFlirtCategory()) {
+          return false;
+        }
+
         const nodeId = interactionRoots[category];
         if (!nodeId) {
           return false;
@@ -430,6 +434,19 @@ export class DialogueService {
     };
   }
 
+  private static canAccessFlirtCategory(): boolean {
+    const npcId = this.state.npcId;
+    if (!npcId) {
+      return false;
+    }
+
+    if (npcId === 'npc_roberta') {
+      return useWorldStateStore.getState().getFlag('roberta_flirt_unlocked');
+    }
+
+    return true;
+  }
+
   private static hasVisibleSocialRootOptions(dialogueEntry: DialogueEntry): boolean {
     const socialRoot = this.buildSocialRootNode(dialogueEntry);
     return (socialRoot.player_choices || []).some((choice) => !this.isNavigationChoice(choice) && !choice.disabled);
@@ -463,12 +480,24 @@ export class DialogueService {
       return generatedNode;
     }
 
+    const explicitNode = dialogueEntry.nodes[nodeId] || null;
+    if (explicitNode) {
+      const explicitChoices = explicitNode.player_choices || [];
+      const hasAuthoredChoices = explicitChoices.some((choice) => !this.isNavigationChoice(choice));
+      if (hasAuthoredChoices) {
+        if (nodeId === dialogueEntry.first_meet_node || nodeId === dialogueEntry.repeat_meet_node || nodeId === '0') {
+          return this.reorderOpeningNodeChoices(dialogueEntry, explicitNode);
+        }
+        return explicitNode;
+      }
+    }
+
     const generatedCategoryNode = this.buildGenericInteractionCategoryNode(dialogueEntry, nodeId);
     if (generatedCategoryNode) {
       return generatedCategoryNode;
     }
 
-    const node = dialogueEntry.nodes[nodeId] || null;
+    const node = explicitNode;
     if (!node) {
       return null;
     }
@@ -678,20 +707,11 @@ export class DialogueService {
         const isMeaningfulSocialAction = Boolean(socialActionMeta);
         const socialNpcId = socialActionMeta?.npcId || currentNpcId || '';
         const dailyLimitReached = Boolean(socialNpcId && isMeaningfulSocialAction && this.hasNpcReachedDailySocialLimit(socialNpcId));
-        const flirtRequirement = socialActionMeta?.type === 'flirt' ? getSocialNpcConfig(socialNpcId) : null;
-        const friendshipValue = socialNpcId ? (useDiaryStore.getState().relationships[socialNpcId]?.friendship?.value ?? 0) : 0;
-        const flirtLocked = Boolean(
-          flirtRequirement &&
-          (!flirtRequirement.flirtable || friendshipValue < (flirtRequirement.flirtFriendshipRequired ?? 999))
-        );
-        const disabled = Boolean(choice.disabled) || socialCost > socialEnergy || dailyLimitReached || flirtLocked;
+        const disabled = Boolean(choice.disabled) || socialCost > socialEnergy || dailyLimitReached;
         let text = socialCost > 0 ? `${choice.text} (${socialCost} Social)` : choice.text;
 
         if (dailyLimitReached) {
           text = `${text} (No more today)`;
-        }
-        if (flirtLocked) {
-          text = `${text} (Need ${flirtRequirement?.flirtFriendshipRequired ?? 0} Friendship)`;
         }
 
         return {
@@ -1065,6 +1085,11 @@ export class DialogueService {
           useUIStore.getState().setScreen('event');
           this.endDialogue();
           useUIStore.getState().setDialogueNpcId(null);
+        } else if (eventId === 'roberta_kiss_event') {
+          useUIStore.getState().setEventSlides(robertaKissSlides);
+          useUIStore.getState().setScreen('event');
+          this.endDialogue();
+          useUIStore.getState().setDialogueNpcId(null);
         } else if (eventId === 'ben_cheat_event') {
           useUIStore.getState().setEventSlides(benCheatEventSlides);
           useUIStore.getState().setScreen('event');
@@ -1305,6 +1330,15 @@ export class DialogueService {
         }
         break;
 
+      case 'open_roberta_upgrades':
+        {
+          const ui = useUIStore.getState();
+          ui.setCraftingMode('robertaUpgrades');
+          ui.setCraftingSkill('Carpentry');
+          ui.setScreen('crafting');
+        }
+        break;
+
       case 'convert_logs_to_planks':
         {
           const qtyRaw = params[0] || '0';
@@ -1332,6 +1366,7 @@ export class DialogueService {
             break;
           }
           inv.addItem('wooden_plank', produce);
+          useSkillStore.getState().addXp('carpentry', produce * 10);
           diaryStore.addInteraction(`Converted ${produce} logs to planks at the sawmill.`);
         }
         break;

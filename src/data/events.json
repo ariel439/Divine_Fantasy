@@ -330,5 +330,25 @@
       "image": "/assets/events/whitefang_bearer_luke.png",
       "text": "When it ends, White Fang of Heaven rests in your hands as if it had always belonged there. The good is buried in the glaive. What walks away from the mountain is only what was strong enough to bear the rest. Ordinary people will feel the difference long before you learn how to hide it."
     }
+  ],
+  "robertaWallRepairSlides": [
+    {
+      "image": "/assets/events/roberta_wall_repair.png",
+      "text": "You brace the new planks into place, drive the nails home one by one, and work until the draft finally dies. What was a storm-torn gap in Tide & Trade becomes a solid wall again under your hands."
+    },
+    {
+      "image": "/assets/locations/tide_trade_repaired.png",
+      "text": "By the time you step back, the shop looks less like it is barely surviving the season and more like a place someone still believes in. Roberta will notice the difference the moment she sees it."
+    }
+  ],
+  "robertaKissSlides": [
+    {
+      "image": "/assets/events/roberta_kiss_event.png",
+      "text": "For a moment, the work, the dust, and the whole hard weight of Driftwatch fall quiet. In the shop the two of you set right together, Roberta steps close and the two of you finally kiss."
+    },
+    {
+      "image": "/assets/events/roberta_kiss_event.png",
+      "text": "When you part, Tide & Trade feels changed in more ways than one. Roberta still looks like herself, sharp-eyed and steady, but there is nothing guarded in the way she looks at you now. Whatever this is between you, it has crossed into something real."
+    }
   ]
 }

@@ -9,6 +9,8 @@ import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import { useLocationStore } from '../../stores/useLocationStore';
 import { useDiaryStore } from '../../stores/useDiaryStore';
 import { useJournalStore } from '../../stores/useJournalStore';
+import { useSkillStore } from '../../stores/useSkillStore';
+import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
 
 const DebugMenuScreen: FC = () => {
   const { setScreen } = useUIStore();
@@ -94,24 +96,63 @@ const DebugMenuScreen: FC = () => {
   };
 
   const handleDebugRobertaQuest = () => {
+    ensureDebugCharacter();
+
     journalStore.updateQuest('roberta_planks_for_the_past', { active: false, completed: false, currentStage: 0 });
+    journalStore.updateQuest('roberta_set_the_shop_right', { active: false, completed: false, currentStage: 0 });
     useJournalStore.setState((state) => ({
-      questsList: state.questsList.filter(q => q.id !== 'roberta_planks_for_the_past')
+      questsList: state.questsList.filter(q => q.id !== 'roberta_planks_for_the_past' && q.id !== 'roberta_set_the_shop_right')
     }));
 
+    [
+      'roberta_lore_seen',
+      'roberta_asked_manage_alone',
+      'roberta_asked_shop_future',
+      'roberta_upgrade_counter_done',
+      'roberta_upgrade_displays_done',
+      'roberta_upgrade_storefront_done',
+      'roberta_shop_upgrades_complete',
+      'roberta_flirt_unlocked',
+      'roberta_kiss_done',
+      'tide_trade_wall_repaired',
+      'tide_trade_upgraded',
+    ].forEach((flag) => worldStateStore.setFlag(flag, false));
+
     const currentRel = diaryStore.relationships['npc_roberta']?.friendship?.value || 0;
-    const diff = 20 - currentRel;
+    const diff = 40 - currentRel;
     if (diff !== 0) {
       diaryStore.updateRelationship('npc_roberta', { friendship: diff });
     }
-
-    const currentPlanks = inventoryStore.getItemQuantity('wooden_plank');
-    if (currentPlanks > 0) {
-      inventoryStore.removeItem('wooden_plank', currentPlanks);
+    const currentLove = diaryStore.relationships['npc_roberta']?.love?.value || 0;
+    if (currentLove > 0) {
+      diaryStore.updateRelationship('npc_roberta', { love: -currentLove });
     }
-    inventoryStore.addItem('wooden_plank', 10);
+    const currentFear = diaryStore.relationships['npc_roberta']?.fear?.value || 0;
+    if (currentFear > 0) {
+      diaryStore.updateRelationship('npc_roberta', { fear: -currentFear });
+    }
+
+    useSkillStore.getState().setSkillLevel('carpentry', 10);
+    useCharacterStore.getState().addCurrency('gold', 99);
+
+    const resetAndGrant = (itemId: string, quantity: number) => {
+      const currentQty = inventoryStore.getItemQuantity(itemId);
+      if (currentQty > 0) {
+        inventoryStore.removeItem(itemId, currentQty);
+      }
+      if (quantity > 0) {
+        inventoryStore.addItem(itemId, quantity);
+      }
+    };
+
+    resetAndGrant('wooden_plank', 26);
+    resetAndGrant('iron_nails', 36);
+    resetAndGrant('cloth', 5);
+    resetAndGrant('rope', 4);
+    resetAndGrant('hammer', 1);
 
     locationStore.setLocation('tide_trade');
+    useWorldTimeStore.setState({ hour: 9, minute: 0 });
     setScreen('inGame');
   };
 
@@ -170,7 +211,7 @@ const DebugMenuScreen: FC = () => {
                   onClick={handleDebugRobertaQuest}
                   className="flex-1 px-4 py-2 rounded-md bg-blue-900/40 hover:bg-blue-800/60 text-blue-100 text-sm font-semibold border border-blue-800/50 transition-all hover:shadow-[0_0_10px_rgba(59,130,246,0.2)]"
                 >
-                  Setup Roberta Quest
+                  Start Roberta Route Check
                 </button>
                 <button
                   onClick={handleCraftingSetup}

@@ -200,19 +200,28 @@ const DialogueScreen: FC<DialogueScreenProps> = ({
                     <div className="flex-shrink-0 mt-auto max-h-[14rem] overflow-y-auto custom-scrollbar pr-2 pt-2 space-y-3">
                         {options.map((option, index) => {
                             const isUnavailable = option.disabled ?? false;
+                            const isRomance = option.variant === 'romance';
                             return (
                                 <button
                                     key={index}
                                     onClick={() => !isUnavailable && handleOptionSelect(option, index)}
                                     disabled={isUnavailable}
-                                    className={`w-full text-left p-4 bg-black/80 backdrop-blur-md border border-zinc-800/50 rounded-xl transition-all duration-500 hover:bg-white/10 hover:border-zinc-400 hover:shadow-2xl hover:-translate-y-0.5 group disabled:bg-zinc-900/30 disabled:border-zinc-800/50 disabled:text-zinc-600 disabled:cursor-not-allowed disabled:transform-none`}
+                                    className={`w-full text-left p-4 backdrop-blur-md border rounded-xl transition-all duration-500 hover:shadow-2xl hover:-translate-y-0.5 group disabled:bg-zinc-900/30 disabled:border-zinc-800/50 disabled:text-zinc-600 disabled:cursor-not-allowed disabled:transform-none ${
+                                      isRomance
+                                        ? 'bg-black/80 border-pink-500/45 shadow-[0_0_18px_rgba(236,72,153,0.14)] hover:bg-white/10 hover:border-pink-300 hover:shadow-[0_0_24px_rgba(236,72,153,0.22)]'
+                                        : 'bg-black/80 border-zinc-800/50 hover:bg-white/10 hover:border-zinc-400'
+                                    }`}
                                 >
                                     <div className="flex items-center justify-between">
-                                        <span className="font-bold tracking-widest uppercase text-xs text-zinc-100 group-hover:text-white transition-colors">
+                                        <span className="font-bold tracking-widest uppercase text-xs transition-colors text-zinc-100 group-hover:text-white">
                                             {option.text}
                                         </span>
-                                        <div className="w-6 h-6 rounded-full border border-zinc-700 flex items-center justify-center group-hover:border-zinc-400 transition-colors">
-                                            <div className="w-1.5 h-1.5 bg-zinc-700 rounded-full group-hover:bg-zinc-400 transition-colors" />
+                                        <div className={`w-6 h-6 rounded-full border flex items-center justify-center transition-colors ${
+                                          isRomance ? 'border-pink-500/50 group-hover:border-pink-200' : 'border-zinc-700 group-hover:border-zinc-400'
+                                        }`}>
+                                            <div className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                                              isRomance ? 'bg-pink-400 group-hover:bg-pink-100' : 'bg-zinc-700 group-hover:bg-zinc-400'
+                                            }`} />
                                         </div>
                                     </div>
                                 </button>

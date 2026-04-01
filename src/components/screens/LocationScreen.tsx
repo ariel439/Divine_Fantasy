@@ -25,7 +25,7 @@ import { ExplorationService } from '../../services/ExplorationService';
 import { mockBooks } from '../../data';
 import locationsData from '../../data/locations.json';
 import itemsJson from '../../data/items.json';
-import { breakfastEventSlides, rebelRaidIntroSlides, sellLocketSlides, elaraDeliverySlides, berylDeliverySlides, benCheatEventSlides, whitefangUnreadableWoodsSlides, whitefangUnreadableBeachSlides, whitefangUnreadableMountainSlides, whitefangWoodsVisionSlides, whitefangBeachVisionSlides, whitefangMountainVisionSlides, whitefangCaveBlockedSlides, whitefangExpeditionBreachSlides } from '../../data/events';
+import { breakfastEventSlides, rebelRaidIntroSlides, sellLocketSlides, elaraDeliverySlides, berylDeliverySlides, benCheatEventSlides, robertaWallRepairSlides, whitefangUnreadableWoodsSlides, whitefangUnreadableBeachSlides, whitefangUnreadableMountainSlides, whitefangWoodsVisionSlides, whitefangBeachVisionSlides, whitefangMountainVisionSlides, whitefangCaveBlockedSlides, whitefangExpeditionBreachSlides } from '../../data/events';
 import { useToastStore } from '../../stores/useToastStore';
 
 const LocationScreen: React.FC = () => {
@@ -251,11 +251,13 @@ const LocationScreen: React.FC = () => {
       }
       case 'craft': {
         const skill = action.target === 'craft_basic' ? 'Crafting' : 'Carpentry';
+        useUIStore.getState().setCraftingMode('standard');
         useUIStore.getState().setCraftingSkill(skill);
         setScreen('crafting');
         break;
       }
       case 'cook': {
+        useUIStore.getState().setCraftingMode('standard');
         useUIStore.getState().setCraftingSkill('Cooking');
         setScreen('crafting');
         break;
@@ -520,19 +522,13 @@ const LocationScreen: React.FC = () => {
               if (removedPlanks && removedNails) {
                 journal.setQuestStage(questId, 4);
                 useWorldStateStore.getState().setFlag('tide_trade_wall_repaired', true);
-
-                const summary: ActionSummary = {
-                  title: 'Wall Repaired',
-                  durationInMinutes: 30,
-                  vitalsChanges: [{ vital: 'Energy', change: -10, icon: <Zap size={20} className="text-blue-300"/> }],
-                  expended: [
-                    { name: 'Wooden Plank', quantity: 10, icon: <Package size={20} className="text-zinc-300"/> },
-                    { name: 'Iron Nails', quantity: 20, icon: <Package size={20} className="text-zinc-300"/> }
-                  ],
-                  rewards: [{ name: 'Wall Fixed', quantity: 1, icon: <Hammer size={20} className="text-green-300"/> }],
-                };
-                setSummaryData(summary);
-                setSummaryModalOpen(true);
+                useCharacterStore.setState((state) => ({
+                  energy: Math.max(0, state.energy - 10),
+                }));
+                useWorldTimeStore.getState().passTime(30);
+                useUIStore.getState().setEventSlides(robertaWallRepairSlides);
+                useUIStore.getState().setCurrentEventId('roberta_wall_repair');
+                setScreen('event');
               }
             } else {
               const missing = [];
@@ -549,6 +545,11 @@ const LocationScreen: React.FC = () => {
               setJobEnergyModalOpen(true);
             }
           }
+        }
+        if (action.target === 'roberta_workbench') {
+          useUIStore.getState().setCraftingMode('robertaUpgrades');
+          useUIStore.getState().setCraftingSkill('Carpentry');
+          setScreen('crafting');
         }
         break;
       }

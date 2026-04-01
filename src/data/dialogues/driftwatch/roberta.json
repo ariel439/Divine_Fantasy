@@ -123,6 +123,26 @@
             "condition": "quest.roberta_planks_for_the_past.active==true && quest.roberta_planks_for_the_past.stage==1 && inventory.wooden_plank<10"
           },
           {
+            "text": "How have you been managing all of this alone?",
+            "next_node": "rb_ask_managing_alone",
+            "condition": "relationship.npc_roberta>=30 && quest.roberta_planks_for_the_past.completed==true && world_flags.roberta_asked_manage_alone==false"
+          },
+          {
+            "text": "What do you want Tide & Trade to become?",
+            "next_node": "rb_ask_shop_future",
+            "condition": "relationship.npc_roberta>=40 && world_flags.roberta_asked_manage_alone==true && world_flags.roberta_asked_shop_future==false"
+          },
+          {
+            "text": "If you still mean to set this place right, I can help you do it properly.",
+            "next_node": "rb_second_quest_offer",
+            "condition": "quest.roberta_planks_for_the_past.completed==true && quest.roberta_set_the_shop_right.active==false && quest.roberta_set_the_shop_right.completed==false && relationship.npc_roberta>=50 && world_flags.roberta_asked_shop_future==true",
+            "req_skill_level": {
+              "skill": "carpentry",
+              "level": 10
+            },
+            "fail_node": "rb_second_quest_skill_gate"
+          },
+          {
             "text": "Back.",
             "next_node": "__social_root__"
           }
@@ -161,10 +181,28 @@
         "npc_text": "Careful. I sell wares here, not promises.",
         "player_choices": [
           {
-            "text": "Compliment her composure.",
-            "next_node": "rb_flirt_compliment",
+            "text": "Compliment her directly.",
+            "next_node": "rb_flirt_direct",
             "social_cost": 2,
-            "condition": "relationship.npc_roberta>=20"
+            "condition": "world_flags.roberta_flirt_unlocked==true"
+          },
+          {
+            "text": "Tease her lightly.",
+            "next_node": "rb_flirt_playful",
+            "social_cost": 2,
+            "condition": "world_flags.roberta_flirt_unlocked==true"
+          },
+          {
+            "text": "Be sincere with her.",
+            "next_node": "rb_flirt_sincere",
+            "social_cost": 2,
+            "condition": "world_flags.roberta_flirt_unlocked==true"
+          },
+          {
+            "text": "Push the tension a little.",
+            "next_node": "rb_flirt_tension",
+            "social_cost": 2,
+            "condition": "world_flags.roberta_flirt_unlocked==true"
           },
           {
             "text": "Back.",
@@ -190,11 +228,6 @@
         "npc_text": "If this is about work, say so plainly.",
         "player_choices": [
           {
-            "text": "I can help with the wall.",
-            "next_node": "rb_help_gate",
-            "condition": "quest.roberta_planks_for_the_past.active==false && quest.roberta_planks_for_the_past.completed==false && relationship.npc_roberta>=20"
-          },
-          {
             "text": "How is the wall repair going?",
             "next_node": "rb_help_gate",
             "condition": "quest.roberta_planks_for_the_past.active==true && quest.roberta_planks_for_the_past.stage==1 && inventory.wooden_plank<10"
@@ -214,6 +247,11 @@
             "action": "complete_quest:roberta_planks_for_the_past",
             "next_node": "rb_quest_complete",
             "condition": "quest.roberta_planks_for_the_past.active==true && quest.roberta_planks_for_the_past.stage==4"
+          },
+          {
+            "text": "Tide & Trade is set right. You should see it now.",
+            "next_node": "rb_second_quest_complete",
+            "condition": "quest.roberta_set_the_shop_right.active==true && world_flags.roberta_shop_upgrades_complete==true"
           },
           {
             "text": "Back.",
@@ -299,6 +337,147 @@
           }
         ]
       },
+      "rb_ask_managing_alone": {
+        "npc_text": "Badly, some weeks. Properly, if anyone asks. Since my father died, every leak, every spoiled crate, every customer with a complaint lands on me. You either learn to keep moving or Driftwatch starts picking at you.",
+        "player_choices": [
+          {
+            "text": "That is a lot to carry by yourself.",
+            "action": "set_flag:roberta_asked_manage_alone:true|update_relationship:npc_roberta:3:friendship|add_xp:persuasion:8",
+            "next_node": "rb_ask_managing_alone_empathy"
+          },
+          {
+            "text": "Most people would have let the place fall apart by now. You did not.",
+            "action": "set_flag:roberta_asked_manage_alone:true|update_relationship:npc_roberta:2:friendship|add_xp:persuasion:8",
+            "next_node": "rb_ask_managing_alone_admire"
+          },
+          {
+            "text": "You make it sound heavier than you ever let anyone see.",
+            "action": "set_flag:roberta_asked_manage_alone:true|update_relationship:npc_roberta:2:friendship|update_relationship:npc_roberta:1:love|add_xp:persuasion:10",
+            "next_node": "rb_ask_managing_alone_intimate"
+          }
+        ]
+      },
+      "rb_ask_managing_alone_empathy": {
+        "npc_text": "It is. But the shutters still open, the ledgers still need balancing, and pity never paid a supplier. So I keep the place standing and keep my face set straight.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_ask_root"
+          }
+        ]
+      },
+      "rb_ask_managing_alone_admire": {
+        "npc_text": "Falling apart costs money. So does pride. I have had to learn how to afford both, and neither comes cheap in Driftwatch.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_ask_root"
+          }
+        ]
+      },
+      "rb_ask_managing_alone_intimate": {
+        "npc_text": "There is no profit in letting people see where to press. If the whole street knew how tired I was half the time, they would start treating Tide & Trade like it was already up for carving apart.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_ask_root"
+          }
+        ]
+      },
+      "rb_ask_shop_future": {
+        "npc_text": "I do not need it grand. I just want it solid. A shop that looks worth entering. One that feels like mine, not like a place I am barely keeping from caving in around me.",
+        "player_choices": [
+          {
+            "text": "Then let us make it into that.",
+            "action": "set_flag:roberta_asked_shop_future:true|update_relationship:npc_roberta:3:friendship|add_xp:persuasion:10",
+            "next_node": "rb_ask_shop_future_support"
+          },
+          {
+            "text": "It already feels like yours. The rest of the street just needs to catch up.",
+            "action": "set_flag:roberta_asked_shop_future:true|update_relationship:npc_roberta:2:friendship|update_relationship:npc_roberta:1:love|add_xp:persuasion:10",
+            "next_node": "rb_ask_shop_future_validate"
+          },
+          {
+            "text": "You do not just want it standing. You want to be proud of it.",
+            "action": "set_flag:roberta_asked_shop_future:true|update_relationship:npc_roberta:3:friendship|update_relationship:npc_roberta:1:love|add_xp:persuasion:10",
+            "next_node": "rb_ask_shop_future_proud"
+          }
+        ]
+      },
+      "rb_ask_shop_future_support": {
+        "npc_text": "Careful. Say things like that too easily and I might start believing you mean them. Still... if anyone could help set this place right, it might be you.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_ask_root"
+          }
+        ]
+      },
+      "rb_ask_shop_future_validate": {
+        "npc_text": "That may be the kindest thing anyone has said about this place in months. I know what it could be. The hard part is making the rest of Driftwatch see it too.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_ask_root"
+          }
+        ]
+      },
+      "rb_ask_shop_future_proud": {
+        "npc_text": "Yes. I think I do. I am tired of this place looking like a problem I inherited. I want to look at it and feel like it belongs to me, fully, not halfway.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_ask_root"
+          }
+        ]
+      },
+      "rb_second_quest_skill_gate": {
+        "npc_text": "I mean to set this place right, Luke, not patch another hole. You handled the wall well enough, but rebuilding the shop is different. Come back when you have more real experience with carpentry.",
+        "player_choices": [
+          {
+            "text": "Fair enough.",
+            "next_node": "rb_ask_root"
+          }
+        ]
+      },
+      "rb_second_quest_offer": {
+        "npc_text": "Then we do it properly. No half-measures, no rushed repairs. I will put together the list, and if you really mean this, you can start with the workbench here in the shop.",
+        "player_choices": [
+          {
+            "text": "I am in. Put together the list and I will start with the workbench here.",
+            "action": "start_quest:roberta_set_the_shop_right|set_quest_stage:roberta_set_the_shop_right:1",
+            "next_node": "rb_second_quest_offer_accept"
+          },
+          {
+            "text": "Maybe later.",
+            "next_node": "rb_ask_root"
+          }
+        ]
+      },
+      "rb_second_quest_offer_accept": {
+        "npc_text": "Good. I will keep the list ready. Use the workbench here in the shop when you are prepared and we will set Tide & Trade right piece by piece.",
+        "player_choices": [
+          {
+            "text": "Understood.",
+            "next_node": "rb_ask_root"
+          }
+        ]
+      },
+      "rb_second_quest_complete": {
+        "npc_text": "I noticed the difference the moment I stepped back and looked at the place. The counter sits right, the displays finally look deliberate, and the whole shop feels... mine again. You did more than patch a problem this time, Luke.",
+        "player_choices": [
+          {
+            "text": "I wanted to see you look at this place and feel happy again.",
+            "variant": "romance",
+            "action": "complete_quest:roberta_set_the_shop_right|set_flag:roberta_flirt_unlocked:true|set_flag:roberta_romance_open:true|update_relationship:npc_roberta:5:friendship|update_relationship:npc_roberta:5:love|add_xp:carpentry:200|trigger_event:roberta_kiss_event"
+          },
+          {
+            "text": "You deserved a place worth keeping.",
+            "action": "complete_quest:roberta_set_the_shop_right|update_relationship:npc_roberta:10:friendship|add_xp:carpentry:200",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
       "rb_lore_tide_trade1": {
         "npc_text": "Tide & Trade is one of Driftwatch's oldest shops. It has stood through lean years and storms.",
         "player_choices": [
@@ -319,7 +498,7 @@
           {
             "text": "You hid that well.",
             "next_node": "rb_lore_tide_trade_respect",
-            "action": "set_flag:roberta_lore_seen:true|add_xp:persuasion:6|update_relationship:npc_roberta:3:love"
+            "action": "set_flag:roberta_lore_seen:true|add_xp:persuasion:6|update_relationship:npc_roberta:3:friendship"
           },
           {
             "text": "That makes the shop a weakness, doesn't it?",
@@ -383,16 +562,58 @@
           }
         ]
       },
-      "rb_flirt_compliment": {
-        "npc_text": "That is either smooth or dangerous, and I am still deciding which.",
+      "rb_flirt_direct": {
+        "npc_text": "You have that look again. Go on then. Say it plainly.",
         "player_choices": [
           {
-            "text": "Maybe a little of both.",
+            "text": "You look better in this shop now that it finally matches you.",
             "action": "social_action:npc_roberta:flirt:compliment",
             "social_result_nodes": {
-              "strong": "rb_flirt_compliment_strong",
-              "weak": "rb_flirt_compliment_weak",
-              "fail": "rb_flirt_compliment_fail"
+              "strong": "rb_flirt_direct_strong",
+              "weak": "rb_flirt_direct_weak",
+              "fail": "rb_flirt_direct_fail"
+            }
+          }
+        ]
+      },
+      "rb_flirt_playful": {
+        "npc_text": "You sound like you are about to cause trouble. Mild trouble, I hope.",
+        "player_choices": [
+          {
+            "text": "Only the kind that makes you smile if you let it.",
+            "action": "social_action:npc_roberta:flirt:compliment",
+            "social_result_nodes": {
+              "strong": "rb_flirt_playful_strong",
+              "weak": "rb_flirt_playful_weak",
+              "fail": "rb_flirt_playful_fail"
+            }
+          }
+        ]
+      },
+      "rb_flirt_sincere": {
+        "npc_text": "That tone usually means you mean to say something honest. Risky habit in Driftwatch.",
+        "player_choices": [
+          {
+            "text": "I like being here with you. More than I expected to.",
+            "action": "social_action:npc_roberta:flirt:compliment",
+            "social_result_nodes": {
+              "strong": "rb_flirt_sincere_strong",
+              "weak": "rb_flirt_sincere_weak",
+              "fail": "rb_flirt_sincere_fail"
+            }
+          }
+        ]
+      },
+      "rb_flirt_tension": {
+        "npc_text": "You keep stepping closer like you are testing a line.",
+        "player_choices": [
+          {
+            "text": "Maybe I am seeing how close you will let me get.",
+            "action": "social_action:npc_roberta:flirt:compliment",
+            "social_result_nodes": {
+              "strong": "rb_flirt_tension_strong",
+              "weak": "rb_flirt_tension_weak",
+              "fail": "rb_flirt_tension_fail"
             }
           }
         ]
@@ -547,8 +768,8 @@
           }
         ]
       },
-      "rb_flirt_compliment_strong": {
-        "npc_text": "Careful, Luke. You almost made that sound sincere.",
+      "rb_flirt_direct_strong": {
+        "npc_text": "That was dangerously well said. Keep talking like that and I may start expecting it.",
         "player_choices": [
           {
             "text": "Back.",
@@ -556,8 +777,8 @@
           }
         ]
       },
-      "rb_flirt_compliment_weak": {
-        "npc_text": "You should work on that line before you use it twice.",
+      "rb_flirt_direct_weak": {
+        "npc_text": "Smooth enough. You nearly got away with that one.",
         "player_choices": [
           {
             "text": "Back.",
@@ -565,8 +786,89 @@
           }
         ]
       },
-      "rb_flirt_compliment_fail": {
-        "npc_text": "That sounded better in your head, did it not?",
+      "rb_flirt_direct_fail": {
+        "npc_text": "If you are going to flatter me, at least make it less obvious you practiced first.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_flirt_root"
+          }
+        ]
+      },
+      "rb_flirt_playful_strong": {
+        "npc_text": "There it is. I was wondering how long it would take before you tried to be charming on purpose.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_flirt_root"
+          }
+        ]
+      },
+      "rb_flirt_playful_weak": {
+        "npc_text": "You are getting bold. Not gracefully bold, but bold.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_flirt_root"
+          }
+        ]
+      },
+      "rb_flirt_playful_fail": {
+        "npc_text": "You really should know by now when to stop one line earlier.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_flirt_root"
+          }
+        ]
+      },
+      "rb_flirt_sincere_strong": {
+        "npc_text": "That... was more honest than I expected. Do not say things like that unless you mean them.",
+        "player_choices": [
+          {
+            "text": "I mean them.",
+            "next_node": "rb_flirt_root"
+          }
+        ]
+      },
+      "rb_flirt_sincere_weak": {
+        "npc_text": "You make that sound almost dangerous. Honest words have a way of lingering.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_flirt_root"
+          }
+        ]
+      },
+      "rb_flirt_sincere_fail": {
+        "npc_text": "No. If you are going to try sincerity, do not do it halfway.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_flirt_root"
+          }
+        ]
+      },
+      "rb_flirt_tension_strong": {
+        "npc_text": "And what if I let you? You would have to do something with that courage then.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_flirt_root"
+          }
+        ]
+      },
+      "rb_flirt_tension_weak": {
+        "npc_text": "Maybe do not test the line too hard, Luke. Not unless you plan to keep your nerve.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "rb_flirt_root"
+          }
+        ]
+      },
+      "rb_flirt_tension_fail": {
+        "npc_text": "That sounded much steadier before it left your mouth.",
         "player_choices": [
           {
             "text": "Back.",

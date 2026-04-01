@@ -16,6 +16,7 @@ interface UIState {
   selectedLibraryBookId: string | null;
   libraryReturnScreen: GameState;
   craftingSkill: CraftingSkill | null;
+  craftingMode: 'standard' | 'robertaUpgrades';
   confirmationType: string | null;
   diaryTab: 'diary' | 'party';
   // Actions
@@ -32,6 +33,7 @@ interface UIState {
   setSelectedLibraryBookId: (bookId: string | null) => void;
   setLibraryReturnScreen: (screen: GameState) => void;
   setCraftingSkill: (skill: CraftingSkill | null) => void;
+  setCraftingMode: (mode: 'standard' | 'robertaUpgrades') => void;
   setConfirmationType: (type: string | null) => void;
   setDiaryTab: (tab: 'diary' | 'party') => void;
 }
@@ -49,6 +51,7 @@ export const useUIStore = create<UIState>((set, get) => ({
   selectedLibraryBookId: null,
   libraryReturnScreen: 'inGame',
   craftingSkill: null,
+  craftingMode: 'standard',
   confirmationType: null,
   diaryTab: 'diary',
   setScreen: (screen) => {
@@ -89,6 +92,9 @@ export const useUIStore = create<UIState>((set, get) => ({
   },
   setCraftingSkill: (skill) => {
     set({ craftingSkill: skill });
+  },
+  setCraftingMode: (mode) => {
+    set({ craftingMode: mode });
   },
   setConfirmationType: (type) => {
     set({ confirmationType: type });

@@ -51,13 +51,12 @@ export const useSkillStore = create<SkillState>((set, get) => ({
       const adjustedAmount = Math.floor(amount * bonusMultiplier);
       const newXp = currentSkill.xp + adjustedAmount;
 
-      // Check for level up
       let newLevel = currentSkill.level;
-      const currentLevelData = xpTable.levels.find(l => l.level === currentSkill.level);
-      const nextLevelData = xpTable.levels.find(l => l.level === currentSkill.level + 1);
+      let nextLevelData = xpTable.levels.find(l => l.level === newLevel + 1);
 
-      if (nextLevelData && newXp >= nextLevelData.total_xp) {
-        newLevel = currentSkill.level + 1;
+      while (nextLevelData && newXp >= nextLevelData.total_xp) {
+        newLevel += 1;
+        nextLevelData = xpTable.levels.find(l => l.level === newLevel + 1);
       }
 
       return {

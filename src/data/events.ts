@@ -40,6 +40,8 @@ export const whitefangMountainVisionSlides: Slide[] = events.whitefangMountainVi
 export const whitefangCaveBlockedSlides: Slide[] = events.whitefangCaveBlockedSlides;
 export const whitefangExpeditionBreachSlides: Slide[] = events.whitefangExpeditionBreachSlides;
 export const whitefangBindingSlides: Slide[] = events.whitefangBindingSlides;
+export const robertaWallRepairSlides: Slide[] = events.robertaWallRepairSlides;
+export const robertaKissSlides: Slide[] = events.robertaKissSlides;
 
 type ChoiceEventId =
   | 'intro_pastime_choice'

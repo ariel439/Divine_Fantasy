@@ -51,12 +51,18 @@ import {
   introKidsHelpingSlides,
   introStudyShenhaicSlides,
   whitefangBindingSlides
+  ,
+  robertaKissSlides
 } from '../data/events';
 import { getIntimidationSummary } from '../utils/socialPresentation';
+import { ROBERTA_UPGRADE_FLAGS, robertaUpgradeRecipes } from '../data/robertaUpgrades';
 
 const ScreenManager: React.FC = () => {
   const { currentScreen, setScreen, shopId, dialogueNpcId } = useUIStore();
   const ui = useUIStore();
+  const robertaCounterDone = useWorldStateStore((state) => state.worldFlags.roberta_upgrade_counter_done);
+  const robertaDisplaysDone = useWorldStateStore((state) => state.worldFlags.roberta_upgrade_displays_done);
+  const robertaStorefrontDone = useWorldStateStore((state) => state.worldFlags.roberta_upgrade_storefront_done);
   const { loadShops } = useShopStore();
   
   // New State for Event Results
@@ -354,6 +360,13 @@ const ScreenManager: React.FC = () => {
             GameManagerService.startRaidCombat();
             return;
           }
+          if (id === 'roberta_kiss_event') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            useUIStore.getState().setDialogueNpcId('npc_roberta');
+            setScreen('dialogue');
+            return;
+          }
           if (id === 'raid_victory') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
@@ -544,6 +557,7 @@ const ScreenManager: React.FC = () => {
           closesDialogue: c.closes_dialogue,
           disabled: c.disabled,
           nextPortraitUrl: c.next_portrait_url || c.nextPortraitUrl,
+          variant: c.variant || 'default',
         }));
 
         return (
@@ -599,17 +613,48 @@ const ScreenManager: React.FC = () => {
             balance={0}
           />
         );
-      case 'crafting':
+      case 'crafting': {
+        const craftingMode = useUIStore.getState().craftingMode;
+        const activeCraftingRecipes = craftingMode === 'robertaUpgrades'
+          ? robertaUpgradeRecipes.filter((recipe) => {
+              const completedFlag = {
+                roberta_counter_refit: ROBERTA_UPGRADE_FLAGS.counter,
+                roberta_display_crates: ROBERTA_UPGRADE_FLAGS.displays,
+                roberta_storefront_finish: ROBERTA_UPGRADE_FLAGS.storefront,
+              }[recipe.id];
+
+              if (!completedFlag) {
+                return true;
+              }
+
+              const completedMap = {
+                [ROBERTA_UPGRADE_FLAGS.counter]: robertaCounterDone,
+                [ROBERTA_UPGRADE_FLAGS.displays]: robertaDisplaysDone,
+                [ROBERTA_UPGRADE_FLAGS.storefront]: robertaStorefrontDone,
+              };
+
+              return !completedMap[completedFlag];
+            })
+          : undefined;
         return (
           <CraftingScreen
-            onClose={() => setScreen('inGame')}
+            onClose={() => {
+              useUIStore.getState().setCraftingMode('standard');
+              setScreen('inGame');
+            }}
             initialSkill={useUIStore.getState().craftingSkill}
+            recipes={activeCraftingRecipes}
+            title={craftingMode === 'robertaUpgrades' ? 'Tide & Trade Upgrades' : undefined}
+            craftVerb={craftingMode === 'robertaUpgrades' ? 'Complete Upgrade' : 'Craft'}
+            lockQuantity={craftingMode === 'robertaUpgrades'}
             onStartCrafting={(recipe, quantity) => {
               const inventory = useInventoryStore.getState();
               const character = useCharacterStore.getState();
               const worldTime = useWorldTimeStore.getState();
               const toast = useToastStore.getState();
               const skillStore = useSkillStore.getState();
+              const world = useWorldStateStore.getState();
+              const journal = useJournalStore.getState();
 
               // 0. Validate Level
               const playerLevel = skillStore.getSkillLevel(recipe.skill.toLowerCase());
@@ -687,19 +732,48 @@ const ScreenManager: React.FC = () => {
                 skillStore.addXp(recipe.skill.toLowerCase(), totalXp);
 
               } else {
-                // Non-cooking crafting is always successful for now
-                const resultQty = (recipe.result.quantity || 1) * quantity;
-                inventory.addItem(recipe.result.id, resultQty);
-                skillStore.addXp(recipe.skill.toLowerCase(), recipe.xpGranted * quantity);
+                if (craftingMode === 'robertaUpgrades') {
+                  skillStore.addXp(recipe.skill.toLowerCase(), recipe.xpGranted * quantity);
+                } else {
+                  // Non-cooking crafting is always successful for now
+                  const resultQty = (recipe.result.quantity || 1) * quantity;
+                  inventory.addItem(recipe.result.id, resultQty);
+                  skillStore.addXp(recipe.skill.toLowerCase(), recipe.xpGranted * quantity);
+                }
               }
 
               // 4. Pass Time
               if (recipe.timeCost) {
                 worldTime.passTime(recipe.timeCost * quantity);
               }
+
+              if (craftingMode === 'robertaUpgrades') {
+                const recipeFlagMap: Record<string, string> = {
+                  roberta_counter_refit: ROBERTA_UPGRADE_FLAGS.counter,
+                  roberta_display_crates: ROBERTA_UPGRADE_FLAGS.displays,
+                  roberta_storefront_finish: ROBERTA_UPGRADE_FLAGS.storefront,
+                };
+                const completedFlag = recipeFlagMap[recipe.id];
+                if (completedFlag) {
+                  world.setFlag(completedFlag, true);
+                }
+
+                const allUpgradesComplete = world.getFlag(ROBERTA_UPGRADE_FLAGS.counter)
+                  && world.getFlag(ROBERTA_UPGRADE_FLAGS.displays)
+                  && world.getFlag(ROBERTA_UPGRADE_FLAGS.storefront);
+
+                if (allUpgradesComplete) {
+                  world.setFlag(ROBERTA_UPGRADE_FLAGS.complete, true);
+                  world.setFlag('tide_trade_upgraded', true);
+                  try { journal.setQuestStage('roberta_set_the_shop_right', 4); } catch {}
+                } else {
+                  try { journal.syncQuestProgress('roberta_set_the_shop_right'); } catch {}
+                }
+              }
             }}
           />
         );
+      }
       case 'choiceEvent': {
         const eventId = useUIStore.getState().currentEventId as keyof typeof choiceEvents | null;
         if (!eventId || !(eventId in choiceEvents)) {

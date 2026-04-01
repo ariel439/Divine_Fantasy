@@ -44,6 +44,7 @@ export type EquipmentSlot =
 export type FilterCategory =
   | 'All'
   | 'Equipment'
+  | 'Cloth'
   | 'Resource'
   | 'Consumable'
   | 'Tool'
@@ -143,6 +144,7 @@ export interface DialogueOption {
   disabled?: boolean;
   skillCheck?: { skill: string; level?: number };
   closesDialogue?: boolean;
+  variant?: 'default' | 'romance';
 }
 
 export interface ConversationEntry {

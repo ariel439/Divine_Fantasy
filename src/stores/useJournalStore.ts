@@ -3,6 +3,7 @@ import { useWorldStateStore } from './useWorldStateStore';
 import { useInventoryStore } from './useInventoryStore';
 import { useCharacterStore } from './useCharacterStore';
 import { useDiaryStore } from './useDiaryStore';
+import { useSkillStore } from './useSkillStore';
 import questsData from '../data/quests.json';
 import dialogueData from '../data/dialogues/index';
 import type { Quest as UiQuest } from '../types';
@@ -135,6 +136,16 @@ export const useJournalStore = create<JournalState>((set, get) => ({
 
       // Apply rewards to game state
       if (quest?.rewards) {
+        if (Array.isArray(quest.rewards?.xp)) {
+          quest.rewards.xp.forEach((xpReward: any) => {
+            const skillId = String(xpReward.skill || '').trim();
+            const amount = Number(xpReward.amount || 0);
+            if (skillId && amount > 0) {
+              useSkillStore.getState().addXp(skillId, amount);
+            }
+          });
+        }
+
         if (typeof quest.rewards?.currency === 'number') {
           const currencyAmount = quest.rewards.currency;
           if (currencyAmount > 0) {
@@ -148,7 +159,18 @@ export const useJournalStore = create<JournalState>((set, get) => ({
           });
         }
 
-        // TODO: Add XP and items rewards
+        if (Array.isArray(quest.rewards.items)) {
+          quest.rewards.items.forEach((itemReward: any) => {
+            if (typeof itemReward === 'string') {
+              useInventoryStore.getState().addItem(itemReward, 1);
+              return;
+            }
+
+            if (itemReward && typeof itemReward.item_id === 'string') {
+              useInventoryStore.getState().addItem(itemReward.item_id, Number(itemReward.quantity || 1));
+            }
+          });
+        }
       }
 
       return ({
@@ -243,8 +265,33 @@ export const useJournalStore = create<JournalState>((set, get) => ({
     set(() => ({ questsList: quests }));
   },
   syncQuestProgress: (questId) => {
-    // We now use QuestObserverService for reactive updates.
-    // This method can remain for manual triggers if needed,
-    // but the observer will handle it automatically on store changes.
+    set((state) => {
+      const targetIds = questId ? [questId] : Object.keys(state.quests);
+      const updatedQuestsList = state.questsList.map((uiQuest) => {
+        if (!targetIds.includes(uiQuest.id)) {
+          return uiQuest;
+        }
+
+        const quest = state.quests[uiQuest.id];
+        if (!quest) {
+          return uiQuest;
+        }
+
+        const questDef = (questsData as any)[uiQuest.id];
+        const currentStage = quest.currentStage || 0;
+        const objectives = buildQuestObjectives(questDef, currentStage);
+        const rewards = quest.completed ? buildGenericRewards(quest.rewards) : [];
+        const status = quest.completed ? 'completed' : quest.active ? 'active' : 'failed';
+
+        return {
+          ...uiQuest,
+          objectives,
+          rewards,
+          status,
+        };
+      });
+
+      return { questsList: updatedQuestsList };
+    });
   },
 }));

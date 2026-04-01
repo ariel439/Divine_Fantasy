@@ -251,57 +251,12 @@
   },
   "wolf_pelt": {
     "name": "Wolf Pelt",
-    "description": "The fur of a forest wolf. Can be used for crafting.",
+    "description": "The fur of a forest wolf. Thick, coarse, and still useful to the right buyer.",
     "type": "resource",
     "stackable": true,
     "weight": 1.0,
     "base_value": 18,
     "image": "/assets/items/wolf_pelt.png"
-  },
-  "wolf_leather_helmet": {
-    "name": "Wolf Leather Helmet",
-    "description": "A sturdy leather helmet made from wolf hide.",
-    "type": "armor",
-    "stackable": false,
-    "weight": 1.0,
-    "base_value": 56,
-    "image": "/assets/items/wolf_helm.png",
-    "equipmentSlot": "head",
-    "threatTier": 2,
-    "threatRole": "minor",
-    "stats": {
-      "defence": 4
-    }
-  },
-  "wolf_leather_armor": {
-    "name": "Wolf Leather Armor",
-    "description": "Light armor crafted from cured wolf pelts.",
-    "type": "armor",
-    "stackable": false,
-    "weight": 3.0,
-    "base_value": 140,
-    "image": "/assets/items/wolf_body.png",
-    "equipmentSlot": "chest",
-    "threatTier": 2,
-    "threatRole": "major",
-    "stats": {
-      "defence": 9
-    }
-  },
-  "wolf_leather_legs": {
-    "name": "Wolf Leather Leggings",
-    "description": "Tough leather leggings for agility and protection.",
-    "type": "armor",
-    "stackable": false,
-    "weight": 1.5,
-    "base_value": 84,
-    "image": "/assets/items/wolf_legs.png",
-    "equipmentSlot": "legs",
-    "threatTier": 2,
-    "threatRole": "minor",
-    "stats": {
-      "defence": 5
-    }
   },
   "bronze_ring": {
     "name": "Bronze Ring",
@@ -410,10 +365,40 @@
     "equipmentSlot": "head",
     "threatTier": 3,
     "threatRole": "minor",
-    "stats": {
-      "defence": 6
-    }
-  },
+        "stats": {
+          "defence": 5
+        }
+    },
+  "chain_coif": {
+    "name": "Chain Coif",
+    "description": "A serviceable chain coif that protects the head without the full weight of iron plate.",
+    "type": "armor",
+    "stackable": false,
+    "weight": 2.2,
+    "base_value": 155,
+    "image": "/assets/items/iron_helmet.png",
+    "equipmentSlot": "head",
+    "threatTier": 2,
+    "threatRole": "minor",
+        "stats": {
+          "defence": 2
+        }
+    },
+  "chainmail_shirt": {
+    "name": "Chainmail Shirt",
+    "description": "A lighter mail shirt that offers solid protection without the cost of full iron issue.",
+    "type": "armor",
+    "stackable": false,
+    "weight": 7.0,
+    "base_value": 385,
+    "image": "/assets/items/iron_chainmail.png",
+    "equipmentSlot": "chest",
+    "threatTier": 2,
+    "threatRole": "major",
+        "stats": {
+          "defence": 5
+        }
+    },
   "iron_chainmail": {
     "name": "Iron Chainmail",
     "description": "Standard issue iron chainmail. Reliable protection.",
@@ -425,10 +410,25 @@
     "equipmentSlot": "chest",
     "threatTier": 3,
     "threatRole": "major",
-    "stats": {
-      "defence": 11
-    }
-  },
+        "stats": {
+          "defence": 10
+        }
+    },
+  "chainmail_leggings": {
+    "name": "Chainmail Leggings",
+    "description": "Mail leggings sturdy enough for a fighting man who cannot yet afford full iron.",
+    "type": "armor",
+    "stackable": false,
+    "weight": 3.5,
+    "base_value": 246,
+    "image": "/assets/items/iron_chainlegs.png",
+    "equipmentSlot": "legs",
+    "threatTier": 2,
+    "threatRole": "minor",
+        "stats": {
+          "defence": 3
+        }
+    },
   "iron_leggings": {
     "name": "Iron Leggings",
     "description": "Chainmail leggings to protect your legs.",
@@ -440,9 +440,9 @@
     "equipmentSlot": "legs",
     "threatTier": 3,
     "threatRole": "minor",
-    "stats": {
-      "defence": 6
-    }
+        "stats": {
+          "defence": 5
+        }
   },
   "crude_knife": {
     "name": "Crude Knife",
@@ -453,17 +453,17 @@
     "base_value": 25,
     "image": "/assets/items/crude_knife.png",
     "equipmentSlot": "weapon",
-    "threatTier": 2,
+    "threatTier": 1,
     "threatRole": "major",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
-    "stats": {
-      "attack": 4
-    }
+        "stats": {
+          "attack": 1
+        }
   },
   "iron_sword": {
     "name": "Iron Sword",
     "description": "A well-crafted iron sword. Sharp and reliable.",
-    "type": "tool",
+    "type": "weapon",
     "stackable": false,
     "weight": 2.5,
     "base_value": 429,
@@ -472,10 +472,26 @@
     "threatTier": 3,
     "threatRole": "major",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
-    "stats": {
-      "attack": 8
-    }
-  },
+        "stats": {
+          "attack": 15
+        }
+    },
+  "bronze_sword": {
+    "name": "Bronze Sword",
+    "description": "A cheaper bronze blade. Not as keen as iron, but still a respectable sidearm.",
+    "type": "weapon",
+    "stackable": false,
+    "weight": 2.2,
+    "base_value": 279,
+    "image": "/assets/items/iron_sword.png",
+    "equipmentSlot": "weapon",
+    "threatTier": 2,
+    "threatRole": "major",
+    "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
+        "stats": {
+          "attack": 5
+        }
+    },
   "white_fang_of_heaven": {
     "name": "White Fang of Heaven",
     "description": "A fully awakened Shenhai thunder glaive. Each sweep tears through the line before storm-light lashes the whole battlefield.",
@@ -491,22 +507,6 @@
     "combatTags": ["row_cleave", "storm_board", "first_strike", "two_handed"],
     "stats": {
       "attack": 18
-    }
-  },
-  "wooden_club": {
-    "name": "Iron Mace",
-    "description": "A heavy iron mace built to crush rather than cut. Brutal, simple, and every bit as dangerous as a sword in the right hands.",
-    "type": "weapon",
-    "stackable": false,
-    "weight": 1.8,
-    "base_value": 429,
-    "image": "/assets/items/hammer.png",
-    "equipmentSlot": "weapon",
-    "threatTier": 3,
-    "threatRole": "major",
-    "attack_sound": "/assets/sfx/combat_punch.mp3",
-    "stats": {
-      "attack": 8
     }
   },
   "vanessas_charm": {
@@ -547,7 +547,7 @@
   },
   "cloth": {
     "name": "Cloth",
-    "description": "Simple cloth for crafting.",
+    "description": "Simple cloth useful for repairs, garments, and basic work.",
     "type": "resource",
     "stackable": true,
     "weight": 0.2,

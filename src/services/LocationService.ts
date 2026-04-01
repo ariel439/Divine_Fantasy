@@ -20,7 +20,7 @@ export class LocationService {
     if (!location) return true;
 
     // Special Rule: Lighthouse for Adults
-    if (locationId === 'leo_lighthouse') {
+    if (locationId === 'leo_lighthouse' || locationId === 'intro_lighthouse') {
       // Adults are only allowed in during the day (7 AM to 6 PM)
       return hour >= 7 && hour < 18;
     }

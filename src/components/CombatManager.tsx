@@ -14,9 +14,6 @@ import CombatScreen from './screens/CombatScreen';
 import { robertCaughtSlides, gameOverSlides, raidVictorySlides, finnPersonalKillSlides } from '../data/events';
 import { DialogueService } from '../services/DialogueService';
 
-type DamageType = 'slash' | 'pierce' | 'blunt';
-type ArmorClass = 'none' | 'light' | 'heavy';
-
 const CombatManager: React.FC = () => {
   const {
     participants,
@@ -161,49 +158,6 @@ const CombatManager: React.FC = () => {
   
       return Math.max(0.1, Math.min(0.95, chance));
     }, []);
-  const getAttackType = React.useCallback((attacker: CombatParticipant, isBrawl: boolean): DamageType => {
-      if (isBrawl) return 'blunt';
-
-      if (attacker.attackType) return attacker.attackType;
-  
-      if (attacker.isPlayer) {
-        const weapon = useCharacterStore.getState().equippedItems.weapon;
-        const weaponId = weapon?.id?.toLowerCase() || '';
-        if (weapon?.combatTags?.includes('row_cleave') || weaponId.includes('glaive')) return 'slash';
-        if (weaponId.includes('knife') || weaponId.includes('dagger')) return 'pierce';
-        if (weaponId.includes('sword') || weaponId.includes('blade') || weaponId.includes('axe')) return 'slash';
-        if (weaponId.includes('mace') || weaponId.includes('club') || weaponId.includes('hammer')) return 'blunt';
-      }
-  
-      return 'blunt';
-    }, []);
-  const getArmorClass = React.useCallback((target: CombatParticipant): ArmorClass => {
-    if (!target.isPlayer && !target.isCompanion) return 'none';
-
-    const equipped = useCharacterStore.getState().equippedItems;
-    const equippedIds = Object.values(equipped).map((item) => item?.id || '');
-    const hasHeavy = equippedIds.some((id) => id.startsWith('iron_'));
-    const hasLight = equippedIds.some((id) => id.startsWith('wolf_'));
-
-    if (hasHeavy) return 'heavy';
-    if (hasLight) return 'light';
-    return 'none';
-  }, []);
-  const getTypeMultiplier = React.useCallback((damageType: DamageType, armorClass: ArmorClass) => {
-    if (armorClass === 'none') {
-      if (damageType === 'pierce') return 1.15;
-      if (damageType === 'slash') return 1.05;
-      return 1;
-    }
-    if (armorClass === 'light') {
-      if (damageType === 'slash') return 0.82;
-      if (damageType === 'pierce') return 0.95;
-      return 0.72;
-    }
-    if (damageType === 'slash') return 0.68;
-    if (damageType === 'pierce') return 0.78;
-    return 0.45;
-  }, []);
   const getBrawlProfile = React.useCallback((target: CombatParticipant) => {
     if (target.defence >= 10) return { multiplier: 0.95, defenceFactor: 1.1, minDamage: 1 };
     if (target.defence >= 5) return { multiplier: 1.15, defenceFactor: 0.85, minDamage: 3 };
@@ -389,9 +343,7 @@ const CombatManager: React.FC = () => {
 
     const attackPower = attacker.attack;
     const defencePower = Math.max(0, target.defence);
-    const damageType = getAttackType(attacker, isBrawl);
-    const armorClass = getArmorClass(target);
-    const typeMultiplier = getTypeMultiplier(damageType, armorClass);
+    const typeMultiplier = 1;
     
     let damage = 0;
     if (attacker.isPlayer) {
@@ -427,8 +379,7 @@ const CombatManager: React.FC = () => {
     const applyRowDamage = () => {
       rowTargets.forEach((rowTarget) => {
         const rowTargetDefence = Math.max(0, rowTarget.defence);
-        const rowArmorClass = getArmorClass(rowTarget);
-        const rowTypeMultiplier = getTypeMultiplier(damageType, rowArmorClass);
+        const rowTypeMultiplier = 1;
         let rowDamage = damage;
 
         if (rowTarget.id !== target.id) {
@@ -595,9 +546,7 @@ const CombatManager: React.FC = () => {
 
           const attackPower = currentEnemy.attack;
           const defencePower = Math.max(0, target.defence);
-          const damageType = getAttackType(currentEnemy, encounterType === 'brawl');
-          const armorClass = getArmorClass(target);
-          const typeMultiplier = getTypeMultiplier(damageType, armorClass);
+          const typeMultiplier = 1;
           // Enemies deal slightly less multiplier damage, armor is more effective
           if (encounterType === 'brawl') {
             const brawlProfile = getBrawlProfile(target);
@@ -620,9 +569,7 @@ const CombatManager: React.FC = () => {
 
             rowTargets.forEach((rowTarget) => {
               const defencePower = Math.max(0, rowTarget.defence);
-              const damageType = getAttackType(currentEnemy, encounterType === 'brawl');
-              const armorClass = getArmorClass(rowTarget);
-              const typeMultiplier = getTypeMultiplier(damageType, armorClass);
+              const typeMultiplier = 1;
               let rowDamage = Math.floor((currentEnemy.attack * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_DEFENCE_FACTOR) * typeMultiplier);
               rowDamage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY + 4, rowDamage);
 
@@ -721,9 +668,7 @@ const CombatManager: React.FC = () => {
 
             const attackPower = current.attack;
             const defencePower = Math.max(0, target.defence);
-            const damageType = getAttackType(current, encounterType === 'brawl');
-            const armorClass = getArmorClass(target);
-            const typeMultiplier = getTypeMultiplier(damageType, armorClass);
+            const typeMultiplier = 1;
             // Balanced companion damage
             let damage = 0;
             if (encounterType === 'brawl') {
@@ -749,7 +694,7 @@ const CombatManager: React.FC = () => {
          }, 650);
          return () => clearTimeout(timer);
     }
-  }, [phase, currentTurnIndex, participants, isPlayerTurn, getCurrentParticipant, nextTurn, addLogEntry, getAliveEnemies, getAliveParty, targetableEnemies, targetableParty, addSkillXp, getSkillLevel, updateParticipant, encounterType, getBrawlProfile, getBaseHitChance, getAttackType, getArmorClass, getTypeMultiplier]);
+  }, [phase, currentTurnIndex, participants, isPlayerTurn, getCurrentParticipant, nextTurn, addLogEntry, getAliveEnemies, getAliveParty, targetableEnemies, targetableParty, addSkillXp, getSkillLevel, updateParticipant, encounterType, getBrawlProfile, getBaseHitChance]);
 
     return (
       <CombatScreen

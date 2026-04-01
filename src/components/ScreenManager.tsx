@@ -99,7 +99,6 @@ const ScreenManager: React.FC = () => {
 
     // Keep the childhood-choice rewards deterministic so old state cannot leak in.
     useSkillStore.getState().setSkillLevel('defence', 1);
-    useSkillStore.getState().setSkillLevel('crafting', 1);
     useCharacterStore.setState((state) => ({
       ...state,
       languages: {
@@ -115,7 +114,7 @@ const ScreenManager: React.FC = () => {
     } else if (selectedPastime === 'kids') {
       useDiaryStore.getState().updateRelationship('npc_sarah', { friendship: 8 });
       useDiaryStore.getState().updateRelationship('npc_kyle', { friendship: 8 });
-      useSkillStore.getState().setSkillLevel('crafting', 3);
+      useSkillStore.getState().setSkillLevel('carpentry', 2);
     } else if (selectedPastime === 'study') {
       useCharacterStore.setState((state) => ({
         ...state,
@@ -182,7 +181,7 @@ const ScreenManager: React.FC = () => {
       const loc = useLocationStore.getState().getCurrentLocation();
       
       // Intro: Roberta at Lighthouse (Step 2 -> 3)
-      if (world.introMode && loc.id === 'leo_lighthouse' && world.tutorialStep <= 2 && npcId === 'npc_old_leo') {
+      if (world.introMode && loc.id === 'intro_lighthouse' && world.tutorialStep <= 2 && npcId === 'npc_old_leo') {
         useWorldStateStore.getState().setTutorialStep(3);
         useWorldTimeStore.setState({ hour: 9, minute: 0 });
         try { useJournalStore.getState().setQuestStage('luke_tutorial', 4); } catch {}
@@ -202,7 +201,7 @@ const ScreenManager: React.FC = () => {
             const uiState = useUIStore.getState();
             uiState.setCurrentEventId(null);
             useWorldTimeStore.setState({ hour: 22, minute: 0 });
-            useLocationStore.getState().setLocation('driftwatch_docks');
+            useLocationStore.getState().setLocation('intro_docks');
             
             useCompanionStore.getState().setCompanion({
               id: 'npc_robert_companion',
@@ -283,7 +282,7 @@ const ScreenManager: React.FC = () => {
           if (id === 'smuggler_trap') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
-            useLocationStore.getState().setLocation('driftwatch_docks');
+            useLocationStore.getState().setLocation('intro_docks');
             setScreen('inGame');
             return;
           }
@@ -291,7 +290,7 @@ const ScreenManager: React.FC = () => {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             if (import.meta.env.DEV) {
-              useLocationStore.getState().setLocation('driftwatch_docks');
+              useLocationStore.getState().setLocation('intro_docks');
               GameManagerService.startSmugglerCombat();
             } else {
               setScreen('inGame');
@@ -301,7 +300,7 @@ const ScreenManager: React.FC = () => {
           if (id === 'robert_caught') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
-            useLocationStore.getState().setLocation('orphanage_room');
+            useLocationStore.getState().setLocation('intro_orphanage_room');
             useCompanionStore.getState().setCompanion(null);
             useWorldStateStore.getState().setFlag('start_finn_debt_on_sleep', true);
             setScreen('inGame');

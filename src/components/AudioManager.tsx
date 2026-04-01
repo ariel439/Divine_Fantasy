@@ -62,7 +62,7 @@ const AudioManager: React.FC = () => {
       const sfx = sfxRef.current;
       if (sfx && sfxEnabled && !sfxFadeIntervalRef.current) {
         const loc = useLocationStore.getState().getLocation(currentLocationId) || useLocationStore.getState().getCurrentLocation();
-        const isIndoor = loc.is_indoor || ['leo_lighthouse', 'orphanage_room', 'beryls_general_goods', 'kaelens_forge', 'grand_library', 'tide_trade', 'salty_mug', 'salty_mug_rented_room', 'herbalists_hovel'].includes(loc.id);
+        const isIndoor = loc.is_indoor || ['leo_lighthouse', 'intro_lighthouse', 'orphanage_room', 'intro_orphanage_room', 'beryls_general_goods', 'kaelens_forge', 'grand_library', 'tide_trade', 'salty_mug', 'salty_mug_rented_room', 'herbalists_hovel'].includes(loc.id);
         const baseVolume = isIndoor ? Math.max(0, Math.min(1, sfxVolume * 0.3)) : sfxVolume * 0.5;
         const finalTargetVolume = (loc.id === 'driftwatch_woods') ? (baseVolume * 0.6) : baseVolume;
         sfx.volume = finalTargetVolume * nextVal;
@@ -70,7 +70,7 @@ const AudioManager: React.FC = () => {
       const weatherAudio = weatherRef.current;
       if (weatherAudio && weatherEnabled && weather === 'Rainy' && !weatherFadeIntervalRef.current) {
         const loc = useLocationStore.getState().getLocation(currentLocationId) || useLocationStore.getState().getCurrentLocation();
-        const isIndoor = loc.is_indoor || ['leo_lighthouse', 'orphanage_room', 'beryls_general_goods', 'kaelens_forge', 'grand_library', 'tide_trade', 'salty_mug', 'salty_mug_rented_room', 'herbalists_hovel'].includes(loc.id);
+        const isIndoor = loc.is_indoor || ['leo_lighthouse', 'intro_lighthouse', 'orphanage_room', 'intro_orphanage_room', 'beryls_general_goods', 'kaelens_forge', 'grand_library', 'tide_trade', 'salty_mug', 'salty_mug_rented_room', 'herbalists_hovel'].includes(loc.id);
         const targetWeatherVolume = isIndoor ? Math.max(0, Math.min(1, weatherVolume * 0.2)) : weatherVolume * 0.5;
         weatherAudio.volume = targetWeatherVolume * nextVal;
       }
@@ -296,7 +296,7 @@ const AudioManager: React.FC = () => {
     
     // Muffle Logic
     // Indoor check: Use store property OR hardcoded list for fallback
-    const isIndoor = loc.is_indoor || ['leo_lighthouse', 'orphanage_room', 'beryls_general_goods', 'kaelens_forge', 'grand_library', 'tide_trade', 'salty_mug', 'salty_mug_rented_room', 'herbalists_hovel'].includes(loc.id);
+    const isIndoor = loc.is_indoor || ['leo_lighthouse', 'intro_lighthouse', 'orphanage_room', 'intro_orphanage_room', 'beryls_general_goods', 'kaelens_forge', 'grand_library', 'tide_trade', 'salty_mug', 'salty_mug_rented_room', 'herbalists_hovel'].includes(loc.id);
     
     // Apply muffle if indoor AND NOT in Main Menu or Combat
     // We want muffling in: inGame, dialogue, event, inventory, journal, diary, etc.

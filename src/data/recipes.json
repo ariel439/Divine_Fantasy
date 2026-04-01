@@ -39,36 +39,6 @@
     "time_cost_minutes": 15,
     "energy_cost": 2
   },
-  "recipe_wolf_helmet": {
-    "name": "Wolf Leather Helmet",
-    "skill": "crafting",
-    "level_required": 1,
-    "xp_granted": 50,
-    "output": { "item_id": "wolf_leather_helmet", "quantity": 1 },
-    "ingredients": [{ "item_id": "wolf_pelt", "quantity": 2 }],
-    "time_cost_minutes": 30,
-    "energy_cost": 5
-  },
-  "recipe_wolf_armor": {
-    "name": "Wolf Leather Armor",
-    "skill": "crafting",
-    "level_required": 5,
-    "xp_granted": 100,
-    "output": { "item_id": "wolf_leather_armor", "quantity": 1 },
-    "ingredients": [{ "item_id": "wolf_pelt", "quantity": 5 }],
-    "time_cost_minutes": 60,
-    "energy_cost": 10
-  },
-  "recipe_wolf_legs": {
-    "name": "Wolf Leather Leggings",
-    "skill": "crafting",
-    "level_required": 3,
-    "xp_granted": 60,
-    "output": { "item_id": "wolf_leather_legs", "quantity": 1 },
-    "ingredients": [{ "item_id": "wolf_pelt", "quantity": 3 }],
-    "time_cost_minutes": 45,
-    "energy_cost": 8
-  },
   "recipe_cooked_meat": {
     "name": "Cooked Meat",
     "skill": "cooking",

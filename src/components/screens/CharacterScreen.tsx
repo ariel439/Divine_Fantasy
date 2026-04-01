@@ -93,7 +93,6 @@ const CharacterScreen: FC = () => {
             { name: 'Fishing', level: getSkillLevel('fishing'), icon: <Fish size={18} /> },
             { name: 'Cooking', level: getSkillLevel('cooking'), icon: <ChefHat size={18} /> },
             { name: 'Carpentry', level: getSkillLevel('carpentry'), icon: <Hammer size={18} /> },
-            { name: 'Crafting', level: getSkillLevel('crafting'), icon: <Hammer size={18} /> },
             { name: 'Persuasion', level: getSkillLevel('persuasion'), icon: <Smile size={18} /> },
             { name: 'Coercion', level: getSkillLevel('coercion'), icon: <Angry size={18} /> },
         ]

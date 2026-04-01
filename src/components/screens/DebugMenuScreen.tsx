@@ -31,16 +31,6 @@ const DebugMenuScreen: FC = () => {
     setScreen('mainMenu');
   };
 
-  const handleCraftingSetup = () => {
-    const inv = useInventoryStore.getState();
-    inv.addItem('wolf_pelt', 10);
-    inv.addItem('wolf_tooth', 10);
-    inv.addItem('rope', 2);
-    useCharacterStore.getState().addCurrency('copper', 100);
-    locationStore.setLocation('hunters_cabin');
-    setScreen('inGame');
-  };
-
   const handleStartSmugglerIntroFight = () => {
     ensureDebugCharacter();
     worldStateStore.setIntroMode(true);
@@ -72,7 +62,7 @@ const DebugMenuScreen: FC = () => {
       });
     }
 
-    locationStore.setLocation('driftwatch_docks');
+    locationStore.setLocation('intro_docks');
 
     const maxHp = charStore.maxHp || 100;
     const maxEnergy = charStore.getMaxEnergy();
@@ -206,20 +196,12 @@ const DebugMenuScreen: FC = () => {
               >
                 Start Luke at Finn Week (99 Gold)
               </button>
-              <div className="flex gap-3">
-                <button
-                  onClick={handleDebugRobertaQuest}
-                  className="flex-1 px-4 py-2 rounded-md bg-blue-900/40 hover:bg-blue-800/60 text-blue-100 text-sm font-semibold border border-blue-800/50 transition-all hover:shadow-[0_0_10px_rgba(59,130,246,0.2)]"
-                >
-                  Start Roberta Route Check
-                </button>
-                <button
-                  onClick={handleCraftingSetup}
-                  className="flex-1 px-4 py-2 rounded-md bg-amber-900/40 hover:bg-amber-800/60 text-amber-100 text-sm font-semibold border border-amber-800/50 transition-all hover:shadow-[0_0_10px_rgba(245,158,11,0.2)]"
-                >
-                  Unlock Hunter Crafting & Materials
-                </button>
-              </div>
+              <button
+                onClick={handleDebugRobertaQuest}
+                className="w-full px-4 py-2 rounded-md bg-blue-900/40 hover:bg-blue-800/60 text-blue-100 text-sm font-semibold border border-blue-800/50 transition-all hover:shadow-[0_0_10px_rgba(59,130,246,0.2)]"
+              >
+                Start Roberta Route Check
+              </button>
             </div>
           </section>
         </div>

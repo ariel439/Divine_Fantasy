@@ -99,7 +99,10 @@
     "sell_multiplier": 1.4,
     "accepted_categories": ["weapon", "armor", "tool", "resource"],
     "inventory": [
-        { "item_id": "wooden_club", "quantity": 3 },
+        { "item_id": "chain_coif", "quantity": 2 },
+        { "item_id": "chainmail_shirt", "quantity": 2 },
+        { "item_id": "chainmail_leggings", "quantity": 2 },
+        { "item_id": "bronze_sword", "quantity": 3 },
         { "item_id": "iron_helmet", "quantity": 2 },
         { "item_id": "iron_chainmail", "quantity": 2 },
         { "item_id": "iron_leggings", "quantity": 2 },

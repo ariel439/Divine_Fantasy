@@ -72,7 +72,7 @@ const CharacterSelection: FC = () => {
             useWorldStateStore.getState().setTutorialStep(0);
             useWorldTimeStore.setState({ year: 775 });
             DialogueService.executeAction('start_quest:luke_tutorial');
-            useLocationStore.getState().setLocation('orphanage_room');
+            useLocationStore.getState().setLocation('intro_orphanage_room');
         }
 
         setScreen('inGame');

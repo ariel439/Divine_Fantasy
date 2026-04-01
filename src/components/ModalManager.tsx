@@ -52,7 +52,7 @@ const ModalManager: React.FC = () => {
         (() => {
           const world = useWorldStateStore.getState();
           const loc = useLocationStore.getState().getCurrentLocation();
-          const isIntroSleep = world.introMode && (world.tutorialStep === 6 || world.tutorialStep === 7) && loc.id === 'orphanage_room';
+          const isIntroSleep = world.introMode && (world.tutorialStep === 6 || world.tutorialStep === 7) && loc.id === 'intro_orphanage_room';
           const currentSeconds = isIntroSleep ? (20 * 3600) : (useWorldTimeStore.getState().hour * 3600 + useWorldTimeStore.getState().minute * 60);
           const fixedDuration = isIntroSleep ? 10 : undefined;
           
@@ -86,7 +86,7 @@ const ModalManager: React.FC = () => {
                   useWorldTimeStore.setState({ hour: 6, minute: 0 });
                   useWorldStateStore.getState().setFlag('robert_smuggler_incident', true);
                   try { useJournalStore.getState().setQuestStage('luke_tutorial', 7); } catch {}
-                  useLocationStore.getState().setLocation('leo_lighthouse');
+                    useLocationStore.getState().setLocation('intro_lighthouse');
                   setCurrentEventId('kyle_smuggler_alert');
                   setDialogueNpcId('npc_kyle');
                   setScreen('dialogue');
@@ -156,7 +156,7 @@ const ModalManager: React.FC = () => {
         const loc = useLocationStore.getState().getCurrentLocation();
         const { tutorialStep } = useWorldStateStore.getState();
         let message = 'Follow the highlighted action to proceed.';
-        if (loc.id === 'orphanage_room' && tutorialStep === 0) {
+        if (loc.id === 'intro_orphanage_room' && tutorialStep === 0) {
           message = 'Locations display the current time and weather, with available actions listed to the right. Please select the highlighted action to leave the room.';
         } else if (currentScreen === 'dialogue' && dialogueNpcId === 'npc_old_leo' && tutorialStep <= 2) {
           message = 'Conversations present choices. Speak with Old Leo and select one starting path to begin your day.';
@@ -165,7 +165,7 @@ const ModalManager: React.FC = () => {
         }
         const handleClose = () => {
           const world = useWorldStateStore.getState();
-          if (loc.id === 'orphanage_room' && world.tutorialStep === 0) {
+            if (loc.id === 'intro_orphanage_room' && world.tutorialStep === 0) {
             useWorldStateStore.getState().setSeenRoomTutorial(true);
           }
           if (currentScreen === 'dialogue' && dialogueNpcId === 'npc_old_leo' && world.tutorialStep <= 2) {

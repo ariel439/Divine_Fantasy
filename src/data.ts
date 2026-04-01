@@ -324,48 +324,6 @@ export const mockRecipes: Recipe[] = [
         energyCost: 5,
         xpGranted: 20,
     },
-    {
-        id: 'recipe_wolf_helmet',
-        skill: 'Crafting',
-        levelRequired: 1,
-        result: {
-            id: 'wolf_leather_helmet', name: 'Wolf Leather Helmet', description: 'A sturdy leather helmet made from wolf hide.', icon: React.createElement(Shirt, { size: 24, className: "text-amber-700" }), category: 'Equipment', weight: 1.0, base_value: 56, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'head', stats: { 'defence': 3 }
-        },
-        ingredients: [
-            { itemId: 'wolf_pelt', quantity: 2 },
-        ],
-        timeCost: 30,
-        energyCost: 5,
-        xpGranted: 50,
-    },
-    {
-        id: 'recipe_wolf_armor',
-        skill: 'Crafting',
-        levelRequired: 5,
-        result: {
-            id: 'wolf_leather_armor', name: 'Wolf Leather Armor', description: 'Light armor crafted from cured wolf pelts.', icon: React.createElement(Shirt, { size: 24, className: "text-amber-700" }), category: 'Equipment', weight: 3.0, base_value: 140, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'chest', stats: { 'defence': 6 }
-        },
-        ingredients: [
-            { itemId: 'wolf_pelt', quantity: 5 },
-        ],
-        timeCost: 60,
-        energyCost: 10,
-        xpGranted: 100,
-    },
-    {
-        id: 'recipe_wolf_legs',
-        skill: 'Crafting',
-        levelRequired: 3,
-        result: {
-            id: 'wolf_leather_legs', name: 'Wolf Leather Leggings', description: 'Tough leather leggings for agility and protection.', icon: React.createElement(Shirt, { size: 24, className: "text-amber-700" }), category: 'Equipment', weight: 1.5, base_value: 84, stackable: false, actions: ['Equip', 'Drop'], equipmentSlot: 'legs', stats: { 'defence': 3 }
-        },
-        ingredients: [
-            { itemId: 'wolf_pelt', quantity: 3 },
-        ],
-        timeCost: 45,
-        energyCost: 8,
-        xpGranted: 60,
-    },
 ];
 
 export const mockParty: CombatParticipant[] = [

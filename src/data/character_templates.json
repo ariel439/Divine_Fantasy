@@ -22,6 +22,6 @@
       "npc_kyle": { "friendship": { "value": 50, "max": 100 } },
       "npc_finn": { "friendship": { "value": -20, "max": 100 } }
     },
-    "gameplay_notes": "The 'standard' but most difficult start. High INT provides good long-term XP bonuses for building/crafting skills. Low CHA will make all early social encounters challenging."
+    "gameplay_notes": "The 'standard' but most difficult start. High INT provides good long-term XP bonuses for building, carpentry, and cooking. Low CHA will make all early social encounters challenging."
   }
 }

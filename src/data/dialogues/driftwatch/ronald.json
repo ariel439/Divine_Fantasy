@@ -1,8 +1,7 @@
 {
   "ronald_default": {
     "interaction_roots": {
-      "ask": "ronald_ask_root",
-      "quest": "ronald_quest_root"
+      "ask": "ronald_ask_root"
     },
     "nodes": {
       "0": {
@@ -39,30 +38,6 @@
             "text": "Back.",
             "next_node": "ronald_ask_root",
             "action": "set_flag:ronald_lore_woods_seen:true"
-          }
-        ]
-      },
-      "ronald_quest_root": {
-        "npc_text": "What is it?",
-        "player_choices": [
-          {
-            "text": "I noticed your workbench. Mind if I use it?",
-            "next_node": "crafting_unlock",
-            "condition": "world_flags.hunter_crafting_unlocked==false"
-          },
-          {
-            "text": "Back.",
-            "next_node": "__social_root__"
-          }
-        ]
-      },
-      "crafting_unlock": {
-        "npc_text": "You know your way around tools? Fine. Just don't dull my blades.",
-        "player_choices": [
-          {
-            "text": "Thanks.",
-            "action": "set_flag:hunter_crafting_unlocked:true",
-            "closes_dialogue": true
           }
         ]
       }

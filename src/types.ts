@@ -85,7 +85,7 @@ export interface OfferItem {
 }
 
 // Crafting
-export type CraftingSkill = 'Carpentry' | 'Cooking' | 'Crafting';
+export type CraftingSkill = 'Carpentry' | 'Cooking';
 
 export interface Recipe {
   id: string;
@@ -112,7 +112,6 @@ export interface CombatParticipant {
     portraitUrl?: string;
     defending?: boolean;
     attack_sound?: string;
-    attackType?: 'slash' | 'pierce' | 'blunt';
     combatTags?: string[];
     combatRow?: 'front' | 'back';
     combatSlot?: number;

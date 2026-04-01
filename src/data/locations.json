@@ -250,7 +250,7 @@
     "night_background": "/assets/locations/isolated_beach_night.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
-      { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_beach_sign", "condition": "world_flags.whitefang_beach_vision_seen==false && world_flags.whitefang_week_closed==false" },
+      { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_beach_sign", "condition": "world_flags.whitefang_book_read==true && world_flags.whitefang_beach_vision_seen==false && world_flags.whitefang_week_closed==false" },
       { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 }
     ]
   },
@@ -363,7 +363,7 @@
       { "text": "Explore", "type": "explore", "target": "explore_woods" },
       { "text": "Chop Wood", "type": "woodcut", "target": "woodcut_basic" },
       { "text": "Fish", "type": "fish", "target": "fish_river" },
-      { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_woods_sign", "condition": "world_flags.whitefang_woods_vision_seen==false && world_flags.whitefang_week_closed==false" },
+      { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_woods_sign", "condition": "world_flags.whitefang_book_read==true && world_flags.whitefang_woods_vision_seen==false && world_flags.whitefang_week_closed==false" },
       { "text": "Travel to Shihan's Camp", "type": "navigate", "target": "shihan_camp", "condition": "world_flags.whitefang_camp_unlocked==true" },
       { "text": "Travel to Hunter's Cabin", "type": "navigate", "target": "hunters_cabin" },
       { "text": "Travel to Sawmill", "type": "navigate", "target": "sawmill" },
@@ -390,7 +390,7 @@
     "night_background": "/assets/locations/mountain_paths_night.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
-      { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_mountain_sign", "condition": "world_flags.whitefang_mountain_vision_seen==false && world_flags.whitefang_week_closed==false" },
+      { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_mountain_sign", "condition": "world_flags.whitefang_book_read==true && world_flags.whitefang_mountain_vision_seen==false && world_flags.whitefang_week_closed==false" },
       { "text": "Investigate the sealed cave", "type": "trigger_event", "eventId": "whitefang_sealed_cave", "condition": "world_flags.whitefang_cave_discovered==true && world_flags.whitefang_expedition_agreed==false && world_flags.whitefang_cave_breached==false && world_flags.whitefang_week_closed==false" },
       { "text": "Return to the sealed cave with Shihan's retainers", "type": "trigger_event", "eventId": "whitefang_expedition_breach", "condition": "world_flags.whitefang_expedition_agreed==true && world_flags.whitefang_cave_breached==false && world_flags.whitefang_week_closed==false" },
       { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 }

@@ -51,45 +51,6 @@
     "stats": { "hp": 60, "attack": 8, "defence": 1, "dexterity": 3 },
     "loot_table": []
   },
-  "desperate_brawler": {
-    "name": "Desperate Brawler",
-    "image": "/assets/portraits/Thug.png",
-    "attack_sound": "/assets/sfx/combat_punch.mp3",
-    "attack_type": "blunt",
-    "combat_tags": ["human", "brawler", "pit"],
-    "accuracy_modifier": -0.02,
-    "stats": { "hp": 55, "attack": 7, "defence": 2, "dexterity": 4 },
-    "loot_table": []
-  },
-  "brawler_pit": {
-    "name": "Brawler",
-    "image": "/assets/portraits/Thug.png",
-    "attack_sound": "/assets/sfx/combat_punch.mp3",
-    "attack_type": "blunt",
-    "combat_tags": ["human", "brawler"],
-    "stats": { "hp": 65, "attack": 10, "defence": 3, "dexterity": 5 },
-    "loot_table": []
-  },
-  "pit_brawler": {
-    "name": "Pit Brawler",
-    "image": "/assets/portraits/Thug.png",
-    "attack_sound": "/assets/sfx/combat_punch.mp3",
-    "attack_type": "blunt",
-    "combat_tags": ["human", "brawler", "pit", "veteran"],
-    "stats": { "hp": 75, "attack": 11, "defence": 4, "dexterity": 6 },
-    "loot_table": []
-  },
-  "knife_thug": {
-    "name": "Knife Thug",
-    "image": "/assets/portraits/Thug.png",
-    "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
-    "attack_type": "pierce",
-    "combat_tags": ["human", "armed", "knife"],
-    "stats": { "hp": 90, "attack": 15, "defence": 4, "dexterity": 6 },
-    "loot_table": [
-      { "item_id": "coins", "quantity": 12, "chance": 0.5 }
-    ]
-  },
   "finn_boss": {
     "name": "Finn",
     "image": "/assets/portraits/OldManFinn.png",

@@ -303,31 +303,7 @@ const LocationScreen: React.FC = () => {
           const result = ExplorationService.explore(currentLocation.id);
           ExplorationService.processResult(result);
 
-          if (currentLocation.id === 'driftwatch_slums' && (result.type === 'nothing' || result.type === 'resource' || result.type === 'item')) {
-            const world = useWorldStateStore.getState();
-            const resultItemId = result.data?.itemId;
-            const resultQuantity = result.data?.quantity || 1;
-            const itemName = resultItemId && resultItemId !== 'coins'
-              ? ((itemsJson as any)[resultItemId]?.name || resultItemId)
-              : '';
-
-            let eventId = 'slum_quiet_run';
-            let resultText = result.description;
-
-            if (resultItemId === 'coins') {
-              eventId = 'slum_scrounged_copper';
-              resultText = `You keep moving until a little luck breaks your way. By the end of it, you come away with ${resultQuantity} copper.`;
-            } else if (resultItemId) {
-              eventId = 'slum_found_food';
-              resultText = `The alleys give up something useful tonight. You manage to come away with ${itemName}.`;
-            }
-
-            world.setData('slum_explore_result_text', resultText);
-            world.setData('slum_explore_result_item', resultItemId || '');
-            world.setData('slum_explore_result_quantity', String(resultQuantity));
-            useUIStore.getState().setCurrentEventId(eventId);
-            setScreen('choiceEvent');
-          } else if (result.type === 'combat' && result.data && result.data.wolfCount) {
+          if (result.type === 'combat' && result.data && result.data.wolfCount) {
             if (currentLocation.id === 'driftwatch_woods') {
               const wolfCount = result.data.wolfCount;
               const enemies = result.data.enemies && result.data.enemies.length > 0

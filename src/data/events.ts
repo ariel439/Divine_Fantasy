@@ -51,16 +51,7 @@ type ChoiceEventId =
   | 'apple_tree_event'
   | 'fallen_log_event'
   | 'abandoned_campsite_event'
-  | 'hollow_stump_event'
-  | 'overgrown_path_event'
-  | 'arena_desperate_brawler'
-  | 'arena_brawler'
-  | 'arena_pit_brawler'
-  | 'slum_quiet_run'
-  | 'slum_scrounged_copper'
-  | 'slum_found_food'
-  | 'slum_thug_ambush'
-  | 'slum_knife_thug_ambush';
+  | 'hollow_stump_event';
 
 export interface ChoiceEventConfig {
   id: ChoiceEventId;
@@ -123,66 +114,6 @@ export const choiceEvents: Record<ChoiceEventId, ChoiceEventConfig> = {
     imageUrl: '/assets/events/event_hollow_stump.png',
     text:
       'In a small clearing sits a moss-covered stump with a dark, hollow center. Something glints faintly inside when the light catches it.',
-  },
-  overgrown_path_event: {
-    id: 'overgrown_path_event',
-    title: 'Overgrown Path',
-    imageUrl: '/assets/locations/driftwatch_woods_day.png',
-    text:
-      'A tangle of thick vines and branches chokes what looks like an old path leading deeper into the woods. With the right tool, you could probably clear a way through.',
-  },
-  arena_desperate_brawler: {
-    id: 'arena_desperate_brawler',
-    title: 'Rat Pit: Desperate Brawler',
-    imageUrl: '/assets/locations/driftwatch_slums_night.png',
-    text:
-      'A hollow-eyed man steps into the sawdust ring. This is low-stakes work: fists only, no blades, and a few copper changing hands in the dark.',
-  },
-  arena_brawler: {
-    id: 'arena_brawler',
-    title: 'Rat Pit: Brawler',
-    imageUrl: '/assets/locations/driftwatch_slums_night.png',
-    text:
-      'A hard-built brawler rolls his shoulders across the ring while the crowd leans in. The purse is better here, and the blows come heavier.',
-  },
-  arena_pit_brawler: {
-    id: 'arena_pit_brawler',
-    title: 'Rat Pit: Pit Brawler',
-    imageUrl: '/assets/locations/driftwatch_slums_night.png',
-    text:
-      'The pit champion is all scars and bad intent. The room quiets when he steps up. If you take this fight, you are taking it for real.',
-  },
-  slum_quiet_run: {
-    id: 'slum_quiet_run',
-    title: 'Quiet Night',
-    imageUrl: '/assets/locations/driftwatch_slums_night.png',
-    text: 'Nothing breaks your way tonight, but nothing breaks against you either.',
-  },
-  slum_scrounged_copper: {
-    id: 'slum_scrounged_copper',
-    title: 'Street Luck',
-    imageUrl: '/assets/locations/driftwatch_slums_night.png',
-    text: 'Some nights the alleys give up a little copper.',
-  },
-  slum_found_food: {
-    id: 'slum_found_food',
-    title: 'Something Edible',
-    imageUrl: '/assets/locations/driftwatch_slums_night.png',
-    text: 'You manage to come away with something you can actually eat.',
-  },
-  slum_thug_ambush: {
-    id: 'slum_thug_ambush',
-    title: 'Slum Ambush',
-    imageUrl: '/assets/locations/driftwatch_slums_night.png',
-    text:
-      'A broad-shouldered thug drifts out of the dark with two more shapes hanging back. He wants easy copper and thinks you look like easy prey.',
-  },
-  slum_knife_thug_ambush: {
-    id: 'slum_knife_thug_ambush',
-    title: 'Knife in the Dark',
-    imageUrl: '/assets/locations/driftwatch_slums_night.png',
-    text:
-      'A lean thug steps close enough for you to catch the glint of a knife. His smile says he has done this before, and often.',
   },
 };
 

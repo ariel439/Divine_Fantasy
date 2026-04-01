@@ -74,19 +74,6 @@
     }
   },
   {
-    "id": "overgrown_path",
-    "locations": ["driftwatch_woods"],
-    "weight": 10,
-    "condition": "!loc_cabin_unlocked",
-    "result": {
-      "type": "unique",
-      "title": "Overgrown Path",
-      "description": "You see a dense thicket of vines blocking an old path.",
-      "image": "/assets/locations/driftwatch_woods_day.png",
-      "data": { "eventId": "overgrown_path_event" }
-    }
-  },
-  {
     "id": "nothing_fallback",
     "locations": ["driftwatch_woods"],
     "weight": 5,
@@ -95,65 +82,6 @@
       "title": "Quiet Woods",
       "description": "You explored for 30 minutes and found nothing interesting.",
       "image": "/assets/locations/driftwatch_woods_day.png"
-    }
-  },
-  {
-    "id": "slum_quiet_run",
-    "locations": ["driftwatch_slums"],
-    "weight": 20,
-    "result": {
-      "type": "nothing",
-      "title": "Quiet Night",
-      "description": "You work the alleys for a while and keep your head low. Nothing breaks your way tonight.",
-      "image": "/assets/locations/driftwatch_slums_night.png"
-    }
-  },
-  {
-    "id": "slum_scrounged_copper",
-    "locations": ["driftwatch_slums"],
-    "weight": 20,
-    "result": {
-      "type": "item",
-      "title": "Street Luck",
-      "description": "You sniff out a little opportunity in the dark and come away with a few hard-earned copper coins.",
-      "image": "/assets/locations/driftwatch_slums_night.png",
-      "data": { "itemId": "coins", "quantityOptions": [5, 10, 20] }
-    }
-  },
-  {
-    "id": "slum_found_food",
-    "locations": ["driftwatch_slums"],
-    "weight": 25,
-    "result": {
-      "type": "item",
-      "title": "Something Edible",
-      "description": "Tonight the alleys give up something you can actually eat.",
-      "image": "/assets/locations/driftwatch_slums_night.png",
-      "data": { "itemPool": ["stale_bread", "bread", "food_trout_grilled"], "quantity": 1 }
-    }
-  },
-  {
-    "id": "slum_thug_ambush",
-    "locations": ["driftwatch_slums"],
-    "weight": 25,
-    "result": {
-      "type": "unique",
-      "title": "Slum Ambush",
-      "description": "A broad-shouldered thug drifts out of the dark and blocks your path.",
-      "image": "/assets/locations/driftwatch_slums_night.png",
-      "data": { "eventId": "slum_thug_ambush" }
-    }
-  },
-  {
-    "id": "slum_knife_ambush",
-    "locations": ["driftwatch_slums"],
-      "weight": 10,
-    "result": {
-      "type": "unique",
-      "title": "Knife in the Dark",
-      "description": "A lean thug slides close enough for you to see the knife in his hand.",
-      "image": "/assets/locations/driftwatch_slums_night.png",
-      "data": { "eventId": "slum_knife_thug_ambush" }
     }
   }
 ]

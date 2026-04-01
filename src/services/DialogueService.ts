@@ -1498,24 +1498,6 @@ export class DialogueService {
           const target = params[0];
           if (target === 'ben') {
             GameManagerService.startBenBrawl();
-          } else if (target === 'arena_desperate_brawler') {
-            GameManagerService.startArenaBrawl('desperate_brawler', {
-              purseCopper: 12,
-              victoryToast: 'You stay on your feet and leave the pit 12 copper richer.',
-              defeatToast: 'The crowd laughs as you drag yourself up from the sawdust.',
-            });
-          } else if (target === 'arena_brawler') {
-            GameManagerService.startArenaBrawl('brawler_pit', {
-              purseCopper: 20,
-              victoryToast: 'You grind out the win and pocket 20 copper from the ring.',
-              defeatToast: 'The brawler folds you up and leaves you seeing stars.',
-            });
-          } else if (target === 'arena_pit_brawler') {
-            GameManagerService.startArenaBrawl('pit_brawler', {
-              purseCopper: 32,
-              victoryToast: 'The pit goes quiet when you put the big man down. The purse is yours.',
-              defeatToast: 'The pit brawler batters you senseless and takes the night with him.',
-            });
           }
         }
         break;

@@ -43,7 +43,6 @@ export class GameManagerService {
     'mosswatch_keep',
     'tidehunter_quarter',
     'herbalists_hovel',
-    'slum_fight_pit',
   ]);
 
   static isDriftwatchProper(locationId: string | null | undefined): boolean {
@@ -671,63 +670,6 @@ export class GameManagerService {
       victoryToast: 'You rough Ben up and take Finn\'s silver.',
       defeatToast: 'Ben leaves you bruised and throws you out of the fight.',
     });
-    useUIStore.getState().setScreen('combat');
-  }
-
-  static startArenaBrawl(enemyTemplateId: string, config: { purseCopper: number; victoryToast: string; defeatToast: string }): void {
-    const character = useCharacterStore.getState();
-    const enemy = this.buildEnemyCombatant(enemyTemplateId, 0);
-    if (!enemy) return;
-
-    const playerStats = GameManagerService.calculatePlayerStats(character);
-    const player: CombatParticipant = {
-      id: 'player',
-      name: character.bio?.name || 'Luke',
-      hp: character.hp,
-      maxHp: character.maxHp || 100,
-      attack: GameManagerService.calculateBrawlAttack(character),
-      defence: playerStats.defence,
-      dexterity: playerStats.dexterity,
-      portraitUrl: character.bio?.image || '/assets/portraits/luke.jpg',
-      isPlayer: true,
-      isCompanion: false,
-    };
-
-    useCombatStore.getState().startCombat(player, null, [enemy], {
-      encounterType: 'brawl',
-      defeatMode: 'knockout',
-      victoryActions: [`add_money:${config.purseCopper}:copper`],
-      victoryToast: config.victoryToast,
-      defeatToast: config.defeatToast,
-    });
-    useUIStore.getState().setScreen('combat');
-  }
-
-  static startStreetAmbush(enemyTemplateIds: string[]): void {
-    const character = useCharacterStore.getState();
-
-    const enemies = enemyTemplateIds
-      .map((templateId, index) => this.buildEnemyCombatant(templateId, index))
-      .filter(Boolean) as CombatParticipant[];
-
-    if (enemies.length === 0) return;
-
-    const playerStats = GameManagerService.calculatePlayerStats(character);
-    const player: CombatParticipant = {
-      id: 'player',
-      name: character.bio?.name || 'Luke',
-      hp: character.hp,
-      maxHp: character.maxHp || 100,
-      attack: playerStats.attack,
-      defence: playerStats.defence,
-      dexterity: playerStats.dexterity,
-      portraitUrl: character.bio?.image || '/assets/portraits/luke.jpg',
-      isPlayer: true,
-      isCompanion: false,
-    };
-
-    const companionCombatants = this.buildPartyCompanionCombatants();
-    useCombatStore.getState().startCombat(player, companionCombatants.length > 0 ? companionCombatants : null, enemies);
     useUIStore.getState().setScreen('combat');
   }
 

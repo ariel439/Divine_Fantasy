@@ -35,16 +35,6 @@
         "npc_text": "Ask fast. My hands don't stop shaking for free.",
         "player_choices": [
           {
-            "text": "Any way to make copper around here?",
-            "next_node": "jace_work",
-            "condition": "world_flags.intro_completed==true && world_flags.slum_pit_unlocked==false"
-          },
-          {
-            "text": "You mentioned a place men fight for copper.",
-            "next_node": "jace_pit_repeat",
-            "condition": "world_flags.slum_pit_unlocked==true"
-          },
-          {
             "text": "Back.",
             "next_node": "__social_root__"
           }
@@ -70,47 +60,6 @@
           {
             "text": "Back.",
             "next_node": "__social_root__"
-          }
-        ]
-      },
-      "jace_work": {
-        "npc_text": "Copper? In the slums? You beg, steal, carry crates, or bleed for it. Depends what part of you still works.",
-        "player_choices": [
-          {
-            "text": "Bleed for it?",
-            "next_node": "jace_pit_unlock"
-          },
-          {
-            "text": "Forget it.",
-            "closes_dialogue": true
-          }
-        ]
-      },
-      "jace_pit_unlock": {
-        "npc_text": "There's a cellar pit past the firepit by the south wall. Small crowd. Bad air. Copper on the line. They only let in men who know to keep their mouths shut and their fists ready.",
-        "player_choices": [
-          {
-            "text": "How do I get in?",
-            "next_node": "jace_pit_unlock_2"
-          }
-        ]
-      },
-      "jace_pit_unlock_2": {
-        "npc_text": "Bring copper if you want to look serious. No blades. No whining. If they like the look of you, they'll let you in.",
-        "player_choices": [
-          {
-            "text": "Got it. (Leave)",
-            "action": "set_flag:slum_pit_unlocked:true",
-            "closes_dialogue": true
-          }
-        ]
-      },
-      "jace_pit_repeat": {
-        "npc_text": "South wall. Past the firepit and the broken drain. Same hole in the ground, same bad smell. Try not to get your teeth kicked in.",
-        "player_choices": [
-          {
-            "text": "Thanks.",
-            "closes_dialogue": true
           }
         ]
       },

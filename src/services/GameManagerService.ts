@@ -1067,9 +1067,9 @@ export class GameManagerService {
         {
           id: 'wei_taren_retainer',
           name: 'Wei Taren',
-          hp: 130,
-          maxHp: 130,
-          attack: 10,
+          hp: 115,
+          maxHp: 115,
+          attack: 9,
           defence: 6,
           dexterity: 8,
           portraitUrl: '/assets/portraits/WeiTaren.png',
@@ -1080,8 +1080,8 @@ export class GameManagerService {
         {
           id: 'qiao_ren_retainer',
           name: 'Qiao Ren',
-          hp: 120,
-          maxHp: 120,
+          hp: 105,
+          maxHp: 105,
           attack: 9,
           defence: 6,
           dexterity: 10,

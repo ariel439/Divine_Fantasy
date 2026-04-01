@@ -11,22 +11,23 @@ const COMBAT_CONFIG = {
     ENEMY: 0.75,
   },
   DAMAGE_FORMULA: {
-    PLAYER_MULTIPLIER: 1.9,
-    PLAYER_DEFENCE_FACTOR: 0.2,
-    COMPANION_MULTIPLIER: 1.7,
-    COMPANION_DEFENCE_FACTOR: 0.3,
-    ENEMY_MULTIPLIER: 1.6,
-    ENEMY_DEFENCE_FACTOR: 0.35,
+    PLAYER_MULTIPLIER: 1.85,
+    PLAYER_DEFENCE_FACTOR: 0.26,
+    COMPANION_MULTIPLIER: 1.5,
+    COMPANION_DEFENCE_FACTOR: 0.35,
+    ENEMY_MULTIPLIER: 1.5,
+    ENEMY_DEFENCE_FACTOR: 0.52,
     MIN_DAMAGE: {
-      PLAYER: 6,
-      COMPANION: 5,
-      ENEMY: 6,
+      PLAYER: 5,
+      COMPANION: 2,
+      ENEMY: 5,
     },
   },
 };
 
 const lukeTemplate = templates.luke_orphan;
 const renZhen = enemies.ren_zhen_shadow;
+const forestWolf = enemies.wolf_forest;
 
 const loadouts = [
   {
@@ -36,13 +37,13 @@ const loadouts = [
   },
   {
     id: 'chain_bronze',
-    label: 'Full Chainmail + Bronze Sword',
-    items: ['chain_coif', 'chainmail_shirt', 'chainmail_leggings', 'bronze_sword'],
+    label: 'Full Chainmail + Bronze Sword + Bronze Shield',
+    items: ['chain_coif', 'chainmail_shirt', 'chainmail_leggings', 'bronze_sword', 'bronze_shield'],
   },
   {
     id: 'iron_iron',
-    label: 'Full Iron + Iron Sword',
-    items: ['iron_helmet', 'iron_chainmail', 'iron_leggings', 'iron_sword'],
+    label: 'Full Iron + Iron Sword + Iron Shield',
+    items: ['iron_helmet', 'iron_chainmail', 'iron_leggings', 'iron_sword', 'iron_shield'],
   },
 ];
 
@@ -113,9 +114,9 @@ function buildRetainers() {
       side: 'party',
       isPlayer: false,
       isCompanion: true,
-      hp: 130,
-      maxHp: 130,
-      attack: 10,
+      hp: 115,
+      maxHp: 115,
+      attack: 9,
       defence: 6,
       dexterity: 8,
       baseHitChance: COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION,
@@ -126,8 +127,8 @@ function buildRetainers() {
       side: 'party',
       isPlayer: false,
       isCompanion: true,
-      hp: 120,
-      maxHp: 120,
+      hp: 105,
+      maxHp: 105,
       attack: 9,
       defence: 6,
       dexterity: 10,
@@ -156,6 +157,29 @@ function buildRenZhen() {
     rowCleave: renZhen.combat_tags?.includes('row_cleave') ?? false,
     stormBoard: renZhen.combat_tags?.includes('storm_board') ?? false,
     firstStrike: renZhen.combat_tags?.includes('first_strike') ?? false,
+  };
+}
+
+function buildWolf(index = 0) {
+  return {
+    id: `wolf_forest_${index}`,
+    name: forestWolf.name,
+    side: 'enemy',
+    isPlayer: false,
+    isCompanion: false,
+    hp: forestWolf.stats.hp,
+    maxHp: forestWolf.stats.hp,
+    attack: forestWolf.stats.attack,
+    defence: forestWolf.stats.defence,
+    dexterity: forestWolf.stats.dexterity,
+    baseHitChance: clamp(
+      COMBAT_CONFIG.BASE_HIT_CHANCE.ENEMY + (forestWolf.accuracy_modifier || 0),
+      0.1,
+      0.95
+    ),
+    rowCleave: false,
+    stormBoard: false,
+    firstStrike: false,
   };
 }
 
@@ -209,6 +233,16 @@ function getAliveParty(units) {
 
 function getTargetableParty(units) {
   const alive = getAliveParty(units);
+  const front = alive.filter((u) => u.combatRow === 'front');
+  return front.length > 0 ? front : alive;
+}
+
+function getAliveEnemies(units) {
+  return units.filter((u) => u.side === 'enemy' && u.hp > 0);
+}
+
+function getTargetableEnemies(units) {
+  const alive = getAliveEnemies(units);
   const front = alive.filter((u) => u.combatRow === 'front');
   return front.length > 0 ? front : alive;
 }
@@ -311,8 +345,8 @@ function summarize(loadout) {
     },
     companions: [
       { name: 'Captain Lin Shao', hp: 145, attack: 11, defence: 7, dexterity: 9 },
-      { name: 'Wei Taren', hp: 130, attack: 10, defence: 6, dexterity: 8 },
-      { name: 'Qiao Ren', hp: 120, attack: 9, defence: 6, dexterity: 10 },
+      { name: 'Wei Taren', hp: 115, attack: 9, defence: 6, dexterity: 8 },
+      { name: 'Qiao Ren', hp: 105, attack: 9, defence: 6, dexterity: 10 },
     ],
     winRate: `${((wins / TRIALS) * 100).toFixed(1)}%`,
     lukeSurvivalRate: `${((lukeSurvival / TRIALS) * 100).toFixed(1)}%`,
@@ -323,9 +357,109 @@ function summarize(loadout) {
   };
 }
 
+function simulateWolfFight(loadout, wolfCount) {
+  const player = buildPlayer(loadout);
+  const wolves = Array.from({ length: wolfCount }, (_, index) => buildWolf(index));
+  const units = [...assignFormation([player]), ...assignFormation(wolves)].sort((a, b) => {
+    if (b.dexterity !== a.dexterity) return b.dexterity - a.dexterity;
+    if (a.side === 'party' && b.side === 'enemy') return -1;
+    if (a.side === 'enemy' && b.side === 'party') return 1;
+    return 0;
+  });
+
+  let rounds = 0;
+  let currentIndex = 0;
+
+  while (getAliveParty(units).length > 0 && getAliveEnemies(units).length > 0 && rounds < 500) {
+    rounds += 1;
+    for (
+      let steps = 0;
+      steps < units.length && getAliveParty(units).length > 0 && getAliveEnemies(units).length > 0;
+      steps += 1
+    ) {
+      const actor = units[currentIndex];
+      currentIndex = (currentIndex + 1) % units.length;
+      if (actor.hp <= 0) continue;
+
+      if (actor.side === 'party') {
+        const targets = getTargetableEnemies(units);
+        if (targets.length === 0) break;
+        if (Math.random() <= actor.baseHitChance) {
+          const target = targets[Math.floor(Math.random() * targets.length)];
+          target.hp -= calcPlayerDamage(actor, target);
+        }
+        continue;
+      }
+
+      const targets = getTargetableParty(units);
+      if (targets.length === 0) break;
+
+      if (Math.random() <= actor.baseHitChance) {
+        const target = targets[Math.floor(Math.random() * targets.length)];
+        target.hp -= calcEnemyDamage(actor, target);
+      }
+    }
+  }
+
+  const luke = units.find((u) => u.id === 'player');
+  const livingWolves = getAliveEnemies(units);
+
+  return {
+    win: (luke?.hp || 0) > 0 && livingWolves.length === 0,
+    lukeAlive: (luke?.hp || 0) > 0,
+    playerHpLeft: Math.max(0, luke?.hp || 0),
+    wolvesLeft: livingWolves.length,
+    rounds,
+  };
+}
+
+function summarizeWolves(loadout, wolfCount) {
+  const results = Array.from({ length: TRIALS }, () => simulateWolfFight(loadout, wolfCount));
+  const wins = results.filter((r) => r.win).length;
+  const losses = TRIALS - wins;
+  const avgRounds = results.reduce((sum, r) => sum + r.rounds, 0) / TRIALS;
+  const avgPlayerHpLeftOnWins =
+    wins > 0 ? results.filter((r) => r.win).reduce((sum, r) => sum + r.playerHpLeft, 0) / wins : 0;
+  const avgWolvesLeftOnLosses =
+    losses > 0 ? results.filter((r) => !r.win).reduce((sum, r) => sum + r.wolvesLeft, 0) / losses : 0;
+
+  const preview = buildPlayer(loadout);
+
+  return {
+    loadout: loadout.label,
+    wolves: wolfCount,
+    trials: TRIALS,
+    playerStats: {
+      hp: preview.maxHp,
+      attack: preview.attack,
+      defence: preview.defence,
+      dexterity: preview.dexterity,
+    },
+    wolfStats: {
+      hp: forestWolf.stats.hp,
+      attack: forestWolf.stats.attack,
+      defence: forestWolf.stats.defence,
+      dexterity: forestWolf.stats.dexterity,
+    },
+    winRate: `${((wins / TRIALS) * 100).toFixed(1)}%`,
+    averageRounds: Number(avgRounds.toFixed(2)),
+    averagePlayerHpLeftOnWins: Number(avgPlayerHpLeftOnWins.toFixed(2)),
+    averageWolvesLeftOnLosses: Number(avgWolvesLeftOnLosses.toFixed(2)),
+  };
+}
+
 console.log(`Ren Zhen simulator - ${TRIALS} trials per setup\n`);
 for (const loadout of loadouts) {
   const summary = summarize(loadout);
   console.log(JSON.stringify(summary, null, 2));
   console.log('');
+}
+
+console.log(`Wolf simulator - ${TRIALS} trials per setup\n`);
+for (const loadout of loadouts) {
+  for (const wolfCount of [1, 2, 4]) {
+    const summary = summarizeWolves(loadout, wolfCount);
+    console.log(JSON.stringify(summary, null, 2));
+    console.log('');
+  }
 }

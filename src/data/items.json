@@ -360,7 +360,7 @@
     "type": "armor",
     "stackable": false,
     "weight": 3.0,
-    "base_value": 214,
+      "base_value": 223,
     "image": "/assets/items/iron_helmet.png",
     "equipmentSlot": "head",
     "threatTier": 3,
@@ -375,7 +375,7 @@
     "type": "armor",
     "stackable": false,
     "weight": 2.2,
-    "base_value": 155,
+      "base_value": 103,
     "image": "/assets/items/iron_helmet.png",
     "equipmentSlot": "head",
     "threatTier": 2,
@@ -390,7 +390,7 @@
     "type": "armor",
     "stackable": false,
     "weight": 7.0,
-    "base_value": 385,
+      "base_value": 258,
     "image": "/assets/items/iron_chainmail.png",
     "equipmentSlot": "chest",
     "threatTier": 2,
@@ -405,7 +405,7 @@
     "type": "armor",
     "stackable": false,
     "weight": 10.0,
-    "base_value": 572,
+      "base_value": 446,
     "image": "/assets/items/iron_chainmail.png",
     "equipmentSlot": "chest",
     "threatTier": 3,
@@ -415,12 +415,12 @@
         }
     },
   "chainmail_leggings": {
-    "name": "Chainmail Leggings",
-    "description": "Mail leggings sturdy enough for a fighting man who cannot yet afford full iron.",
-    "type": "armor",
+      "name": "Chainmail Leggings",
+      "description": "Mail leggings sturdy enough for a fighting man who cannot yet afford full iron.",
+      "type": "armor",
     "stackable": false,
     "weight": 3.5,
-    "base_value": 246,
+      "base_value": 155,
     "image": "/assets/items/iron_chainlegs.png",
     "equipmentSlot": "legs",
     "threatTier": 2,
@@ -429,13 +429,28 @@
           "defence": 3
         }
     },
+  "bronze_shield": {
+      "name": "Bronze Shield",
+      "description": "A sturdy bronze-rimmed shield. Better than going without one.",
+      "type": "armor",
+      "stackable": false,
+      "weight": 2.8,
+      "base_value": 155,
+      "image": "/assets/items/iron_chainmail.png",
+      "equipmentSlot": "shield",
+      "threatTier": 2,
+      "threatRole": "minor",
+        "stats": {
+          "defence": 4
+        }
+    },
   "iron_leggings": {
-    "name": "Iron Leggings",
-    "description": "Chainmail leggings to protect your legs.",
-    "type": "armor",
+      "name": "Iron Leggings",
+      "description": "Chainmail leggings to protect your legs.",
+      "type": "armor",
     "stackable": false,
     "weight": 5.0,
-    "base_value": 359,
+      "base_value": 223,
     "image": "/assets/items/iron_chainlegs.png",
     "equipmentSlot": "legs",
     "threatTier": 3,
@@ -443,10 +458,25 @@
         "stats": {
           "defence": 5
         }
-  },
+    },
+  "iron_shield": {
+      "name": "Iron Shield",
+      "description": "A dependable iron-banded shield made for real battle.",
+      "type": "armor",
+      "stackable": false,
+      "weight": 3.6,
+      "base_value": 223,
+      "image": "/assets/items/iron_chainmail.png",
+      "equipmentSlot": "shield",
+      "threatTier": 3,
+      "threatRole": "minor",
+        "stats": {
+          "defence": 5
+        }
+    },
   "crude_knife": {
-    "name": "Crude Knife",
-    "description": "A crude, hand-forged knife with a chipped blade.",
+      "name": "Crude Knife",
+      "description": "A crude, hand-forged knife with a chipped blade.",
     "type": "weapon",
     "stackable": false,
     "weight": 1.0,
@@ -466,14 +496,14 @@
     "type": "weapon",
     "stackable": false,
     "weight": 2.5,
-    "base_value": 429,
+      "base_value": 670,
     "image": "/assets/items/iron_sword.png",
     "equipmentSlot": "weapon",
     "threatTier": 3,
     "threatRole": "major",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
         "stats": {
-          "attack": 15
+          "attack": 16
         }
     },
   "bronze_sword": {
@@ -482,14 +512,14 @@
     "type": "weapon",
     "stackable": false,
     "weight": 2.2,
-    "base_value": 279,
+      "base_value": 258,
     "image": "/assets/items/iron_sword.png",
     "equipmentSlot": "weapon",
     "threatTier": 2,
     "threatRole": "major",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
         "stats": {
-          "attack": 5
+          "attack": 7
         }
     },
   "white_fang_of_heaven": {

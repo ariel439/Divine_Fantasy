@@ -191,7 +191,7 @@ export class ConditionEvaluator {
   private static evaluateRelationshipCondition(lhs: string, op: ConditionOperator, rhsNum?: number): boolean {
       const parts = lhs.split('.');
       const npcId = parts[1];
-      const stat = (parts[2] || 'friendship') as 'friendship' | 'love' | 'fear';
+      const stat = (parts[2] || 'friendship') as 'friendship' | 'love' | 'fear' | 'obedience';
       const relationships = useDiaryStore.getState().relationships[npcId];
       const val = relationships?.[stat]?.value ?? 0;
       return this.compare(val, op, rhsNum ?? 0);

@@ -7,7 +7,7 @@ export const ROBERTA_UPGRADE_FLAGS = {
   displays: 'roberta_upgrade_displays_done',
   storefront: 'roberta_upgrade_storefront_done',
   complete: 'roberta_shop_upgrades_complete',
-  flirtUnlocked: 'roberta_flirt_unlocked',
+  romanceUnlocked: 'roberta_romance_unlocked',
 } as const;
 
 export const robertaUpgradeRecipes: Recipe[] = [

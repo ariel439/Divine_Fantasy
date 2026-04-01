@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import type { FC } from 'react';
-import { Search, User, Heart, ArrowLeft, BookOpen, ScrollText, MessageSquare, XCircle } from 'lucide-react';
+import { Search, User, Heart, ArrowLeft, BookOpen, ScrollText, MessageSquare, XCircle, Users, ShieldAlert, Sparkles } from 'lucide-react';
 import type { Npc } from '../../types';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import { useDiaryStore } from '../../stores/useDiaryStore';
@@ -8,6 +8,98 @@ import { useUIStore } from '../../stores/useUIStore';
 import npcsData from '../../data/npcs.json';
 import ProgressBar from '../ui/ProgressBar';
 import CompanionTab from './CompanionTab';
+
+const ENEMY_THRESHOLD = -20;
+const FRIENDLY_THRESHOLD = 20;
+
+type DiaryStatusTone = 'romance' | 'submissive' | 'offline' | 'enemy' | 'friendly' | 'neutral';
+
+const STATUS_SORT_PRIORITY: Record<DiaryStatusTone, number> = {
+    romance: 0,
+    submissive: 1,
+    friendly: 2,
+    enemy: 3,
+    neutral: 4,
+    offline: 5,
+};
+
+function getFriendshipToneClasses(value: number) {
+    if (value >= 1) {
+        return {
+            valueClass: 'text-emerald-300',
+            iconClass: 'text-emerald-300',
+            colorClass: 'bg-emerald-500/80',
+            negativeColorClass: 'bg-red-500/80',
+        };
+    }
+    if (value <= -1) {
+        return {
+            valueClass: 'text-red-300',
+            iconClass: 'text-red-300',
+            colorClass: 'bg-red-500/80',
+            negativeColorClass: 'bg-red-500/80',
+        };
+    }
+    return {
+        valueClass: 'text-blue-300',
+        iconClass: 'text-blue-300',
+        colorClass: 'bg-blue-500/80',
+        negativeColorClass: 'bg-red-500/80',
+    };
+}
+
+function getNpcStateFlagPrefix(npcId: string): string {
+    return npcId.replace(/^npc_/, '');
+}
+
+function getDiaryStatusTone(
+    npcId: string,
+    friendshipValue: number,
+    isDead: boolean,
+    getFlag: (flag: string) => boolean
+): DiaryStatusTone {
+    const prefix = getNpcStateFlagPrefix(npcId);
+
+    if (getFlag(`${prefix}_romance_open`)) return 'romance';
+    if (getFlag(`${prefix}_submissive_open`)) return 'submissive';
+    if (isDead) return 'offline';
+    if (friendshipValue <= ENEMY_THRESHOLD) return 'enemy';
+    if (friendshipValue >= FRIENDLY_THRESHOLD) return 'friendly';
+    return 'neutral';
+}
+
+function getStatusToneClasses(tone: DiaryStatusTone, selected: boolean) {
+    const selectedBorder = selected ? 'border-zinc-100' : 'border-zinc-950';
+
+    switch (tone) {
+        case 'romance':
+            return { shell: `bg-pink-950/80 ${selectedBorder}`, dot: 'bg-pink-400 shadow-[0_0_12px_rgba(244,114,182,0.5)]' };
+        case 'submissive':
+            return { shell: `bg-purple-950/80 ${selectedBorder}`, dot: 'bg-purple-400 shadow-[0_0_12px_rgba(192,132,252,0.5)]' };
+        case 'offline':
+            return { shell: `bg-zinc-950 ${selectedBorder}`, dot: 'bg-zinc-700 shadow-[0_0_10px_rgba(24,24,27,0.55)]' };
+        case 'enemy':
+            return { shell: `bg-red-950/80 ${selectedBorder}`, dot: 'bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.45)]' };
+        case 'friendly':
+            return { shell: `bg-emerald-950/70 ${selectedBorder}`, dot: 'bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.35)]' };
+        case 'neutral':
+        default:
+            return { shell: `bg-blue-950/70 ${selectedBorder}`, dot: 'bg-blue-400 shadow-[0_0_12px_rgba(96,165,250,0.4)]' };
+    }
+}
+
+function getNpcStatusBadges(npcId: string, statusTone: DiaryStatusTone, getFlag: (flag: string) => boolean): string[] {
+    const prefix = getNpcStateFlagPrefix(npcId);
+    const badges: string[] = [];
+
+    if (getFlag(`${prefix}_romance_open`)) badges.push('Romance');
+    if (getFlag(`${prefix}_submissive_open`)) badges.push('Submissive');
+    if (statusTone === 'friendly') badges.push('Friendly');
+    if (statusTone === 'enemy') badges.push('Enemy');
+    if (statusTone === 'neutral') badges.push('Neutral');
+
+    return badges;
+}
 
 const DiaryScreen: FC = () => {
     const { setScreen, diaryTab, setDiaryTab } = useUIStore();
@@ -27,6 +119,7 @@ const DiaryScreen: FC = () => {
                 friendship: { value: 0, max: 100 },
                 love: { value: 0, max: 100 },
                 fear: { value: 0, max: 100 },
+                obedience: { value: 0, max: 100 },
             },
             history: [],
         }));
@@ -48,10 +141,16 @@ const DiaryScreen: FC = () => {
             .sort((a, b) => {
                 const aDead = getNpcIsDead(a.id);
                 const bDead = getNpcIsDead(b.id);
-                if (aDead !== bDead) return aDead ? 1 : -1;
+                const aFriendship = relationships[a.id]?.friendship?.value || 0;
+                const bFriendship = relationships[b.id]?.friendship?.value || 0;
+                const aStatus = getDiaryStatusTone(a.id, aFriendship, aDead, worldState.getFlag);
+                const bStatus = getDiaryStatusTone(b.id, bFriendship, bDead, worldState.getFlag);
+                const priorityDelta = STATUS_SORT_PRIORITY[aStatus] - STATUS_SORT_PRIORITY[bStatus];
+
+                if (priorityDelta !== 0) return priorityDelta;
                 return a.name.localeCompare(b.name);
             });
-    }, [searchTerm, knownNpcs, allNpcs, worldState.worldFlags]);
+    }, [searchTerm, knownNpcs, allNpcs, relationships, worldState.worldFlags]);
 
     // Set initial selected NPC to the first known NPC if available
     useEffect(() => {
@@ -68,27 +167,76 @@ const DiaryScreen: FC = () => {
             friendship: { value: 0, max: 100 },
             love: { value: 0, max: 100 },
             fear: { value: 0, max: 100 },
+            obedience: { value: 0, max: 100 },
         };
         const npcHistory = interactionHistory
             .filter((entry) => entry.startsWith(`${selectedNpc.id}:`))
             .slice()
             .reverse();
+        const isDead = getNpcIsDead(selectedNpc.id);
+        const friendshipValue = npcRelationship.friendship?.value || 0;
+        const statusTone = getDiaryStatusTone(selectedNpc.id, friendshipValue, isDead, worldState.getFlag);
+        const statusBadges = getNpcStatusBadges(selectedNpc.id, statusTone, worldState.getFlag);
 
         return {
             id: selectedNpc.id,
             name: npcData?.name || 'Unknown',
             title: (npcData as any)?.title || npcData?.name || 'Unknown',
             portrait: npcData?.portrait || '',
-            isDead: getNpcIsDead(selectedNpc.id),
-            deathDate: getNpcIsDead(selectedNpc.id) ? worldState.getData(`${selectedNpc.id}_death_date`) || '' : '',
+            isDead,
+            deathDate: isDead ? worldState.getData(`${selectedNpc.id}_death_date`) || '' : '',
+            statusTone,
+            statusBadges,
             relationships: {
-                friendship: { value: npcRelationship.friendship?.value || 0, max: 100 },
+                friendship: { value: friendshipValue, max: 100 },
                 love: { value: npcRelationship.love?.value || 0, max: 100 },
                 fear: { value: npcRelationship.fear?.value || 0, max: 100 },
+                obedience: { value: npcRelationship.obedience?.value || 0, max: 100 },
             },
             history: npcHistory,
         };
     }, [selectedNpc, relationships, interactionHistory, worldState.worldFlags, worldState.stringData]);
+
+    const relationshipCards = displayNpc ? [
+        {
+            label: 'Friendship',
+            value: displayNpc.relationships.friendship.value,
+            max: displayNpc.relationships.friendship.max,
+            icon: Users,
+            ...getFriendshipToneClasses(displayNpc.relationships.friendship.value),
+            accentClass: '',
+        },
+        {
+            label: 'Love',
+            value: displayNpc.relationships.love.value,
+            max: displayNpc.relationships.love.max,
+            icon: Heart,
+            colorClass: 'bg-pink-500/80',
+            valueClass: 'text-pink-300',
+            iconClass: 'text-pink-300',
+            accentClass: '',
+        },
+        {
+            label: 'Fear',
+            value: displayNpc.relationships.fear.value,
+            max: displayNpc.relationships.fear.max,
+            icon: ShieldAlert,
+            colorClass: 'bg-yellow-400/80',
+            valueClass: 'text-yellow-300',
+            iconClass: 'text-yellow-300',
+            accentClass: '',
+        },
+        {
+            label: 'Obedience',
+            value: displayNpc.relationships.obedience.value,
+            max: displayNpc.relationships.obedience.max,
+            icon: Sparkles,
+            colorClass: 'bg-purple-500/80',
+            valueClass: 'text-purple-300',
+            iconClass: 'text-purple-300',
+            accentClass: '',
+        },
+    ] : [];
 
     return (
         <div className="relative w-screen h-screen bg-zinc-950 flex flex-col overflow-hidden">
@@ -166,6 +314,9 @@ const DiaryScreen: FC = () => {
                                         </div>
                                     ) : filteredNpcs.map(npc => {
                                         const isDead = getNpcIsDead(npc.id);
+                                        const friendshipValue = relationships[npc.id]?.friendship?.value || 0;
+                                        const statusTone = getDiaryStatusTone(npc.id, friendshipValue, isDead, worldState.getFlag);
+                                        const statusToneClasses = getStatusToneClasses(statusTone, selectedNpc?.id === npc.id);
                                         return (
                                             <button
                                                 key={npc.id}
@@ -180,14 +331,8 @@ const DiaryScreen: FC = () => {
                                             >
                                                 <div className="relative shrink-0">
                                                     <img src={npc.portrait} alt={npc.name} className={`w-12 h-12 rounded-full object-cover border-2 ${selectedNpc?.id === npc.id ? 'border-zinc-900' : 'border-zinc-800 group-hover:border-zinc-600'} ${isDead ? 'grayscale opacity-75' : ''}`}/>
-                                                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 ${selectedNpc?.id === npc.id ? 'bg-zinc-900 border-zinc-100' : 'bg-zinc-800 border-zinc-950'} flex items-center justify-center`}>
-                                                        <div className={`w-1.5 h-1.5 rounded-full ${
-                                                            isDead
-                                                                ? 'bg-red-500'
-                                                                : selectedNpc?.id === npc.id
-                                                                    ? 'bg-emerald-400'
-                                                                    : 'bg-emerald-500'
-                                                        }`} />
+                                                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 flex items-center justify-center ${statusToneClasses.shell}`}>
+                                                        <div className={`w-1.5 h-1.5 rounded-full ${statusToneClasses.dot}`} />
                                                     </div>
                                                 </div>
                                                 <div className="min-w-0 flex-grow">
@@ -238,7 +383,7 @@ const DiaryScreen: FC = () => {
                                                 <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
                                                     <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">Character Dossier</span>
                                                     <div className="h-px w-12 bg-zinc-800" />
-                                                    <div className={`w-2.5 h-2.5 rounded-full ${displayNpc.isDead ? 'bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.45)]' : 'bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.35)]'}`} />
+                                                    <div className={`w-2.5 h-2.5 rounded-full ${getStatusToneClasses(displayNpc.statusTone, false).dot}`} />
                                                 </div>
                                                 <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight mb-2" style={{ fontFamily: 'Cinzel, serif' }}>
                                                     {displayNpc.name}
@@ -253,6 +398,31 @@ const DiaryScreen: FC = () => {
                                                         </span>
                                                     )}
                                                 </div>
+                                                {!displayNpc.isDead && displayNpc.statusBadges.length > 0 && (
+                                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-4">
+                                                        {displayNpc.statusBadges.map((badge) => {
+                                                            const badgeClasses =
+                                                                badge === 'Romance'
+                                                                    ? 'border-pink-500/30 bg-pink-500/10 text-pink-300'
+                                                                    : badge === 'Submissive'
+                                                                        ? 'border-purple-500/30 bg-purple-500/10 text-purple-300'
+                                                                        : badge === 'Friendly'
+                                                                            ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                                                                            : badge === 'Enemy'
+                                                                                ? 'border-red-500/30 bg-red-500/10 text-red-300'
+                                                                                : 'border-blue-500/30 bg-blue-500/10 text-blue-300';
+
+                                                            return (
+                                                                <span
+                                                                    key={badge}
+                                                                    className={`inline-flex items-center justify-center px-3 py-1 rounded-full border text-[9px] font-black uppercase tracking-[0.22em] ${badgeClasses}`}
+                                                                >
+                                                                    {badge}
+                                                                </span>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -266,26 +436,30 @@ const DiaryScreen: FC = () => {
                                                     <h3 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-200">Social Standing</h3>
                                                 </div>
                                                 
-                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pl-6 border-l-2 border-zinc-800/50">
-                                                    <ProgressBar 
-                                                        label="Friendship" 
-                                                        value={displayNpc.relationships.friendship.value} 
-                                                        max={displayNpc.relationships.friendship.max} 
-                                                        colorClass="bg-emerald-500/80" 
-                                                        negativeColorClass="bg-red-500/80" 
-                                                    />
-                                                    <ProgressBar 
-                                                        label="Love" 
-                                                        value={displayNpc.relationships.love.value} 
-                                                        max={displayNpc.relationships.love.max} 
-                                                        colorClass="bg-pink-500/80" 
-                                                    />
-                                                    <ProgressBar 
-                                                        label="Fear" 
-                                                        value={displayNpc.relationships.fear.value} 
-                                                        max={displayNpc.relationships.fear.max} 
-                                                        colorClass="bg-amber-500/80" 
-                                                    />
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pl-6 border-l-2 border-zinc-800/50">
+                                                    {relationshipCards.map(({ label, value, max, icon: Icon, colorClass, valueClass, iconClass, accentClass, negativeColorClass }) => (
+                                                        <div key={label} className={`rounded-2xl p-2 sm:p-3 ${accentClass}`}>
+                                                            <div className="flex items-center justify-between mb-4">
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className="p-1 rounded-lg">
+                                                                        <Icon size={16} className={iconClass} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">{label}</p>
+                                                                        <p className={`text-xl font-bold ${valueClass}`}>{value}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <span className="text-[11px] font-semibold text-zinc-400">{Math.floor(value)} / {Math.floor(max)}</span>
+                                                            </div>
+                                                            <ProgressBar
+                                                                value={value}
+                                                                max={max}
+                                                                colorClass={colorClass}
+                                                                negativeColorClass={negativeColorClass}
+                                                                showText={false}
+                                                            />
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             </div>
                                         ) : (

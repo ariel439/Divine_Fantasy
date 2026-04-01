@@ -4,7 +4,29 @@ import type { DialogueOption, ConversationEntry } from '../../types';
 
 import { useCharacterStore } from '../../stores/useCharacterStore';
 import { useDiaryStore } from '../../stores/useDiaryStore';
-import { Zap } from 'lucide-react';
+import { Heart, ShieldAlert, Sparkles, Users, Zap } from 'lucide-react';
+
+function getFriendshipToneClasses(value: number) {
+    if (value >= 1) {
+        return {
+            valueClass: 'text-emerald-400',
+            iconClass: 'text-emerald-300',
+            barClass: 'bg-emerald-400',
+        };
+    }
+    if (value <= -1) {
+        return {
+            valueClass: 'text-red-400',
+            iconClass: 'text-red-300',
+            barClass: 'bg-red-400',
+        };
+    }
+    return {
+        valueClass: 'text-blue-400',
+        iconClass: 'text-blue-300',
+        barClass: 'bg-blue-400',
+    };
+}
 
 interface DialogueScreenProps {
   npcId: string;
@@ -42,6 +64,7 @@ const DialogueScreen: FC<DialogueScreenProps> = ({
         friendship: { value: 0, max: 100 },
         love: { value: 0, max: 100 },
         fear: { value: 0, max: 100 },
+        obedience: { value: 0, max: 100 },
     };
 
     // Preload portraits
@@ -83,6 +106,43 @@ const DialogueScreen: FC<DialogueScreenProps> = ({
         onOptionSelect(option, index);
     };
 
+    const relationshipCards = [
+        {
+            label: 'Friendship',
+            value: relationships.friendship.value,
+            icon: Users,
+            ...getFriendshipToneClasses(relationships.friendship.value),
+            accentClass: '',
+        },
+        {
+            label: 'Love',
+            value: relationships.love?.value || 0,
+            icon: Heart,
+            valueClass: 'text-pink-400',
+            iconClass: 'text-pink-300',
+            accentClass: '',
+            barClass: 'bg-pink-400',
+        },
+        {
+            label: 'Fear',
+            value: relationships.fear?.value || 0,
+            icon: ShieldAlert,
+            valueClass: 'text-yellow-400',
+            iconClass: 'text-yellow-300',
+            accentClass: '',
+            barClass: 'bg-yellow-400',
+        },
+        {
+            label: 'Obedience',
+            value: relationships.obedience?.value || 0,
+            icon: Sparkles,
+            valueClass: 'text-purple-400',
+            iconClass: 'text-purple-300',
+            accentClass: '',
+            barClass: 'bg-purple-400',
+        },
+    ];
+
     return (
         <div className="relative w-full h-full bg-zinc-950/50 backdrop-blur-xl flex flex-col lg:flex-row overflow-hidden">
              {/* Background Layer with blur */}
@@ -102,21 +162,21 @@ const DialogueScreen: FC<DialogueScreenProps> = ({
             `}</style>
             
             {/* Left Panel: NPC Portrait */}
-            <div className="relative z-10 w-full lg:w-2/5 h-2/5 lg:h-full flex flex-col items-center justify-center p-8 animate-panel-left">
-                <div className="text-center mb-8">
+            <div className="relative z-10 w-full lg:w-[38%] xl:w-[35%] min-h-[38vh] lg:min-h-0 lg:h-full flex flex-col items-center justify-start lg:justify-center p-5 sm:p-6 lg:p-8 xl:p-10 animate-panel-left">
+                <div className="text-center mb-6 lg:mb-8">
                     <h2 className="text-5xl font-bold text-white tracking-[0.2em] uppercase mb-2" style={{ fontFamily: 'Cinzel, serif' }}>
                         {npcName}
                     </h2>
                     <div className="h-px w-24 bg-gradient-to-r from-transparent via-zinc-500 to-transparent mx-auto" />
                 </div>
 
-                <div className="relative w-full max-w-xl group">
+                <div className="relative w-full max-w-md xl:max-w-xl group flex-1 min-h-0 flex items-center">
                     <div className="absolute -inset-4 bg-zinc-100/5 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                      <img 
                         key={`${currentPortrait}-spacer`}
                         src={currentPortrait} 
                         alt="" 
-                        className="w-full h-auto max-h-[70vh] object-contain opacity-0"
+                        className="w-full h-auto max-h-[40vh] lg:max-h-[62vh] object-contain opacity-0"
                     />
                     <div className="absolute inset-0">
                         {transitioningPortrait && (
@@ -137,24 +197,33 @@ const DialogueScreen: FC<DialogueScreenProps> = ({
                 </div>
 
                 {/* Relationship Stats - Positioned under portrait */}
-                <div className="mt-8 grid grid-cols-3 gap-8 w-full max-w-md px-4">
-                    <div className="flex flex-col items-center gap-1">
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500">Friendship</span>
-                        <div className="text-lg font-bold text-emerald-400">{relationships.friendship.value}</div>
-                    </div>
-                    <div className="flex flex-col items-center gap-1">
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500">Love</span>
-                        <div className="text-lg font-bold text-pink-400">{relationships.love?.value || 0}</div>
-                    </div>
-                    <div className="flex flex-col items-center gap-1">
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500">Fear</span>
-                        <div className="text-lg font-bold text-amber-400">{relationships.fear?.value || 0}</div>
+                <div className="mt-6 lg:mt-8 w-full max-w-lg px-1 sm:px-2">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                        {relationshipCards.map(({ label, value, icon: Icon, valueClass, iconClass, accentClass, barClass }) => (
+                            <div key={label} className={`rounded-2xl p-2.5 sm:p-3 ${accentClass}`}>
+                                <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-2">
+                                        <div className="p-1 rounded-lg">
+                                            <Icon size={13} className={iconClass} />
+                                        </div>
+                                        <span className="text-[9px] font-black uppercase tracking-[0.18em] text-zinc-400">{label}</span>
+                                    </div>
+                                    <span className={`text-lg font-bold ${valueClass}`}>{value}</span>
+                                </div>
+                                <div className="w-full bg-black/25 rounded-full h-1.5 border border-zinc-800/50 overflow-hidden">
+                                    <div
+                                        className={`h-full rounded-full transition-all duration-500 ${barClass}`}
+                                        style={{ width: `${Math.min(100, Math.max(0, Math.abs(value)))}%` }}
+                                    />
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
 
             {/* Right Panel: Dialogue Box */}
-            <div className="relative z-10 w-full lg:w-3/5 h-3/5 lg:h-full flex items-center justify-center p-6 lg:p-12 animate-panel-right">
+            <div className="relative z-10 w-full lg:w-[62%] xl:w-[65%] flex-1 lg:h-full flex items-center justify-center p-4 sm:p-6 lg:p-8 xl:p-12 animate-panel-right">
                 <div className="w-full h-full max-w-4xl bg-zinc-950/50 backdrop-blur-2xl border border-zinc-800/50 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col p-8 lg:p-10 relative overflow-hidden">
                     {/* Top glass accent */}
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-zinc-700/20 to-transparent" />

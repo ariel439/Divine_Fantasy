@@ -217,6 +217,7 @@ export interface Npc {
     friendship: NpcRelationship;
     love: NpcRelationship;
     fear: NpcRelationship;
+    obedience: NpcRelationship;
   };
   history: string[];
 }

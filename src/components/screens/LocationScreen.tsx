@@ -1047,9 +1047,9 @@ const LocationScreen: React.FC = () => {
                       actualValue = names[weekday];
                       targetValue = rhsRaw;
                     } else if (lhs.startsWith('relationship.')) {
-                        const npcId = lhs.split('.')[1];
+                        const [, npcId, stat = 'friendship'] = lhs.split('.');
                         const rel = useDiaryStore.getState().relationships[npcId];
-                        actualValue = rel?.friendship?.value || 0;
+                        actualValue = rel?.[stat as 'friendship' | 'love' | 'fear' | 'obedience']?.value || 0;
                     }
 
                     if (actualValue === undefined) continue;

@@ -102,7 +102,9 @@ const DebugMenuScreen: FC = () => {
       'roberta_upgrade_displays_done',
       'roberta_upgrade_storefront_done',
       'roberta_shop_upgrades_complete',
+      'roberta_romance_unlocked',
       'roberta_flirt_unlocked',
+      'roberta_romance_open',
       'roberta_kiss_done',
       'tide_trade_wall_repaired',
       'tide_trade_upgraded',
@@ -120,6 +122,10 @@ const DebugMenuScreen: FC = () => {
     const currentFear = diaryStore.relationships['npc_roberta']?.fear?.value || 0;
     if (currentFear > 0) {
       diaryStore.updateRelationship('npc_roberta', { fear: -currentFear });
+    }
+    const currentObedience = diaryStore.relationships['npc_roberta']?.obedience?.value || 0;
+    if (currentObedience > 0) {
+      diaryStore.updateRelationship('npc_roberta', { obedience: -currentObedience });
     }
 
     useSkillStore.getState().setSkillLevel('carpentry', 10);

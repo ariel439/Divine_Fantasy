@@ -372,7 +372,7 @@ export class DialogueService {
     switch (category) {
       case 'ask': return 'Ask';
       case 'friendly': return 'Friendly';
-      case 'flirt': return 'Flirt';
+      case 'flirt': return 'Romance';
       case 'coerce': return 'Coerce';
       case 'quest': return 'Quest';
       default: return category;
@@ -440,11 +440,9 @@ export class DialogueService {
       return false;
     }
 
-    if (npcId === 'npc_roberta') {
-      return useWorldStateStore.getState().getFlag('roberta_flirt_unlocked');
-    }
-
-    return true;
+    const world = useWorldStateStore.getState();
+    const npcFlagPrefix = npcId.replace(/^npc_/, '');
+    return world.getFlag(`${npcFlagPrefix}_romance_unlocked`) || world.getFlag(`${npcFlagPrefix}_flirt_unlocked`);
   }
 
   private static hasVisibleSocialRootOptions(dialogueEntry: DialogueEntry): boolean {
@@ -1031,7 +1029,7 @@ export class DialogueService {
       case 'friendly':
         return 'How do you want to approach this?';
       case 'flirt':
-        return 'How do you want to flirt?';
+        return 'How do you want to approach the romance?';
       case 'coerce':
         return 'How do you want to pressure them?';
       case 'quest':
@@ -1647,7 +1645,7 @@ export class DialogueService {
         {
           const npcId = params[0];
           const delta = Number(params[1] || '0');
-          const stat = (params[2] || 'friendship') as 'friendship' | 'love' | 'fear';
+          const stat = (params[2] || 'friendship') as 'friendship' | 'love' | 'fear' | 'obedience';
           useDiaryStore.getState().updateRelationship(npcId, { [stat]: delta });
           diaryStore.addInteraction('Relationship changed with ' + (typedNpcsData[npcId]?.name || npcId));
         }

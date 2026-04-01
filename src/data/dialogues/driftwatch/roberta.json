@@ -178,31 +178,31 @@
         ]
       },
       "rb_flirt_root": {
-        "npc_text": "Careful. I sell wares here, not promises.",
+        "npc_text": "You have already crossed that line with me, Luke. So if you mean to be close, be honest about it.",
         "player_choices": [
           {
             "text": "Compliment her directly.",
             "next_node": "rb_flirt_direct",
             "social_cost": 2,
-            "condition": "world_flags.roberta_flirt_unlocked==true"
+            "condition": "world_flags.roberta_romance_unlocked==true"
           },
           {
             "text": "Tease her lightly.",
             "next_node": "rb_flirt_playful",
             "social_cost": 2,
-            "condition": "world_flags.roberta_flirt_unlocked==true"
+            "condition": "world_flags.roberta_romance_unlocked==true"
           },
           {
             "text": "Be sincere with her.",
             "next_node": "rb_flirt_sincere",
             "social_cost": 2,
-            "condition": "world_flags.roberta_flirt_unlocked==true"
+            "condition": "world_flags.roberta_romance_unlocked==true"
           },
           {
             "text": "Push the tension a little.",
             "next_node": "rb_flirt_tension",
             "social_cost": 2,
-            "condition": "world_flags.roberta_flirt_unlocked==true"
+            "condition": "world_flags.roberta_romance_unlocked==true"
           },
           {
             "text": "Back.",
@@ -469,7 +469,7 @@
           {
             "text": "I wanted to see you look at this place and feel happy again.",
             "variant": "romance",
-            "action": "complete_quest:roberta_set_the_shop_right|set_flag:roberta_flirt_unlocked:true|set_flag:roberta_romance_open:true|update_relationship:npc_roberta:5:friendship|update_relationship:npc_roberta:5:love|add_xp:carpentry:200|trigger_event:roberta_kiss_event"
+            "action": "complete_quest:roberta_set_the_shop_right|set_flag:roberta_romance_unlocked:true|set_flag:roberta_romance_open:true|update_relationship:npc_roberta:5:friendship|update_relationship:npc_roberta:5:love|add_xp:carpentry:200|trigger_event:roberta_kiss_event"
           },
           {
             "text": "You deserved a place worth keeping.",

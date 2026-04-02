@@ -351,6 +351,18 @@
     "presentationTier": 3,
     "presentationRole": "minor"
   },
+  "stormward_necklace": {
+    "name": "Stormward Necklace",
+    "description": "A dark silver necklace buried on the isolated beach long ago. Something in its metal still draws lightning away from the bearer.",
+    "type": "accessory",
+    "stackable": false,
+    "weight": 0.1,
+    "base_value": 0,
+    "image": "/assets/items/stormward_necklace.png",
+    "equipmentSlot": "amulet",
+    "presentationTier": 3,
+    "presentationRole": "minor"
+  },
   "gold_signet_ring": {
     "name": "Gold Signet Ring",
     "description": "A rich gold signet ring. Costly enough to change how people place you at a glance.",

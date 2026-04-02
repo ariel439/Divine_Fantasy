@@ -465,7 +465,11 @@ const LocationScreen: React.FC = () => {
         break;
       }
       case 'end_intro': {
-        useCharacterStore.setState((state) => ({ ...state, hunger: 20 }));
+        useCharacterStore.setState((state) => ({
+          ...state,
+          hunger: 20,
+          bio: state.bio ? { ...state.bio, image: '/assets/portraits/luke.jpg' } : state.bio,
+        }));
         useWorldStateStore.getState().setIntroCompleted(true);
         useWorldStateStore.getState().setFlag('intro_completed', true);
         useWorldStateStore.getState().setIntroMode(false);

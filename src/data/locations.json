@@ -376,8 +376,8 @@
     "name": "Shihan's Camp",
     "day_description": "A disciplined Shenhai camp has been raised among the trees, quiet and orderly despite the damp Driftwatch woods.",
     "night_description": "Lanterns burn low over the foreign camp, and the men posted here watch the woods in silence.",
-    "day_background": "/assets/locations/driftwatch_woods_day.png",
-    "night_background": "/assets/locations/driftwatch_woods_night.png",
+    "day_background": "/assets/locations/shihan_camp.png",
+    "night_background": "/assets/locations/shihan_camp.png",
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
       { "text": "Travel to Driftwatch Woods", "type": "navigate", "target": "driftwatch_woods" }

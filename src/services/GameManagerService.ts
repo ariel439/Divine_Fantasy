@@ -367,7 +367,7 @@ export class GameManagerService {
       },
       bio: {
         name: template.name,
-        image: '/assets/portraits/luke.jpg',
+        image: '/assets/portraits/luke_kid.png',
         description: template.description,
         gender: 'Male', // TODO: Add to template
         race: 'Human', // TODO: Add to template
@@ -558,6 +558,7 @@ export class GameManagerService {
 
     useCharacterStore.setState((state) => ({
       ...state,
+      bio: state.bio ? { ...state.bio, image: '/assets/portraits/luke.jpg' } : state.bio,
       hunger: 20,
     }));
     GameManagerService.applyMainGameStoryVitals();

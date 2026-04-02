@@ -11,6 +11,7 @@ import { useDiaryStore } from '../../stores/useDiaryStore';
 import { useJournalStore } from '../../stores/useJournalStore';
 import { useSkillStore } from '../../stores/useSkillStore';
 import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
+import { DialogueService } from '../../services/DialogueService';
 
 const DebugMenuScreen: FC = () => {
   const { setScreen } = useUIStore();
@@ -219,6 +220,72 @@ const DebugMenuScreen: FC = () => {
     setScreen('inGame');
   };
 
+  const handleStartWhiteFangRouteCheck = () => {
+    GameManagerService.startNewGame('luke_orphan');
+    GameManagerService.skipStoryIntroToFinnWeek();
+
+    const characterStore = useCharacterStore.getState();
+
+    worldStateStore.addKnownNpc('npc_adalia');
+    worldStateStore.addKnownNpc('npc_shihan');
+    worldStateStore.setFlag('finn_debt_collection_active', false);
+    worldStateStore.setFlag('finn_timeout_ready', false);
+    worldStateStore.setFlag('finn_timeout_triggered', false);
+    worldStateStore.setFlag('whitefang_week_closed', false);
+    worldStateStore.setFlag('whitefang_signs_noticed', true);
+    worldStateStore.setFlag('whitefang_book_read', false);
+    worldStateStore.setFlag('whitefang_woods_vision_seen', false);
+    worldStateStore.setFlag('whitefang_beach_vision_seen', false);
+    worldStateStore.setFlag('whitefang_mountain_vision_seen', false);
+    worldStateStore.setFlag('whitefang_cave_discovered', false);
+    worldStateStore.setFlag('whitefang_expedition_agreed', false);
+    worldStateStore.setFlag('whitefang_cave_breached', false);
+    worldStateStore.setFlag('whitefang_renzhen_shadow_defeated', false);
+    worldStateStore.setFlag('whitefang_camp_unlocked', false);
+    worldStateStore.setFlag('whitefang_bound', false);
+    worldStateStore.setFlag('whitefang_resisted', false);
+    worldStateStore.setFlag('whitefang_beach_necklace_buried', false);
+    worldStateStore.setFlag('whitefang_beach_necklace_recovered', false);
+
+    if (!journalStore.quests['white_fang_route']) {
+      DialogueService.executeAction('start_quest:white_fang_route');
+    } else {
+      journalStore.updateQuest('white_fang_route', { active: true, completed: false });
+    }
+    journalStore.setQuestStage('white_fang_route', 1);
+
+    characterStore.addCurrency('gold', 99);
+    useCharacterStore.setState((state) => ({
+      ...state,
+      hp: state.maxHp,
+      energy: 100,
+      hunger: 100,
+      socialEnergy: state.maxSocialEnergy,
+    }));
+
+    const ironLoadout = ['iron_helmet', 'iron_chainmail', 'iron_leggings', 'iron_sword', 'iron_shield'] as const;
+    ironLoadout.forEach((itemId) => {
+      if (inventoryStore.getItemQuantity(itemId) === 0) {
+        inventoryStore.addItem(itemId, 1);
+      }
+    });
+
+    if (inventoryStore.getItemQuantity('spade') === 0) {
+      inventoryStore.addItem('spade', 1);
+    }
+
+    ironLoadout.forEach((itemId) => {
+      const item = useInventoryStore.getState().items.find((entry) => entry.id === itemId);
+      if (item) {
+        characterStore.equipItem(item);
+      }
+    });
+
+    locationStore.setLocation('grand_library');
+    useWorldTimeStore.setState({ hour: 9, minute: 0 });
+    setScreen('inGame');
+  };
+
   return (
     <div className="w-full h-full flex items-center justify-center bg-black/80">
       <div className="w-full max-w-3xl mx-auto bg-zinc-950/95 border border-zinc-700 rounded-xl p-6 shadow-lg overflow-y-auto max-h-[90vh]">
@@ -273,6 +340,12 @@ const DebugMenuScreen: FC = () => {
                 className="w-full px-4 py-2 rounded-md bg-amber-900/40 hover:bg-amber-800/60 text-amber-100 text-sm font-semibold border border-amber-800/50 transition-all hover:shadow-[0_0_10px_rgba(245,158,11,0.2)]"
               >
                 Start Ronald Route Check
+              </button>
+              <button
+                onClick={handleStartWhiteFangRouteCheck}
+                className="w-full px-4 py-2 rounded-md bg-cyan-900/40 hover:bg-cyan-800/60 text-cyan-100 text-sm font-semibold border border-cyan-800/50 transition-all hover:shadow-[0_0_10px_rgba(34,211,238,0.2)]"
+              >
+                Start White Fang Route Check
               </button>
             </div>
           </section>

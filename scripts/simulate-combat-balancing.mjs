@@ -258,6 +258,14 @@ function calcEnemyDamage(attacker, defender) {
   return Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY, raw);
 }
 
+function calcRenZhenRowDamage(attacker, defender) {
+  const raw = Math.floor(
+    attacker.attack * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_MULTIPLIER -
+      defender.defence * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_DEFENCE_FACTOR
+  );
+  return Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY + 4, raw);
+}
+
 function assignFormation(combatants) {
   return combatants.map((combatant, index) => ({
     ...combatant,
@@ -303,7 +311,7 @@ function average(results, selector) {
   return results.reduce((sum, result) => sum + selector(result), 0) / results.length;
 }
 
-function simulateRenZhenFight(loadout, skillProfile) {
+function simulateRenZhenFight(loadout, skillProfile, hasStormwardNecklace = false) {
   const player = buildPlayer(loadout, skillProfile);
   const retainers = buildRenZhenRetainers();
   const boss = buildRenZhen();
@@ -340,14 +348,15 @@ function simulateRenZhenFight(loadout, skillProfile) {
         const rowTargets = targets.filter((ally) => ally.combatRow === target.combatRow);
 
         for (const rowTarget of rowTargets) {
-          rowTarget.hp -= calcEnemyDamage(boss, rowTarget);
+          rowTarget.hp -= calcRenZhenRowDamage(boss, rowTarget);
         }
 
         if (boss.stormBoard) {
           const survivors = getAliveParty(units);
-          const thunderDamage = Math.max(8, Math.floor(boss.attack * 0.4));
+          const thunderDamage = 20;
           for (const survivor of survivors) {
-            survivor.hp -= thunderDamage;
+            const appliedThunderDamage = survivor.isPlayer && hasStormwardNecklace ? 0 : thunderDamage;
+            survivor.hp -= appliedThunderDamage;
           }
         }
       }
@@ -467,24 +476,29 @@ function summarizeScenario(loadout, skillProfile, scenarioId) {
   let results = [];
   let scenario = null;
 
-  if (scenarioId === 'ren_zhen') {
-    results = Array.from({ length: TRIALS }, () => simulateRenZhenFight(loadout, skillProfile));
+  if (scenarioId === 'ren_zhen' || scenarioId === 'ren_zhen_necklace') {
+    const hasStormwardNecklace = scenarioId === 'ren_zhen_necklace';
+    results = Array.from({ length: TRIALS }, () => simulateRenZhenFight(loadout, skillProfile, hasStormwardNecklace));
     const wins = results.filter((r) => r.win);
     const losses = results.filter((r) => !r.win);
     scenario = {
       id: scenarioId,
-      label: 'Luke + 3 Guards vs Ren Zhen',
+      label: hasStormwardNecklace
+        ? 'Luke + 3 Guards vs Ren Zhen (Stormward Necklace Equipped)'
+        : 'Luke + 3 Guards vs Ren Zhen',
       enemyStats: {
         hp: renZhen.stats.hp,
         attack: renZhen.stats.attack,
         defence: renZhen.stats.defence,
         dexterity: renZhen.stats.dexterity,
+        thunderDamage: 20,
       },
       allies: [
         { name: 'Captain Lin Shao', hp: 150, attack: 12, defence: 7, dexterity: 9 },
         { name: 'Wei Taren', hp: 120, attack: 10, defence: 6, dexterity: 8 },
         { name: 'Qiao Ren', hp: 110, attack: 10, defence: 6, dexterity: 10 },
       ],
+      stormwardNecklaceEquipped: hasStormwardNecklace,
       winRate: Number(((wins.length / TRIALS) * 100).toFixed(1)),
       lukeSurvivalRate: Number(((results.filter((r) => r.lukeAlive).length / TRIALS) * 100).toFixed(1)),
       averageRounds: Number(average(results, (r) => r.rounds).toFixed(2)),
@@ -558,6 +572,7 @@ function summarizeScenario(loadout, skillProfile, scenarioId) {
 }
 
 const scenarioOrder = ['ren_zhen', 'wolves_1', 'wolves_2', 'wolves_4', 'ronald_wolves'];
+scenarioOrder.splice(1, 0, 'ren_zhen_necklace');
 
 console.log(`Combat balancing simulator - ${TRIALS} trials per loadout/scenario\n`);
 for (const scenarioId of scenarioOrder) {

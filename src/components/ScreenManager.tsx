@@ -246,7 +246,11 @@ const ScreenManager: React.FC = () => {
           <EventScreen
             slides={lukePrologueSlides}
             onComplete={() => {
-              useCharacterStore.setState((state) => ({ ...state, hunger: 20 }));
+              useCharacterStore.setState((state) => ({
+                ...state,
+                hunger: 20,
+                bio: state.bio ? { ...state.bio, image: '/assets/portraits/luke.jpg' } : state.bio,
+              }));
               useWorldStateStore.getState().setIntroCompleted(true);
               useWorldStateStore.getState().setFlag('intro_completed', true);
               useWorldStateStore.getState().setIntroMode(false);
@@ -283,6 +287,10 @@ const ScreenManager: React.FC = () => {
             useWorldStateStore.getState().setFlag('intro_completed', true);
             useWorldStateStore.getState().setFlag('smuggler_help_available', false);
             useWorldStateStore.getState().setFlag('robert_smuggler_incident', false);
+            useCharacterStore.setState((state) => ({
+              ...state,
+              bio: state.bio ? { ...state.bio, image: '/assets/portraits/luke.jpg' } : state.bio,
+            }));
             try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
             useUIStore.getState().setDialogueNpcId('npc_finn');
             setScreen('dialogue');
@@ -524,6 +532,9 @@ const ScreenManager: React.FC = () => {
             return;
           }
           if (id === 'whitefang_woods_vision' || id === 'whitefang_beach_vision' || id === 'whitefang_mountain_vision') {
+            if (id === 'whitefang_beach_vision') {
+              useWorldStateStore.getState().setFlag('whitefang_beach_necklace_buried', true);
+            }
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             setScreen('inGame');
@@ -846,6 +857,58 @@ const ScreenManager: React.FC = () => {
                 },
                 {
                   text: 'Leave it',
+                  onSelect: () => {
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  },
+                },
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'whitefang_beach_necklace_pickup') {
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Take the necklace',
+                  variant: 'quest',
+                  onSelect: () => {
+                    const added = useInventoryStore.getState().addItem('stormward_necklace', 1);
+                    if (added) {
+                      useWorldStateStore.getState().setFlag('whitefang_beach_necklace_recovered', true);
+                      useDiaryStore.getState().addInteraction('Recovered the Stormward Necklace from the buried beach sign.');
+                      setEventResult({
+                        text: 'You brush the sand away and keep the necklace. The metal feels wrong in your hand, but whatever power clings to it was buried here for a reason.',
+                        choices: [{
+                          text: 'Continue',
+                          onSelect: () => {
+                            useUIStore.getState().setCurrentEventId(null);
+                            setScreen('inGame');
+                          }
+                        }]
+                      });
+                      return;
+                    }
+
+                    setEventResult({
+                      text: 'You uncover the necklace, but your pack has no room for it. You leave it buried where you found it.',
+                      choices: [{
+                        text: 'Continue',
+                        onSelect: () => {
+                          useUIStore.getState().setCurrentEventId(null);
+                          setScreen('inGame');
+                        }
+                      }]
+                    });
+                  },
+                },
+                {
+                  text: 'Leave it buried',
                   onSelect: () => {
                     useUIStore.getState().setCurrentEventId(null);
                     setScreen('inGame');

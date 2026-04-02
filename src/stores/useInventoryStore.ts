@@ -2,6 +2,9 @@ import { create } from 'zustand';
 import { useCharacterStore } from './useCharacterStore';
 import { useJournalStore } from './useJournalStore';
 import { useUIStore } from './useUIStore';
+import { useLocationStore } from './useLocationStore';
+import { useWorldStateStore } from './useWorldStateStore';
+import { useToastStore } from './useToastStore';
 import itemsData from '../data/items.json';
 import booksData from '../data/books.json';
 
@@ -157,6 +160,26 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       ui.setLibraryReturnScreen('inventory');
       ui.setScreen('library');
       return true;
+    }
+
+    if (itemId === 'spade') {
+      const currentLocation = useLocationStore.getState().currentLocationId;
+      const world = useWorldStateStore.getState();
+      const addToast = useToastStore.getState().addToast;
+
+      if (
+        currentLocation === 'isolated_beach' &&
+        world.getFlag('whitefang_beach_necklace_buried') &&
+        !world.getFlag('whitefang_beach_necklace_recovered')
+      ) {
+        const ui = useUIStore.getState();
+        ui.setCurrentEventId('whitefang_beach_necklace_pickup');
+        ui.setScreen('choiceEvent');
+        return true;
+      }
+
+      addToast('Nothing here looks worth digging up.', 'info', 2000);
+      return false;
     }
 
     // For other items, just log for now

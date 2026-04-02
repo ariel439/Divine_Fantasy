@@ -59,6 +59,7 @@ export const ronaldWolfHuntSlides: Slide[] = [
 type ChoiceEventId =
   | 'intro_pastime_choice'
   | 'whitefang_binding_choice'
+  | 'whitefang_beach_necklace_pickup'
   | 'beryl_letter_pickup'
   | 'forge_crate_note_pickup'
   | 'apple_tree_event'
@@ -94,6 +95,13 @@ export const choiceEvents: Record<ChoiceEventId, ChoiceEventConfig> = {
     imageUrl: '/assets/items/white_fang_of_heaven.png',
     text:
       "Ren Zhen's shadow breaks apart, but the glaive does not fall still. Its storm-dark hunger drags at Luke's chest like a hand trying to pull open everything in him that was already raw, bitter, and unresolved.",
+  },
+  whitefang_beach_necklace_pickup: {
+    id: 'whitefang_beach_necklace_pickup',
+    title: 'Buried Necklace',
+    imageUrl: '/assets/items/engraved_silver_amulet.png',
+    text:
+      'Your spade turns up something cold beneath the wet sand: a dark silver necklace worked in a style Driftwatch smiths would never make. The metal hums faintly in your hand, as if a storm were trapped inside it and waiting.',
   },
   beryl_letter_pickup: {
     id: 'beryl_letter_pickup',

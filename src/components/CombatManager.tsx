@@ -637,19 +637,26 @@ const CombatManager: React.FC = () => {
 
             setTimeout(() => {
               const survivors = useCombatStore.getState().participants.filter((p) => (p.isPlayer || p.isCompanion) && p.hp > 0);
-              const thunderDamage = Math.max(8, Math.floor(currentEnemy.attack * 0.4));
+              const thunderDamage = 20;
               const struckIds: string[] = [];
+              const equippedAmulet = useCharacterStore.getState().equippedItems.amulet;
+              const playerProtectedFromThunder = equippedAmulet?.id === 'stormward_necklace';
 
               playSfx('/assets/sfx/combat_thunder_strike.mp3');
 
               survivors.forEach((survivor) => {
-                const newHp = Math.max(0, survivor.hp - thunderDamage);
+                const appliedThunderDamage = survivor.isPlayer && playerProtectedFromThunder ? 0 : thunderDamage;
+                const newHp = Math.max(0, survivor.hp - appliedThunderDamage);
                 updateParticipant(survivor.id, { hp: newHp });
-                addLogEntry(`Lightning from ${currentEnemy.name} lashes ${survivor.name} for ${thunderDamage} damage!`);
+                if (survivor.isPlayer && playerProtectedFromThunder) {
+                  addLogEntry(`Lightning from ${currentEnemy.name} lashes ${survivor.name}, but the Stormward Necklace grounds the strike harmlessly.`);
+                } else {
+                  addLogEntry(`Lightning from ${currentEnemy.name} lashes ${survivor.name} for ${appliedThunderDamage} damage!`);
+                }
                 struckIds.push(survivor.id);
 
-                if (survivor.isPlayer && thunderDamage > 0) {
-                  addSkillXp('defence', Math.floor(thunderDamage * 2));
+                if (survivor.isPlayer && appliedThunderDamage > 0) {
+                  addSkillXp('defence', Math.floor(appliedThunderDamage * 2));
                 }
 
                 if (newHp <= 0) {

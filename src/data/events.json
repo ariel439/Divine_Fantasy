@@ -281,6 +281,10 @@
     {
       "image": "/assets/events/whitefang_beach_vision.png",
       "text": "The mage dies here amid black surf, broken ritual, and lightning. What Luke feels in the vision is not triumph, but finality. The hunt that stole six years of Ren Zhen's life ended on this beach, and Driftwatch kept the memory long after Shenhai lost the trail."
+    },
+    {
+      "image": "/assets/events/whitefang_beach_burial.png",
+      "text": "Before the vision breaks, Ren Zhen kneels in the wet sand and buries a dark silver necklace above the tide line, hiding it with the care of a man leaving behind the last thing he dared not carry farther."
     }
   ],
   "whitefangMountainVisionSlides": [

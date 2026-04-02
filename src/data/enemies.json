@@ -70,7 +70,7 @@
     "attack_type": "slash",
     "combat_tags": ["boss", "row_cleave", "storm_board", "first_strike"],
     "accuracy_modifier": 0.12,
-      "stats": { "hp": 255, "attack": 16, "defence": 15, "dexterity": 14 },
+      "stats": { "hp": 255, "attack": 13, "defence": 15, "dexterity": 14 },
     "loot_table": []
   }
 }

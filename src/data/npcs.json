@@ -47,9 +47,7 @@
     "available_from": { "month": 5, "dayOfMonth": 3 },
     "available_until": { "month": 5, "dayOfMonth": 10 },
     "schedules": [
-      { "location_id": "grand_library", "start_hour": 9, "end_hour": 13 },
-      { "location_id": "driftwatch_docks", "start_hour": 13, "end_hour": 16 },
-      { "location_id": "driftwatch_noble_quarter", "start_hour": 16, "end_hour": 18 }
+      { "location_id": "grand_library", "start_hour": 9, "end_hour": 11 }
     ]
   },
   "npc_shihan_camp": {

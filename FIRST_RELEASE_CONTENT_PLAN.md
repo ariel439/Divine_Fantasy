@@ -1,310 +1,360 @@
 # Divine Fantasy: First Release Content Plan
 
-## Goal
+## Purpose
 
-This first release should focus on making the current Driftwatch chapter feel richer, more human, and more authored.
+This document now reflects the **current post-Ronald / post-woods** state of the build.
 
-The priority is not adding many new systems. The priority is using the systems already in the game to create:
+It is no longer a pure proposal for what the first release might be.
 
-- stronger NPC depth
-- more social payoff
-- more side content around the Finn week
-- clearer progression outside the main route
+Instead, it tracks:
 
-For now, the first release should stay centered on:
+- what has already landed
+- what changed direction
+- what still appears to be the highest-value content work for the first release
+
+## Current First-Release Read
+
+The first release is strongest when it stays centered on:
 
 - Luke
 - Driftwatch
 - the Finn week
 - White Fang as the mythic branch
+- a small set of recurring NPCs with authored side content
 
-## Core Focus
-
-The current release should focus on 4 things:
-
-1. Deepen a small number of important NPCs
-2. Make the social system feel real through milestones and unlocks
-3. Add a little more exploration and job variety
-4. Keep the scope grounded in the current chapter
-
-## Priority NPCs
-
-The main NPC focus for first release should be:
-
-- Roberta
-- Ronald
-- Old Crank
-- Shihan as a smaller special case
-
-These characters should carry most of the new social and side-content depth.
-
-## Relationship Milestones
-
-The social system should matter through clear relationship unlocks.
-
-For first release, relationship growth should unlock things like:
-
-- new ask questions
-- quests
-- romance access
-- wilderness secrets
-- personal lore
-
-The goal is simple:
-
-- relationship should stop feeling abstract
-- and start unlocking visible content
-
-## Roberta
-
-Roberta should be the main grounded social route of the first release.
-
-She should remain a friendship-first route at first.
-
-Before the romantic threshold, she should only use:
-
-- `Ask`
-- `Friendly`
-- `Quest`
-- `Trade`
-- `Coerce`
-
-Her rebuilt `Flirty` menu should stay locked until later in her route.
-
-### Roberta Relationship Structure
-
-- `20 relationship`
-  - unlocks the wall / planks quest
-- wall quest reward tuning
-  - `500 carpentry XP`
-  - `150 copper`
-  - `+10 friendship`
-  - processing logs into planks at the sawmill should grant `10 carpentry XP per plank`
-- `30 relationship`
-  - unlock `Ask`:
-    - `How have you been managing all of this alone?`
-- `40 relationship`
-  - unlock `Ask`:
-    - `What do you want Tide & Trade to become?`
-- `50 relationship`
-  - if the planks quest is completed, Roberta can offer her second quest
-
-### Roberta Second Quest
-
-This second quest should be a business-growth / shop-improvement quest.
-
-Requirements:
-
-- wall / planks quest completed
-- Luke has asked:
-  - `What do you want Tide & Trade to become?`
-- Luke has at least `Construction level 10`
-
-Quest structure:
-
-- Roberta wants to improve Tide & Trade itself
-- the quest opens a special upgrade screen similar to [CraftingScreen.tsx](c:/Users/dolza/OneDrive/Documentos/Divine_Fantasy/src/components/screens/CraftingScreen.tsx)
-- Luke gathers or buys the required materials
-- each completed improvement gives Construction XP
-
-Quest endpoint:
-
-- all upgrades completed
-- Tide & Trade gets a new upgraded store image
-- Roberta's route advances
-- the rebuilt `Flirty` menu unlocks
-
-### Roberta Route Cap For First Release
-
-The rebuilt `Flirty` menu should be a full romantic interaction root, more like `Friendly`, not the current single thin option.
-
-For first release, Roberta's route can end with:
-
-- romantic access opening
-- full flirt menu unlocked
-- an intimate route beat such as a kiss
-
-The longer romance path can wait for later development.
-
-## Ronald
-
-Ronald should be a wilderness social NPC and quest anchor, not a full companion yet.
-
-For first release, he should have:
-
-- `Friendly` menu only
-- relationship building through friendly interactions
-- 2 relationship-gated `Ask` questions
-- 1 authored wolf-pack quest
-- cabin unlock tied to relationship
-
-### Ronald Relationship Structure
-
-- `10 relationship`
-  - unlock `Ask`:
-    - `Why do you live out here in the forest by yourself?`
-- `20 relationship`
-  - unlock `Ask`:
-    - `Do you know any secrets of the forest?`
-  - this question reveals:
-    - an old witch once lived deeper in the woods
-    - there is an old cabin farther in
-    - Luke can unlock that path later
-
-### Ronald Quest
-
-Quest flow:
-
-- Luke asks one of the two guards around Mosswatch Keep for work
-- the guard sends Luke to Ronald
-- the guard explains Ronald has been struggling to clear out a wolf pack
-- Luke goes to Ronald and speaks with him
-- this starts an event sequence
-- the sequence leads into a `2 vs 4` combat:
-  - Luke
-  - Ronald
-  - against 4 wolves
-- after the fight, Luke returns and reports back to the guard
-- quest completed
-
-### Ronald Route Cap For First Release
-
-Ronald's first-release content should end at:
-
-- his wolf-pack quest
-- his `Friendly` menu
-- the two gated `Ask` questions
-- cabin unlock through the `20 relationship` question
-
-## Old Crank
-
-Old Crank should become a tavern-centered friendship NPC with a small lore-and-treasure route.
-
-### Old Crank Interaction Structure
-
-- he should have a `Friendly` menu
-- giving him beer should work outside the Finn route
-- each beer gift should give:
-  - `+1 relationship`
-
-### Old Crank Relationship Structure
-
-- `10 relationship`
-  - unlock `Ask` about his rat companion
-- `20 relationship`
-  - unlock `Ask` about his past
-- `30 relationship`
-  - unlock a more personal question about his past
-  - this unlocks a treasure-hunting quest
-
-### Old Crank Treasure Quest
-
-The quest should stay simple:
-
-- Old Crank gives Luke a treasure map
-- Luke uses a spade to dig up the treasure
-
-That is enough to make him feel like more than just a Finn-route informant.
-
-## Shihan
-
-Shihan should stay more limited and more special for now.
-
-For first release:
-
-- keep only the `Friendly` menu after the White Fang quest
-- unlock a few specific personal or lore questions through relationship
-- do not expand her into a full normal social route yet
-
-She should stay more reserved, lore-heavy, and distinct from the grounded town NPCs.
-
-## Woods Rework
-
-The woods should be simplified as an exploration system for now.
-
-Direction:
-
-- keep woods exploration simpler
-- move standout forest content into Ronald-authored questing
-- let the cabin path become relationship-based content instead of random exploration content
-
-## More Exploration
-
-Add exploration support for:
-
-- mountain
-- abandoned beach
-
-Keep both simple for first release.
-
-They only need:
-
-- a few exploration interactions
-- some unique encounters
-- enough content to make the locations feel useful
-
-## New Job
-
-Add a sea-week job tied to Captain Elias.
-
-Structure:
-
-- Luke reports in on Monday morning
-- he spends the week at sea until Friday night
-- he gets paid at the end
-- he gains Fishing XP at the end
-
-This should be event-based rather than a simple click-to-work loop.
-
-Some weeks can be:
-
-- normal
-- eventful
-- more profitable
-- more dangerous
-
-This should become the second real job path in the chapter.
-
-## What Is Not Priority Yet
-
-These should not be major priorities for first release:
-
-- full city-wide consequence simulation after routes
-- deep coercion/fear route expansion
-- broad expansion of every NPC
-- many romance routes
-- large systemic world reactivity
-
-The release should stay focused on making the current chapter feel denser and stronger, not fully solving the whole future game.
-
-## Expected Player Experience Impact
-
-If this plan lands well, the first release should feel:
-
-- more personal
-- more socially reactive
-- more grounded in recurring NPCs
-- less dependent on the main route alone
-- more alive between major story beats
-
-It should improve:
-
-- social payoff
-- side-content density
-- NPC identity
-- wilderness identity
-- job variety
-
-## Final Read
-
-This first-release plan is strongest when it stays narrow and committed.
-
-The game does not need more vague breadth right now.
+The release does **not** need many new systems.
 
 It needs:
 
-- a few stronger NPC routes
-- a few stronger side activities
-- and more visible payoff from the systems already in the game
+- stronger breadth around the current chapter
+- clearer payoff from existing systems
+- cleanup where the content direction has shifted since the original plan
 
-That is the right next milestone.
+## What Is Already Landed
+
+### Ronald
+
+Ronald is now substantially implemented as a first-release route anchor.
+
+Live content includes:
+
+- `Friendly` menu
+- 2 gated `Ask` questions
+- guard-routed wolf-pack quest
+- cabin knowledge through relationship
+- path-clearing unlock flow
+- player cabin unlock with bed + cooking access
+
+This section of the older plan is now largely complete.
+
+### Woods Rework
+
+This also substantially landed.
+
+Live now:
+
+- woods as the main exploration zone
+- fruit/resource/scavenge events
+- wolf danger
+- hidden-cabin path discovery
+- survival/cooking integration
+
+This means the release now already has a real wilderness pillar, even if it is still only one area wide.
+
+### Roberta Core Route
+
+Roberta has a lot of first-release content already in place:
+
+- wall/planks quest
+- relationship-gated `Ask` progression
+- second Tide & Trade improvement quest
+- workbench/upgrade route
+- romance unlock endpoint
+- kiss route beat
+
+The issue with Roberta now is less "missing content" and more "cleanup and alignment."
+
+### Social Milestones
+
+The release now already has more visible social-state payoff than the older plan assumed.
+
+Live improvements include:
+
+- relationship vectors
+- romance state
+- submissive state
+- obedience stat
+- diary state presentation
+- off-screen unknown NPC state
+
+This means the milestone layer exists, but still needs more NPCs to use it meaningfully.
+
+## What Changed Direction
+
+### Roberta: `Flirt` vs `Romance`
+
+The older plan still talks about:
+
+- `Flirty`
+- `Coerce`
+
+But the current direction has moved toward:
+
+- `Romance` as the post-relationship menu
+- less emphasis on keeping coercion as a central release pillar
+
+So Roberta's section needs to be understood differently now:
+
+- the route content is mostly there
+- the terminology and structure still need cleanup in data and presentation
+
+### Slums Combat / Pit
+
+The older broader content assumptions no longer apply here.
+
+These are now intentionally removed:
+
+- pit branch
+- pit broker content
+- slums exploration combat filler
+
+This was the right focus choice and should remain the intended direction.
+
+### Exploration Scope
+
+The old plan imagined:
+
+- woods rework
+- beach exploration
+- mountain exploration
+
+What actually happened:
+
+- woods rework landed
+- beach and mountain remain more like travel / White Fang spaces than true exploration zones
+
+So the next step is no longer "start woods rework."
+It is "expand exploration breadth beyond woods."
+
+## Current Priority NPCs
+
+The most important NPC priorities now look like this:
+
+- Roberta
+- Old Crank
+- Shihan
+- Captain Elias as a side-content/job anchor
+
+Ronald is no longer a top missing priority because he is largely delivered.
+
+## Updated NPC Priorities
+
+### 1. Roberta Cleanup Pass
+
+Roberta is no longer primarily a content-gap problem.
+
+She is now a cleanup/alignment problem.
+
+Priority tasks:
+
+- align the route around `Romance` instead of lingering `Flirt` naming
+- remove or retire stale `Coerce` route structure if it is no longer intended
+- clean up `trade` handling in dialogue structure
+- remove stale or legacy branches that no longer fit the route
+
+Goal:
+
+- keep her rich content
+- make the route cleaner and more consistent with the newer social direction
+
+### 2. Old Crank Expansion
+
+Old Crank is now one of the clearest missing side-route opportunities.
+
+He should still be expanded toward the older target:
+
+- `Friendly`
+- recurring beer gift support
+- relationship milestones
+- rat question
+- personal past questions
+- simple treasure-map / spade quest
+
+This would add a lot of tavern-side human texture to the Finn week.
+
+### 3. Shihan Light Social Follow-Through
+
+Shihan should remain special and more limited than grounded town NPCs.
+
+Current direction should stay:
+
+- lore-heavy
+- reserved
+- White Fang-centered
+
+What she still could use:
+
+- a cleaner post-White-Fang light social follow-up layer
+- a few relationship-gated reflective questions
+- just enough payoff to make her feel alive after the main route beat
+
+### 4. Elias Sea-Week Job
+
+This is still one of the biggest missing pieces from the old plan.
+
+The release still needs a second real job path.
+
+The best candidate remains:
+
+- Captain Elias
+- a Monday-to-Friday sea-week event job
+
+This would help:
+
+- chapter breadth
+- money progression
+- fishing identity
+- route variety outside the city loop
+
+## Updated Exploration Priorities
+
+### Woods
+
+Status:
+
+- done enough for first release
+
+Not perfect, but clearly live and useful.
+
+### Beach
+
+Status:
+
+- still missing as a real exploration zone
+
+Current role:
+
+- travel/White Fang sign location
+
+Needed:
+
+- light exploration support
+- a few authored events
+- small salvage / coastal identity
+
+### Mountain
+
+Status:
+
+- still missing as a real exploration zone
+
+Current role:
+
+- White Fang progression space
+
+Needed:
+
+- light exploration support
+- a few harsh or dangerous authored events
+- identity distinct from the woods
+
+## Updated Job Priorities
+
+### Already Live
+
+- dockhand remains the only true formal standing job
+
+### Still Missing
+
+- Elias sea-week job
+
+This remains the clearest job-side missing piece in the current build.
+
+## Updated Release Priorities
+
+If the first release is to feel much stronger, the best remaining priorities are:
+
+### 1. Old Crank Route
+
+Why:
+
+- high flavor value
+- low scope compared to a full major route
+- strong fit for Driftwatch and the Finn week
+
+### 2. Elias Sea-Week Job
+
+Why:
+
+- second real job path
+- makes the economy/chapter feel broader
+- strong fit for the docks/fishing side of the game
+
+### 3. Beach Exploration
+
+Why:
+
+- gives the crossroads more value
+- supports White Fang atmosphere and world breadth
+- relatively small scoped if kept simple
+
+### 4. Mountain Exploration
+
+Why:
+
+- complements beach
+- gives White Fang aftermath more environmental support
+- helps the world feel less centered on one single resource zone
+
+### 5. Roberta Cleanup
+
+Why:
+
+- one of the richest existing routes
+- but also one of the clearest areas of design drift
+
+This is a polish/consistency priority, not a missing-content priority.
+
+## What Is No Longer A First-Release Priority
+
+These do not need to be major priorities right now:
+
+- bringing back pit content
+- restoring generic slums combat exploration
+- expanding coercion/fear routes broadly across the cast
+- expanding every NPC evenly
+- adding many more systems before side-content breadth improves
+
+The release is strongest when it stays focused on:
+
+- richer side content
+- better breadth
+- cleaner payoff
+
+not on reopening content that was intentionally cut for focus.
+
+## Final Read
+
+The first-release plan has changed from:
+
+- "build Ronald, woods, and a few stronger side routes"
+
+to:
+
+- "capitalize on what already landed, then fill the biggest remaining side-content gaps"
+
+The biggest completed pieces are:
+
+- Ronald
+- woods
+- much of Roberta's content ladder
+
+The biggest remaining gaps are:
+
+- Old Crank
+- Elias sea-week job
+- beach exploration
+- mountain exploration
+- Roberta cleanup/alignment
+
+That is the clearest and most honest version of the current milestone.

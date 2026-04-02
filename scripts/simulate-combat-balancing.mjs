@@ -54,14 +54,14 @@ const loadouts = [
 
 const skillProfiles = [
   {
-    id: 'baseline',
-    label: 'Base Skills (1)',
+    id: 't1_skills',
+    label: 'T1 Skill Levels',
     melee: 1,
     constitution: 1,
   },
   {
-    id: 'combat_intro',
-    label: 'Combat Intro (Melee 10 / Constitution 10)',
+    id: 't2_skills',
+    label: 'T2 Skill Levels',
     melee: 10,
     constitution: 10,
   },

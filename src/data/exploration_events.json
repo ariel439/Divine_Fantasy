@@ -7,7 +7,7 @@
       "type": "unique",
       "title": "Wild Apple Tree",
       "description": "You find a wild apple tree heavy with ripe fruit.",
-      "image": "/assets/events/event_pear_tree.png",
+      "image": "/assets/events/event_apple_tree.png",
       "data": { "eventId": "apple_tree_event" }
     }
   },
@@ -19,7 +19,7 @@
       "type": "unique",
       "title": "Pear Tree",
       "description": "You spot a pear tree bowed by ripe fruit.",
-      "image": "/assets/events/event_blackberry_bramble.png",
+      "image": "/assets/events/event_pear_tree.png",
       "data": { "eventId": "pear_tree_event" }
     }
   },
@@ -31,7 +31,7 @@
       "type": "unique",
       "title": "Blackberry Bramble",
       "description": "A thick bramble of dark berries sprawls across the edge of the trail.",
-      "image": "/assets/events/event_apple_tree.png",
+      "image": "/assets/events/event_blackberry_bramble.png",
       "data": { "eventId": "blackberry_bramble_event" }
     }
   },
@@ -67,7 +67,7 @@
       "type": "unique",
       "title": "Hollow Stump",
       "description": "You spot a moss-covered stump with a dark, hollow center.",
-      "image": "/assets/events/event_fresh_grave.png",
+      "image": "/assets/events/event_hollow_stump.png",
       "data": { "eventId": "hollow_stump_event" }
     }
   },
@@ -79,8 +79,21 @@
       "type": "unique",
       "title": "Fresh Grave",
       "description": "Among the roots and damp earth, you find a recent grave marked only by a rough stone.",
-      "image": "/assets/events/event_hollow_stump.png",
+      "image": "/assets/events/event_fresh_grave.png",
       "data": { "eventId": "fresh_grave_event" }
+    }
+  },
+  {
+    "id": "hidden_cabin_path",
+    "locations": ["driftwatch_woods"],
+    "weight": 1,
+    "condition": "world_flags.ronald_hidden_cabin_known==false && world_flags.loc_cabin_unlocked==false",
+    "result": {
+      "type": "unique",
+      "title": "Half-Swallowed Path",
+      "description": "A narrow overgrown trail catches your eye where no trail ought to be.",
+      "image": "/assets/events/ronald_wolf_hunt.png",
+      "data": { "eventId": "hidden_cabin_path_event" }
     }
   },
   {

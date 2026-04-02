@@ -159,6 +159,64 @@ const DebugMenuScreen: FC = () => {
     setScreen('inGame');
   };
 
+  const handleStartRonaldRouteCheck = () => {
+    GameManagerService.startNewGame('luke_orphan');
+    GameManagerService.skipStoryIntroToFinnWeek();
+
+    worldStateStore.addKnownNpc('npc_ronald');
+
+    [
+      'ronald_asked_why_alone',
+      'ronald_asked_forest_secret',
+      'ronald_hidden_cabin_known',
+      'ronald_wolf_pack_started',
+      'ronald_wolf_pack_cleared',
+      'ronald_referred_by_matthias',
+      'ronald_referred_by_stan',
+      'loc_cabin_unlocked',
+    ].forEach((flag) => worldStateStore.setFlag(flag, false));
+
+    worldStateStore.setData('ronald_hidden_path_progress', '0');
+
+    journalStore.updateQuest('ronald_wolf_pack', { active: false, completed: false, currentStage: 0 });
+    useJournalStore.setState((state) => ({
+      questsList: state.questsList.filter((q) => q.id !== 'ronald_wolf_pack')
+    }));
+
+    const currentFriendship = diaryStore.relationships['npc_ronald']?.friendship?.value || 0;
+    const friendshipDiff = 20 - currentFriendship;
+    if (friendshipDiff !== 0) {
+      diaryStore.updateRelationship('npc_ronald', { friendship: friendshipDiff });
+    }
+
+    const currentLove = diaryStore.relationships['npc_ronald']?.love?.value || 0;
+    if (currentLove !== 0) {
+      diaryStore.updateRelationship('npc_ronald', { love: -currentLove });
+    }
+
+    const currentFear = diaryStore.relationships['npc_ronald']?.fear?.value || 0;
+    if (currentFear !== 0) {
+      diaryStore.updateRelationship('npc_ronald', { fear: -currentFear });
+    }
+
+    const currentObedience = diaryStore.relationships['npc_ronald']?.obedience?.value || 0;
+    if (currentObedience !== 0) {
+      diaryStore.updateRelationship('npc_ronald', { obedience: -currentObedience });
+    }
+
+    if (inventoryStore.getItemQuantity('axe_basic') === 0) {
+      inventoryStore.addItem('axe_basic', 1);
+    }
+
+    if (inventoryStore.getItemQuantity('spade') === 0) {
+      inventoryStore.addItem('spade', 1);
+    }
+
+    locationStore.setLocation('hunters_cabin');
+    useWorldTimeStore.setState({ hour: 9, minute: 0 });
+    setScreen('inGame');
+  };
+
   return (
     <div className="w-full h-full flex items-center justify-center bg-black/80">
       <div className="w-full max-w-3xl mx-auto bg-zinc-950/95 border border-zinc-700 rounded-xl p-6 shadow-lg overflow-y-auto max-h-[90vh]">
@@ -207,6 +265,12 @@ const DebugMenuScreen: FC = () => {
                 className="w-full px-4 py-2 rounded-md bg-blue-900/40 hover:bg-blue-800/60 text-blue-100 text-sm font-semibold border border-blue-800/50 transition-all hover:shadow-[0_0_10px_rgba(59,130,246,0.2)]"
               >
                 Start Roberta Route Check
+              </button>
+              <button
+                onClick={handleStartRonaldRouteCheck}
+                className="w-full px-4 py-2 rounded-md bg-amber-900/40 hover:bg-amber-800/60 text-amber-100 text-sm font-semibold border border-amber-800/50 transition-all hover:shadow-[0_0_10px_rgba(245,158,11,0.2)]"
+              >
+                Start Ronald Route Check
               </button>
             </div>
           </section>

@@ -1407,6 +1407,44 @@ const ScreenManager: React.FC = () => {
             );
           }
 
+        if (eventId === 'hidden_cabin_path_event') {
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Mark the place and remember it.',
+                  variant: 'quest',
+                  onSelect: () => {
+                    const world = useWorldStateStore.getState();
+                    world.setFlag('ronald_hidden_cabin_known', true);
+                    useDiaryStore.getState().addInteraction('Luke discovered an overgrown hidden path deeper in the woods.');
+                    setEventResult({
+                      text: 'You take a careful look at the brush-choked opening and commit the landmarks to memory. If you come back with an axe and enough strength, you could try to force the path open.',
+                      choices: [{
+                        text: 'Continue',
+                        onSelect: () => {
+                          useUIStore.getState().setCurrentEventId(null);
+                          setScreen('inGame');
+                        }
+                      }]
+                    });
+                  }
+                },
+                {
+                  text: 'Leave it alone.',
+                  onSelect: () => {
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  }
+                }
+              ]}
+            />
+          );
+        }
+
         if (eventId === 'ronald_wolf_pup_choice') {
           const world = useWorldStateStore.getState();
           return (

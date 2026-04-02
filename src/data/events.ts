@@ -68,6 +68,7 @@ type ChoiceEventId =
   | 'abandoned_campsite_event'
   | 'hollow_stump_event'
   | 'fresh_grave_event'
+  | 'hidden_cabin_path_event'
   | 'ronald_wolf_hunt_intro'
   | 'ronald_wolf_pup_choice'
   | 'ronald_clear_hidden_path';
@@ -154,6 +155,13 @@ export const choiceEvents: Record<ChoiceEventId, ChoiceEventConfig> = {
     imageUrl: '/assets/events/event_fresh_grave.png',
     text:
       'The earth here looks freshly turned. A rough marker stone leans crookedly over a grave that cannot have been dug very long ago.',
+  },
+  hidden_cabin_path_event: {
+    id: 'hidden_cabin_path_event',
+    title: 'Half-Swallowed Path',
+    imageUrl: '/assets/events/ronald_wolf_hunt.png',
+    text:
+      'While pushing deeper through the woods, you notice a narrow trail half-buried beneath roots, briar, and old brush. Something about it feels made, not natural. It looks like it once led somewhere worth hiding.',
   },
   ronald_wolf_hunt_intro: {
     id: 'ronald_wolf_hunt_intro',

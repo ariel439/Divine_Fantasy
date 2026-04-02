@@ -2,7 +2,7 @@
 
 import React from 'react';
 import type { FC } from 'react';
-import { Axe, Fish, ChefHat, Hammer, Smile, Angry, Sword, Wind, Shield, Zap, Brain, Sparkles, User, Heart, Utensils, MessageSquare, ArrowLeft, BookOpen, ScrollText } from 'lucide-react';
+import { Axe, Fish, ChefHat, Hammer, Smile, Angry, Sword, Wind, Shield, Zap, Brain, Sparkles, User, Heart, Utensils, MessageSquare, ArrowLeft, BookOpen, ScrollText, Droplets } from 'lucide-react';
 import { getDescriptiveAttributeLabel, getDescriptiveSkillLabel } from '../../data';
 import Stat from '../ui/Stat';
 import ProgressBar from '../ui/ProgressBar';
@@ -20,8 +20,8 @@ const AttributeIcon = ({ label }: { label: string }) => {
     }
 };
 
-const StatusCard: FC<{ label: string, value: number, max: number, icon: React.ReactNode, colorClass: string }> = ({ label, value, max, icon, colorClass }) => (
-    <div className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 p-4 rounded-xl flex flex-col gap-3 group hover:border-zinc-700/50 transition-all">
+const StatusCard: FC<{ label: string, value: number, max: number, icon: React.ReactNode, colorClass: string, flashing?: boolean }> = ({ label, value, max, icon, colorClass, flashing = false }) => (
+    <div className={`bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 p-4 rounded-xl flex flex-col gap-3 group hover:border-zinc-700/50 transition-all ${flashing ? 'animate-bleed-pulse border-red-900/60' : ''}`}>
         <div className="flex justify-between items-center">
             <div className="flex items-center gap-2 text-zinc-400 group-hover:text-zinc-200 transition-colors">
                 {icon}
@@ -48,7 +48,7 @@ const CharacterPortrait: FC<{ characterData: any }> = ({ characterData }) => (
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-            <StatusCard label="Health" value={characterData.hp} max={characterData.maxHp} icon={<Heart size={14} />} colorClass="bg-red-500" />
+            <StatusCard label="Health" value={characterData.hp} max={characterData.maxHp} icon={<Heart size={14} />} colorClass="bg-red-500" flashing={characterData.effects.bleeding > 0} />
             <StatusCard label="Energy" value={characterData.energy} max={100} icon={<Zap size={14} />} colorClass="bg-blue-500" />
             <StatusCard label="Hunger" value={characterData.hunger} max={100} icon={<Utensils size={14} />} colorClass="bg-orange-500" />
             <StatusCard label="Social" value={characterData.socialEnergy} max={characterData.maxSocialEnergy} icon={<MessageSquare size={14} />} colorClass="bg-purple-500" />
@@ -58,12 +58,24 @@ const CharacterPortrait: FC<{ characterData: any }> = ({ characterData }) => (
 
 const CharacterScreen: FC = () => {
     const { setScreen } = useUIStore();
-    const { attributes, hp, maxHp, energy, hunger, socialEnergy, maxSocialEnergy, bio, languages } = useCharacterStore();
+    const { attributes, hp, maxHp, energy, hunger, socialEnergy, maxSocialEnergy, bio, languages, effects } = useCharacterStore();
     const { skills, getSkillLevel } = useSkillStore();
     const getSkillTierProgress = (level: number) => {
         if (level <= 1) return 10;
         if (level % 10 === 0) return 0;
         return (level % 10) * 10;
+    };
+
+    const getBleedingSeverity = (bleeding: number) => {
+        if (bleeding <= 0) return null;
+        if (bleeding <= 3) return 'Light';
+        if (bleeding <= 7) return 'Moderate';
+        return 'Heavy';
+    };
+
+    const getBleedingDamagePerHour = (bleeding: number) => {
+        if (bleeding <= 0) return 0;
+        return Math.ceil(bleeding / 4);
     };
 
     const characterData = {
@@ -85,6 +97,11 @@ const CharacterScreen: FC = () => {
         hunger: Math.floor(hunger),
         socialEnergy: Math.floor(socialEnergy),
         maxSocialEnergy,
+        effects: {
+            bleeding: effects.bleeding,
+            bleedingSeverity: getBleedingSeverity(effects.bleeding),
+            bleedingDamagePerHour: getBleedingDamagePerHour(effects.bleeding),
+        },
         attributes: {
             strength: attributes.strength,
             dexterity: attributes.dexterity,
@@ -193,6 +210,29 @@ const CharacterScreen: FC = () => {
                         </div>
                     </div>
 
+                    <div className="bg-zinc-900/40 backdrop-blur-xl rounded-2xl border border-zinc-800/50 p-6 shadow-2xl animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+                        <div className="flex items-center gap-3 mb-6 border-b border-zinc-800/50 pb-4">
+                            <Droplets size={18} className="text-zinc-500" />
+                            <h3 className="text-lg font-bold text-zinc-100 uppercase tracking-[0.2em]" style={{ fontFamily: 'Cinzel, serif' }}>Effects</h3>
+                        </div>
+                        {characterData.effects.bleeding > 0 ? (
+                            <div className="bg-black/20 p-4 rounded-xl border border-red-900/40 flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    <Droplets size={18} className="text-red-400" />
+                                    <div>
+                                        <p className="font-black text-white text-[10px] uppercase tracking-widest">Bleeding</p>
+                                        <p className="text-xs text-red-300">{characterData.effects.bleedingSeverity} - {characterData.effects.bleedingDamagePerHour} dmg/hour</p>
+                                    </div>
+                                </div>
+                                <span className="text-sm font-mono text-red-200">{characterData.effects.bleeding}h</span>
+                            </div>
+                        ) : (
+                            <div className="bg-black/20 p-4 rounded-xl border border-zinc-800/30 text-sm text-zinc-500">
+                                No active effects.
+                            </div>
+                        )}
+                    </div>
+
                     {/* Skills Grid */}
                     <div className="bg-zinc-900/40 backdrop-blur-xl rounded-2xl border border-zinc-800/50 p-6 shadow-2xl animate-fade-in-up" style={{ animationDelay: '400ms' }}>
                         <div className="flex items-center gap-3 mb-6 border-b border-zinc-800/50 pb-4">
@@ -242,6 +282,12 @@ const CharacterScreen: FC = () => {
                     to { opacity: 1; transform: translateY(0); }
                 }
                 .animate-fade-in-up { animation: fade-in-up 0.6s ease-out forwards; }
+
+                @keyframes bleed-pulse {
+                    0%, 100% { box-shadow: 0 0 0 rgba(239,68,68,0.08); }
+                    50% { box-shadow: 0 0 18px rgba(239,68,68,0.28); }
+                }
+                .animate-bleed-pulse { animation: bleed-pulse 1.8s ease-in-out infinite; }
 
                 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }

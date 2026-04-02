@@ -4,7 +4,14 @@ import { useInventoryStore } from './useInventoryStore';
 import { useAudioStore } from './useAudioStore';
 import { useCompanionStore } from './useCompanionStore';
 import itemsData from '../data/items.json';
-import type { EquipmentLoadoutSlotMap, EquipmentSlot, Item } from '../types';
+import type {
+  CombatEquipmentLoadoutSlotMap,
+  CombatEquipmentSlot,
+  EquipmentSlot,
+  Item,
+  SocialEquipmentLoadoutSlotMap,
+  SocialEquipmentSlot,
+} from '../types';
 import { getMaxSocialEnergy } from '../utils/socialEnergy';
 
 interface CharacterState {
@@ -34,6 +41,10 @@ interface CharacterState {
   // Carry Weight
   maxWeight: number;
   constitutionBonusHp: number;
+  effects: {
+    bleeding: number;
+    bleedMinutesAccumulated: number;
+  };
   // Bio
   bio?: {
     name: string;
@@ -46,8 +57,11 @@ interface CharacterState {
   };
   languages: Record<string, 'None' | 'Basic' | 'Fluent' | 'Native'>;
   // Equipment
-  equippedItems: Partial<Record<EquipmentSlot, Item>>;
-  equipmentLoadouts: Record<1 | 2, EquipmentLoadoutSlotMap>;
+  equippedItems: Partial<Record<CombatEquipmentSlot, Item>>;
+  equipmentLoadouts: {
+    1: CombatEquipmentLoadoutSlotMap;
+    2: SocialEquipmentLoadoutSlotMap;
+  };
   activeEquipmentLoadout: 1 | 2;
   // Actions
   eat: (itemId: string) => void;
@@ -55,6 +69,9 @@ interface CharacterState {
   wait: (hours: number) => void;
   addCurrency: (type: 'copper' | 'silver' | 'gold', amount: number) => void;
   removeCurrency: (copper: number, silver?: number, gold?: number) => boolean;
+  addBleeding: (amount: number) => void;
+  reduceBleeding: (amount: number) => void;
+  tickBleeding: (minutes: number) => void;
   equipItem: (item: Item) => void;
   unequipItem: (item: Item) => void;
   tickHunger: (minutes: number) => void;
@@ -69,8 +86,7 @@ interface CharacterState {
 
 import { useWorldStateStore } from './useWorldStateStore';
 
-const SOCIAL_FORWARD_SLOTS: EquipmentSlot[] = ['head', 'cape', 'amulet', 'chest', 'gloves', 'legs', 'boots', 'ring'];
-const COMBAT_SLOTS: EquipmentSlot[] = ['head', 'chest', 'legs', 'weapon', 'shield'];
+const SOCIAL_FORWARD_SLOTS: SocialEquipmentSlot[] = ['cape', 'amulet', 'chest', 'gloves', 'legs', 'boots', 'ring'];
 
 const isSocialEquipment = (item: Item): boolean => {
   if (!item.equipmentSlot) return false;
@@ -79,10 +95,10 @@ const isSocialEquipment = (item: Item): boolean => {
   return SOCIAL_FORWARD_SLOTS.includes(item.equipmentSlot) && (item.presentationTier ?? 0) > 0;
 };
 
-const snapshotEquipment = (equippedItems: Partial<Record<EquipmentSlot, Item>>) =>
-  Object.entries(equippedItems).reduce<EquipmentLoadoutSlotMap>((acc, [key, equipped]) => {
+const snapshotCombatEquipment = (equippedItems: Partial<Record<CombatEquipmentSlot, Item>>) =>
+  Object.entries(equippedItems).reduce<CombatEquipmentLoadoutSlotMap>((acc, [key, equipped]) => {
     if (!equipped) return acc;
-    acc[key as EquipmentSlot] = equipped.id;
+    acc[key as CombatEquipmentSlot] = equipped.id;
     return acc;
   }, {});
 
@@ -109,6 +125,10 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   },
   maxWeight: 50,
   constitutionBonusHp: 0,
+  effects: {
+    bleeding: 0,
+    bleedMinutesAccumulated: 0,
+  },
   languages: {
     veyric: 'Native',
     shenhaic: 'None',
@@ -156,7 +176,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   sleep: (hours: number, quality: number = 1.0) => {
     set((state) => {
       // Calculate regen
-      const canHeal = state.hunger > 0;
+      const canHeal = state.hunger > 0 && state.effects.bleeding <= 0;
       
       // 40 HP per 8 hours at quality 1.0 = 5 HP/hour
       const hpPerEightHours = 40;
@@ -203,6 +223,65 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
       return true;
     }
     return false;
+  },
+  addBleeding: (amount) => {
+    if (amount <= 0) return;
+    set((state) => ({
+      effects: {
+        ...state.effects,
+        bleeding: Math.max(0, Math.min(12, state.effects.bleeding + amount)),
+      },
+    }));
+  },
+  reduceBleeding: (amount) => {
+    if (amount <= 0) return;
+    set((state) => {
+      const nextBleeding = Math.max(0, state.effects.bleeding - amount);
+      return {
+        effects: {
+          ...state.effects,
+          bleeding: nextBleeding,
+          bleedMinutesAccumulated: nextBleeding > 0 ? state.effects.bleedMinutesAccumulated : 0,
+        },
+      };
+    });
+  },
+  tickBleeding: (minutes) => {
+    if (minutes <= 0) return;
+    if (useWorldStateStore.getState().introMode) return;
+
+    set((state) => {
+      if (state.effects.bleeding <= 0) {
+        if (state.effects.bleedMinutesAccumulated === 0) return state;
+        return {
+          effects: {
+            bleeding: 0,
+            bleedMinutesAccumulated: 0,
+          },
+        };
+      }
+
+      let bleeding = state.effects.bleeding;
+      let hp = state.hp;
+      let accumulated = state.effects.bleedMinutesAccumulated + minutes;
+
+      while (accumulated >= 60 && bleeding > 0) {
+        const bleedDamage = Math.ceil(bleeding / 4);
+        hp = Math.max(0, hp - bleedDamage);
+        bleeding = Math.max(0, bleeding - 1);
+        accumulated -= 60;
+      }
+
+      if (bleeding <= 0) accumulated = 0;
+
+      return {
+        hp,
+        effects: {
+          bleeding,
+          bleedMinutesAccumulated: accumulated,
+        },
+      };
+    });
   },
   equipItem: (item) => {
     const { equipmentSlot } = item;
@@ -260,7 +339,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
         [equipmentSlot]: item,
         ...(isTwoHandedWeapon ? { shield: item } : {}),
       };
-      const snapshot = snapshotEquipment(nextEquippedItems);
+      const snapshot = snapshotCombatEquipment(nextEquippedItems);
       return {
         equippedItems: nextEquippedItems,
         equipmentLoadouts: {
@@ -276,7 +355,8 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const { equipmentSlot } = item;
     if (!equipmentSlot) return;
     const socialLoadout = get().equipmentLoadouts[2];
-    const isSocialItemEquipped = socialLoadout[equipmentSlot] === item.id;
+    const isSocialItemEquipped = SOCIAL_FORWARD_SLOTS.includes(equipmentSlot as SocialEquipmentSlot)
+      && socialLoadout[equipmentSlot as SocialEquipmentSlot] === item.id;
 
     if (isSocialItemEquipped) {
       const added = useInventoryStore.getState().addItem(item.id, 1);
@@ -314,7 +394,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
       if (equipmentSlot === 'weapon' && item.combatTags?.includes('two_handed')) {
         delete newEquippedItems.shield;
       }
-      const snapshot = snapshotEquipment(newEquippedItems);
+      const snapshot = snapshotCombatEquipment(newEquippedItems);
       return {
         equippedItems: newEquippedItems,
         equipmentLoadouts: {
@@ -447,7 +527,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   },
   saveEquipmentLoadout: (slot) => {
     if (slot === 1) {
-      const snapshot = snapshotEquipment(get().equippedItems);
+      const snapshot = snapshotCombatEquipment(get().equippedItems);
       set((state) => ({
         equipmentLoadouts: {
           ...state.equipmentLoadouts,

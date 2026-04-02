@@ -16,14 +16,30 @@ const COMBAT_CONFIG = {
     COMPANION_MULTIPLIER: 1.5,
     COMPANION_DEFENCE_FACTOR: 0.35,
     ENEMY_MULTIPLIER: 1.5,
-    ENEMY_DEFENCE_FACTOR: 0.52,
+    ENEMY_DEFENCE_FACTOR: 0.62,
     MIN_DAMAGE: {
       PLAYER: 5,
       COMPANION: 2,
-      ENEMY: 5,
+      ENEMY: 3,
     },
   },
 };
+
+const WOLF_DAMAGE_MULTIPLIER = Number.parseFloat(process.env.WOLF_DAMAGE_MULTIPLIER || '0.88');
+const WOLF_MIN_DAMAGE = Number.parseInt(process.env.WOLF_MIN_DAMAGE || `${COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY}`, 10);
+const WOLF_BLEED_LOW = Number.parseFloat(process.env.WOLF_BLEED_LOW || '1');
+const WOLF_BLEED_MID = Number.parseFloat(process.env.WOLF_BLEED_MID || '0.4');
+const WOLF_BLEED_LOW_STACK = Number.parseInt(process.env.WOLF_BLEED_LOW_STACK || '2', 10);
+const WOLF_BLEED_MID_STACK = Number.parseInt(process.env.WOLF_BLEED_MID_STACK || '1', 10);
+const T4_EXTRA_DEFENCE = Number.parseInt(process.env.T4_EXTRA_DEFENCE || '0', 10);
+const WOLF_HEAVY_ARMOR_THRESHOLD = Number.parseInt(process.env.WOLF_HEAVY_ARMOR_THRESHOLD || '999', 10);
+const WOLF_HEAVY_ARMOR_DAMAGE_REDUCTION = Number.parseInt(process.env.WOLF_HEAVY_ARMOR_DAMAGE_REDUCTION || '0', 10);
+const ENEMY_DAMAGE_MULTIPLIER = Number.parseFloat(process.env.ENEMY_DAMAGE_MULTIPLIER || `${COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_MULTIPLIER}`);
+const ENEMY_DEFENCE_FACTOR = Number.parseFloat(process.env.ENEMY_DEFENCE_FACTOR || `${COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_DEFENCE_FACTOR}`);
+const ENEMY_MIN_DAMAGE = Number.parseInt(process.env.ENEMY_MIN_DAMAGE || `${COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY}`, 10);
+const BLEED_DAMAGE_MODE = process.env.BLEED_DAMAGE_MODE || 'ceil_quarter';
+const BLEED_DECAY_MODE = process.env.BLEED_DECAY_MODE || 'persistent';
+const OUT_OF_COMBAT_BLEED_DECAY = Number.parseInt(process.env.OUT_OF_COMBAT_BLEED_DECAY || '1', 10);
 
 const lukeTemplate = templates.luke_orphan;
 const renZhen = enemies.ren_zhen_shadow;
@@ -108,6 +124,10 @@ function buildPlayer(loadout, skillProfile) {
     if (typeof stats.health === 'number') bonusHp += stats.health;
   }
 
+  if (loadout.id === 't4_iron' && T4_EXTRA_DEFENCE > 0) {
+    defence += T4_EXTRA_DEFENCE;
+  }
+
   return {
     id: 'player',
     name: 'Luke',
@@ -119,6 +139,7 @@ function buildPlayer(loadout, skillProfile) {
     attack,
     defence,
     dexterity: totalDexterity,
+    bleeding: 0,
     baseHitChance: COMBAT_CONFIG.BASE_HIT_CHANCE.PLAYER,
     damageMultiplier: getMeleeMilestoneMultiplier(skillProfile.melee),
   };
@@ -137,6 +158,7 @@ function buildRenZhenRetainers() {
       attack: 12,
       defence: 7,
       dexterity: 9,
+      bleeding: 0,
       baseHitChance: COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION,
     },
     {
@@ -150,6 +172,7 @@ function buildRenZhenRetainers() {
       attack: 10,
       defence: 6,
       dexterity: 8,
+      bleeding: 0,
       baseHitChance: COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION,
     },
     {
@@ -163,6 +186,7 @@ function buildRenZhenRetainers() {
       attack: 10,
       defence: 6,
       dexterity: 10,
+      bleeding: 0,
       baseHitChance: COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION,
     },
   ];
@@ -180,6 +204,7 @@ function buildRonald() {
     attack: 10,
     defence: 7,
     dexterity: 10,
+    bleeding: 0,
     baseHitChance: COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION,
   };
 }
@@ -196,6 +221,7 @@ function buildRenZhen() {
     attack: renZhen.stats.attack,
     defence: renZhen.stats.defence,
     dexterity: renZhen.stats.dexterity,
+    bleeding: 0,
     baseHitChance: clamp(
       COMBAT_CONFIG.BASE_HIT_CHANCE.ENEMY + (renZhen.accuracy_modifier || 0),
       0.1,
@@ -219,6 +245,7 @@ function buildWolf(index = 0) {
     attack: forestWolf.stats.attack,
     defence: forestWolf.stats.defence,
     dexterity: forestWolf.stats.dexterity,
+    bleeding: 0,
     baseHitChance: clamp(
       COMBAT_CONFIG.BASE_HIT_CHANCE.ENEMY + (forestWolf.accuracy_modifier || 0),
       0.1,
@@ -252,10 +279,17 @@ function calcCompanionDamage(attacker, defender) {
 
 function calcEnemyDamage(attacker, defender) {
   const raw = Math.floor(
-    attacker.attack * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_MULTIPLIER -
-      defender.defence * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_DEFENCE_FACTOR
+    attacker.attack * ENEMY_DAMAGE_MULTIPLIER -
+      defender.defence * ENEMY_DEFENCE_FACTOR
   );
-  return Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY, raw);
+  if (attacker.name === forestWolf.name) {
+    let wolfDamage = Math.max(WOLF_MIN_DAMAGE, Math.floor(raw * WOLF_DAMAGE_MULTIPLIER));
+    if (defender.defence >= WOLF_HEAVY_ARMOR_THRESHOLD) {
+      wolfDamage = Math.max(WOLF_MIN_DAMAGE, wolfDamage - WOLF_HEAVY_ARMOR_DAMAGE_REDUCTION);
+    }
+    return wolfDamage;
+  }
+  return Math.max(ENEMY_MIN_DAMAGE, raw);
 }
 
 function calcRenZhenRowDamage(attacker, defender) {
@@ -311,6 +345,49 @@ function average(results, selector) {
   return results.reduce((sum, result) => sum + selector(result), 0) / results.length;
 }
 
+function getWolfBleedChance(defence) {
+  if (defence >= 19) return 0;
+  if (defence >= 12) return WOLF_BLEED_MID;
+  return WOLF_BLEED_LOW;
+}
+
+function getWolfBleedStack(defence) {
+  if (defence >= 19) return 0;
+  if (defence >= 12) return WOLF_BLEED_MID_STACK;
+  return WOLF_BLEED_LOW_STACK;
+}
+
+function applyBleedTick(unit) {
+  const bleeding = unit.bleeding ?? 0;
+  if (bleeding <= 0 || unit.hp <= 0) return;
+  const bleedDamage = getBleedDamage(bleeding);
+  unit.hp = Math.max(0, unit.hp - bleedDamage);
+  if (BLEED_DECAY_MODE === 'per_turn') {
+    unit.bleeding = Math.max(0, bleeding - 1);
+  }
+}
+
+function getBleedDamage(bleeding) {
+  if (BLEED_DAMAGE_MODE === 'half_floor') return Math.max(1, Math.floor(bleeding / 2));
+  if (BLEED_DAMAGE_MODE === 'half_ceil') return Math.max(1, Math.ceil(bleeding / 2));
+  if (BLEED_DAMAGE_MODE === 'flat_one') return 1;
+  return Math.ceil(bleeding / 4);
+}
+
+function projectOutOfCombatBleed(unit) {
+  let hp = Math.max(0, unit.hp);
+  let bleeding = unit.bleeding ?? 0;
+  let hours = 0;
+
+  while (bleeding > 0 && hp > 0) {
+    hp = Math.max(0, hp - getBleedDamage(bleeding));
+    bleeding = Math.max(0, bleeding - OUT_OF_COMBAT_BLEED_DECAY);
+    hours += 1;
+  }
+
+  return { hp, hours };
+}
+
 function simulateRenZhenFight(loadout, skillProfile, hasStormwardNecklace = false) {
   const player = buildPlayer(loadout, skillProfile);
   const retainers = buildRenZhenRetainers();
@@ -329,6 +406,8 @@ function simulateRenZhenFight(loadout, skillProfile, hasStormwardNecklace = fals
     for (let steps = 0; steps < units.length && boss.hp > 0 && getAliveParty(units).length > 0; steps += 1) {
       const actor = units[currentIndex];
       currentIndex = (currentIndex + 1) % units.length;
+      if (actor.hp <= 0) continue;
+      applyBleedTick(actor);
       if (actor.hp <= 0) continue;
 
       if (actor.side === 'party') {
@@ -389,6 +468,8 @@ function simulateWolfFight(loadout, skillProfile, wolfCount) {
       const actor = units[currentIndex];
       currentIndex = (currentIndex + 1) % units.length;
       if (actor.hp <= 0) continue;
+      applyBleedTick(actor);
+      if (actor.hp <= 0) continue;
 
       if (actor.side === 'party') {
         const targets = getTargetableEnemies(units);
@@ -405,17 +486,28 @@ function simulateWolfFight(loadout, skillProfile, wolfCount) {
 
       if (Math.random() <= actor.baseHitChance) {
         const target = targets[Math.floor(Math.random() * targets.length)];
-        target.hp -= calcEnemyDamage(actor, target);
+        const damage = calcEnemyDamage(actor, target);
+        target.hp -= damage;
+        if (damage > 0 && target.hp > 0) {
+          const bleedChance = getWolfBleedChance(target.defence);
+          if (bleedChance > 0 && Math.random() < bleedChance) {
+            target.bleeding = Math.min(12, (target.bleeding ?? 0) + getWolfBleedStack(target.defence));
+          }
+        }
       }
     }
   }
 
   const luke = units.find((u) => u.id === 'player');
+  const projectedAftermath = luke ? projectOutOfCombatBleed(luke) : { hp: 0, hours: 0 };
 
   return {
     win: (luke?.hp || 0) > 0 && getAliveEnemies(units).length === 0,
     lukeAlive: (luke?.hp || 0) > 0,
     playerHpLeft: Math.max(0, luke?.hp || 0),
+    playerBleedingLeft: Math.max(0, luke?.bleeding || 0),
+    projectedPlayerHpAfterBleed: projectedAftermath.hp,
+    projectedBleedHours: projectedAftermath.hours,
     enemiesLeft: getAliveEnemies(units).length,
     rounds,
   };
@@ -436,6 +528,8 @@ function simulateRonaldWolfFight(loadout, skillProfile) {
       const actor = units[currentIndex];
       currentIndex = (currentIndex + 1) % units.length;
       if (actor.hp <= 0) continue;
+      applyBleedTick(actor);
+      if (actor.hp <= 0) continue;
 
       if (actor.side === 'party') {
         const targets = getTargetableEnemies(units);
@@ -453,19 +547,30 @@ function simulateRonaldWolfFight(loadout, skillProfile) {
 
       if (Math.random() <= actor.baseHitChance) {
         const target = targets[Math.floor(Math.random() * targets.length)];
-        target.hp -= calcEnemyDamage(actor, target);
+        const damage = calcEnemyDamage(actor, target);
+        target.hp -= damage;
+        if (damage > 0 && target.hp > 0) {
+          const bleedChance = getWolfBleedChance(target.defence);
+          if (bleedChance > 0 && Math.random() < bleedChance) {
+            target.bleeding = Math.min(12, (target.bleeding ?? 0) + getWolfBleedStack(target.defence));
+          }
+        }
       }
     }
   }
 
   const luke = units.find((u) => u.id === 'player');
   const ronald = units.find((u) => u.id === 'ronald_companion');
+  const projectedAftermath = luke ? projectOutOfCombatBleed(luke) : { hp: 0, hours: 0 };
 
   return {
     win: getAliveParty(units).length > 0 && getAliveEnemies(units).length === 0,
     lukeAlive: (luke?.hp || 0) > 0,
     ronaldAlive: (ronald?.hp || 0) > 0,
     playerHpLeft: Math.max(0, luke?.hp || 0),
+    playerBleedingLeft: Math.max(0, luke?.bleeding || 0),
+    projectedPlayerHpAfterBleed: projectedAftermath.hp,
+    projectedBleedHours: projectedAftermath.hours,
     ronaldHpLeft: Math.max(0, ronald?.hp || 0),
     enemiesLeft: getAliveEnemies(units).length,
     rounds,
@@ -519,11 +624,20 @@ function summarizeScenario(loadout, skillProfile, scenarioId) {
         attack: forestWolf.stats.attack,
         defence: forestWolf.stats.defence,
         dexterity: forestWolf.stats.dexterity,
+        damageMultiplier: WOLF_DAMAGE_MULTIPLIER,
+        minDamage: WOLF_MIN_DAMAGE,
+        lowArmorBleedChance: WOLF_BLEED_LOW,
+        midArmorBleedChance: WOLF_BLEED_MID,
+        lowArmorBleedStack: WOLF_BLEED_LOW_STACK,
+        midArmorBleedStack: WOLF_BLEED_MID_STACK,
       },
       winRate: Number(((wins.length / TRIALS) * 100).toFixed(1)),
       lukeSurvivalRate: Number(((results.filter((r) => r.lukeAlive).length / TRIALS) * 100).toFixed(1)),
       averageRounds: Number(average(results, (r) => r.rounds).toFixed(2)),
       averagePlayerHpLeftOnWins: Number(average(wins, (r) => r.playerHpLeft).toFixed(2)),
+      averagePlayerBleedOnWins: Number(average(wins, (r) => r.playerBleedingLeft).toFixed(2)),
+      averagePlayerHpAfterUntreatedBleedOnWins: Number(average(wins, (r) => r.projectedPlayerHpAfterBleed).toFixed(2)),
+      averageBleedHoursOnWins: Number(average(wins, (r) => r.projectedBleedHours).toFixed(2)),
       averageEnemiesLeftOnLosses: Number(average(losses, (r) => r.enemiesLeft).toFixed(2)),
     };
   } else if (scenarioId === 'ronald_wolves') {
@@ -544,12 +658,21 @@ function summarizeScenario(loadout, skillProfile, scenarioId) {
         attack: forestWolf.stats.attack,
         defence: forestWolf.stats.defence,
         dexterity: forestWolf.stats.dexterity,
+        damageMultiplier: WOLF_DAMAGE_MULTIPLIER,
+        minDamage: WOLF_MIN_DAMAGE,
+        lowArmorBleedChance: WOLF_BLEED_LOW,
+        midArmorBleedChance: WOLF_BLEED_MID,
+        lowArmorBleedStack: WOLF_BLEED_LOW_STACK,
+        midArmorBleedStack: WOLF_BLEED_MID_STACK,
       },
       winRate: Number(((wins.length / TRIALS) * 100).toFixed(1)),
       lukeSurvivalRate: Number(((results.filter((r) => r.lukeAlive).length / TRIALS) * 100).toFixed(1)),
       ronaldSurvivalRate: Number(((results.filter((r) => r.ronaldAlive).length / TRIALS) * 100).toFixed(1)),
       averageRounds: Number(average(results, (r) => r.rounds).toFixed(2)),
       averagePlayerHpLeftOnWins: Number(average(wins, (r) => r.playerHpLeft).toFixed(2)),
+      averagePlayerBleedOnWins: Number(average(wins, (r) => r.playerBleedingLeft).toFixed(2)),
+      averagePlayerHpAfterUntreatedBleedOnWins: Number(average(wins, (r) => r.projectedPlayerHpAfterBleed).toFixed(2)),
+      averageBleedHoursOnWins: Number(average(wins, (r) => r.projectedBleedHours).toFixed(2)),
       averageRonaldHpLeftOnWins: Number(average(wins, (r) => r.ronaldHpLeft).toFixed(2)),
       averageEnemiesLeftOnLosses: Number(average(losses, (r) => r.enemiesLeft).toFixed(2)),
     };

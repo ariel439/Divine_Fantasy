@@ -46,6 +46,18 @@
     ]
   },
   {
+    "shop_id": "elara_herbalist",
+    "name": "Elara's Remedies",
+    "location_id": "herbalists_hovel",
+    "currency": 250,
+    "buy_multiplier": 0.7,
+    "sell_multiplier": 1.35,
+    "accepted_categories": ["consumable", "resource"],
+    "inventory": [
+      { "item_id": "bandage", "quantity": 10 }
+    ]
+  },
+  {
     "shop_id": "harbor_clothier",
     "name": "Harbor Clothier",
     "location_id": "harbor_clothier",

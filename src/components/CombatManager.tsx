@@ -104,14 +104,18 @@ const CombatManager: React.FC = () => {
 
   const scriptedTurnCount = React.useRef(0);
   const resolutionHandledRef = React.useRef(false);
+  const processedBleedTurnRef = React.useRef<string | null>(null);
 
   const [selectedTargetId, setSelectedTargetId] = React.useState<string>('');
   const [actionLocked, setActionLocked] = React.useState(false);
   const [thunderStrikeIds, setThunderStrikeIds] = React.useState<string[]>([]);
+  const [turnStartEffectPending, setTurnStartEffectPending] = React.useState(false);
 
   useEffect(() => {
     if (phase === 'setup' || participants.length === 0) {
       resolutionHandledRef.current = false;
+      processedBleedTurnRef.current = null;
+      setTurnStartEffectPending(false);
     }
   }, [phase, participants.length]);
 
@@ -145,6 +149,11 @@ const CombatManager: React.FC = () => {
       hp: fallbackHp !== undefined
         ? Math.max(1, Math.min(state.maxHp || 100, fallbackHp))
         : Math.max(1, Math.min(state.maxHp || 100, playerCombatant?.hp ?? state.hp)),
+      effects: {
+        ...state.effects,
+        bleeding: Math.max(0, Math.min(12, playerCombatant?.bleeding ?? state.effects.bleeding)),
+        bleedMinutesAccumulated: playerCombatant && (playerCombatant.bleeding ?? 0) > 0 ? state.effects.bleedMinutesAccumulated : 0,
+      },
     }));
   }, [participants]);
   const syncCompanionVitalsFromCombat = React.useCallback(() => {
@@ -200,6 +209,16 @@ const CombatManager: React.FC = () => {
 
     return Array.from(lootMap.entries()).map(([itemId, quantity]) => ({ itemId, quantity }));
   }, [participants]);
+  const getWolfBleedChance = React.useCallback((defence: number) => {
+    if (defence >= 19) return 0;
+    if (defence >= 12) return 0.4;
+    return 1;
+  }, []);
+  const getWolfBleedStack = React.useCallback((defence: number) => {
+    if (defence >= 19) return 0;
+    if (defence >= 12) return 1;
+    return 2;
+  }, []);
 
   // Keep target selection sane as enemy counts change
   useEffect(() => {
@@ -223,6 +242,63 @@ const CombatManager: React.FC = () => {
     const timer = setTimeout(() => setThunderStrikeIds([]), 700);
     return () => clearTimeout(timer);
   }, [thunderStrikeIds]);
+
+  useEffect(() => {
+    if (phase === 'setup' || phase === 'victory' || phase === 'defeat' || phase === 'fled') {
+      processedBleedTurnRef.current = null;
+      setTurnStartEffectPending(false);
+      return;
+    }
+
+    const current = getCurrentParticipant();
+    if (!current || current.hp <= 0) {
+      setTurnStartEffectPending(false);
+      return;
+    }
+
+    if ((current.side === 'party' && aliveEnemies.length === 0) || (current.side === 'enemy' && aliveParty.length === 0)) {
+      setTurnStartEffectPending(false);
+      return;
+    }
+
+    const bleedKey = `${current.id}:${currentTurnIndex}:${phase}`;
+    if (processedBleedTurnRef.current === bleedKey) return;
+    processedBleedTurnRef.current = bleedKey;
+
+    const bleeding = current.bleeding ?? 0;
+    if (bleeding <= 0) {
+      setTurnStartEffectPending(false);
+      return;
+    }
+
+    const bleedDamage = Math.ceil(bleeding / 4);
+    const nextHp = Math.max(0, current.hp - bleedDamage);
+
+    setTurnStartEffectPending(true);
+    setActionLocked(true);
+
+    const timer = setTimeout(() => {
+      updateParticipant(current.id, { hp: nextHp });
+      addLogEntry(`${current.name} bleeds for ${bleedDamage} damage!`);
+
+      if (current.isPlayer && bleedDamage > 0) {
+        addSkillXp('defence', Math.floor(bleedDamage * 2));
+      }
+
+      if (nextHp <= 0) {
+        addLogEntry(`${current.name} is defeated!`);
+        setTurnStartEffectPending(false);
+        setActionLocked(false);
+        nextTurn();
+        return;
+      }
+
+      setTurnStartEffectPending(false);
+      setActionLocked(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [phase, currentTurnIndex, getCurrentParticipant, updateParticipant, addLogEntry, nextTurn, addSkillXp, aliveEnemies.length, aliveParty.length]);
 
   // Handle victory/defeat checks
   useEffect(() => {
@@ -357,7 +433,7 @@ const CombatManager: React.FC = () => {
   }, [aliveEnemies.length, aliveParty.length, phase, setPhase, setRewards, endCombat, setScreen, passTime, encounterType, victoryActions, victoryToast, victoryEventId, defeatMode, defeatToast, syncPlayerVitalsFromCombat, participants, rollCombatLoot]);
 
   const handleAttack = () => {
-    if (!isPlayerTurn() || !selectedTargetId || actionLocked) return;
+    if (!isPlayerTurn() || !selectedTargetId || actionLocked || turnStartEffectPending) return;
     
     const attacker = getCurrentParticipant();
     const target = participants.find(p => p.id === selectedTargetId);
@@ -510,7 +586,7 @@ const CombatManager: React.FC = () => {
   };
 
   const handleFlee = () => {
-    if (!allowFlee || !isPlayerTurn() || actionLocked) return;
+    if (!allowFlee || !isPlayerTurn() || actionLocked || turnStartEffectPending) return;
     
     // Simple flee logic - base chance modified by dexterity difference
     const partyDexterity = getAliveParty().reduce((sum, p) => sum + p.dexterity, 0) / getAliveParty().length;
@@ -549,7 +625,7 @@ const CombatManager: React.FC = () => {
   // Auto-advance enemy AND companion turns
   useEffect(() => {
     // Enemy Turn Logic
-    if (!isPlayerTurn() && phase === 'enemy-turn') {
+    if (!isPlayerTurn() && phase === 'enemy-turn' && !turnStartEffectPending) {
       const timer = setTimeout(() => {
         const currentEnemy = getCurrentParticipant();
         if (!currentEnemy || currentEnemy.hp <= 0) {
@@ -600,9 +676,15 @@ const CombatManager: React.FC = () => {
              damage = Math.max(brawlProfile.minDamage, damage);
              damage = applyOutgoingDamageModifiers(currentEnemy, damage, brawlProfile.minDamage);
            } else {
-             damage = Math.floor((attackPower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_DEFENCE_FACTOR) * typeMultiplier);
-             damage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY, damage);
-             damage = applyOutgoingDamageModifiers(currentEnemy, damage, COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY);
+             const isWolf = currentEnemy.combatTags?.includes('wolf');
+             const rawDamage = Math.floor((attackPower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_DEFENCE_FACTOR) * typeMultiplier);
+             if (isWolf) {
+               damage = Math.max(3, Math.floor(rawDamage * 0.88));
+               damage = applyOutgoingDamageModifiers(currentEnemy, damage, 3);
+             } else {
+               damage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY, rawDamage);
+               damage = applyOutgoingDamageModifiers(currentEnemy, damage, COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY);
+             }
            }
           
           playSfx(encounterType === 'brawl' ? COMBAT_CONFIG.DEFAULT_SFX.ATTACK : getAttackSound(currentEnemy));
@@ -639,8 +721,11 @@ const CombatManager: React.FC = () => {
               const survivors = useCombatStore.getState().participants.filter((p) => (p.isPlayer || p.isCompanion) && p.hp > 0);
               const thunderDamage = 20;
               const struckIds: string[] = [];
-              const equippedAmulet = useCharacterStore.getState().equippedItems.amulet;
-              const playerProtectedFromThunder = equippedAmulet?.id === 'stormward_necklace';
+              const characterState = useCharacterStore.getState();
+              const equippedAmulet = characterState.equippedItems.amulet;
+              const socialAmuletId = characterState.equipmentLoadouts[2]?.amulet;
+              const playerProtectedFromThunder =
+                equippedAmulet?.id === 'stormward_necklace' || socialAmuletId === 'stormward_necklace';
 
               playSfx('/assets/sfx/combat_thunder_strike.mp3');
 
@@ -676,6 +761,17 @@ const CombatManager: React.FC = () => {
           updateParticipant(target.id, { hp: newHp });
           addLogEntry(`${currentEnemy.name} attacks ${target.name} for ${damage} damage!`);
 
+          if (currentEnemy.combatTags?.includes('wolf') && damage > 0 && newHp > 0) {
+            const bleedChance = getWolfBleedChance(target.defence);
+            const bleedStack = getWolfBleedStack(target.defence);
+            if (bleedChance > 0 && bleedStack > 0 && Math.random() < bleedChance) {
+              const currentBleeding = target.bleeding ?? 0;
+              const nextBleeding = Math.min(12, currentBleeding + bleedStack);
+              updateParticipant(target.id, { bleeding: nextBleeding });
+              addLogEntry(`${target.name} starts bleeding!`);
+            }
+          }
+
           // Award defence skill XP to target for taking damage
           if (target.isPlayer && damage > 0) {
             addSkillXp('defence', Math.floor(damage * 2)); // 2 XP per damage taken
@@ -702,7 +798,7 @@ const CombatManager: React.FC = () => {
     
     // Companion Turn Logic
     const current = getCurrentParticipant();
-    if (phase === 'player-turn' && current?.isCompanion) {
+    if (phase === 'player-turn' && current?.isCompanion && !turnStartEffectPending) {
          const timer = setTimeout(() => {
             const aliveEnemies = getAliveEnemies();
             if (aliveEnemies.length === 0 || targetableEnemies.length === 0) {

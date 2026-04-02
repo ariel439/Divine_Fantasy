@@ -148,6 +148,9 @@ export const useWorldTimeStore = create<WorldTimeState>((set, get) => ({
     try {
       useCharacterStore.getState().tickHunger(minutes);
     } catch {}
+    try {
+      useCharacterStore.getState().tickBleeding(minutes);
+    } catch {}
   },
   setClockPaused: (paused: boolean) => set({ clockPaused: paused }),
   getFormattedTime: () => {

@@ -99,10 +99,14 @@ export const useCombatStore = create<CombatStore>((set, get) => ({
       member.isPlayer
         ? {
             ...member,
+            bleeding: useCharacterStore.getState().effects.bleeding,
             combatTags: playerCombatTags,
             attack_sound: member.attack_sound || equippedWeapon?.attack_sound,
           }
-        : member
+        : {
+            ...member,
+            bleeding: member.bleeding ?? 0,
+          }
     );
 
     const positionedParty = assignFormation(normalizedParty);

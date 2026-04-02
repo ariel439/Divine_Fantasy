@@ -68,6 +68,15 @@
     },
     "image": "/assets/items/cooked_meat.png"
   },
+  "bandage": {
+    "name": "Bandage",
+    "description": "A clean roll of cloth for dressing cuts and stopping blood loss.",
+    "type": "consumable",
+    "stackable": true,
+    "weight": 0.1,
+    "base_value": 12,
+    "image": "/assets/items/cloth.png"
+  },
   "log": {
     "name": "Log",
     "description": "A rough log, needs to be processed.",

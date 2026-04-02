@@ -1,7 +1,7 @@
 import itemsData from '../data/items.json';
 import { useCharacterStore } from '../stores/useCharacterStore';
 import { useWorldStateStore } from '../stores/useWorldStateStore';
-import type { EquipmentSlot, Item } from '../types';
+import type { CombatEquipmentSlot, EquipmentSlot, Item, SocialEquipmentSlot } from '../types';
 import { averageToTier, type SocialTier } from './socialTiers';
 
 export interface EquippedPresentation {
@@ -96,8 +96,8 @@ const THREAT_SLOT_WEIGHTS: Record<EquipmentSlot, number> = {
   boots: 0,
 };
 
-const PRESENTATION_MAJOR_SLOTS: EquipmentSlot[] = ['chest', 'legs', 'boots'];
-const THREAT_RELEVANT_SLOTS: EquipmentSlot[] = ['weapon', 'head', 'chest', 'shield', 'legs'];
+const PRESENTATION_MAJOR_SLOTS: SocialEquipmentSlot[] = ['chest', 'legs', 'boots'];
+const THREAT_RELEVANT_SLOTS: CombatEquipmentSlot[] = ['weapon', 'head', 'chest', 'shield', 'legs'];
 
 function getEquippedItems() {
   return useCharacterStore.getState().equippedItems;
@@ -107,11 +107,11 @@ function getSocialLoadoutItems() {
   const { equipmentLoadouts } = useCharacterStore.getState();
   const socialLoadout = equipmentLoadouts[2] || {};
 
-  return Object.entries(socialLoadout).reduce<Partial<Record<EquipmentSlot, Item>>>((acc, [slot, itemId]) => {
+  return Object.entries(socialLoadout).reduce<Partial<Record<SocialEquipmentSlot, Item>>>((acc, [slot, itemId]) => {
     if (!itemId) return acc;
     const itemData = itemsData[itemId as keyof typeof itemsData] as SocialItemData | undefined;
     if (!itemData) return acc;
-    acc[slot as EquipmentSlot] = {
+    acc[slot as SocialEquipmentSlot] = {
       ...itemData,
       id: itemId,
       name: itemData.name || itemId,

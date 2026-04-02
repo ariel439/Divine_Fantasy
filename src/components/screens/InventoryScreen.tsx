@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import type { FC } from 'react';
 import { Coins, ArrowLeft, Settings2 } from 'lucide-react';
-import type { Item, EquipmentSlot, FilterCategory } from '../../types';
+import type { CombatEquipmentSlot, EquipmentSlot, FilterCategory, Item, SocialEquipmentSlot } from '../../types';
 import { useInventoryStore } from '../../stores/useInventoryStore';
 import { useCharacterStore } from '../../stores/useCharacterStore';
 import { useUIStore } from '../../stores/useUIStore';
@@ -102,9 +102,9 @@ const InventoryScreen: FC = () => {
     }, [inventoryItems]);
 
     const socialEquippedItems = useMemo(() => {
-        const enriched: Partial<Record<EquipmentSlot, Item>> = {};
+        const enriched: Partial<Record<SocialEquipmentSlot, Item>> = {};
 
-        (Object.entries(equipmentLoadouts[2] || {}) as [EquipmentSlot, string | undefined][]).forEach(([slot, itemId]) => {
+        (Object.entries(equipmentLoadouts[2] || {}) as [SocialEquipmentSlot, string | undefined][]).forEach(([slot, itemId]) => {
             if (!itemId) return;
             const displayItem = buildDisplayItem({ id: itemId, quantity: 1 });
             if (!displayItem) return;
@@ -115,9 +115,9 @@ const InventoryScreen: FC = () => {
     }, [equipmentLoadouts]);
 
     const combatEquippedItems = useMemo(() => {
-        const enriched: Partial<Record<EquipmentSlot, Item>> = {};
+        const enriched: Partial<Record<CombatEquipmentSlot, Item>> = {};
 
-        (Object.entries(equippedItems) as [EquipmentSlot, Item | undefined][]).forEach(([slot, item]) => {
+        (Object.entries(equippedItems) as [CombatEquipmentSlot, Item | undefined][]).forEach(([slot, item]) => {
             if (!item) return;
             const displayItem = buildDisplayItem({ id: item.id, quantity: item.quantity });
             if (!displayItem) return;

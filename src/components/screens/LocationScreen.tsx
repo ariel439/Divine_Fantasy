@@ -10,7 +10,7 @@ import { GameManagerService } from '../../services/GameManagerService';
 import { DialogueService } from '../../services/DialogueService';
 import { NPCService } from '../../services/NPCService';
 import { LocationService } from '../../services/LocationService';
-import { Sun, Moon, MessageSquare, Hammer, Fish, MapPin, ShoppingCart, CookingPot, Bed, Search, Swords, Leaf, Snowflake, Sprout, Cloud, CloudRain, BookOpen, User, Package, Briefcase, Heart, Library, Zap, Award, Utensils, Clock, Compass } from 'lucide-react';
+import { Sun, Moon, MessageSquare, Hammer, Fish, MapPin, ShoppingCart, CookingPot, Bed, Search, Swords, Leaf, Snowflake, Sprout, Cloud, CloudRain, BookOpen, User, Package, Briefcase, Heart, Library, Zap, Award, Utensils, Clock, Compass, Droplets } from 'lucide-react';
 import ProgressBar from '../ui/ProgressBar';
 import ActionButton from '../ui/ActionButton';
 import WeatherParticles from '../effects/WeatherParticles';
@@ -29,7 +29,7 @@ import { breakfastEventSlides, rebelRaidIntroSlides, sellLocketSlides, elaraDeli
 import { useToastStore } from '../../stores/useToastStore';
 
 const LocationScreen: React.FC = () => {
-  const { hp, maxHp, energy, hunger, explorationEscapes, maxExplorationEscapes } = useCharacterStore();
+  const { hp, maxHp, energy, hunger, explorationEscapes, maxExplorationEscapes, effects } = useCharacterStore();
   const { month, dayOfMonth, hour, getFormattedTime, getFormattedDate, getSeason, getWeather, temperatureC } = useWorldTimeStore();
   const { getCurrentLocation } = useLocationStore();
   const { setScreen } = useUIStore();
@@ -119,6 +119,7 @@ const LocationScreen: React.FC = () => {
   };
 
   const { temp, weatherText, WeatherIcon } = getWeatherDisplay();
+  const bleedDamagePerHour = effects.bleeding > 0 ? Math.ceil(effects.bleeding / 4) : 0;
 
   const setIntroTime = useCallback((hourValue: number, minuteValue: number = 0) => {
     useWorldTimeStore.setState({ hour: hourValue, minute: minuteValue });
@@ -846,7 +847,7 @@ const LocationScreen: React.FC = () => {
         <div className="flex items-center gap-6 w-1/3">
           <div className="flex items-center gap-3 w-40">
             <Heart size={14} className="text-red-500 shrink-0" />
-            <ProgressBar label="" value={Math.floor(hp)} max={Math.floor(maxHp)} colorClass="bg-red-500" />
+            <ProgressBar label="" value={Math.floor(hp)} max={Math.floor(maxHp)} colorClass={effects.bleeding > 0 ? "bg-red-500 animate-bleed-bar" : "bg-red-500"} />
           </div>
           <div className="flex items-center gap-3 w-40">
             <Zap size={14} className="text-blue-500 shrink-0" />
@@ -893,6 +894,15 @@ const LocationScreen: React.FC = () => {
           </div>
         </div>
       </header>
+
+      {effects.bleeding > 0 && (
+        <div className="absolute top-[calc(7vh+8px)] left-8 z-30">
+          <div className="flex items-center gap-1.5 bg-zinc-950/85 border border-red-500/40 shadow-[0_0_16px_rgba(239,68,68,0.2)] rounded-full px-2.5 py-1 backdrop-blur-md animate-bleed-bar">
+            <Droplets size={12} className="text-red-400 shrink-0" />
+            <span className="text-[10px] font-black uppercase tracking-wide text-red-200">{effects.bleeding}h</span>
+          </div>
+        </div>
+      )}
 
       {/* 2. Main Content Area (86vh) - Immersion & Actions */}
       <main className="relative z-10 w-full h-[86vh] flex flex-col lg:flex-row gap-8 p-6 lg:p-12 items-end justify-end overflow-hidden">
@@ -1134,6 +1144,12 @@ const LocationScreen: React.FC = () => {
           to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in-up { animation: fade-in-up 0.6s ease-out forwards; }
+
+        @keyframes bleed-bar {
+          0%, 100% { filter: brightness(1); }
+          50% { filter: brightness(1.35); }
+        }
+        .animate-bleed-bar { animation: bleed-bar 1.2s ease-in-out infinite; }
 
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }

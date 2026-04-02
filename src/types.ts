@@ -29,6 +29,22 @@ export type GameState =
 export type NavVariant = 'default' | 'compact' | 'floating';
 
 // Inventory and equipment types
+export type CombatEquipmentSlot =
+  | 'head'
+  | 'weapon'
+  | 'chest'
+  | 'shield'
+  | 'legs';
+
+export type SocialEquipmentSlot =
+  | 'cape'
+  | 'amulet'
+  | 'gloves'
+  | 'boots'
+  | 'ring'
+  | 'chest'
+  | 'legs';
+
 export type EquipmentSlot =
   | 'head'
   | 'cape'
@@ -76,7 +92,8 @@ export interface Item {
   threatRole?: 'major' | 'minor';
 }
 
-export type EquipmentLoadoutSlotMap = Partial<Record<EquipmentSlot, string>>;
+export type CombatEquipmentLoadoutSlotMap = Partial<Record<CombatEquipmentSlot, string>>;
+export type SocialEquipmentLoadoutSlotMap = Partial<Record<SocialEquipmentSlot, string>>;
 
 // Trading
 export interface OfferItem {
@@ -104,6 +121,7 @@ export interface CombatParticipant {
     name: string;
     hp: number;
     maxHp: number;
+  bleeding?: number;
   attack: number;
   defence: number;
   dexterity: number;

@@ -135,6 +135,30 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
     const itemData = itemsData[itemId as keyof typeof itemsData];
     if (!itemData) return false;
 
+    if (itemId === 'bandage') {
+      const character = useCharacterStore.getState();
+      const addToast = useToastStore.getState().addToast;
+      if (character.effects.bleeding <= 0) {
+        addToast('You are not bleeding.', 'info', 2000);
+        return false;
+      }
+
+      const removed = get().removeItem(itemId, 1);
+      if (!removed) return false;
+
+      character.reduceBleeding(1);
+      const remainingBleed = useCharacterStore.getState().effects.bleeding;
+      addToast(
+        remainingBleed > 0
+          ? `You bind the wound. Bleeding reduced to ${remainingBleed}.`
+          : 'You bind the wound and stop the bleeding.',
+        'success',
+        2500,
+        'Bandage Applied'
+      );
+      return true;
+    }
+
     const rawFoodBlocked = ['raw_meat', 'fish_sardine', 'fish_trout', 'fish_pike'];
     if (rawFoodBlocked.includes(itemId)) {
       return false;

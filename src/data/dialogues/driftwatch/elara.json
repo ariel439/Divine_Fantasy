@@ -1,5 +1,6 @@
 {
   "elara_default": {
+    "trade_shop_id": "elara_herbalist",
     "interaction_roots": {
       "ask": "elara_ask_root",
       "quest": "elara_quest_root"
@@ -8,6 +9,10 @@
       "0": {
         "npc_text": "Herbs, potions, salves... I have everything a healer needs.",
         "player_choices": [
+          {
+            "text": "Show me your remedies.",
+            "action": "open_shop:elara_herbalist"
+          },
           {
             "text": "I'd like to talk.",
             "next_node": "__social_root__"

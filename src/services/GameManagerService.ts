@@ -361,6 +361,10 @@ export class GameManagerService {
       maxExplorationEscapes: 0,
       currency: { ...template.starting_bonuses.currency },
       maxWeight: 50,
+      effects: {
+        bleeding: 0,
+        bleedMinutesAccumulated: 0,
+      },
       languages: {
         veyric: 'Native',
         shenhaic: 'None',

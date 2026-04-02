@@ -9,74 +9,42 @@ import { useWorldStateStore } from '../../stores/useWorldStateStore';
 import { GameManagerService } from '../../services/GameManagerService';
 import itemsJson from '../../data/items.json';
 import enemiesJson from '../../data/enemies.json';
-import type { EquipmentSlot, Item } from '../../types';
+import type { CombatEquipmentSlot, EquipmentSlot, Item } from '../../types';
 
 type EncounterMode = 'standard' | 'brawl';
 type EnemySlotValue = 'none' | keyof typeof enemiesJson;
-type AllySlotValue = 'none' | 'wolf_puppy' | 'robert' | 'lin_shao' | 'wei_taren' | 'qiao_ren';
-type DebugGearSlot = 'head' | 'chest' | 'legs' | 'boots' | 'weapon' | 'amulet';
-type GearSelection = Record<DebugGearSlot, string>;
+type AllySlotValue = 'none' | 'wolf_puppy' | 'robert' | 'lin_shao' | 'wei_taren' | 'qiao_ren' | 'ronald';
+type DebugCombatGearSlot = 'head' | 'chest' | 'legs' | 'weapon' | 'shield';
+type CombatGearSelection = Record<DebugCombatGearSlot, string>;
 
-const GEAR_SLOT_LABELS: Record<DebugGearSlot, string> = {
+const COMBAT_GEAR_SLOT_LABELS: Record<DebugCombatGearSlot, string> = {
   head: 'Head',
   chest: 'Chest',
   legs: 'Legs',
-  boots: 'Boots',
   weapon: 'Weapon',
-  amulet: 'Amulet',
+  shield: 'Shield',
 };
 
-const GEAR_PRESETS: Array<{ id: string; label: string; gear: GearSelection }> = [
+const COMBAT_GEAR_PRESETS: Array<{ id: string; label: string; gear: CombatGearSelection }> = [
   {
-    id: 'naked',
-    label: 'Naked',
-    gear: { head: '', chest: '', legs: '', boots: '', weapon: '', amulet: '' },
+    id: 't1_naked',
+    label: 'T1 Naked',
+    gear: { head: '', chest: '', legs: '', weapon: '', shield: '' },
   },
   {
-    id: 'dagger',
-    label: 'Dagger',
-    gear: { head: '', chest: '', legs: '', boots: '', weapon: 'crude_knife', amulet: '' },
+    id: 't2_set',
+    label: 'T2 Set',
+    gear: { head: 'leather_cap', chest: 'leather_jerkin', legs: 'leather_leggings', weapon: 'crude_knife', shield: 'wooden_shield' },
   },
   {
-    id: 'ragged_dagger',
-    label: 'Rags + Dagger',
-    gear: { head: '', chest: 'ragged_shirt', legs: 'ragged_legs', boots: '', weapon: 'crude_knife', amulet: '' },
+    id: 't3_set',
+    label: 'T3 Set',
+    gear: { head: 'chain_coif', chest: 'chainmail_shirt', legs: 'chainmail_leggings', weapon: 'bronze_sword', shield: 'bronze_shield' },
   },
   {
-    id: 'chainmail_set',
-    label: 'Chainmail Set',
-    gear: {
-      head: 'chain_coif',
-      chest: 'chainmail_shirt',
-      legs: 'chainmail_leggings',
-      boots: '',
-      weapon: 'bronze_sword',
-      amulet: '',
-    },
-  },
-  {
-    id: 'iron_set',
-    label: 'Iron Set',
-    gear: {
-      head: 'iron_helmet',
-      chest: 'iron_chainmail',
-      legs: 'iron_leggings',
-      boots: '',
-      weapon: 'iron_sword',
-      amulet: '',
-    },
-  },
-  {
-    id: 'common_social',
-    label: 'Common Clothes',
-    gear: {
-      head: '',
-      chest: 'common_shirt',
-      legs: 'common_legs',
-      boots: 'common_shoes',
-      weapon: '',
-      amulet: '',
-    },
+    id: 't4_set',
+    label: 'T4 Set',
+    gear: { head: 'iron_helmet', chest: 'iron_chainmail', legs: 'iron_leggings', weapon: 'iron_sword', shield: 'iron_shield' },
   },
 ];
 
@@ -86,27 +54,26 @@ const CombatDebugScreen: FC = () => {
   const [encounterMode, setEncounterMode] = useState<EncounterMode>('standard');
   const [allySlots, setAllySlots] = useState<AllySlotValue[]>(['none', 'none', 'none']);
   const [enemySlots, setEnemySlots] = useState<EnemySlotValue[]>(['wolf_forest', 'none', 'none', 'none']);
-  const [selectedGear, setSelectedGear] = useState<GearSelection>({
+  const [selectedGear, setSelectedGear] = useState<CombatGearSelection>({
     head: '',
-    chest: 'ragged_shirt',
-    legs: 'ragged_legs',
-    boots: '',
+    chest: '',
+    legs: '',
     weapon: '',
-    amulet: '',
+    shield: '',
   });
+  const [selectedSocialAmulet, setSelectedSocialAmulet] = useState<string>('');
 
   const equippableBySlot = useMemo(() => {
-    const initial: Record<DebugGearSlot, Array<{ id: string; name: string }>> = {
+    const initial: Record<DebugCombatGearSlot, Array<{ id: string; name: string }>> = {
       head: [],
       chest: [],
       legs: [],
-      boots: [],
       weapon: [],
-      amulet: [],
+      shield: [],
     };
 
     Object.entries(itemsJson).forEach(([id, item]) => {
-      const slot = (item as any).equipmentSlot as DebugGearSlot | undefined;
+      const slot = (item as any).equipmentSlot as DebugCombatGearSlot | undefined;
       if (!slot || !(slot in initial)) return;
       initial[slot].push({ id, name: item.name });
     });
@@ -114,6 +81,15 @@ const CombatDebugScreen: FC = () => {
     Object.values(initial).forEach((items) => items.sort((a, b) => a.name.localeCompare(b.name)));
     return initial;
   }, []);
+
+  const amuletOptions = useMemo(
+    () =>
+      Object.entries(itemsJson)
+        .filter(([, item]) => (item as any).equipmentSlot === 'amulet')
+        .map(([id, item]) => ({ id, name: item.name }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    []
+  );
 
   const enemyOptions = useMemo(
     () =>
@@ -131,6 +107,7 @@ const CombatDebugScreen: FC = () => {
       { id: 'lin_shao' as AllySlotValue, label: 'Captain Lin Shao' },
       { id: 'wei_taren' as AllySlotValue, label: 'Wei Taren' },
       { id: 'qiao_ren' as AllySlotValue, label: 'Qiao Ren' },
+      { id: 'ronald' as AllySlotValue, label: 'Ronald' },
     ],
     []
   );
@@ -170,10 +147,15 @@ const CombatDebugScreen: FC = () => {
   };
 
   const clearEquipment = () => {
-    const character = useCharacterStore.getState();
-    Object.values(character.equippedItems || {}).forEach((item: any) => {
-      if (item) character.unequipItem(item);
-    });
+    useCharacterStore.setState((state) => ({
+      ...state,
+      equippedItems: {},
+      equipmentLoadouts: {
+        1: {},
+        2: {},
+      },
+      activeEquipmentLoadout: 1,
+    }));
   };
 
   const addAndEquip = (itemId: string) => {
@@ -193,22 +175,42 @@ const CombatDebugScreen: FC = () => {
     character.equipItem(item);
   };
 
+  const clearDebugInventoryItems = () => {
+    const inventory = useInventoryStore.getState();
+    const relevantIds = new Set<string>([
+      ...Object.values(selectedGear).filter(Boolean),
+      selectedSocialAmulet,
+      ...COMBAT_GEAR_PRESETS.flatMap((preset) => Object.values(preset.gear).filter(Boolean)),
+      'stormward_necklace',
+    ]);
+
+    relevantIds.forEach((itemId) => {
+      const quantity = inventory.getItemQuantity(itemId);
+      if (quantity > 0) inventory.removeItem(itemId, quantity);
+    });
+  };
+
   const applyPlayerSetup = () => {
     ensureDebugCharacter();
     useWorldStateStore.getState().setFlag('combat_tutorial_seen', true);
     useWorldStateStore.getState().setFlag('combat_tutorial_active', false);
 
     clearEquipment();
+    clearDebugInventoryItems();
 
     const skillStore = useSkillStore.getState();
     skillStore.setSkillLevel('attack', 1);
     skillStore.setSkillLevel('defense', 1);
     skillStore.setSkillLevel('agility', 1);
 
-    (Object.keys(selectedGear) as DebugGearSlot[]).forEach((slot) => {
+    (Object.keys(selectedGear) as DebugCombatGearSlot[]).forEach((slot) => {
       const itemId = selectedGear[slot];
       if (itemId) addAndEquip(itemId);
     });
+
+    if (selectedSocialAmulet) {
+      addAndEquip(selectedSocialAmulet);
+    }
 
     useCharacterStore.getState().recalculateStats();
   };
@@ -234,8 +236,25 @@ const CombatDebugScreen: FC = () => {
   };
 
   const applyGearPreset = (presetId: string) => {
-    const preset = GEAR_PRESETS.find((entry) => entry.id === presetId);
+    const preset = COMBAT_GEAR_PRESETS.find((entry) => entry.id === presetId);
     if (preset) setSelectedGear(preset.gear);
+  };
+
+  const handleQuickEncounter = (encounter: 'ren_zhen' | 'ronald') => {
+    if (encounter === 'ren_zhen') {
+      setEncounterMode('standard');
+      setSelectedGear(COMBAT_GEAR_PRESETS.find((preset) => preset.id === 't4_set')!.gear);
+      setSelectedSocialAmulet('stormward_necklace');
+      setEnemySlots(['ren_zhen_shadow', 'none', 'none', 'none']);
+      setAllySlots(['lin_shao', 'wei_taren', 'qiao_ren']);
+      return;
+    }
+
+    setEncounterMode('standard');
+    setSelectedGear(COMBAT_GEAR_PRESETS.find((preset) => preset.id === 't3_set')!.gear);
+    setSelectedSocialAmulet('');
+    setEnemySlots(['wolf_forest', 'wolf_forest', 'wolf_forest', 'wolf_forest']);
+    setAllySlots(['ronald', 'none', 'none']);
   };
 
   return (
@@ -248,7 +267,7 @@ const CombatDebugScreen: FC = () => {
               Combat Debug Workbench
             </h1>
             <p className="text-sm text-zinc-400 mt-2">
-              Configure gear piece by piece, build Luke's side and the enemy side slot by slot, and launch reusable combat tests.
+              Pick a combat tier, optionally add the social amulet, then launch a quick encounter or a custom setup.
             </p>
           </div>
           <button
@@ -268,7 +287,7 @@ const CombatDebugScreen: FC = () => {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
-              {GEAR_PRESETS.map((preset) => (
+              {COMBAT_GEAR_PRESETS.map((preset) => (
                 <button
                   key={preset.id}
                   onClick={() => applyGearPreset(preset.id)}
@@ -280,9 +299,9 @@ const CombatDebugScreen: FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {(Object.keys(GEAR_SLOT_LABELS) as DebugGearSlot[]).map((slot) => (
+              {(Object.keys(COMBAT_GEAR_SLOT_LABELS) as DebugCombatGearSlot[]).map((slot) => (
                 <div key={slot} className="flex flex-col gap-2">
-                  <label className="text-xs text-zinc-400 uppercase tracking-wider">{GEAR_SLOT_LABELS[slot]}</label>
+                  <label className="text-xs text-zinc-400 uppercase tracking-wider">{COMBAT_GEAR_SLOT_LABELS[slot]}</label>
                   <select
                     value={selectedGear[slot]}
                     onChange={(e) => setSelectedGear((prev) => ({ ...prev, [slot]: e.target.value }))}
@@ -296,12 +315,44 @@ const CombatDebugScreen: FC = () => {
                 </div>
               ))}
             </div>
+
+            <div className="mt-5 border-t border-zinc-800 pt-5">
+              <h3 className="text-sm font-semibold text-white mb-3">Social Slot</h3>
+              <div className="flex flex-col gap-2">
+                <label className="text-xs text-zinc-400 uppercase tracking-wider">Amulet</label>
+                <select
+                  value={selectedSocialAmulet}
+                  onChange={(e) => setSelectedSocialAmulet(e.target.value)}
+                  className="bg-zinc-950 border border-zinc-700 text-white text-sm rounded-md p-3"
+                >
+                  <option value="">None</option>
+                  {amuletOptions.map((item) => (
+                    <option key={item.id} value={item.id}>{item.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </section>
 
           <section className="bg-zinc-900/50 p-5 rounded-xl border border-zinc-800">
             <div className="flex items-center gap-3 mb-4">
               <Skull size={18} className="text-red-400" />
               <h2 className="text-lg font-semibold text-white">Encounter Builder</h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
+              <button
+                onClick={() => handleQuickEncounter('ren_zhen')}
+                className="px-4 py-3 rounded-md bg-cyan-900/40 hover:bg-cyan-800/60 text-cyan-100 text-sm font-semibold border border-cyan-800/50 transition-all"
+              >
+                Quick Encounter: Ren Zhen
+              </button>
+              <button
+                onClick={() => handleQuickEncounter('ronald')}
+                className="px-4 py-3 rounded-md bg-amber-900/40 hover:bg-amber-800/60 text-amber-100 text-sm font-semibold border border-amber-800/50 transition-all"
+              >
+                Quick Encounter: Ronald
+              </button>
             </div>
 
             <div className="flex flex-col gap-2 mb-5">
@@ -407,6 +458,7 @@ const CombatDebugScreen: FC = () => {
             <div className="space-y-2 mb-5 text-sm text-zinc-400">
               <div>Allies selected: <span className="text-zinc-200">{allySlots.filter((slot) => slot !== 'none').length}</span></div>
               <div>Enemies selected: <span className="text-zinc-200">{selectedEnemies.length}</span></div>
+              <div>Social amulet: <span className="text-zinc-200">{selectedSocialAmulet ? itemsJson[selectedSocialAmulet as keyof typeof itemsJson]?.name : 'None'}</span></div>
               <div>Mode: <span className="text-zinc-200">{encounterMode === 'brawl' ? 'Brawl / Knockout' : 'Standard Combat'}</span></div>
             </div>
 

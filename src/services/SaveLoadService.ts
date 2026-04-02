@@ -43,7 +43,7 @@ export interface SaveSlotMetadata {
 }
 
 export class SaveLoadService {
-  private static readonly SAVE_VERSION = '1.1';
+  private static readonly SAVE_VERSION = '1.2';
   private static readonly STORAGE_PREFIX = 'divine_fantasy_save_';
 
   private static migrate(data: any): GameSaveData {
@@ -56,6 +56,21 @@ export class SaveLoadService {
       //   delete data.character.oldField;
       // }
       console.log('Migrating save data from v1.0 to v1.1');
+    }
+
+    if (!data.character) data.character = {};
+    if (!data.character.effects) {
+      data.character.effects = {
+        bleeding: 0,
+        bleedMinutesAccumulated: 0,
+      };
+    } else {
+      data.character.effects = {
+        bleeding: typeof data.character.effects.bleeding === 'number' ? data.character.effects.bleeding : 0,
+        bleedMinutesAccumulated: typeof data.character.effects.bleedMinutesAccumulated === 'number'
+          ? data.character.effects.bleedMinutesAccumulated
+          : 0,
+      };
     }
 
     // Always update to the latest version after migration steps

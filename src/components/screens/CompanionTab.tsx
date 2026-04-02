@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { GripVertical, MapPin, Shield, Users, UserPlus, LogOut } from 'lucide-react';
 import { useCharacterStore } from '../../stores/useCharacterStore';
 import { useCompanionStore } from '../../stores/useCompanionStore';
+import { useLocationStore } from '../../stores/useLocationStore';
 import locationsData from '../../data/locations.json';
 import ProgressBar from '../ui/ProgressBar';
 
@@ -35,6 +36,9 @@ const CompanionTab: React.FC = () => {
   const companions = useCompanionStore((state) => state.companions || []);
   const formation = useCompanionStore((state) => state.formation || ['player', null, null, null]);
   const setFormation = useCompanionStore((state) => state.setFormation);
+  const setCompanionLocation = useCompanionStore((state) => state.setCompanionLocation);
+  const setCompanionStatus = useCompanionStore((state) => state.setCompanionStatus);
+  const currentLocationId = useLocationStore((state) => state.currentLocationId);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragSource, setDragSource] = useState<'formation' | 'roster' | null>(null);
   const playerCombatStats = useMemo(() => getPlayerCombatStats(character), [character.attributes, character.equippedItems]);
@@ -47,6 +51,11 @@ const CompanionTab: React.FC = () => {
   const describeLocation = (locationId?: string | null) => {
     if (!locationId) return 'Elsewhere';
     return locationNameMap[locationId]?.name || 'Elsewhere';
+  };
+
+  const getRestLocationForCompanion = (companionId: string) => {
+    if (companionId === 'wolf_puppy') return 'hunters_cabin';
+    return null;
   };
 
   const getOccupant = (occupantId: string | null) => {
@@ -100,10 +109,15 @@ const CompanionTab: React.FC = () => {
     const targetOccupant = nextFormation[targetIndex];
 
     if (dragSource === 'roster') {
+      const companion = companionById[draggingId];
+      if (!companion || companion.stats.hp <= 0) return;
+      if (companion.status === 'world' && companion.locationId && companion.locationId !== currentLocationId) return;
       if (targetOccupant === 'player') return;
       if (sourceIndex >= 0) {
         nextFormation[sourceIndex] = targetOccupant || null;
       }
+      setCompanionStatus(draggingId, 'party');
+      setCompanionLocation(draggingId, null);
       nextFormation[targetIndex] = draggingId;
       commitFormation(nextFormation);
       return;
@@ -119,16 +133,25 @@ const CompanionTab: React.FC = () => {
     const nextFormation = [...formation];
     if (nextFormation.includes(companionId)) return;
 
+    const companion = companionById[companionId];
+    if (!companion || companion.stats.hp <= 0) return;
+    if (companion.status === 'world' && companion.locationId && companion.locationId !== currentLocationId) return;
+
     const preferredSlot = nextFormation.findIndex((entry, index) => index >= 2 && !entry);
     const anyEmptySlot = nextFormation.findIndex((entry) => !entry);
     const targetIndex = preferredSlot !== -1 ? preferredSlot : anyEmptySlot;
     if (targetIndex === -1) return;
 
+    setCompanionStatus(companionId, 'party');
+    setCompanionLocation(companionId, null);
     nextFormation[targetIndex] = companionId;
     commitFormation(nextFormation);
   };
 
   const handleRemoveFromParty = (companionId: string) => {
+    const restLocation = getRestLocationForCompanion(companionId);
+    setCompanionStatus(companionId, 'world');
+    setCompanionLocation(companionId, restLocation);
     const nextFormation = formation.map((entry) => (entry === companionId ? null : entry));
     if (!nextFormation.slice(0, 2).some(Boolean)) return;
     commitFormation(nextFormation);
@@ -150,15 +173,23 @@ const CompanionTab: React.FC = () => {
         id: companion.id,
         name: companion.name,
         portraitUrl: companion.portraitUrl || '/assets/portraits/CompanionPlaceholder.png',
-        statusText: formation.includes(companion.id) ? 'In your party' : describeLocation(companion.locationId),
+        statusText: formation.includes(companion.id)
+          ? 'In your party'
+          : companion.stats.hp <= 0
+            ? `Downed at ${describeLocation(companion.locationId)}`
+            : describeLocation(companion.locationId),
         locationText: formation.includes(companion.id) ? 'Current formation' : describeLocation(companion.locationId),
         inParty: formation.includes(companion.id),
+        canRejoinHere: companion.locationId ? companion.locationId === currentLocationId : true,
+        isDowned: companion.stats.hp <= 0,
+        hp: companion.stats.hp,
+        maxHp: companion.stats.maxHp,
         isPlayer: false,
       }))
       .sort((a, b) => Number(b.inParty) - Number(a.inParty) || a.name.localeCompare(b.name));
 
     return [playerEntry, ...companionEntries];
-  }, [character.bio, companions, formation]);
+  }, [character.bio, companions, formation, currentLocationId]);
 
   return (
     <div className="w-full h-full grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] 2xl:grid-cols-[minmax(0,1fr)_380px] gap-6 items-stretch animate-fade-in-up">
@@ -289,6 +320,11 @@ const CompanionTab: React.FC = () => {
                     <MapPin size={12} />
                     <span className="truncate">{entry.statusText}</span>
                   </div>
+                  {!entry.isPlayer && (
+                    <p className="mt-1 text-[10px] text-zinc-400">
+                      HP {Math.floor(entry.hp ?? 0)}/{Math.floor(entry.maxHp ?? 0)}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -296,7 +332,8 @@ const CompanionTab: React.FC = () => {
                 {!entry.isPlayer && !entry.inParty && (
                   <button
                     onClick={() => handleAddToParty(entry.id)}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-emerald-700/40 bg-emerald-950/20 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-200 hover:bg-emerald-900/30 transition-colors"
+                    disabled={entry.isDowned || !entry.canRejoinHere}
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-emerald-700/40 bg-emerald-950/20 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-200 hover:bg-emerald-900/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <UserPlus size={12} />
                     Add To Party
@@ -317,6 +354,16 @@ const CompanionTab: React.FC = () => {
                   </div>
                 )}
               </div>
+              {!entry.isPlayer && !entry.inParty && !entry.canRejoinHere && (
+                <p className="mt-2 text-[10px] text-zinc-500">
+                  Visit {entry.locationText} to bring {entry.name} back into the party.
+                </p>
+              )}
+              {!entry.isPlayer && entry.isDowned && (
+                <p className="mt-2 text-[10px] text-amber-300">
+                  Downed companions recover when Luke sleeps.
+                </p>
+              )}
             </div>
           ))}
         </div>

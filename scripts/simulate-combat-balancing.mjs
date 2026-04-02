@@ -31,18 +31,23 @@ const forestWolf = enemies.wolf_forest;
 
 const loadouts = [
   {
-    id: 'rags_knife',
-    label: 'Rags + Knife',
-    items: ['ragged_shirt', 'ragged_legs', 'crude_knife'],
+    id: 't1_naked',
+    label: 'T1 Naked',
+    items: [],
   },
   {
-    id: 'chain_bronze',
-    label: 'Full Chainmail + Bronze Sword + Bronze Shield',
+    id: 't2_leather',
+    label: 'T2 Crude Knife + Leather Set + Wooden Shield',
+    items: ['crude_knife', 'leather_cap', 'leather_jerkin', 'leather_leggings', 'wooden_shield'],
+  },
+  {
+    id: 't3_chain',
+    label: 'T3 Full Chainmail + Bronze Sword + Bronze Shield',
     items: ['chain_coif', 'chainmail_shirt', 'chainmail_leggings', 'bronze_sword', 'bronze_shield'],
   },
   {
-    id: 'iron_iron',
-    label: 'Full Iron + Iron Sword + Iron Shield',
+    id: 't4_iron',
+    label: 'T4 Full Iron + Iron Sword + Iron Shield',
     items: ['iron_helmet', 'iron_chainmail', 'iron_leggings', 'iron_sword', 'iron_shield'],
   },
 ];
@@ -65,6 +70,7 @@ function buildPlayer(loadout) {
 
   let attack = strength;
   let defence = Math.floor((strength + dexterity) / 2);
+  let totalDexterity = dexterity;
   let bonusHp = 0;
 
   for (const itemId of loadout.items) {
@@ -74,6 +80,7 @@ function buildPlayer(loadout) {
     if (typeof stats.attack === 'number') attack += stats.attack;
     if (typeof stats.strength === 'number') attack += stats.strength;
     if (typeof stats.defence === 'number') defence += stats.defence;
+    if (typeof stats.dexterity === 'number') totalDexterity += stats.dexterity;
     if (typeof stats.hp === 'number') bonusHp += stats.hp;
     if (typeof stats.health === 'number') bonusHp += stats.health;
   }
@@ -88,12 +95,12 @@ function buildPlayer(loadout) {
     maxHp: 50 + strength * 10 + bonusHp,
     attack,
     defence,
-    dexterity,
+    dexterity: totalDexterity,
     baseHitChance: COMBAT_CONFIG.BASE_HIT_CHANCE.PLAYER,
   };
 }
 
-function buildRetainers() {
+function buildRenZhenRetainers() {
   return [
     {
       id: 'lin_shao_retainer',
@@ -101,9 +108,9 @@ function buildRetainers() {
       side: 'party',
       isPlayer: false,
       isCompanion: true,
-      hp: 145,
-      maxHp: 145,
-      attack: 11,
+      hp: 150,
+      maxHp: 150,
+      attack: 12,
       defence: 7,
       dexterity: 9,
       baseHitChance: COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION,
@@ -114,9 +121,9 @@ function buildRetainers() {
       side: 'party',
       isPlayer: false,
       isCompanion: true,
-      hp: 115,
-      maxHp: 115,
-      attack: 9,
+      hp: 120,
+      maxHp: 120,
+      attack: 10,
       defence: 6,
       dexterity: 8,
       baseHitChance: COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION,
@@ -127,9 +134,9 @@ function buildRetainers() {
       side: 'party',
       isPlayer: false,
       isCompanion: true,
-      hp: 105,
-      maxHp: 105,
-      attack: 9,
+      hp: 110,
+      maxHp: 110,
+      attack: 10,
       defence: 6,
       dexterity: 10,
       baseHitChance: COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION,
@@ -144,10 +151,10 @@ function buildRonald() {
     side: 'party',
     isPlayer: false,
     isCompanion: true,
-    hp: 135,
-    maxHp: 135,
-    attack: 12,
-    defence: 8,
+    hp: 120,
+    maxHp: 120,
+    attack: 10,
+    defence: 7,
     dexterity: 10,
     baseHitChance: COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION,
   };
@@ -231,10 +238,10 @@ function assignFormation(combatants) {
   }));
 }
 
-function buildTurnOrder(party, boss) {
-  return [...assignFormation(party), boss].sort((a, b) => {
-    const aFirstStrike = a.id === 'ren_zhen_shadow' && boss.firstStrike ? 1 : 0;
-    const bFirstStrike = b.id === 'ren_zhen_shadow' && boss.firstStrike ? 1 : 0;
+function sortTurnOrder(units, priorityBossId = null, priorityFirstStrike = false) {
+  return [...units].sort((a, b) => {
+    const aFirstStrike = a.id === priorityBossId && priorityFirstStrike ? 1 : 0;
+    const bFirstStrike = b.id === priorityBossId && priorityFirstStrike ? 1 : 0;
     if (bFirstStrike !== aFirstStrike) return bFirstStrike - aFirstStrike;
     if (b.dexterity !== a.dexterity) return b.dexterity - a.dexterity;
     if (a.side === 'party' && b.side === 'enemy') return -1;
@@ -247,14 +254,14 @@ function getAliveParty(units) {
   return units.filter((u) => u.side === 'party' && u.hp > 0);
 }
 
+function getAliveEnemies(units) {
+  return units.filter((u) => u.side === 'enemy' && u.hp > 0);
+}
+
 function getTargetableParty(units) {
   const alive = getAliveParty(units);
   const front = alive.filter((u) => u.combatRow === 'front');
   return front.length > 0 ? front : alive;
-}
-
-function getAliveEnemies(units) {
-  return units.filter((u) => u.side === 'enemy' && u.hp > 0);
 }
 
 function getTargetableEnemies(units) {
@@ -263,15 +270,22 @@ function getTargetableEnemies(units) {
   return front.length > 0 ? front : alive;
 }
 
-function simulateFight(loadout) {
+function average(results, selector) {
+  if (results.length === 0) return 0;
+  return results.reduce((sum, result) => sum + selector(result), 0) / results.length;
+}
+
+function simulateRenZhenFight(loadout) {
   const player = buildPlayer(loadout);
-  const retainers = buildRetainers();
+  const retainers = buildRenZhenRetainers();
   const boss = buildRenZhen();
-  const units = buildTurnOrder([player, ...retainers], boss);
+  const units = sortTurnOrder(
+    [...assignFormation([player, ...retainers]), ...assignFormation([boss])],
+    'ren_zhen_shadow',
+    boss.firstStrike
+  );
 
   let rounds = 0;
-  let partyTurns = 0;
-  let bossTurns = 0;
   let currentIndex = 0;
 
   while (getAliveParty(units).length > 0 && boss.hp > 0 && rounds < 500) {
@@ -282,7 +296,6 @@ function simulateFight(loadout) {
       if (actor.hp <= 0) continue;
 
       if (actor.side === 'party') {
-        partyTurns += 1;
         if (Math.random() <= actor.baseHitChance) {
           const damage = actor.isPlayer ? calcPlayerDamage(actor, boss) : calcCompanionDamage(actor, boss);
           boss.hp -= damage;
@@ -291,13 +304,12 @@ function simulateFight(loadout) {
         continue;
       }
 
-      bossTurns += 1;
-      const targetableParty = getTargetableParty(units);
-      if (targetableParty.length === 0) break;
+      const targets = getTargetableParty(units);
+      if (targets.length === 0) break;
 
       if (Math.random() <= boss.baseHitChance) {
-        const target = targetableParty[Math.floor(Math.random() * targetableParty.length)];
-        const rowTargets = targetableParty.filter((ally) => ally.combatRow === target.combatRow);
+        const target = targets[Math.floor(Math.random() * targets.length)];
+        const rowTargets = targets.filter((ally) => ally.combatRow === target.combatRow);
 
         for (const rowTarget of rowTargets) {
           rowTarget.hp -= calcEnemyDamage(boss, rowTarget);
@@ -314,85 +326,29 @@ function simulateFight(loadout) {
     }
   }
 
-  const livingParty = getAliveParty(units);
   const luke = units.find((u) => u.id === 'player');
 
   return {
-    win: boss.hp <= 0 && livingParty.length > 0,
+    win: boss.hp <= 0 && getAliveParty(units).length > 0,
     lukeAlive: (luke?.hp || 0) > 0,
-    survivors: livingParty.length,
+    survivors: getAliveParty(units).length,
     playerHpLeft: Math.max(0, luke?.hp || 0),
-    bossHpLeft: Math.max(0, boss.hp),
+    enemyHpLeft: Math.max(0, boss.hp),
     rounds,
-    partyTurns,
-    bossTurns,
-  };
-}
-
-function summarize(loadout) {
-  const results = Array.from({ length: TRIALS }, () => simulateFight(loadout));
-  const wins = results.filter((r) => r.win).length;
-  const losses = TRIALS - wins;
-  const lukeSurvival = results.filter((r) => r.lukeAlive).length;
-  const avgRounds = results.reduce((sum, r) => sum + r.rounds, 0) / TRIALS;
-  const avgSurvivorsOnWins =
-    wins > 0 ? results.filter((r) => r.win).reduce((sum, r) => sum + r.survivors, 0) / wins : 0;
-  const avgPlayerHpLeftOnWins =
-    wins > 0 ? results.filter((r) => r.win).reduce((sum, r) => sum + r.playerHpLeft, 0) / wins : 0;
-  const avgBossHpLeftOnLosses =
-    losses > 0 ? results.filter((r) => !r.win).reduce((sum, r) => sum + r.bossHpLeft, 0) / losses : 0;
-
-  const preview = buildPlayer(loadout);
-
-  return {
-    loadout: loadout.label,
-    trials: TRIALS,
-    playerStats: {
-      hp: preview.maxHp,
-      attack: preview.attack,
-      defence: preview.defence,
-      dexterity: preview.dexterity,
-    },
-    renZhenStats: {
-      hp: renZhen.stats.hp,
-      attack: renZhen.stats.attack,
-      defence: renZhen.stats.defence,
-      dexterity: renZhen.stats.dexterity,
-    },
-    companions: [
-      { name: 'Captain Lin Shao', hp: 145, attack: 11, defence: 7, dexterity: 9 },
-      { name: 'Wei Taren', hp: 115, attack: 9, defence: 6, dexterity: 8 },
-      { name: 'Qiao Ren', hp: 105, attack: 9, defence: 6, dexterity: 10 },
-    ],
-    winRate: `${((wins / TRIALS) * 100).toFixed(1)}%`,
-    lukeSurvivalRate: `${((lukeSurvival / TRIALS) * 100).toFixed(1)}%`,
-    averageRounds: Number(avgRounds.toFixed(2)),
-    averageSurvivorsOnWins: Number(avgSurvivorsOnWins.toFixed(2)),
-    averagePlayerHpLeftOnWins: Number(avgPlayerHpLeftOnWins.toFixed(2)),
-    averageBossHpLeftOnLosses: Number(avgBossHpLeftOnLosses.toFixed(2)),
   };
 }
 
 function simulateWolfFight(loadout, wolfCount) {
   const player = buildPlayer(loadout);
   const wolves = Array.from({ length: wolfCount }, (_, index) => buildWolf(index));
-  const units = [...assignFormation([player]), ...assignFormation(wolves)].sort((a, b) => {
-    if (b.dexterity !== a.dexterity) return b.dexterity - a.dexterity;
-    if (a.side === 'party' && b.side === 'enemy') return -1;
-    if (a.side === 'enemy' && b.side === 'party') return 1;
-    return 0;
-  });
+  const units = sortTurnOrder([...assignFormation([player]), ...assignFormation(wolves)]);
 
   let rounds = 0;
   let currentIndex = 0;
 
   while (getAliveParty(units).length > 0 && getAliveEnemies(units).length > 0 && rounds < 500) {
     rounds += 1;
-    for (
-      let steps = 0;
-      steps < units.length && getAliveParty(units).length > 0 && getAliveEnemies(units).length > 0;
-      steps += 1
-    ) {
+    for (let steps = 0; steps < units.length && getAliveParty(units).length > 0 && getAliveEnemies(units).length > 0; steps += 1) {
       const actor = units[currentIndex];
       currentIndex = (currentIndex + 1) % units.length;
       if (actor.hp <= 0) continue;
@@ -418,73 +374,28 @@ function simulateWolfFight(loadout, wolfCount) {
   }
 
   const luke = units.find((u) => u.id === 'player');
-  const livingWolves = getAliveEnemies(units);
 
   return {
-    win: (luke?.hp || 0) > 0 && livingWolves.length === 0,
+    win: (luke?.hp || 0) > 0 && getAliveEnemies(units).length === 0,
     lukeAlive: (luke?.hp || 0) > 0,
     playerHpLeft: Math.max(0, luke?.hp || 0),
-    wolvesLeft: livingWolves.length,
+    enemiesLeft: getAliveEnemies(units).length,
     rounds,
-  };
-}
-
-function summarizeWolves(loadout, wolfCount) {
-  const results = Array.from({ length: TRIALS }, () => simulateWolfFight(loadout, wolfCount));
-  const wins = results.filter((r) => r.win).length;
-  const losses = TRIALS - wins;
-  const avgRounds = results.reduce((sum, r) => sum + r.rounds, 0) / TRIALS;
-  const avgPlayerHpLeftOnWins =
-    wins > 0 ? results.filter((r) => r.win).reduce((sum, r) => sum + r.playerHpLeft, 0) / wins : 0;
-  const avgWolvesLeftOnLosses =
-    losses > 0 ? results.filter((r) => !r.win).reduce((sum, r) => sum + r.wolvesLeft, 0) / losses : 0;
-
-  const preview = buildPlayer(loadout);
-
-  return {
-    loadout: loadout.label,
-    wolves: wolfCount,
-    trials: TRIALS,
-    playerStats: {
-      hp: preview.maxHp,
-      attack: preview.attack,
-      defence: preview.defence,
-      dexterity: preview.dexterity,
-    },
-    wolfStats: {
-      hp: forestWolf.stats.hp,
-      attack: forestWolf.stats.attack,
-      defence: forestWolf.stats.defence,
-      dexterity: forestWolf.stats.dexterity,
-    },
-    winRate: `${((wins / TRIALS) * 100).toFixed(1)}%`,
-    averageRounds: Number(avgRounds.toFixed(2)),
-    averagePlayerHpLeftOnWins: Number(avgPlayerHpLeftOnWins.toFixed(2)),
-    averageWolvesLeftOnLosses: Number(avgWolvesLeftOnLosses.toFixed(2)),
   };
 }
 
 function simulateRonaldWolfFight(loadout) {
   const player = buildPlayer(loadout);
-  const ronald = buildRonald();
+  const ronaldAlly = buildRonald();
   const wolves = Array.from({ length: 4 }, (_, index) => buildWolf(index));
-  const units = [...assignFormation([player, ronald]), ...assignFormation(wolves)].sort((a, b) => {
-    if (b.dexterity !== a.dexterity) return b.dexterity - a.dexterity;
-    if (a.side === 'party' && b.side === 'enemy') return -1;
-    if (a.side === 'enemy' && b.side === 'party') return 1;
-    return 0;
-  });
+  const units = sortTurnOrder([...assignFormation([player, ronaldAlly]), ...assignFormation(wolves)]);
 
   let rounds = 0;
   let currentIndex = 0;
 
   while (getAliveParty(units).length > 0 && getAliveEnemies(units).length > 0 && rounds < 500) {
     rounds += 1;
-    for (
-      let steps = 0;
-      steps < units.length && getAliveParty(units).length > 0 && getAliveEnemies(units).length > 0;
-      steps += 1
-    ) {
+    for (let steps = 0; steps < units.length && getAliveParty(units).length > 0 && getAliveEnemies(units).length > 0; steps += 1) {
       const actor = units[currentIndex];
       currentIndex = (currentIndex + 1) % units.length;
       if (actor.hp <= 0) continue;
@@ -511,39 +422,100 @@ function simulateRonaldWolfFight(loadout) {
   }
 
   const luke = units.find((u) => u.id === 'player');
-  const ronaldUnit = units.find((u) => u.id === 'ronald_companion');
-  const livingWolves = getAliveEnemies(units);
+  const ronald = units.find((u) => u.id === 'ronald_companion');
 
   return {
-    win: getAliveParty(units).length > 0 && livingWolves.length === 0,
+    win: getAliveParty(units).length > 0 && getAliveEnemies(units).length === 0,
     lukeAlive: (luke?.hp || 0) > 0,
-    ronaldAlive: (ronaldUnit?.hp || 0) > 0,
+    ronaldAlive: (ronald?.hp || 0) > 0,
     playerHpLeft: Math.max(0, luke?.hp || 0),
-    ronaldHpLeft: Math.max(0, ronaldUnit?.hp || 0),
-    wolvesLeft: livingWolves.length,
+    ronaldHpLeft: Math.max(0, ronald?.hp || 0),
+    enemiesLeft: getAliveEnemies(units).length,
     rounds,
   };
 }
 
-function summarizeRonaldWolves(loadout) {
-  const results = Array.from({ length: TRIALS }, () => simulateRonaldWolfFight(loadout));
-  const wins = results.filter((r) => r.win).length;
-  const losses = TRIALS - wins;
-  const lukeSurvival = results.filter((r) => r.lukeAlive).length;
-  const ronaldSurvival = results.filter((r) => r.ronaldAlive).length;
-  const avgRounds = results.reduce((sum, r) => sum + r.rounds, 0) / TRIALS;
-  const avgPlayerHpLeftOnWins =
-    wins > 0 ? results.filter((r) => r.win).reduce((sum, r) => sum + r.playerHpLeft, 0) / wins : 0;
-  const avgRonaldHpLeftOnWins =
-    wins > 0 ? results.filter((r) => r.win).reduce((sum, r) => sum + r.ronaldHpLeft, 0) / wins : 0;
-  const avgWolvesLeftOnLosses =
-    losses > 0 ? results.filter((r) => !r.win).reduce((sum, r) => sum + r.wolvesLeft, 0) / losses : 0;
+function summarizeScenario(loadout, scenarioId) {
+  let results = [];
+  let scenario = null;
+
+  if (scenarioId === 'ren_zhen') {
+    results = Array.from({ length: TRIALS }, () => simulateRenZhenFight(loadout));
+    const wins = results.filter((r) => r.win);
+    const losses = results.filter((r) => !r.win);
+    scenario = {
+      id: scenarioId,
+      label: 'Luke + 3 Guards vs Ren Zhen',
+      enemyStats: {
+        hp: renZhen.stats.hp,
+        attack: renZhen.stats.attack,
+        defence: renZhen.stats.defence,
+        dexterity: renZhen.stats.dexterity,
+      },
+      allies: [
+        { name: 'Captain Lin Shao', hp: 150, attack: 12, defence: 7, dexterity: 9 },
+        { name: 'Wei Taren', hp: 120, attack: 10, defence: 6, dexterity: 8 },
+        { name: 'Qiao Ren', hp: 110, attack: 10, defence: 6, dexterity: 10 },
+      ],
+      winRate: Number(((wins.length / TRIALS) * 100).toFixed(1)),
+      lukeSurvivalRate: Number(((results.filter((r) => r.lukeAlive).length / TRIALS) * 100).toFixed(1)),
+      averageRounds: Number(average(results, (r) => r.rounds).toFixed(2)),
+      averageSurvivorsOnWins: Number(average(wins, (r) => r.survivors).toFixed(2)),
+      averagePlayerHpLeftOnWins: Number(average(wins, (r) => r.playerHpLeft).toFixed(2)),
+      averageEnemyHpLeftOnLosses: Number(average(losses, (r) => r.enemyHpLeft).toFixed(2)),
+    };
+  } else if (scenarioId.startsWith('wolves_')) {
+    const wolfCount = Number.parseInt(scenarioId.split('_')[1], 10);
+    results = Array.from({ length: TRIALS }, () => simulateWolfFight(loadout, wolfCount));
+    const wins = results.filter((r) => r.win);
+    const losses = results.filter((r) => !r.win);
+    scenario = {
+      id: scenarioId,
+      label: `Luke vs ${wolfCount} Wolf${wolfCount > 1 ? 's' : ''}`,
+      enemyStats: {
+        hp: forestWolf.stats.hp,
+        attack: forestWolf.stats.attack,
+        defence: forestWolf.stats.defence,
+        dexterity: forestWolf.stats.dexterity,
+      },
+      winRate: Number(((wins.length / TRIALS) * 100).toFixed(1)),
+      lukeSurvivalRate: Number(((results.filter((r) => r.lukeAlive).length / TRIALS) * 100).toFixed(1)),
+      averageRounds: Number(average(results, (r) => r.rounds).toFixed(2)),
+      averagePlayerHpLeftOnWins: Number(average(wins, (r) => r.playerHpLeft).toFixed(2)),
+      averageEnemiesLeftOnLosses: Number(average(losses, (r) => r.enemiesLeft).toFixed(2)),
+    };
+  } else if (scenarioId === 'ronald_wolves') {
+    results = Array.from({ length: TRIALS }, () => simulateRonaldWolfFight(loadout));
+    const wins = results.filter((r) => r.win);
+    const losses = results.filter((r) => !r.win);
+    scenario = {
+      id: scenarioId,
+      label: 'Luke + Ronald vs 4 Wolves',
+      allyStats: {
+        hp: 120,
+        attack: 10,
+        defence: 7,
+        dexterity: 10,
+      },
+      enemyStats: {
+        hp: forestWolf.stats.hp,
+        attack: forestWolf.stats.attack,
+        defence: forestWolf.stats.defence,
+        dexterity: forestWolf.stats.dexterity,
+      },
+      winRate: Number(((wins.length / TRIALS) * 100).toFixed(1)),
+      lukeSurvivalRate: Number(((results.filter((r) => r.lukeAlive).length / TRIALS) * 100).toFixed(1)),
+      ronaldSurvivalRate: Number(((results.filter((r) => r.ronaldAlive).length / TRIALS) * 100).toFixed(1)),
+      averageRounds: Number(average(results, (r) => r.rounds).toFixed(2)),
+      averagePlayerHpLeftOnWins: Number(average(wins, (r) => r.playerHpLeft).toFixed(2)),
+      averageRonaldHpLeftOnWins: Number(average(wins, (r) => r.ronaldHpLeft).toFixed(2)),
+      averageEnemiesLeftOnLosses: Number(average(losses, (r) => r.enemiesLeft).toFixed(2)),
+    };
+  }
 
   const preview = buildPlayer(loadout);
-
   return {
     loadout: loadout.label,
-    scenario: 'Luke + Ronald vs 4 Forest Wolves',
     trials: TRIALS,
     playerStats: {
       hp: preview.maxHp,
@@ -551,47 +523,18 @@ function summarizeRonaldWolves(loadout) {
       defence: preview.defence,
       dexterity: preview.dexterity,
     },
-    ronaldStats: {
-      hp: 135,
-      attack: 12,
-      defence: 8,
-      dexterity: 10,
-    },
-    wolfStats: {
-      hp: forestWolf.stats.hp,
-      attack: forestWolf.stats.attack,
-      defence: forestWolf.stats.defence,
-      dexterity: forestWolf.stats.dexterity,
-    },
-    winRate: `${((wins / TRIALS) * 100).toFixed(1)}%`,
-    lukeSurvivalRate: `${((lukeSurvival / TRIALS) * 100).toFixed(1)}%`,
-    ronaldSurvivalRate: `${((ronaldSurvival / TRIALS) * 100).toFixed(1)}%`,
-    averageRounds: Number(avgRounds.toFixed(2)),
-    averagePlayerHpLeftOnWins: Number(avgPlayerHpLeftOnWins.toFixed(2)),
-    averageRonaldHpLeftOnWins: Number(avgRonaldHpLeftOnWins.toFixed(2)),
-    averageWolvesLeftOnLosses: Number(avgWolvesLeftOnLosses.toFixed(2)),
+    ...scenario,
   };
 }
 
-console.log(`Ren Zhen simulator - ${TRIALS} trials per setup\n`);
-for (const loadout of loadouts) {
-  const summary = summarize(loadout);
-  console.log(JSON.stringify(summary, null, 2));
-  console.log('');
-}
+const scenarioOrder = ['ren_zhen', 'wolves_1', 'wolves_2', 'wolves_4', 'ronald_wolves'];
 
-console.log(`Wolf simulator - ${TRIALS} trials per setup\n`);
-for (const loadout of loadouts) {
-  for (const wolfCount of [1, 2, 4]) {
-    const summary = summarizeWolves(loadout, wolfCount);
+console.log(`Combat balancing simulator - ${TRIALS} trials per loadout/scenario\n`);
+for (const scenarioId of scenarioOrder) {
+  console.log(`=== ${scenarioId} ===`);
+  for (const loadout of loadouts) {
+    const summary = summarizeScenario(loadout, scenarioId);
     console.log(JSON.stringify(summary, null, 2));
     console.log('');
   }
-}
-
-console.log(`Ronald wolf-pack simulator - ${TRIALS} trials per setup\n`);
-for (const loadout of loadouts) {
-  const summary = summarizeRonaldWolves(loadout);
-  console.log(JSON.stringify(summary, null, 2));
-  console.log('');
 }

@@ -721,7 +721,7 @@ export class DialogueService {
     return { ...node, player_choices: filtered };
   }
 
-  static startDialogue(npcId: string, overrideDialogueId?: string): DialogueNode | null {
+  static startDialogue(npcId: string, overrideDialogueId?: string, overrideNodeId?: string): DialogueNode | null {
     // Determine known state before updating, to support first-time greeting behavior
     const worldStateStore = useWorldStateStore.getState();
     const wasKnown = worldStateStore.knownNpcs.includes(npcId);
@@ -807,6 +807,27 @@ export class DialogueService {
       : !wasKnown;
 
     const startingNodeId = (() => {
+      if (overrideNodeId && this.getNode(dialogueEntry, overrideNodeId)) {
+        return overrideNodeId;
+      }
+
+      if (
+        !overrideDialogueId &&
+        npcId === 'npc_ronald' &&
+        useJournalStore.getState().quests['ronald_wolf_pack']?.currentStage === 3
+      ) {
+        if (
+          useWorldStateStore.getState().getFlag('wolf_puppy_adopted') &&
+          dialogueEntry.nodes['ronald_quest_after_fight_puppy']
+        ) {
+          return 'ronald_quest_after_fight_puppy';
+        }
+
+        if (dialogueEntry.nodes['ronald_quest_after_fight_no_puppy']) {
+          return 'ronald_quest_after_fight_no_puppy';
+        }
+      }
+
       if (
         !overrideDialogueId &&
         npcId === 'npc_roberta' &&

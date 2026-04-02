@@ -299,8 +299,8 @@
             "condition": "quest.ronald_wolf_pack.active==true && quest.ronald_wolf_pack.stage==2"
           },
           {
-            "text": "The pack is down.",
-            "next_node": "ronald_quest_after_fight",
+            "text": "I dealt with the pack.",
+            "next_node": "ronald_quest_after_fight_auto",
             "condition": "quest.ronald_wolf_pack.active==true && quest.ronald_wolf_pack.stage==3"
           },
           {
@@ -323,18 +323,37 @@
           }
         ]
       },
-      "ronald_quest_after_fight": {
+      "ronald_quest_after_fight_auto": {
         "npc_text": "Good. I could feel the woods settling before I saw you come back. They were ranging too close for too long. You held when it mattered.",
         "player_choices": [
           {
-            "text": "It was your ground. I just helped keep it.",
-            "action": "set_quest_stage:ronald_wolf_pack:4|update_relationship:npc_ronald:5:friendship|add_xp:persuasion:12",
-            "next_node": "ronald_quest_after_fight_grounded"
+            "text": "I brought one of the pups out alive.",
+            "next_node": "ronald_quest_after_fight_puppy",
+            "condition": "world_flags.wolf_puppy_adopted==true"
           },
           {
-            "text": "You did most of the real work.",
-            "action": "set_quest_stage:ronald_wolf_pack:4|update_relationship:npc_ronald:4:friendship|add_xp:persuasion:8",
+            "text": "The pack won't trouble your ground again.",
             "next_node": "ronald_quest_after_fight_grounded"
+          }
+        ]
+      },
+      "ronald_quest_after_fight_puppy": {
+        "npc_text": "Good. I could feel the woods settling before I saw you come back. We cleared them out before they could start ranging any closer to the road. If that wolf needs somewhere to stay, send him here. Cabin's far enough from town and I know how to keep an animal fed without spoiling it. Go collect your pay from the guard who sent you.",
+        "player_choices": [
+          {
+            "text": "I'll collect the pay.",
+            "action": "set_quest_stage:ronald_wolf_pack:4|add_xp:persuasion:12",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "ronald_quest_after_fight_no_puppy": {
+        "npc_text": "Good. I could feel the woods settling before I saw you come back. We cleared them out before they could start ranging any closer to the road. Go collect your pay from the guard who sent you. If you keep coming out this way, you know where my door is.",
+        "player_choices": [
+          {
+            "text": "I'll collect the pay.",
+            "action": "set_quest_stage:ronald_wolf_pack:4|add_xp:persuasion:8",
+            "closes_dialogue": true
           }
         ]
       },
@@ -342,8 +361,9 @@
         "npc_text": "Maybe. But you stayed when most men would have found a reason not to. That counts. Go collect your coin from the guard who sent you. If you keep coming out this way, you know where my door is.",
         "player_choices": [
           {
-            "text": "I will collect the pay and come by again.",
-            "next_node": "ronald_quest_root"
+            "text": "I'll collect the pay.",
+            "action": "set_quest_stage:ronald_wolf_pack:4|add_xp:persuasion:8",
+            "closes_dialogue": true
           }
         ]
       }

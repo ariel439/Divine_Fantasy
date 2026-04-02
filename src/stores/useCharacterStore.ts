@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { useWorldTimeStore } from './useWorldTimeStore';
 import { useInventoryStore } from './useInventoryStore';
 import { useAudioStore } from './useAudioStore';
+import { useCompanionStore } from './useCompanionStore';
 import itemsData from '../data/items.json';
 import type { EquipmentLoadoutSlotMap, EquipmentSlot, Item } from '../types';
 import { getMaxSocialEnergy } from '../utils/socialEnergy';
@@ -167,6 +168,9 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
         energy: Math.min(100, state.energy + energyRegen)
       };
     });
+    try {
+      useCompanionStore.getState().healCompanions(hours, quality);
+    } catch {}
   },
   wait: (hours) => {
     useWorldTimeStore.getState().passTime(hours * 60);

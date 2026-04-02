@@ -147,6 +147,18 @@ const CombatManager: React.FC = () => {
         : Math.max(1, Math.min(state.maxHp || 100, playerCombatant?.hp ?? state.hp)),
     }));
   }, [participants]);
+  const syncCompanionVitalsFromCombat = React.useCallback(() => {
+    const companionResults = participants
+      .filter((p) => p.isCompanion)
+      .map((p) => ({
+        id: p.id,
+        hp: p.hp,
+        maxHp: p.maxHp,
+      }));
+
+    if (companionResults.length === 0) return;
+    useCompanionStore.getState().syncCombatResults(companionResults);
+  }, [participants]);
   const getBaseHitChance = React.useCallback((attacker: CombatParticipant) => {
       let chance = attacker.isPlayer
         ? COMBAT_CONFIG.BASE_HIT_CHANCE.PLAYER
@@ -226,6 +238,7 @@ const CombatManager: React.FC = () => {
             addToast(victoryToast, 'success', 3500, 'Brawl Won');
           }
           syncPlayerVitalsFromCombat();
+          syncCompanionVitalsFromCombat();
           useCharacterStore.setState((state) => ({
             ...state,
             energy: Math.max(0, state.energy - 10),
@@ -240,6 +253,7 @@ const CombatManager: React.FC = () => {
       const renZhenWasPresent = participants.some((p) => p.id === 'ren_zhen_shadow' || p.name === "Ren Zhen's Shadow");
       if (renZhenWasPresent) {
         setTimeout(() => {
+          syncCompanionVitalsFromCombat();
           useWorldStateStore.getState().setFlag('whitefang_renzhen_shadow_defeated', true);
           const ui = useUIStore.getState();
           ui.setEventSlides(null);
@@ -255,6 +269,7 @@ const CombatManager: React.FC = () => {
             useWorldStateStore.getState().setFlag('ronald_wolf_pack_cleared', true);
             try { DialogueService.executeAction('set_quest_stage:ronald_wolf_pack:3'); } catch {}
             syncPlayerVitalsFromCombat();
+            syncCompanionVitalsFromCombat();
             const ui = useUIStore.getState();
             ui.setEventSlides(null);
             ui.setCurrentEventId('ronald_wolf_pup_choice');
@@ -263,6 +278,7 @@ const CombatManager: React.FC = () => {
           }, 1200);
       } else if (victoryEventId === 'raid_victory') {
           setTimeout(() => {
+            syncCompanionVitalsFromCombat();
             const ui = useUIStore.getState();
             ui.setEventSlides(raidVictorySlides);
             ui.setCurrentEventId('raid_victory');
@@ -271,6 +287,7 @@ const CombatManager: React.FC = () => {
           }, 1500);
       } else if (victoryEventId === 'finn_personal_kill_end') {
           setTimeout(() => {
+            syncCompanionVitalsFromCombat();
             const ui = useUIStore.getState();
             ui.setEventSlides(finnPersonalKillSlides);
             ui.setCurrentEventId('finn_personal_kill_end');
@@ -283,6 +300,7 @@ const CombatManager: React.FC = () => {
         // Show victory screen after short delay
         setTimeout(() => {
           syncPlayerVitalsFromCombat();
+          syncCompanionVitalsFromCombat();
           setScreen('combatVictory');
         }, 1000);
       }
@@ -292,6 +310,7 @@ const CombatManager: React.FC = () => {
       setTimeout(() => {
         if (defeatMode === 'knockout') {
           syncPlayerVitalsFromCombat(12);
+          syncCompanionVitalsFromCombat();
           useCharacterStore.setState((state) => ({
             ...state,
             energy: Math.max(0, state.energy - 15),
@@ -320,6 +339,7 @@ const CombatManager: React.FC = () => {
         
         // End combat after setting screen to avoid empty combat screen flash
         syncPlayerVitalsFromCombat(10);
+        syncCompanionVitalsFromCombat();
         endCombat();
         passTime(5);
       }, 1500);
@@ -500,6 +520,7 @@ const CombatManager: React.FC = () => {
       });
       setPhase('fled');
       setTimeout(() => {
+        syncCompanionVitalsFromCombat();
         syncPlayerVitalsFromCombat();
         endCombat();
         setScreen('inGame');

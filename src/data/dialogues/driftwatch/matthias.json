@@ -92,7 +92,7 @@
           },
           {
             "text": "Maybe later.",
-            "next_node": "matthias_quest_root"
+            "next_node": "matthias_ask_root"
           }
         ]
       },
@@ -119,7 +119,7 @@
         "player_choices": [
           {
             "text": "I will take useful work over praise.",
-            "action": "complete_quest:ronald_wolf_pack|update_relationship:npc_matthias:3:friendship",
+            "action": "complete_quest:ronald_wolf_pack",
             "next_node": "matthias_quest_root"
           }
         ]

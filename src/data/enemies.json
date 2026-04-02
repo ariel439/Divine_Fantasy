@@ -4,8 +4,8 @@
     "attack_sound": "/assets/sfx/wolf_bite.mp3",
     "attack_type": "slash",
     "combat_tags": ["beast", "wolf"],
-    "accuracy_modifier": 0.12,
-    "stats": { "hp": 60, "attack": 12, "defence": 1, "dexterity": 7 },
+    "accuracy_modifier": 0.05,
+    "stats": { "hp": 55, "attack": 11, "defence": 1, "dexterity": 7 },
     "loot_table": [
       { "item_id": "raw_meat", "quantity": 1, "chance": 1 },
       { "item_id": "wolf_pelt", "quantity": 1, "chance": 1 },

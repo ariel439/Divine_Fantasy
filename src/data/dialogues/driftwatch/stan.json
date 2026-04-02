@@ -92,7 +92,7 @@
           },
           {
             "text": "Maybe later.",
-            "next_node": "stan_quest_root"
+            "next_node": "stan_ask_root"
           }
         ]
       },
@@ -119,7 +119,7 @@
         "player_choices": [
           {
             "text": "Works for me.",
-            "action": "complete_quest:ronald_wolf_pack|update_relationship:npc_stan:3:friendship",
+            "action": "complete_quest:ronald_wolf_pack",
             "next_node": "stan_quest_root"
           }
         ]

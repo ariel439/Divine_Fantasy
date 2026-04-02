@@ -28,12 +28,19 @@ interface CompanionState {
   setCompanionStatus: (companionId: string, status: 'party' | 'world') => void;
   setFormation: (formation: Array<string | null>) => void;
   updateCompanionStats: (updates: Partial<Companion['stats']>) => void;
+  syncCombatResults: (updates: Array<{ id: string; hp: number; maxHp?: number }>) => void;
+  healCompanions: (hours: number, quality?: number) => void;
   equipItem: (itemId: string) => void;
   unequipItem: (itemId: string) => void;
   getPartyCompanions: () => Companion[];
 }
 
 const DEFAULT_FORMATION: Array<string | null> = ['player', null, null, null];
+
+const getCompanionRestLocation = (companionId: string): string | null => {
+  if (companionId === 'wolf_puppy') return 'hunters_cabin';
+  return null;
+};
 
 const normalizeCompanion = (companion: Companion): Companion => ({
   ...companion,
@@ -184,6 +191,68 @@ export const useCompanionStore = create<CompanionState>((set, get) => ({
     });
   },
 
+  syncCombatResults: (updates) => {
+    if (!updates.length) return;
+    const updateMap = new Map(updates.map((entry) => [entry.id, entry]));
+    set((state) => {
+      const companions = state.companions.map((entry) => {
+        const combatUpdate = updateMap.get(entry.id);
+        if (!combatUpdate) return entry;
+
+        const nextHp = Math.max(0, Math.min(combatUpdate.hp, combatUpdate.maxHp ?? entry.stats.maxHp));
+        const wasDowned = nextHp <= 0;
+
+        return {
+          ...entry,
+          status: wasDowned ? 'world' : entry.status,
+          locationId: wasDowned ? (getCompanionRestLocation(entry.id) ?? entry.locationId ?? null) : entry.locationId,
+          stats: {
+            ...entry.stats,
+            maxHp: combatUpdate.maxHp ?? entry.stats.maxHp,
+            hp: nextHp,
+          },
+        };
+      });
+
+      const formation = state.formation.map((entry) => {
+        if (!entry || entry === 'player') return entry;
+        const combatUpdate = updateMap.get(entry);
+        if (!combatUpdate) return entry;
+        return combatUpdate.hp <= 0 ? null : entry;
+      });
+
+      return {
+        companions,
+        formation,
+        activeCompanion: syncActiveCompanion(companions, formation),
+      };
+    });
+  },
+
+  healCompanions: (hours, quality = 1.0) => {
+    const hpPerEightHours = 40;
+    const hpRegen = hpPerEightHours * quality * (hours / 8);
+    if (hpRegen <= 0) return;
+
+    set((state) => {
+      const companions = state.companions.map((entry) => {
+        const healedHp = Math.min(entry.stats.maxHp, entry.stats.hp + hpRegen);
+        return {
+          ...entry,
+          stats: {
+            ...entry.stats,
+            hp: healedHp,
+          },
+        };
+      });
+
+      return {
+        companions,
+        activeCompanion: syncActiveCompanion(companions, state.formation),
+      };
+    });
+  },
+
   equipItem: (itemId) => {
     set((state) => {
       if (!state.activeCompanion) return state;
@@ -221,6 +290,6 @@ export const useCompanionStore = create<CompanionState>((set, get) => ({
     const idsInFormation = formation.filter((entry): entry is string => Boolean(entry) && entry !== 'player');
     return idsInFormation
       .map((companionId) => companions.find((entry) => entry.id === companionId))
-      .filter(Boolean) as Companion[];
+      .filter((companion): companion is Companion => Boolean(companion) && companion.stats.hp > 0) as Companion[];
   },
 }));

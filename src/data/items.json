@@ -375,6 +375,51 @@
     "presentationTier": 4,
     "presentationRole": "minor"
   },
+  "leather_cap": {
+    "name": "Leather Cap",
+    "description": "A simple hardened leather cap that offers more protection than cloth without much weight.",
+    "type": "armor",
+    "stackable": false,
+    "weight": 1.4,
+    "base_value": 54,
+    "image": "/assets/items/wolf_helm.png",
+    "equipmentSlot": "head",
+    "threatTier": 2,
+    "threatRole": "minor",
+    "stats": {
+      "defence": 1
+    }
+  },
+  "leather_jerkin": {
+    "name": "Leather Jerkin",
+    "description": "A boiled leather jerkin worn by hunters, caravan hands, and anyone who expects trouble but cannot afford mail.",
+    "type": "armor",
+    "stackable": false,
+    "weight": 4.8,
+    "base_value": 128,
+    "image": "/assets/items/wolf_body.png",
+    "equipmentSlot": "chest",
+    "threatTier": 2,
+    "threatRole": "major",
+    "stats": {
+      "defence": 3
+    }
+  },
+  "leather_leggings": {
+    "name": "Leather Leggings",
+    "description": "Tough leather leggings meant to turn brush, claws, and weaker blows aside.",
+    "type": "armor",
+    "stackable": false,
+    "weight": 2.8,
+    "base_value": 82,
+    "image": "/assets/items/wolf_legs.png",
+    "equipmentSlot": "legs",
+    "threatTier": 2,
+    "threatRole": "minor",
+    "stats": {
+      "defence": 2
+    }
+  },
   "iron_helmet": {
     "name": "Plated Iron Helm",
     "description": "A heavy iron helm reinforced with layered plates and a broad brow, built for soldiers expecting real violence.",
@@ -384,10 +429,10 @@
       "base_value": 223,
     "image": "/assets/items/plated_iron_helm.png",
     "equipmentSlot": "head",
-    "threatTier": 3,
+    "threatTier": 4,
     "threatRole": "minor",
         "stats": {
-          "defence": 5
+          "defence": 4
         }
     },
   "chain_coif": {
@@ -399,25 +444,25 @@
       "base_value": 103,
     "image": "/assets/items/chain_coif.png",
     "equipmentSlot": "head",
-    "threatTier": 2,
+    "threatTier": 3,
     "threatRole": "minor",
         "stats": {
-          "defence": 2
+          "defence": 3
         }
     },
   "chainmail_shirt": {
-    "name": "Chainmail Shirt",
-    "description": "A lighter mail shirt that offers solid protection without the cost of full iron issue.",
+    "name": "Chainmail",
+    "description": "A proper mail hauberk that marks a real fighting man, heavier and safer than leather but still short of plated iron.",
     "type": "armor",
     "stackable": false,
     "weight": 7.0,
       "base_value": 258,
     "image": "/assets/items/chainmail_shirt.png",
     "equipmentSlot": "chest",
-    "threatTier": 2,
+    "threatTier": 3,
     "threatRole": "major",
         "stats": {
-          "defence": 5
+          "defence": 6
         }
     },
   "iron_chainmail": {
@@ -429,10 +474,10 @@
       "base_value": 446,
     "image": "/assets/items/plated_iron_cuirass.png",
     "equipmentSlot": "chest",
-    "threatTier": 3,
+    "threatTier": 4,
     "threatRole": "major",
         "stats": {
-          "defence": 10
+          "defence": 8
         }
     },
   "chainmail_leggings": {
@@ -444,10 +489,25 @@
       "base_value": 155,
     "image": "/assets/items/chainmail_leggings.png",
     "equipmentSlot": "legs",
-    "threatTier": 2,
+    "threatTier": 3,
     "threatRole": "minor",
         "stats": {
-          "defence": 3
+          "defence": 4
+        }
+    },
+  "wooden_shield": {
+      "name": "Wooden Shield",
+      "description": "A rough wooden shield with a reinforced rim. Crude, but still better than taking a blow full-on.",
+      "type": "armor",
+      "stackable": false,
+      "weight": 2.2,
+      "base_value": 68,
+      "image": "/assets/items/bronze_shield.png",
+      "equipmentSlot": "shield",
+      "threatTier": 2,
+      "threatRole": "minor",
+        "stats": {
+          "defence": 2
         }
     },
   "bronze_shield": {
@@ -459,10 +519,10 @@
       "base_value": 155,
       "image": "/assets/items/bronze_shield.png",
       "equipmentSlot": "shield",
-      "threatTier": 2,
+      "threatTier": 3,
       "threatRole": "minor",
         "stats": {
-          "defence": 4
+          "defence": 3
         }
     },
   "iron_leggings": {
@@ -474,10 +534,10 @@
       "base_value": 223,
     "image": "/assets/items/plated_iron_leggings.png",
     "equipmentSlot": "legs",
-    "threatTier": 3,
+    "threatTier": 4,
     "threatRole": "minor",
         "stats": {
-          "defence": 5
+          "defence": 4
         }
     },
   "iron_shield": {
@@ -489,7 +549,7 @@
       "base_value": 223,
       "image": "/assets/items/iron_shield.png",
       "equipmentSlot": "shield",
-      "threatTier": 3,
+      "threatTier": 4,
       "threatRole": "minor",
         "stats": {
           "defence": 5
@@ -501,14 +561,14 @@
     "type": "weapon",
     "stackable": false,
     "weight": 1.0,
-    "base_value": 25,
+    "base_value": 60,
     "image": "/assets/items/crude_knife.png",
     "equipmentSlot": "weapon",
-    "threatTier": 1,
+    "threatTier": 2,
     "threatRole": "major",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
         "stats": {
-          "attack": 1
+          "attack": 5
         }
   },
   "iron_sword": {
@@ -520,7 +580,7 @@
       "base_value": 670,
     "image": "/assets/items/iron_sword.png",
     "equipmentSlot": "weapon",
-    "threatTier": 3,
+    "threatTier": 4,
     "threatRole": "major",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
         "stats": {
@@ -536,11 +596,11 @@
       "base_value": 258,
     "image": "/assets/items/bronze_sword.png",
     "equipmentSlot": "weapon",
-    "threatTier": 2,
+    "threatTier": 3,
     "threatRole": "major",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
         "stats": {
-          "attack": 7
+          "attack": 9
         }
     },
   "white_fang_of_heaven": {

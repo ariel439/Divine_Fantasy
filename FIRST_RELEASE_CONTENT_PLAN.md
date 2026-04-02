@@ -2,359 +2,209 @@
 
 ## Purpose
 
-This document now reflects the **current post-Ronald / post-woods** state of the build.
+This document tracks the actual content scope still intended for the first release.
 
-It is no longer a pure proposal for what the first release might be.
+It is not a technical roadmap.
+It is not a cleanup list.
+It is not a full Driftwatch plan.
 
-Instead, it tracks:
+It exists to keep the release focused on the content that still needs to be added or reworked before the game is put in front of players.
 
-- what has already landed
-- what changed direction
-- what still appears to be the highest-value content work for the first release
+## First Release Target
 
-## Current First-Release Read
-
-The first release is strongest when it stays centered on:
+The first release should be a strong, focused chapter build centered on:
 
 - Luke
 - Driftwatch
-- the Finn week
+- Finn's debt week
+- a small set of recurring NPC routes
 - White Fang as the mythic branch
-- a small set of recurring NPCs with authored side content
 
-The release does **not** need many new systems.
+The goal is not a complete Driftwatch experience.
+The goal is a solid first public version of this chapter.
 
-It needs:
+## Main Content Priorities
 
-- stronger breadth around the current chapter
-- clearer payoff from existing systems
-- cleanup where the content direction has shifted since the original plan
+## 1. Elias Second Job
 
-## What Is Already Landed
+This is the biggest missing content addition still intended for the first release.
 
-### Ronald
+Target:
 
-Ronald is now substantially implemented as a first-release route anchor.
+- add a second job route through Captain Elias
+- make it meaningfully different from dockhand work
+- give the player another money path and weekly structure
 
-Live content includes:
+Why it matters:
 
-- `Friendly` menu
-- 2 gated `Ask` questions
-- guard-routed wolf-pack quest
-- cabin knowledge through relationship
-- path-clearing unlock flow
-- player cabin unlock with bed + cooking access
+- broadens the economy
+- gives the chapter more practical variety
+- helps the harbor side of the city feel more alive
 
-This section of the older plan is now largely complete.
+## 2. Old Crank Friendly Progression + Small Quest
 
-### Woods Rework
+Old Crank is still one of the best compact expansion targets.
 
-This also substantially landed.
+Target:
 
-Live now:
+- add proper `Friendly` progression
+- add one small side quest
 
-- woods as the main exploration zone
-- fruit/resource/scavenge events
-- wolf danger
-- hidden-cabin path discovery
-- survival/cooking integration
+Why it matters:
 
-This means the release now already has a real wilderness pillar, even if it is still only one area wide.
+- gives the tavern another real optional route
+- adds human texture to Driftwatch
+- improves side-content breadth without requiring a large route
 
-### Roberta Core Route
+## 3. Beryl / Elisa Finn Quest Rework
 
-Roberta has a lot of first-release content already in place:
+Beryl's branch in Finn's debt quest should be changed so the parcel goes to Elisa at night instead of to a noble woman.
 
-- wall/planks quest
-- relationship-gated `Ask` progression
-- second Tide & Trade improvement quest
-- workbench/upgrade route
-- romance unlock endpoint
-- kiss route beat
+Target:
 
-The issue with Roberta now is less "missing content" and more "cleanup and alignment."
+- rework the Beryl delivery branch
+- make the delivery go to Elisa
+- make the Beryl / Elisa relationship more visible to the player
+- better connect this branch to the crumpled letter material
 
-### Social Milestones
+Why it matters:
 
-The release now already has more visible social-state payoff than the older plan assumed.
+- makes the branch more coherent
+- gives Elisa more actual function
+- strengthens one of the more interesting emotional/moral threads in the debt quest
 
-Live improvements include:
+## 4. Intro Lore Pass For Old Leo, Sarah, and Kyle
 
-- relationship vectors
-- romance state
-- submissive state
-- obedience stat
-- diary state presentation
-- off-screen unknown NPC state
+The orphanage characters do not need large side content for first release, but they should carry more lore value.
 
-This means the milestone layer exists, but still needs more NPCs to use it meaningfully.
+Target:
 
-## What Changed Direction
+- rework Old Leo, Sarah, and Kyle to have more `Ask`-style lore content
+- use them more as worldbuilding and emotional grounding in the intro
 
-### Roberta: `Flirt` vs `Romance`
+Why it matters:
 
-The older plan still talks about:
+- improves the intro without expanding it into a large route cluster
+- gives Luke's early life more texture
+- strengthens the opening tone
 
-- `Flirty`
-- `Coerce`
+## 5. Salty Mug Room Return After Debt Quest
 
-But the current direction has moved toward:
+After the seven-day Finn debt quest, the player should be able to rent a room in the Salty Mug again.
 
-- `Romance` as the post-relationship menu
-- less emphasis on keeping coercion as a central release pillar
+Target:
 
-So Roberta's section needs to be understood differently now:
+- make room rental available again after the debt quest resolves
 
-- the route content is mostly there
-- the terminology and structure still need cleanup in data and presentation
+Why it matters:
 
-### Slums Combat / Pit
+- improves post-quest chapter flow
+- restores a useful city convenience
+- makes the Salty Mug feel more complete as a hub
 
-The older broader content assumptions no longer apply here.
+## 6. Replacement Salty Mug Shopkeeper If Finn Dies
 
-These are now intentionally removed:
+If Finn dies, the Salty Mug still needs to function.
 
-- pit branch
-- pit broker content
-- slums exploration combat filler
+Target:
 
-This was the right focus choice and should remain the intended direction.
+- add a replacement barkeep / keeper NPC for the Salty Mug if Finn is dead
+- preserve shop access and tavern function in that state
 
-### Exploration Scope
+Why it matters:
 
-The old plan imagined:
+- keeps the world functional after a major branch outcome
+- avoids the tavern feeling structurally broken after Finn's death
 
-- woods rework
-- beach exploration
-- mountain exploration
+## 7. Shihan Camp Final-State Pass
 
-What actually happened:
+Shihan does not need more social expansion for first release.
+Instead, her camp version should be simplified and framed more clearly as the end of the route for now.
 
-- woods rework landed
-- beach and mountain remain more like travel / White Fang spaces than true exploration zones
+Target:
 
-So the next step is no longer "start woods rework."
-It is "expand exploration breadth beyond woods."
+- remove `Friendly` / social-style camp interactions
+- keep `Ask` content
+- make it clearer that this is the current end-state of her route for now
 
-## Current Priority NPCs
+Why it matters:
 
-The most important NPC priorities now look like this:
+- keeps Shihan in the right lane
+- avoids implying a fuller social route that is not actually planned for this release
+- gives the White Fang branch a cleaner stopping point
 
-- Roberta
-- Old Crank
-- Shihan
-- Captain Elias as a side-content/job anchor
+## 8. Missing Art Assets
 
-Ronald is no longer a top missing priority because he is largely delivered.
+There are still a couple of important visual assets needed for first release.
 
-## Updated NPC Priorities
+Target:
 
-### 1. Roberta Cleanup Pass
+- add an image for Shihan's camp
+- add a young Luke image for the intro fight / childhood sequence
 
-Roberta is no longer primarily a content-gap problem.
+Why it matters:
 
-She is now a cleanup/alignment problem.
+- improves immersion in two key parts of the game
+- helps the intro and White Fang route feel more finished
 
-Priority tasks:
+## Out Of Scope For First Release
 
-- align the route around `Romance` instead of lingering `Flirt` naming
-- remove or retire stale `Coerce` route structure if it is no longer intended
-- clean up `trade` handling in dialogue structure
-- remove stale or legacy branches that no longer fit the route
+These are currently not planned for this release:
 
-Goal:
+- beach exploration expansion
+- mountain exploration expansion
+- broader extra exploration zones beyond the woods
+- major social expansion for Shihan in camp
+- a full Driftwatch reactivity pass
 
-- keep her rich content
-- make the route cleaner and more consistent with the newer social direction
+## Supporting Balance Work
 
-### 2. Old Crank Expansion
+Some gameplay support work is still needed because it directly affects how the release content feels.
 
-Old Crank is now one of the clearest missing side-route opportunities.
+### Job Balance
 
-He should still be expanded toward the older target:
+Target:
 
-- `Friendly`
-- recurring beer gift support
-- relationship milestones
-- rat question
-- personal past questions
-- simple treasure-map / spade quest
+- rebalance the job system so work feels less miserable and more worth doing
 
-This would add a lot of tavern-side human texture to the Finn week.
+Why it matters:
 
-### 3. Shihan Light Social Follow-Through
+- the release is adding a second job
+- the economy needs to feel functional enough to support that content
 
-Shihan should remain special and more limited than grounded town NPCs.
+## Priority Order
 
-Current direction should stay:
+### Must-Have
 
-- lore-heavy
-- reserved
-- White Fang-centered
+- Elias second job
+- Old Crank friendly progression and small quest
+- Beryl / Elisa Finn quest rework
+- Salty Mug room return after debt quest
+- replacement Salty Mug NPC if Finn dies
 
-What she still could use:
+### Strong Should-Have
 
-- a cleaner post-White-Fang light social follow-up layer
-- a few relationship-gated reflective questions
-- just enough payoff to make her feel alive after the main route beat
+- intro lore pass for Old Leo, Sarah, and Kyle
+- Shihan camp final-state pass
+- job balance pass
 
-### 4. Elias Sea-Week Job
+### Asset Must-Haves
 
-This is still one of the biggest missing pieces from the old plan.
-
-The release still needs a second real job path.
-
-The best candidate remains:
-
-- Captain Elias
-- a Monday-to-Friday sea-week event job
-
-This would help:
-
-- chapter breadth
-- money progression
-- fishing identity
-- route variety outside the city loop
-
-## Updated Exploration Priorities
-
-### Woods
-
-Status:
-
-- done enough for first release
-
-Not perfect, but clearly live and useful.
-
-### Beach
-
-Status:
-
-- still missing as a real exploration zone
-
-Current role:
-
-- travel/White Fang sign location
-
-Needed:
-
-- light exploration support
-- a few authored events
-- small salvage / coastal identity
-
-### Mountain
-
-Status:
-
-- still missing as a real exploration zone
-
-Current role:
-
-- White Fang progression space
-
-Needed:
-
-- light exploration support
-- a few harsh or dangerous authored events
-- identity distinct from the woods
-
-## Updated Job Priorities
-
-### Already Live
-
-- dockhand remains the only true formal standing job
-
-### Still Missing
-
-- Elias sea-week job
-
-This remains the clearest job-side missing piece in the current build.
-
-## Updated Release Priorities
-
-If the first release is to feel much stronger, the best remaining priorities are:
-
-### 1. Old Crank Route
-
-Why:
-
-- high flavor value
-- low scope compared to a full major route
-- strong fit for Driftwatch and the Finn week
-
-### 2. Elias Sea-Week Job
-
-Why:
-
-- second real job path
-- makes the economy/chapter feel broader
-- strong fit for the docks/fishing side of the game
-
-### 3. Beach Exploration
-
-Why:
-
-- gives the crossroads more value
-- supports White Fang atmosphere and world breadth
-- relatively small scoped if kept simple
-
-### 4. Mountain Exploration
-
-Why:
-
-- complements beach
-- gives White Fang aftermath more environmental support
-- helps the world feel less centered on one single resource zone
-
-### 5. Roberta Cleanup
-
-Why:
-
-- one of the richest existing routes
-- but also one of the clearest areas of design drift
-
-This is a polish/consistency priority, not a missing-content priority.
-
-## What Is No Longer A First-Release Priority
-
-These do not need to be major priorities right now:
-
-- bringing back pit content
-- restoring generic slums combat exploration
-- expanding coercion/fear routes broadly across the cast
-- expanding every NPC evenly
-- adding many more systems before side-content breadth improves
-
-The release is strongest when it stays focused on:
-
-- richer side content
-- better breadth
-- cleaner payoff
-
-not on reopening content that was intentionally cut for focus.
+- Shihan camp image
+- young Luke intro image
 
 ## Final Read
 
-The first-release plan has changed from:
+The first release no longer needs broader exploration expansion to feel viable.
 
-- "build Ronald, woods, and a few stronger side routes"
+The remaining content focus is now:
 
-to:
+- one new job
+- one small side-route expansion
+- one meaningful debt-quest rework
+- better intro lore grounding
+- better post-Finn tavern functionality
+- a cleaner Shihan route endpoint
+- two important missing images
 
-- "capitalize on what already landed, then fill the biggest remaining side-content gaps"
-
-The biggest completed pieces are:
-
-- Ronald
-- woods
-- much of Roberta's content ladder
-
-The biggest remaining gaps are:
-
-- Old Crank
-- Elias sea-week job
-- beach exploration
-- mountain exploration
-- Roberta cleanup/alignment
-
-That is the clearest and most honest version of the current milestone.
+That is a much tighter and more realistic first-release content scope.

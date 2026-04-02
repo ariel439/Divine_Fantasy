@@ -52,6 +52,21 @@ const loadouts = [
   },
 ];
 
+const skillProfiles = [
+  {
+    id: 'baseline',
+    label: 'Base Skills (1)',
+    melee: 1,
+    constitution: 1,
+  },
+  {
+    id: 'combat_intro',
+    label: 'Combat Intro (Melee 10 / Constitution 10)',
+    melee: 10,
+    constitution: 10,
+  },
+];
+
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
@@ -64,7 +79,15 @@ function normalizeStats(item) {
   }, {});
 }
 
-function buildPlayer(loadout) {
+function getMeleeMilestoneMultiplier(level) {
+  return 1 + Math.floor(level / 10) * 0.1;
+}
+
+function getConstitutionHpBonus(level) {
+  return Math.floor(level / 10) * 10;
+}
+
+function buildPlayer(loadout, skillProfile) {
   const strength = lukeTemplate.starting_attributes.Strength;
   const dexterity = lukeTemplate.starting_attributes.Dexterity;
 
@@ -91,12 +114,13 @@ function buildPlayer(loadout) {
     side: 'party',
     isPlayer: true,
     isCompanion: false,
-    hp: 50 + strength * 10 + bonusHp,
-    maxHp: 50 + strength * 10 + bonusHp,
+    hp: 50 + strength * 10 + getConstitutionHpBonus(skillProfile.constitution) + bonusHp,
+    maxHp: 50 + strength * 10 + getConstitutionHpBonus(skillProfile.constitution) + bonusHp,
     attack,
     defence,
     dexterity: totalDexterity,
     baseHitChance: COMBAT_CONFIG.BASE_HIT_CHANCE.PLAYER,
+    damageMultiplier: getMeleeMilestoneMultiplier(skillProfile.melee),
   };
 }
 
@@ -211,7 +235,11 @@ function calcPlayerDamage(attacker, defender) {
     attacker.attack * COMBAT_CONFIG.DAMAGE_FORMULA.PLAYER_MULTIPLIER -
       defender.defence * COMBAT_CONFIG.DAMAGE_FORMULA.PLAYER_DEFENCE_FACTOR
   );
-  return Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.PLAYER, raw);
+  const baseDamage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.PLAYER, raw);
+  return Math.max(
+    COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.PLAYER,
+    Math.floor(baseDamage * (attacker.damageMultiplier || 1))
+  );
 }
 
 function calcCompanionDamage(attacker, defender) {
@@ -275,8 +303,8 @@ function average(results, selector) {
   return results.reduce((sum, result) => sum + selector(result), 0) / results.length;
 }
 
-function simulateRenZhenFight(loadout) {
-  const player = buildPlayer(loadout);
+function simulateRenZhenFight(loadout, skillProfile) {
+  const player = buildPlayer(loadout, skillProfile);
   const retainers = buildRenZhenRetainers();
   const boss = buildRenZhen();
   const units = sortTurnOrder(
@@ -338,8 +366,8 @@ function simulateRenZhenFight(loadout) {
   };
 }
 
-function simulateWolfFight(loadout, wolfCount) {
-  const player = buildPlayer(loadout);
+function simulateWolfFight(loadout, skillProfile, wolfCount) {
+  const player = buildPlayer(loadout, skillProfile);
   const wolves = Array.from({ length: wolfCount }, (_, index) => buildWolf(index));
   const units = sortTurnOrder([...assignFormation([player]), ...assignFormation(wolves)]);
 
@@ -384,8 +412,8 @@ function simulateWolfFight(loadout, wolfCount) {
   };
 }
 
-function simulateRonaldWolfFight(loadout) {
-  const player = buildPlayer(loadout);
+function simulateRonaldWolfFight(loadout, skillProfile) {
+  const player = buildPlayer(loadout, skillProfile);
   const ronaldAlly = buildRonald();
   const wolves = Array.from({ length: 4 }, (_, index) => buildWolf(index));
   const units = sortTurnOrder([...assignFormation([player, ronaldAlly]), ...assignFormation(wolves)]);
@@ -435,12 +463,12 @@ function simulateRonaldWolfFight(loadout) {
   };
 }
 
-function summarizeScenario(loadout, scenarioId) {
+function summarizeScenario(loadout, skillProfile, scenarioId) {
   let results = [];
   let scenario = null;
 
   if (scenarioId === 'ren_zhen') {
-    results = Array.from({ length: TRIALS }, () => simulateRenZhenFight(loadout));
+    results = Array.from({ length: TRIALS }, () => simulateRenZhenFight(loadout, skillProfile));
     const wins = results.filter((r) => r.win);
     const losses = results.filter((r) => !r.win);
     scenario = {
@@ -466,7 +494,7 @@ function summarizeScenario(loadout, scenarioId) {
     };
   } else if (scenarioId.startsWith('wolves_')) {
     const wolfCount = Number.parseInt(scenarioId.split('_')[1], 10);
-    results = Array.from({ length: TRIALS }, () => simulateWolfFight(loadout, wolfCount));
+    results = Array.from({ length: TRIALS }, () => simulateWolfFight(loadout, skillProfile, wolfCount));
     const wins = results.filter((r) => r.win);
     const losses = results.filter((r) => !r.win);
     scenario = {
@@ -485,7 +513,7 @@ function summarizeScenario(loadout, scenarioId) {
       averageEnemiesLeftOnLosses: Number(average(losses, (r) => r.enemiesLeft).toFixed(2)),
     };
   } else if (scenarioId === 'ronald_wolves') {
-    results = Array.from({ length: TRIALS }, () => simulateRonaldWolfFight(loadout));
+    results = Array.from({ length: TRIALS }, () => simulateRonaldWolfFight(loadout, skillProfile));
     const wins = results.filter((r) => r.win);
     const losses = results.filter((r) => !r.win);
     scenario = {
@@ -513,15 +541,17 @@ function summarizeScenario(loadout, scenarioId) {
     };
   }
 
-  const preview = buildPlayer(loadout);
+  const preview = buildPlayer(loadout, skillProfile);
   return {
     loadout: loadout.label,
+    skillProfile: skillProfile.label,
     trials: TRIALS,
     playerStats: {
       hp: preview.maxHp,
       attack: preview.attack,
       defence: preview.defence,
       dexterity: preview.dexterity,
+      damageMultiplier: preview.damageMultiplier,
     },
     ...scenario,
   };
@@ -532,9 +562,12 @@ const scenarioOrder = ['ren_zhen', 'wolves_1', 'wolves_2', 'wolves_4', 'ronald_w
 console.log(`Combat balancing simulator - ${TRIALS} trials per loadout/scenario\n`);
 for (const scenarioId of scenarioOrder) {
   console.log(`=== ${scenarioId} ===`);
-  for (const loadout of loadouts) {
-    const summary = summarizeScenario(loadout, scenarioId);
-    console.log(JSON.stringify(summary, null, 2));
-    console.log('');
+  for (const skillProfile of skillProfiles) {
+    console.log(`-- ${skillProfile.label} --`);
+    for (const loadout of loadouts) {
+      const summary = summarizeScenario(loadout, skillProfile, scenarioId);
+      console.log(JSON.stringify(summary, null, 2));
+      console.log('');
+    }
   }
 }

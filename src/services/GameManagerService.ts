@@ -384,6 +384,7 @@ export class GameManagerService {
     useSkillStore.setState({
       skills: {},
     });
+    useCharacterStore.setState({ constitutionBonusHp: 0 });
     try {
       useCharacterStore.getState().recalculateStats();
       useCharacterStore.getState().refreshSocialEnergyCap();
@@ -408,6 +409,7 @@ export class GameManagerService {
     useSkillStore.setState({
       skills: {},
     });
+    useCharacterStore.setState({ constitutionBonusHp: 0 });
 
     useWorldTimeStore.setState({
       year: 780,
@@ -503,7 +505,7 @@ export class GameManagerService {
   static applyMainGameStoryVitals(): void {
     useCharacterStore.setState((state) => ({
       ...state,
-      hp: Math.min(state.maxHp || 100, 80),
+      hp: state.maxHp || 100,
       energy: 60,
     }));
   }

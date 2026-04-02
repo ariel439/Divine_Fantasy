@@ -116,6 +116,7 @@ export interface CombatParticipant {
     combatRow?: 'front' | 'back';
     combatSlot?: number;
     accuracyModifier?: number;
+    damageMultiplier?: number;
     lootTable?: Array<{ item_id: string; quantity: number; chance: number }>;
   }
 

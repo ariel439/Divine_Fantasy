@@ -60,6 +60,11 @@ const CharacterScreen: FC = () => {
     const { setScreen } = useUIStore();
     const { attributes, hp, maxHp, energy, hunger, socialEnergy, maxSocialEnergy, bio, languages } = useCharacterStore();
     const { skills, getSkillLevel } = useSkillStore();
+    const getSkillTierProgress = (level: number) => {
+        if (level <= 1) return 10;
+        if (level % 10 === 0) return 0;
+        return (level % 10) * 10;
+    };
 
     const characterData = {
         name: bio?.name || 'Unknown',
@@ -212,7 +217,7 @@ const CharacterScreen: FC = () => {
                                     <div className="w-full bg-black/40 rounded-full h-1 overflow-hidden border border-zinc-800/30">
                                         <div 
                                             className="h-full bg-gradient-to-r from-zinc-700 to-zinc-400 rounded-full transition-all duration-1000"
-                                            style={{ width: `${((skill.level - 1) % 10 + 1) * 10}%` }}
+                                            style={{ width: `${getSkillTierProgress(skill.level)}%` }}
                                         />
                                     </div>
                                 </div>

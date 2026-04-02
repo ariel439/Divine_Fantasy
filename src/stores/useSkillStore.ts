@@ -37,6 +37,12 @@ function refreshSocialEnergyCap() {
   }));
 }
 
+function syncDerivedCombatBonuses(getState: () => SkillState) {
+  const constitutionLevel = getState().getSkillLevel('constitution');
+  const constitutionBonusHp = Math.floor(constitutionLevel / 10) * 10;
+  useCharacterStore.setState({ constitutionBonusHp });
+}
+
 // Attribute to skill links removed in favor of global Intelligence scaling
 
 export const useSkillStore = create<SkillState>((set, get) => ({
@@ -76,6 +82,7 @@ export const useSkillStore = create<SkillState>((set, get) => ({
         }
       };
     });
+    syncDerivedCombatBonuses(get);
     refreshSocialEnergyCap();
     try { useCharacterStore.getState().recalculateStats(); } catch {}
   },
@@ -100,6 +107,7 @@ export const useSkillStore = create<SkillState>((set, get) => ({
         [normalizedSkill]: { level, xp: levelData.total_xp }
       }
     }));
+    syncDerivedCombatBonuses(get);
     refreshSocialEnergyCap();
     try { useCharacterStore.getState().recalculateStats(); } catch {}
   },

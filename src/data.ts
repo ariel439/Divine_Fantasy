@@ -41,25 +41,15 @@ export const skillProficiencyLabels: { [key: number]: string } = {
 };
 
 export const getDescriptiveSkillLabel = (level: number): string => {
-    // Levels 1-10: Novice (Tier 1)
-    if (level <= 10) return skillProficiencyLabels[1];
-    // Levels 11-20: Apprentice (Tier 2)
-    if (level <= 20) return skillProficiencyLabels[2];
-    // Levels 21-30: Journeyman (Tier 3)
-    if (level <= 30) return skillProficiencyLabels[3];
-    // Levels 31-40: Adept (Tier 4)
-    if (level <= 40) return skillProficiencyLabels[4];
-    // Levels 41-50: Artisan (Tier 5)
-    if (level <= 50) return skillProficiencyLabels[5];
-    // Levels 51-60: Expert (Tier 6)
-    if (level <= 60) return skillProficiencyLabels[6];
-    // Levels 61-70: Master (Tier 7)
-    if (level <= 70) return skillProficiencyLabels[7];
-    // Levels 71-80: Grandmaster (Tier 8)
-    if (level <= 80) return skillProficiencyLabels[8];
-    // Levels 81-90: Legend (Tier 9)
-    if (level <= 90) return skillProficiencyLabels[9];
-    // Levels 91-99: Divine (Tier 10)
+    if (level < 10) return skillProficiencyLabels[1];
+    if (level < 20) return skillProficiencyLabels[2];
+    if (level < 30) return skillProficiencyLabels[3];
+    if (level < 40) return skillProficiencyLabels[4];
+    if (level < 50) return skillProficiencyLabels[5];
+    if (level < 60) return skillProficiencyLabels[6];
+    if (level < 70) return skillProficiencyLabels[7];
+    if (level < 80) return skillProficiencyLabels[8];
+    if (level < 90) return skillProficiencyLabels[9];
     return skillProficiencyLabels[10];
 };
 

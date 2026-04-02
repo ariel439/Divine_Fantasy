@@ -108,14 +108,14 @@ const ScreenManager: React.FC = () => {
     }));
     world.setFlag('knows_shenhaic_basic', false);
 
-    if (selectedPastime === 'robert') {
-      useDiaryStore.getState().updateRelationship('npc_robert', { friendship: 12 });
-      useSkillStore.getState().setSkillLevel('constitution', 3);
-    } else if (selectedPastime === 'kids') {
-      useDiaryStore.getState().updateRelationship('npc_sarah', { friendship: 8 });
-      useDiaryStore.getState().updateRelationship('npc_kyle', { friendship: 8 });
-      useSkillStore.getState().setSkillLevel('carpentry', 3);
-    } else if (selectedPastime === 'study') {
+      if (selectedPastime === 'robert') {
+        useDiaryStore.getState().updateRelationship('npc_robert', { friendship: 12 });
+        useSkillStore.getState().setSkillLevel('constitution', 10);
+      } else if (selectedPastime === 'kids') {
+        useDiaryStore.getState().updateRelationship('npc_sarah', { friendship: 8 });
+        useDiaryStore.getState().updateRelationship('npc_kyle', { friendship: 8 });
+        useSkillStore.getState().setSkillLevel('carpentry', 10);
+      } else if (selectedPastime === 'study') {
       useCharacterStore.setState((state) => ({
         ...state,
         languages: {

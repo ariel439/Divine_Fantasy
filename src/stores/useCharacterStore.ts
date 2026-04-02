@@ -33,6 +33,7 @@ interface CharacterState {
   };
   // Carry Weight
   maxWeight: number;
+  constitutionBonusHp: number;
   // Bio
   bio?: {
     name: string;
@@ -107,6 +108,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     gold: 0,
   },
   maxWeight: 50,
+  constitutionBonusHp: 0,
   languages: {
     veyric: 'Native',
     shenhaic: 'None',
@@ -389,15 +391,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   recalculateStats: () => {
     set((state) => {
       const { strength } = state.attributes;
-      let constitutionLevel = 1;
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { useSkillStore } = require('./useSkillStore');
-        constitutionLevel = useSkillStore.getState().getSkillLevel('constitution');
-      } catch {
-        constitutionLevel = 1;
-      }
-      const constitutionHpBonus = Math.floor(constitutionLevel / 10);
+      const constitutionHpBonus = state.constitutionBonusHp || 0;
       
       // Calculate Max HP: Base 50 + (Strength * 10) + Item Bonuses
       let bonusHp = 0;

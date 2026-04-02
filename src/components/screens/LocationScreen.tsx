@@ -469,7 +469,8 @@ const LocationScreen: React.FC = () => {
         useWorldStateStore.getState().setIntroCompleted(true);
         useWorldStateStore.getState().setFlag('intro_completed', true);
         useWorldStateStore.getState().setIntroMode(false);
-        useWorldStateStore.getState().removeKnownNpc('npc_robert');
+        useWorldStateStore.getState().addKnownNpc('npc_robert');
+        useWorldStateStore.getState().setFlag('robert_status_unknown', true);
         useWorldStateStore.getState().setFlag('finn_debt_intro_pending', false);
         useWorldTimeStore.setState({ year: 780 });
         useLocationStore.getState().setLocation('salty_mug');

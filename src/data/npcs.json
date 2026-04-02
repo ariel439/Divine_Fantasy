@@ -284,5 +284,11 @@
     "schedules": [
       { "location_id": "hunters_cabin", "start_hour": 6, "end_hour": 20 }
     ]
+  },
+  "npc_robert": {
+    "name": "Robert",
+    "title": "Whereabouts Unknown",
+    "portrait": "/assets/portraits/robert.png",
+    "diary_unknown": true
   }
 }

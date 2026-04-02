@@ -35,6 +35,8 @@ const DebugMenuScreen: FC = () => {
     ensureDebugCharacter();
     worldStateStore.setIntroMode(true);
     worldStateStore.setIntroCompleted(false);
+    worldStateStore.addKnownNpc('npc_robert');
+    worldStateStore.setFlag('robert_status_unknown', false);
 
     const charStore = useCharacterStore.getState();
     if (!charStore.bio) {

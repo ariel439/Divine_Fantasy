@@ -12,7 +12,7 @@ import CompanionTab from './CompanionTab';
 const ENEMY_THRESHOLD = -20;
 const FRIENDLY_THRESHOLD = 20;
 
-type DiaryStatusTone = 'romance' | 'submissive' | 'offline' | 'enemy' | 'friendly' | 'neutral';
+type DiaryStatusTone = 'romance' | 'submissive' | 'offline' | 'enemy' | 'friendly' | 'neutral' | 'unknown';
 
 const STATUS_SORT_PRIORITY: Record<DiaryStatusTone, number> = {
     romance: 0,
@@ -20,11 +20,12 @@ const STATUS_SORT_PRIORITY: Record<DiaryStatusTone, number> = {
     friendly: 2,
     enemy: 3,
     neutral: 4,
-    offline: 5,
+    unknown: 5,
+    offline: 6,
 };
 
 function getFriendshipToneClasses(value: number) {
-    if (value >= 1) {
+    if (value >= FRIENDLY_THRESHOLD) {
         return {
             valueClass: 'text-emerald-300',
             iconClass: 'text-emerald-300',
@@ -32,7 +33,7 @@ function getFriendshipToneClasses(value: number) {
             negativeColorClass: 'bg-red-500/80',
         };
     }
-    if (value <= -1) {
+    if (value <= ENEMY_THRESHOLD) {
         return {
             valueClass: 'text-red-300',
             iconClass: 'text-red-300',
@@ -59,10 +60,12 @@ function getDiaryStatusTone(
     getFlag: (flag: string) => boolean
 ): DiaryStatusTone {
     const prefix = getNpcStateFlagPrefix(npcId);
+    const npcMeta = (npcsData as Record<string, any>)[npcId];
 
     if (getFlag(`${prefix}_romance_open`)) return 'romance';
     if (getFlag(`${prefix}_submissive_open`)) return 'submissive';
     if (isDead) return 'offline';
+    if (getFlag(`${prefix}_status_unknown`) || Boolean(npcMeta?.diary_unknown)) return 'unknown';
     if (friendshipValue <= ENEMY_THRESHOLD) return 'enemy';
     if (friendshipValue >= FRIENDLY_THRESHOLD) return 'friendly';
     return 'neutral';
@@ -82,6 +85,8 @@ function getStatusToneClasses(tone: DiaryStatusTone, selected: boolean) {
             return { shell: `bg-red-950/80 ${selectedBorder}`, dot: 'bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.45)]' };
         case 'friendly':
             return { shell: `bg-emerald-950/70 ${selectedBorder}`, dot: 'bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.35)]' };
+        case 'unknown':
+            return { shell: `bg-slate-950/80 ${selectedBorder}`, dot: 'bg-slate-400 shadow-[0_0_12px_rgba(148,163,184,0.32)]' };
         case 'neutral':
         default:
             return { shell: `bg-blue-950/70 ${selectedBorder}`, dot: 'bg-blue-400 shadow-[0_0_12px_rgba(96,165,250,0.4)]' };
@@ -97,8 +102,24 @@ function getNpcStatusBadges(npcId: string, statusTone: DiaryStatusTone, getFlag:
     if (statusTone === 'friendly') badges.push('Friendly');
     if (statusTone === 'enemy') badges.push('Enemy');
     if (statusTone === 'neutral') badges.push('Neutral');
+    if (statusTone === 'unknown') badges.push('Unknown');
 
     return badges;
+}
+
+function getNpcStateLabel(npcId: string, statusTone: DiaryStatusTone, getFlag: (flag: string) => boolean): string {
+    const prefix = getNpcStateFlagPrefix(npcId);
+    const npcMeta = (npcsData as Record<string, any>)[npcId];
+
+    if (statusTone === 'unknown') {
+        return npcMeta?.title || 'Whereabouts Unknown';
+    }
+    if (getFlag(`${prefix}_romance_open`)) return 'Romance';
+    if (getFlag(`${prefix}_submissive_open`)) return 'Submissive';
+    if (statusTone === 'offline') return 'Dead';
+    if (statusTone === 'friendly') return 'Friendly';
+    if (statusTone === 'enemy') return 'Enemy';
+    return 'Neutral';
 }
 
 const DiaryScreen: FC = () => {
@@ -177,6 +198,7 @@ const DiaryScreen: FC = () => {
         const friendshipValue = npcRelationship.friendship?.value || 0;
         const statusTone = getDiaryStatusTone(selectedNpc.id, friendshipValue, isDead, worldState.getFlag);
         const statusBadges = getNpcStatusBadges(selectedNpc.id, statusTone, worldState.getFlag);
+        const isUnknown = statusTone === 'unknown';
 
         return {
             id: selectedNpc.id,
@@ -184,6 +206,7 @@ const DiaryScreen: FC = () => {
             title: (npcData as any)?.title || npcData?.name || 'Unknown',
             portrait: npcData?.portrait || '',
             isDead,
+            isUnknown,
             deathDate: isDead ? worldState.getData(`${selectedNpc.id}_death_date`) || '' : '',
             statusTone,
             statusBadges,
@@ -317,6 +340,8 @@ const DiaryScreen: FC = () => {
                                         const friendshipValue = relationships[npc.id]?.friendship?.value || 0;
                                         const statusTone = getDiaryStatusTone(npc.id, friendshipValue, isDead, worldState.getFlag);
                                         const statusToneClasses = getStatusToneClasses(statusTone, selectedNpc?.id === npc.id);
+                                        const stateLabel = getNpcStateLabel(npc.id, statusTone, worldState.getFlag);
+                                        const isUnknown = statusTone === 'unknown';
                                         return (
                                             <button
                                                 key={npc.id}
@@ -339,8 +364,8 @@ const DiaryScreen: FC = () => {
                                                     <span className={`block text-sm font-bold truncate ${selectedNpc?.id === npc.id ? 'font-black' : ''}`}>
                                                         {npc.name}
                                                     </span>
-                                                    <span className={`block text-[9px] uppercase font-black tracking-tighter truncate opacity-60 ${selectedNpc?.id === npc.id ? 'text-zinc-900' : isDead ? 'text-red-400/80' : 'text-zinc-500'}`}>
-                                                        {npc.title}
+                                                    <span className={`block text-[9px] uppercase font-black tracking-tighter truncate opacity-60 ${selectedNpc?.id === npc.id ? 'text-zinc-900' : isDead ? 'text-red-400/80' : isUnknown ? 'text-slate-400/80' : statusTone === 'friendly' ? 'text-emerald-400/80' : statusTone === 'enemy' ? 'text-red-400/80' : statusTone === 'romance' ? 'text-pink-400/80' : statusTone === 'submissive' ? 'text-purple-400/80' : 'text-zinc-500'}`}>
+                                                        {stateLabel}
                                                     </span>
                                                 </div>
                                                 {isDead && (
@@ -408,8 +433,10 @@ const DiaryScreen: FC = () => {
                                                                         ? 'border-purple-500/30 bg-purple-500/10 text-purple-300'
                                                                         : badge === 'Friendly'
                                                                             ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-                                                                            : badge === 'Enemy'
+                                                                : badge === 'Enemy'
                                                                                 ? 'border-red-500/30 bg-red-500/10 text-red-300'
+                                                                                : badge === 'Unknown'
+                                                                                    ? 'border-slate-500/30 bg-slate-500/10 text-slate-300'
                                                                                 : 'border-blue-500/30 bg-blue-500/10 text-blue-300';
 
                                                             return (

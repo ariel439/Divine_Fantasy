@@ -536,7 +536,8 @@ export class GameManagerService {
     useWorldStateStore.getState().setIntroCompleted(true);
     useWorldStateStore.getState().setFlag('intro_completed', true);
     useWorldStateStore.getState().setTutorialStep(100);
-    useWorldStateStore.getState().removeKnownNpc('npc_robert');
+    useWorldStateStore.getState().addKnownNpc('npc_robert');
+    useWorldStateStore.getState().setFlag('robert_status_unknown', true);
     useCompanionStore.getState().setCompanion(null);
     useWorldStateStore.getState().setFlag('finn_debt_intro_pending', false);
 

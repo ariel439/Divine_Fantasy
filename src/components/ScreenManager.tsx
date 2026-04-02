@@ -276,7 +276,8 @@ const ScreenManager: React.FC = () => {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             useWorldStateStore.getState().setIntroMode(false);
-            useWorldStateStore.getState().removeKnownNpc('npc_robert');
+            useWorldStateStore.getState().addKnownNpc('npc_robert');
+            useWorldStateStore.getState().setFlag('robert_status_unknown', true);
             useCompanionStore.getState().setCompanion(null);
             useWorldStateStore.getState().setIntroCompleted(true);
             useWorldStateStore.getState().setFlag('intro_completed', true);

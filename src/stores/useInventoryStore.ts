@@ -146,11 +146,11 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       const removed = get().removeItem(itemId, 1);
       if (!removed) return false;
 
-      character.reduceBleeding(1);
+      character.reduceBleeding(4);
       const remainingBleed = useCharacterStore.getState().effects.bleeding;
       addToast(
         remainingBleed > 0
-          ? `You bind the wound. Bleeding reduced to ${remainingBleed}.`
+          ? `You bind the wound. ${remainingBleed}h of bleeding remain.`
           : 'You bind the wound and stop the bleeding.',
         'success',
         2500,

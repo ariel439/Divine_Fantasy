@@ -15,7 +15,7 @@ import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useJobStore } from '../stores/useJobStore';
 import { useLocationStore } from '../stores/useLocationStore';
-import { benCheatEventSlides, rebelRaidIntroSlides, evilEndingSlides, hybridEndingSlides, whitefangFinnKillSlides, robertaKissSlides } from '../data/events';
+import { benCheatEventSlides, rebelRaidIntroSlides, evilEndingSlides, hybridEndingSlides, whitefangFinnKillSlides, robertaKissSlides, ronaldWolfHuntSlides } from '../data/events';
 import type { ConversationEntry } from '../types';
 import { GameManagerService } from './GameManagerService';
 import { ConditionEvaluator } from './ConditionEvaluator';
@@ -1079,6 +1079,11 @@ export class DialogueService {
 
         if (eventId === 'raid_salty_mug_intro') {
           useUIStore.getState().setEventSlides(rebelRaidIntroSlides);
+          useUIStore.getState().setScreen('event');
+          this.endDialogue();
+          useUIStore.getState().setDialogueNpcId(null);
+        } else if (eventId === 'ronald_wolf_hunt_intro') {
+          useUIStore.getState().setEventSlides(ronaldWolfHuntSlides);
           useUIStore.getState().setScreen('event');
           this.endDialogue();
           useUIStore.getState().setDialogueNpcId(null);

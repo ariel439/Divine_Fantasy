@@ -22,6 +22,11 @@
         "npc_text": "Speak clearly.",
         "player_choices": [
           {
+            "text": "Any work that pays?",
+            "next_node": "matthias_ronald_offer",
+            "condition": "quest.ronald_wolf_pack.active==false && quest.ronald_wolf_pack.completed==false"
+          },
+          {
             "text": "Tell me about Mosswatch Keep.",
             "next_node": "matthias_ask_keep",
             "condition": "world_flags.matthias_lore_keep_seen==false"
@@ -46,12 +51,85 @@
         "npc_text": "What is it?",
         "player_choices": [
           {
+            "text": "About Ronald's wolf pack.",
+            "next_node": "matthias_ronald_reminder",
+            "condition": "quest.ronald_wolf_pack.active==true && quest.ronald_wolf_pack.stage<4"
+          },
+          {
+            "text": "Ronald's wolf pack is dealt with.",
+            "next_node": "matthias_ronald_complete",
+            "condition": "quest.ronald_wolf_pack.active==true && quest.ronald_wolf_pack.stage==4"
+          },
+          {
             "text": "I have something to report.",
-            "next_node": "matthias_report"
+            "next_node": "matthias_report",
+            "condition": "inventory.prototype_blade>=1 && world_flags.whitefang_bound==false"
+          },
+          {
+            "text": "I have something to report.",
+            "next_node": "matthias_report",
+            "condition": "inventory.prototype_blade<1 && inventory.marked_crate_note>=1 && world_flags.whitefang_bound==false"
+          },
+          {
+            "text": "I have something to report.",
+            "player_text": "Finn is into shady stuff. I know it.",
+            "next_node": "matthias_report_no_proof",
+            "condition": "inventory.prototype_blade<1 && inventory.marked_crate_note<1 && world_flags.whitefang_bound==false"
           },
           {
             "text": "Back.",
             "next_node": "__social_root__"
+          }
+        ]
+      },
+      "matthias_ronald_offer": {
+        "npc_text": "There is a hunter in the woods named Ronald. Knows the trails better than most men know their own street. He has been trying to thin out a wolf pack that has grown too bold. If you want coin, go ask whether he still needs another blade.",
+        "player_choices": [
+          {
+            "text": "Where do I find him?",
+            "action": "start_quest:ronald_wolf_pack|set_quest_stage:ronald_wolf_pack:1|set_flag:ronald_referred_by_matthias:true|set_flag:ronald_referred_by_stan:false|add_known_npc:npc_ronald",
+            "next_node": "matthias_ronald_offer_where"
+          },
+          {
+            "text": "Maybe later.",
+            "next_node": "matthias_quest_root"
+          }
+        ]
+      },
+      "matthias_ronald_reminder": {
+        "npc_text": "Then stop talking to me and go find Ronald. If the wolves are still on his ground, they are still too close to ours as well.",
+        "player_choices": [
+          {
+            "text": "Understood.",
+            "next_node": "matthias_quest_root"
+          }
+        ]
+      },
+      "matthias_ronald_offer_where": {
+        "npc_text": "Hunter's cabin out in the Driftwatch Woods. You can reach it from the crossroads if you keep your eyes open and your feet under you.",
+        "player_choices": [
+          {
+            "text": "Understood.",
+            "next_node": "matthias_ask_root"
+          }
+        ]
+      },
+      "matthias_ronald_complete": {
+        "npc_text": "Good. Ronald does not complain unless something is truly in the way, and wolves that lose their fear become everyone else's problem soon enough. Here. Consider it pay for useful work.",
+        "player_choices": [
+          {
+            "text": "I will take useful work over praise.",
+            "action": "complete_quest:ronald_wolf_pack|update_relationship:npc_matthias:3:friendship",
+            "next_node": "matthias_quest_root"
+          }
+        ]
+      },
+      "matthias_report_no_proof": {
+        "npc_text": "Finn being the sort of man who keeps shady company is not news. Proof is. If you have none, then I do not have time for tavern suspicions.",
+        "player_choices": [
+          {
+            "text": "Then I will come back with proof.",
+            "next_node": "matthias_quest_root"
           }
         ]
       },
@@ -75,7 +153,7 @@
           },
           {
             "text": "Never mind.",
-            "closes_dialogue": true
+            "next_node": "matthias_quest_root"
           }
         ]
       },
@@ -84,7 +162,7 @@
         "player_choices": [
           {
             "text": "Then I will keep digging.",
-            "closes_dialogue": true
+            "next_node": "matthias_quest_root"
           }
         ]
       },
@@ -93,7 +171,7 @@
         "player_choices": [
           {
             "text": "I need harder proof.",
-            "closes_dialogue": true
+            "next_node": "matthias_quest_root"
           }
         ]
       },

@@ -37,7 +37,7 @@ const DEFAULT_FORMATION: Array<string | null> = ['player', null, null, null];
 
 const normalizeCompanion = (companion: Companion): Companion => ({
   ...companion,
-  portraitUrl: companion.portraitUrl || (companion.type === 'wolf' ? '/assets/portraits/WolfPuppy.png' : '/assets/portraits/Robert.png'),
+  portraitUrl: companion.portraitUrl || (companion.type === 'wolf' ? '/assets/portraits/wolfpuppy.png' : '/assets/portraits/robert.png'),
   status: companion.status || 'party',
   locationId: companion.locationId ?? null,
   equippedItems: companion.equippedItems || [],

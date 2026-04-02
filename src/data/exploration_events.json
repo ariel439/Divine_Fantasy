@@ -7,7 +7,7 @@
       "type": "unique",
       "title": "Wild Apple Tree",
       "description": "You find a wild apple tree heavy with ripe fruit.",
-      "image": "/assets/events/event_apple_tree.png",
+      "image": "/assets/events/event_pear_tree.png",
       "data": { "eventId": "apple_tree_event" }
     }
   },
@@ -19,7 +19,7 @@
       "type": "unique",
       "title": "Pear Tree",
       "description": "You spot a pear tree bowed by ripe fruit.",
-      "image": "/assets/events/event_apple_tree.png",
+      "image": "/assets/events/event_blackberry_bramble.png",
       "data": { "eventId": "pear_tree_event" }
     }
   },
@@ -67,7 +67,7 @@
       "type": "unique",
       "title": "Hollow Stump",
       "description": "You spot a moss-covered stump with a dark, hollow center.",
-      "image": "/assets/events/event_hollow_stump.png",
+      "image": "/assets/events/event_fresh_grave.png",
       "data": { "eventId": "hollow_stump_event" }
     }
   },
@@ -91,7 +91,7 @@
       "type": "combat",
       "title": "Wild Wolves",
       "description": "You encountered a pack of wolves!",
-      "image": "/assets/portraits/Wolf.png",
+      "image": "/assets/portraits/wolf.png",
       "data": {
         "wolfCount": 1,
         "enemies": ["Forest Wolf"]

@@ -250,7 +250,18 @@ const CombatManager: React.FC = () => {
         return;
       }
 
-      if (victoryEventId === 'raid_victory') {
+      if (victoryEventId === 'ronald_wolf_pup_choice') {
+          setTimeout(() => {
+            useWorldStateStore.getState().setFlag('ronald_wolf_pack_cleared', true);
+            try { DialogueService.executeAction('set_quest_stage:ronald_wolf_pack:3'); } catch {}
+            syncPlayerVitalsFromCombat();
+            const ui = useUIStore.getState();
+            ui.setEventSlides(null);
+            ui.setCurrentEventId('ronald_wolf_pup_choice');
+            setScreen('choiceEvent');
+            endCombat();
+          }, 1200);
+      } else if (victoryEventId === 'raid_victory') {
           setTimeout(() => {
             const ui = useUIStore.getState();
             ui.setEventSlides(raidVictorySlides);

@@ -54,6 +54,15 @@ const SOCIAL_NPC_CONFIGS: Record<string, SocialNpcConfig> = {
     flirtFriendshipRequired: 15,
     dailyMeaningfulActions: 2,
   },
+  npc_ronald: {
+    socialClass: 'working',
+    personality: ['guarded', 'practical', 'observant'],
+    presentationStandard: 1,
+    threatTolerance: 4,
+    flirtable: false,
+    flirtFriendshipRequired: 999,
+    dailyMeaningfulActions: 2,
+  },
   npc_lin_shao: {
     socialClass: 'noble',
     personality: ['guarded', 'dutiful'],

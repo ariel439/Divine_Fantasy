@@ -228,6 +228,14 @@ const ScreenManager: React.FC = () => {
     }
   };
 
+  const openRonaldPostFightDialogue = () => {
+    useUIStore.getState().setCurrentEventId(null);
+    useUIStore.getState().setEventSlides(null);
+    useLocationStore.getState().setLocation('hunters_cabin');
+    useUIStore.getState().setDialogueNpcId('npc_ronald');
+    setScreen('dialogue');
+  };
+
   switch (currentScreen) {
       case 'mainMenu':
         return <MainMenu />;
@@ -357,6 +365,12 @@ const ScreenManager: React.FC = () => {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             GameManagerService.startRaidCombat();
+            return;
+          }
+          if (id === 'ronald_wolf_hunt_intro') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            GameManagerService.startRonaldWolfPackCombat();
             return;
           }
           if (id === 'roberta_kiss_event') {
@@ -1388,6 +1402,129 @@ const ScreenManager: React.FC = () => {
                     setScreen('inGame');
                   },
                 },
+              ]}
+              />
+            );
+          }
+
+        if (eventId === 'ronald_wolf_pup_choice') {
+          const world = useWorldStateStore.getState();
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Adopt the puppy.',
+                  variant: 'quest',
+                  onSelect: () => {
+                    const companionStore = useCompanionStore.getState();
+                    companionStore.upsertCompanion({
+                      id: 'wolf_puppy',
+                      name: 'Wolf Puppy',
+                      type: 'wolf',
+                      portraitUrl: '/assets/portraits/wolfpuppy.png',
+                      status: 'party',
+                      locationId: null,
+                      stats: {
+                        hp: 40,
+                        maxHp: 40,
+                        attack: 5,
+                        defence: 2,
+                        dexterity: 12,
+                      },
+                      equippedItems: [],
+                    });
+                    const currentFormation = [...companionStore.formation];
+                    const puppyAlreadyInFormation = currentFormation.includes('wolf_puppy');
+                    if (!puppyAlreadyInFormation) {
+                      const openSlot = currentFormation.findIndex((entry, index) => index > 0 && entry === null);
+                      if (openSlot >= 0) {
+                        currentFormation[openSlot] = 'wolf_puppy';
+                      } else if (!currentFormation.includes('player')) {
+                        currentFormation[1] = 'wolf_puppy';
+                      }
+                      companionStore.setFormation(currentFormation);
+                    }
+                    world.setFlag('wolf_puppy_adopted', true);
+                    useDiaryStore.getState().addInteraction('Luke carried a wolf puppy out of Ronald\'s den and kept it.');
+                    openRonaldPostFightDialogue();
+                  }
+                },
+                {
+                  text: 'Kill it.',
+                  onSelect: () => {
+                    world.setFlag('wolf_puppy_killed', true);
+                    useDiaryStore.getState().addInteraction('Luke put down the last surviving wolf pup in the den.');
+                    openRonaldPostFightDialogue();
+                  }
+                }
+              ]}
+            />
+          );
+        }
+
+        if (eventId === 'ronald_clear_hidden_path') {
+          const inventory = useInventoryStore.getState();
+          const character = useCharacterStore.getState();
+          const world = useWorldStateStore.getState();
+          const hasAxe = inventory.getItemQuantity('axe_basic') > 0;
+          const energyCost = 35;
+          const timeCost = 60;
+          const hungerCost = 1;
+          const currentProgress = Number(world.getData('ronald_hidden_path_progress') || '0');
+          const canClear = hasAxe && character.energy >= energyCost;
+
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={`${cfg.text}\n\nCurrent progress: ${currentProgress} / 5 cleared.`}
+              choices={[
+                {
+                  text: `Cut through the brush (Requires Axe, ${energyCost} Energy)`,
+                  disabled: !canClear,
+                  onSelect: () => {
+                    const nextProgress = currentProgress + 1;
+                    world.setData('ronald_hidden_path_progress', String(nextProgress));
+                    useWorldTimeStore.getState().passTime(timeCost);
+                    useCharacterStore.getState().updateStats({ energy: -energyCost, hunger: -hungerCost });
+                    useDiaryStore.getState().addInteraction(`Cleared more of the hidden cabin path (${nextProgress}/5).`);
+
+                    if (nextProgress >= 5) {
+                      world.setFlag('loc_cabin_unlocked', true);
+                      setEventResult({
+                        text: 'At last the last of the brush gives way. Beyond it stands the old cabin Ronald spoke of, weathered but still usable. It is yours to use now when the woods grow long and cold.',
+                        choices: [{
+                          text: 'Continue',
+                          onSelect: () => {
+                            useUIStore.getState().setCurrentEventId(null);
+                            setScreen('inGame');
+                          }
+                        }]
+                      });
+                    } else {
+                      setEventResult({
+                        text: `You hack through roots, briar, and fallen limbs until your arms start to burn. The hidden path is clearer now, but not open yet. Progress: ${nextProgress}/5.`,
+                        choices: [{
+                          text: 'Continue',
+                          onSelect: () => {
+                            useUIStore.getState().setCurrentEventId(null);
+                            setScreen('inGame');
+                          }
+                        }]
+                      });
+                    }
+                  }
+                },
+                {
+                  text: hasAxe ? 'Leave the path for now.' : 'Leave it. I need an axe first.',
+                  onSelect: () => {
+                    useUIStore.getState().setCurrentEventId(null);
+                    setScreen('inGame');
+                  }
+                }
               ]}
             />
           );

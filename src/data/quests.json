@@ -95,6 +95,24 @@
       "relationship": [{ "npc_id": "npc_matthias", "change": 40 }]
     }
   },
+  "ronald_wolf_pack": {
+    "title": "Teeth In The Trees",
+    "giver_id": "npc_ronald",
+    "description": "A Mosswatch guard pointed Luke toward Ronald, a hunter in the woods who has been struggling to thin out a dangerous wolf pack. Help him clear them out before they start ranging too close to the roads.",
+    "stages": [
+      { "id": 0, "text": "Ask one of the Mosswatch guards if there is any work worth doing.", "type": "talk", "target": "npc_matthias" },
+      { "id": 1, "text": "Find Ronald at the Hunter's Cabin in Driftwatch Woods.", "type": "talk", "target": "npc_ronald" },
+      { "id": 2, "text": "Help Ronald clear out the wolf pack troubling his ground.", "type": "flag", "target": "ronald_wolf_pack_cleared" },
+      { "id": 3, "text": "Return to Ronald and tell him the pack is down.", "type": "talk", "target": "npc_ronald" },
+      { "id": 4, "text": "Report back to Matthias or Stan for payment.", "type": "talk", "target": "npc_matthias" }
+    ],
+    "rewards": {
+      "xp": [{ "skill": "combat", "amount": 150 }],
+      "items": [],
+      "currency": 200,
+      "relationship": [{ "npc_id": "npc_ronald", "change": 10 }]
+    }
+  },
   "white_fang_route": {
     "title": "White Fang's Echo",
     "giver_id": "npc_shihan",

@@ -99,7 +99,7 @@
     "effects": {
       "hunger": 5
     },
-    "image": "/assets/items/apple.png"
+    "image": "/assets/items/pear.png"
   },
   "blackberries": {
     "name": "Blackberries",
@@ -111,7 +111,7 @@
     "effects": {
       "hunger": 3
     },
-    "image": "/assets/items/apple.png"
+    "image": "/assets/items/blackberries.png"
   },
   "wooden_plank": {
     "name": "Wooden Plank",
@@ -195,7 +195,7 @@
     "effects": {
       "hunger": 12
     },
-    "image": "/assets/items/apple.png"
+    "image": "/assets/items/fruit_salad.png"
   },
   "hammer": {
     "name": "Hammer",
@@ -382,7 +382,7 @@
     "stackable": false,
     "weight": 3.0,
       "base_value": 223,
-    "image": "/assets/items/iron_helmet.png",
+    "image": "/assets/items/chain_coif.png",
     "equipmentSlot": "head",
     "threatTier": 3,
     "threatRole": "minor",
@@ -412,7 +412,7 @@
     "stackable": false,
     "weight": 7.0,
       "base_value": 258,
-    "image": "/assets/items/iron_chainmail.png",
+    "image": "/assets/items/chainmail_shirt.png",
     "equipmentSlot": "chest",
     "threatTier": 2,
     "threatRole": "major",
@@ -442,7 +442,7 @@
     "stackable": false,
     "weight": 3.5,
       "base_value": 155,
-    "image": "/assets/items/iron_chainlegs.png",
+    "image": "/assets/items/chainmail_leggings.png",
     "equipmentSlot": "legs",
     "threatTier": 2,
     "threatRole": "minor",
@@ -457,7 +457,7 @@
       "stackable": false,
       "weight": 2.8,
       "base_value": 155,
-      "image": "/assets/items/iron_chainmail.png",
+      "image": "/assets/items/bronze_shield.png",
       "equipmentSlot": "shield",
       "threatTier": 2,
       "threatRole": "minor",
@@ -487,7 +487,7 @@
       "stackable": false,
       "weight": 3.6,
       "base_value": 223,
-      "image": "/assets/items/iron_chainmail.png",
+      "image": "/assets/items/iron_shield.png",
       "equipmentSlot": "shield",
       "threatTier": 3,
       "threatRole": "minor",
@@ -518,7 +518,7 @@
     "stackable": false,
     "weight": 2.5,
       "base_value": 670,
-    "image": "/assets/items/iron_sword.png",
+    "image": "/assets/items/bronze_sword.png",
     "equipmentSlot": "weapon",
     "threatTier": 3,
     "threatRole": "major",

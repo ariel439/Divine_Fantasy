@@ -239,11 +239,11 @@ function getThreatTier(
   let weightedScore = 0;
   let totalWeight = 0;
   THREAT_RELEVANT_SLOTS.forEach((slot) => {
-    const item = equippedItems[slot];
     const weight = THREAT_SLOT_WEIGHTS[slot];
+    totalWeight += weight;
+    const item = equippedItems[slot];
     if (slot === 'shield' && item?.combatTags?.includes('two_handed')) return;
     if (!item) return;
-    totalWeight += weight;
     const tier = getItemMeta(item.id)?.threatTier || 0;
     weightedScore += tier * weight;
   });

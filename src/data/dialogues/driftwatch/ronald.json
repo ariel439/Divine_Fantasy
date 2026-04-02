@@ -1,7 +1,9 @@
 {
   "ronald_default": {
     "interaction_roots": {
-      "ask": "ronald_ask_root"
+      "ask": "ronald_ask_root",
+      "friendly": "ronald_friendly_root",
+      "quest": "ronald_quest_root"
     },
     "nodes": {
       "0": {
@@ -18,12 +20,17 @@
         ]
       },
       "ronald_ask_root": {
-        "npc_text": "Ask what you want. The woods aren't getting safer while we stand here.",
+        "npc_text": "Ask what you want. The trees do not wait for us to finish talking.",
         "player_choices": [
           {
-            "text": "Tell me about the woods.",
-            "next_node": "ronald_ask_woods",
-            "condition": "world_flags.ronald_lore_woods_seen==false"
+            "text": "Why do you live out here in the forest by yourself?",
+            "next_node": "ronald_ask_why_alone",
+            "condition": "relationship.npc_ronald>=10 && world_flags.ronald_asked_why_alone==false"
+          },
+          {
+            "text": "Do you know any secrets of the forest?",
+            "next_node": "ronald_ask_forest_secret",
+            "condition": "relationship.npc_ronald>=20 && world_flags.ronald_asked_forest_secret==false"
           },
           {
             "text": "Back.",
@@ -31,13 +38,312 @@
           }
         ]
       },
-      "ronald_ask_woods": {
-        "npc_text": "The woods give plenty to men who pay attention and bury fools who don't. Tracks, wind, broken brush, old silence. All of it matters.",
+      "ronald_ask_why_alone": {
+        "npc_text": "Because people make more noise than weather and leave worse signs behind. Out here, things mean what they look like. Hunger looks like hunger. A trail looks like a trail. A beast that wants your throat usually gives you the courtesy of showing teeth first.",
+        "player_choices": [
+          {
+            "text": "So you trust the forest more than town.",
+            "next_node": "ronald_ask_why_alone_2",
+            "action": "set_flag:ronald_asked_why_alone:true|update_relationship:npc_ronald:3:friendship|add_xp:persuasion:8"
+          },
+          {
+            "text": "That sounds lonely.",
+            "next_node": "ronald_ask_why_alone_2",
+            "action": "set_flag:ronald_asked_why_alone:true|update_relationship:npc_ronald:2:friendship|add_xp:persuasion:6"
+          }
+        ]
+      },
+      "ronald_ask_why_alone_2": {
+        "npc_text": "Quiet and lonely are not the same thing. Quiet lets a man think. Driftwatch never learned the difference.",
         "player_choices": [
           {
             "text": "Back.",
-            "next_node": "ronald_ask_root",
-            "action": "set_flag:ronald_lore_woods_seen:true"
+            "next_node": "ronald_ask_root"
+          }
+        ]
+      },
+      "ronald_ask_forest_secret": {
+        "npc_text": "There is an old path deeper in, nearly swallowed by brush now. Used to lead to a cabin. Folk said an old witch lived there once. Nothing dramatic. Just a hard old woman who outlived everyone who wanted her gone. Died of age, in the end. Cabin's still there if the woods have not finished taking it back.",
+        "player_choices": [
+          {
+            "text": "And you never claimed it?",
+            "next_node": "ronald_ask_forest_secret_2",
+            "action": "set_flag:ronald_asked_forest_secret:true|set_flag:ronald_hidden_cabin_known:true|update_relationship:npc_ronald:4:friendship|add_xp:persuasion:10"
+          },
+          {
+            "text": "You are telling me where to look.",
+            "next_node": "ronald_ask_forest_secret_2",
+            "action": "set_flag:ronald_asked_forest_secret:true|set_flag:ronald_hidden_cabin_known:true|update_relationship:npc_ronald:3:friendship|add_xp:persuasion:8"
+          }
+        ]
+      },
+      "ronald_ask_forest_secret_2": {
+        "npc_text": "I am telling you there is a path worth cutting if you have the strength for it. Take an axe. Expect thorns, roots, and bad footing. The woods do not give shelter to men who only half-mean it.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "ronald_ask_root"
+          }
+        ]
+      },
+      "ronald_friendly_root": {
+        "npc_text": "If you have something worth saying, say it plainly.",
+        "player_choices": [
+          {
+            "text": "Ask how the woods have been treating him.",
+            "next_node": "ronald_friendly_check_in",
+            "social_cost": 1
+          },
+          {
+            "text": "Offer another pair of hands.",
+            "next_node": "ronald_friendly_offer_help",
+            "social_cost": 1
+          },
+          {
+            "text": "Ask what sign a fool usually misses.",
+            "next_node": "ronald_friendly_watch_for",
+            "social_cost": 1
+          },
+          {
+            "text": "Show respect for his skill.",
+            "next_node": "ronald_friendly_respect",
+            "social_cost": 1
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "ronald_friendly_check_in": {
+        "npc_text": "You look like you have something on your mind.",
+        "player_choices": [
+          {
+            "text": "How have the woods been treating you?",
+            "action": "social_action:npc_ronald:friendly:smalltalk",
+            "social_result_nodes": {
+              "strong": "ronald_friendly_check_in_strong",
+              "weak": "ronald_friendly_check_in_weak",
+              "fail": "ronald_friendly_check_in_fail"
+            }
+          }
+        ]
+      },
+      "ronald_friendly_offer_help": {
+        "npc_text": "Help is cheap to offer. Less common to see through.",
+        "player_choices": [
+          {
+            "text": "If something needs doing, say it straight.",
+            "action": "social_action:npc_ronald:friendly:helpful",
+            "social_result_nodes": {
+              "strong": "ronald_friendly_offer_help_strong",
+              "weak": "ronald_friendly_offer_help_weak",
+              "fail": "ronald_friendly_offer_help_fail"
+            }
+          }
+        ]
+      },
+      "ronald_friendly_watch_for": {
+        "npc_text": "Most men get themselves hurt before they even know what to watch for.",
+        "player_choices": [
+          {
+            "text": "Then tell me the sign they miss.",
+            "action": "social_action:npc_ronald:friendly:honest",
+            "social_result_nodes": {
+              "strong": "ronald_friendly_watch_for_strong",
+              "weak": "ronald_friendly_watch_for_weak",
+              "fail": "ronald_friendly_watch_for_fail"
+            }
+          }
+        ]
+      },
+      "ronald_friendly_respect": {
+        "npc_text": "Go on, then. Get it out of your system.",
+        "player_choices": [
+          {
+            "text": "You read these woods better than most men read a street.",
+            "action": "social_action:npc_ronald:friendly:compliment",
+            "social_result_nodes": {
+              "strong": "ronald_friendly_respect_strong",
+              "weak": "ronald_friendly_respect_weak",
+              "fail": "ronald_friendly_respect_fail"
+            }
+          }
+        ]
+      },
+      "ronald_friendly_check_in_strong": {
+        "npc_text": "Wet, mostly. Still better company than town. You asking without prying is new, though.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "ronald_friendly_root"
+          }
+        ]
+      },
+      "ronald_friendly_check_in_weak": {
+        "npc_text": "Same as ever. Mud, tracks, and things with teeth.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "ronald_friendly_root"
+          }
+        ]
+      },
+      "ronald_friendly_check_in_fail": {
+        "npc_text": "I am still standing. That answers most of it.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "ronald_friendly_root"
+          }
+        ]
+      },
+      "ronald_friendly_offer_help_strong": {
+        "npc_text": "Good. A man who can carry his weight is rarer than he should be. I remember useful offers.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "ronald_friendly_root"
+          }
+        ]
+      },
+      "ronald_friendly_offer_help_weak": {
+        "npc_text": "Maybe. Woods have a way of sorting talk from work.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "ronald_friendly_root"
+          }
+        ]
+      },
+      "ronald_friendly_offer_help_fail": {
+        "npc_text": "If I need something done, I will ask. I do not collect favors I do not trust.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "ronald_friendly_root"
+          }
+        ]
+      },
+      "ronald_friendly_watch_for_strong": {
+        "npc_text": "Silence. Birds stop first, then the rest. Men notice the teeth when they should have noticed the quiet.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "ronald_friendly_root"
+          }
+        ]
+      },
+      "ronald_friendly_watch_for_weak": {
+        "npc_text": "Broken brush. Wrong wind. Too much stillness. None of it helps if you only start looking once you are afraid.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "ronald_friendly_root"
+          }
+        ]
+      },
+      "ronald_friendly_watch_for_fail": {
+        "npc_text": "What a fool misses depends on what kind of fool he is. You will have to narrow that down.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "ronald_friendly_root"
+          }
+        ]
+      },
+      "ronald_friendly_respect_strong": {
+        "npc_text": "You notice more than most. Good. Woods are wasted on men who only ever look at the ground in front of them.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "ronald_friendly_root"
+          }
+        ]
+      },
+      "ronald_friendly_respect_weak": {
+        "npc_text": "Hm. Better that than empty praise, I suppose.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "ronald_friendly_root"
+          }
+        ]
+      },
+      "ronald_friendly_respect_fail": {
+        "npc_text": "Flattery does not cut brush or keep wolves off a trail.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "ronald_friendly_root"
+          }
+        ]
+      },
+      "ronald_quest_root": {
+        "npc_text": "If this is about work, say so. If not, speak faster.",
+        "player_choices": [
+          {
+            "text": "A Mosswatch guard said you needed help with a wolf pack.",
+            "next_node": "ronald_quest_referral",
+            "condition": "quest.ronald_wolf_pack.active==true && quest.ronald_wolf_pack.stage==1 && world_flags.ronald_referred_by_matthias==true"
+          },
+          {
+            "text": "A Mosswatch guard said you needed help with a wolf pack.",
+            "next_node": "ronald_quest_referral",
+            "condition": "quest.ronald_wolf_pack.active==true && quest.ronald_wolf_pack.stage==1 && world_flags.ronald_referred_by_stan==true"
+          },
+          {
+            "text": "I am ready to track the pack.",
+            "action": "trigger_event:ronald_wolf_hunt_intro",
+            "closes_dialogue": true,
+            "condition": "quest.ronald_wolf_pack.active==true && quest.ronald_wolf_pack.stage==2"
+          },
+          {
+            "text": "The pack is down.",
+            "next_node": "ronald_quest_after_fight",
+            "condition": "quest.ronald_wolf_pack.active==true && quest.ronald_wolf_pack.stage==3"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "ronald_quest_referral": {
+        "npc_text": "Four of them, bold enough to range too near my ground and smart enough to scatter when I hunt them alone. That is the trouble with wolves that stop fearing men. If you mean to help, stay steady and do not chase what breaks first.",
+        "player_choices": [
+          {
+            "text": "I will help you clear them out.",
+            "action": "set_quest_stage:ronald_wolf_pack:2|set_flag:ronald_wolf_pack_started:true|trigger_event:ronald_wolf_hunt_intro",
+            "closes_dialogue": true
+          },
+          {
+            "text": "Let me think on it.",
+            "next_node": "ronald_quest_root"
+          }
+        ]
+      },
+      "ronald_quest_after_fight": {
+        "npc_text": "Good. I could feel the woods settling before I saw you come back. They were ranging too close for too long. You held when it mattered.",
+        "player_choices": [
+          {
+            "text": "It was your ground. I just helped keep it.",
+            "action": "set_quest_stage:ronald_wolf_pack:4|update_relationship:npc_ronald:5:friendship|add_xp:persuasion:12",
+            "next_node": "ronald_quest_after_fight_grounded"
+          },
+          {
+            "text": "You did most of the real work.",
+            "action": "set_quest_stage:ronald_wolf_pack:4|update_relationship:npc_ronald:4:friendship|add_xp:persuasion:8",
+            "next_node": "ronald_quest_after_fight_grounded"
+          }
+        ]
+      },
+      "ronald_quest_after_fight_grounded": {
+        "npc_text": "Maybe. But you stayed when most men would have found a reason not to. That counts. Go collect your coin from the guard who sent you. If you keep coming out this way, you know where my door is.",
+        "player_choices": [
+          {
+            "text": "I will collect the pay and come by again.",
+            "next_node": "ronald_quest_root"
           }
         ]
       }

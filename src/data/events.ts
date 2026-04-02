@@ -43,6 +43,19 @@ export const whitefangBindingSlides: Slide[] = events.whitefangBindingSlides;
 export const robertaWallRepairSlides: Slide[] = events.robertaWallRepairSlides;
 export const robertaKissSlides: Slide[] = events.robertaKissSlides;
 
+export const ronaldWolfHuntSlides: Slide[] = [
+  {
+    image: '/assets/locations/driftwatch_woods_day.png',
+    text:
+      "Ronald leads you off the safer trail and into the deeper dark of the woods without wasting a word. Every so often he crouches to study snapped brush, damp earth, or the mark of claws dug into bark, then moves again before you can ask what he found.",
+  },
+  {
+    image: '/assets/events/ronald_wolf_hunt.png',
+    text:
+      "At last he raises a hand for silence. Ahead, the trees open around a half-ruined den churned raw by paws and old bones. Ronald's voice stays low and flat. 'There. Four of them. Stay steady, and do not chase what breaks first.'",
+  },
+];
+
 type ChoiceEventId =
   | 'intro_pastime_choice'
   | 'whitefang_binding_choice'
@@ -54,7 +67,10 @@ type ChoiceEventId =
   | 'fallen_log_event'
   | 'abandoned_campsite_event'
   | 'hollow_stump_event'
-  | 'fresh_grave_event';
+  | 'fresh_grave_event'
+  | 'ronald_wolf_hunt_intro'
+  | 'ronald_wolf_pup_choice'
+  | 'ronald_clear_hidden_path';
 
 export interface ChoiceEventConfig {
   id: ChoiceEventId;
@@ -100,14 +116,14 @@ export const choiceEvents: Record<ChoiceEventId, ChoiceEventConfig> = {
   pear_tree_event: {
     id: 'pear_tree_event',
     title: 'Pear Tree',
-    imageUrl: '/assets/events/event_apple_tree.png',
+    imageUrl: '/assets/events/event_pear_tree.png',
     text:
       'A pear tree leans over the trail, its branches bowed by fruit. The bark is slick with moss and the ground beneath it is soft and uneven.',
   },
   blackberry_bramble_event: {
     id: 'blackberry_bramble_event',
     title: 'Blackberry Bramble',
-    imageUrl: '/assets/events/event_apple_tree.png',
+    imageUrl: '/assets/events/event_blackberry_bramble.png',
     text:
       'A bramble thicket has gone wild at the edge of the path, heavy with blackberries and thick with thorns.',
   },
@@ -135,11 +151,32 @@ export const choiceEvents: Record<ChoiceEventId, ChoiceEventConfig> = {
   fresh_grave_event: {
     id: 'fresh_grave_event',
     title: 'Fresh Grave',
-    imageUrl: '/assets/events/event_hollow_stump.png',
+    imageUrl: '/assets/events/event_fresh_grave.png',
     text:
       'The earth here looks freshly turned. A rough marker stone leans crookedly over a grave that cannot have been dug very long ago.',
   },
-};
+  ronald_wolf_hunt_intro: {
+    id: 'ronald_wolf_hunt_intro',
+    title: 'Wolf Hunt',
+    imageUrl: '/assets/events/ronald_wolf_hunt.png',
+    text:
+      'Ronald leads you deeper beneath the trees without wasting words. Before long he slows, crouches, and points to broken brush and old scat. The pack is near. If you mean to help him, this is where talk ends.',
+  },
+  ronald_wolf_pup_choice: {
+    id: 'ronald_wolf_pup_choice',
+    title: 'A Survivor In The Den',
+    imageUrl: '/assets/events/ronald_wolf_pup_choice.png',
+    text:
+      'When the last of the pack falls, a thin whine reaches you from the back of the den. Tucked between roots and old fur lies a wolf pup, all sharp eyes and shaking ribs, too young to understand what just happened.',
+  },
+  ronald_clear_hidden_path: {
+    id: 'ronald_clear_hidden_path',
+    title: 'Hidden Path',
+    imageUrl: '/assets/events/event_fallen_log.png',
+    text:
+      'Behind a screen of brush and thorn, the old path is still there if you know where to look. It is half-swallowed by roots, briar, and fallen limbs. Clearing it will take time, strength, and a good axe.',
+  },
+  };
 
 export const introRobertTrainingSlides: Slide[] = [
   {

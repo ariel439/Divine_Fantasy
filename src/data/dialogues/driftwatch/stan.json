@@ -22,6 +22,11 @@
         "npc_text": "Ask, if you must.",
         "player_choices": [
           {
+            "text": "Any work that pays?",
+            "next_node": "stan_ronald_offer",
+            "condition": "quest.ronald_wolf_pack.active==false && quest.ronald_wolf_pack.completed==false"
+          },
+          {
             "text": "How is guard duty treating you?",
             "next_node": "stan_ask_duty",
             "condition": "world_flags.stan_lore_duty_seen==false"
@@ -46,8 +51,30 @@
         "npc_text": "What is it?",
         "player_choices": [
           {
+            "text": "About Ronald's wolf pack.",
+            "next_node": "stan_ronald_reminder",
+            "condition": "quest.ronald_wolf_pack.active==true && quest.ronald_wolf_pack.stage<4"
+          },
+          {
+            "text": "Ronald's wolf pack is dealt with.",
+            "next_node": "stan_ronald_complete",
+            "condition": "quest.ronald_wolf_pack.active==true && quest.ronald_wolf_pack.stage==4"
+          },
+          {
             "text": "I have something to report.",
-            "next_node": "matthias_report"
+            "next_node": "stan_report",
+            "condition": "inventory.prototype_blade>=1 && world_flags.whitefang_bound==false"
+          },
+          {
+            "text": "I have something to report.",
+            "next_node": "stan_report",
+            "condition": "inventory.prototype_blade<1 && inventory.marked_crate_note>=1 && world_flags.whitefang_bound==false"
+          },
+          {
+            "text": "I have something to report.",
+            "player_text": "Finn is into shady stuff. I know it.",
+            "next_node": "stan_report_no_proof",
+            "condition": "inventory.prototype_blade<1 && inventory.marked_crate_note<1 && world_flags.whitefang_bound==false"
           },
           {
             "text": "Back.",
@@ -55,22 +82,73 @@
           }
         ]
       },
-      "matthias_report": {
+      "stan_ronald_offer": {
+        "npc_text": "If you want work, speak to Ronald out in the woods. Hunter type. Keeps mostly to himself. Says there is a wolf pack out there growing too bold for one man to keep trimming alone. If you can swing steel and keep your nerve, he may have use for you.",
+        "player_choices": [
+          {
+            "text": "I will go find him.",
+            "action": "start_quest:ronald_wolf_pack|set_quest_stage:ronald_wolf_pack:1|set_flag:ronald_referred_by_matthias:false|set_flag:ronald_referred_by_stan:true|add_known_npc:npc_ronald",
+            "next_node": "stan_ronald_offer_where"
+          },
+          {
+            "text": "Maybe later.",
+            "next_node": "stan_quest_root"
+          }
+        ]
+      },
+      "stan_ronald_reminder": {
+        "npc_text": "Then get moving. Ronald is the one who needs the help, not me. The sooner those wolves are thinned out, the better for anyone using the road.",
+        "player_choices": [
+          {
+            "text": "Right.",
+            "next_node": "stan_quest_root"
+          }
+        ]
+      },
+      "stan_ronald_offer_where": {
+        "npc_text": "Out in the Driftwatch Woods. Hunter's cabin. Keep to the marked trail until you stop seeing one, then use your judgment.",
+        "player_choices": [
+          {
+            "text": "Understood.",
+            "next_node": "stan_ask_root"
+          }
+        ]
+      },
+      "stan_ronald_complete": {
+        "npc_text": "Good. Better to settle a pack in the trees than wait until it starts taking livestock, or worse. Here. That should cover the trouble.",
+        "player_choices": [
+          {
+            "text": "Works for me.",
+            "action": "complete_quest:ronald_wolf_pack|update_relationship:npc_stan:3:friendship",
+            "next_node": "stan_quest_root"
+          }
+        ]
+      },
+      "stan_report_no_proof": {
+        "npc_text": "Finn keeping bad company is not exactly a revelation. Proof is what matters. If you have none, I don't have time to chase shadows for you.",
+        "player_choices": [
+          {
+            "text": "Then I will come back with proof.",
+            "next_node": "stan_quest_root"
+          }
+        ]
+      },
+      "stan_report": {
         "npc_text": "I don't have time for drunk talk. Make it quick.",
         "player_choices": [
           {
             "text": "[Show Blade and Note] I found proof Finn is moving contraband through the Mug.",
-            "next_node": "matthias_evidence_full",
+            "next_node": "stan_evidence_full",
             "condition": "inventory.prototype_blade>=1 && inventory.marked_crate_note>=1 && world_flags.whitefang_bound==false"
           },
           {
             "text": "[Show Blade] I found this prototype.",
-            "next_node": "matthias_evidence_blade_only",
+            "next_node": "stan_evidence_blade_only",
             "condition": "inventory.prototype_blade>=1 && inventory.marked_crate_note<1 && world_flags.whitefang_bound==false"
           },
           {
             "text": "[Show Note] I found this tally note from the forge.",
-            "next_node": "matthias_evidence_note_only",
+            "next_node": "stan_evidence_note_only",
             "condition": "inventory.marked_crate_note>=1 && inventory.prototype_blade<1 && world_flags.whitefang_bound==false"
           },
           {
@@ -79,34 +157,34 @@
           }
         ]
       },
-      "matthias_evidence_blade_only": {
+      "stan_evidence_blade_only": {
         "npc_text": "That blade is trouble, no doubt, but one contraband edge is not enough to drag Finn into irons. Bring me proof the whole route runs through him.",
         "player_choices": [
           {
             "text": "Then I will keep digging.",
-            "closes_dialogue": true
+            "next_node": "stan_quest_root"
           }
         ]
       },
-      "matthias_evidence_note_only": {
+      "stan_evidence_note_only": {
         "npc_text": "A tally note tells me crates moved. It does not tell me what they carried. I need harder proof if you want a warrant.",
         "player_choices": [
           {
             "text": "Understood.",
-            "closes_dialogue": true
+            "next_node": "stan_quest_root"
           }
         ]
       },
-      "matthias_evidence_full": {
+      "stan_evidence_full": {
         "npc_text": "Let me see both. Contraband shadow steel and a forge tally routing marked crates to the Mug cellar? That's enough to stop calling this a rumor.",
         "player_choices": [
           {
             "text": "There's more where that came from.",
-            "next_node": "matthias_plan"
+            "next_node": "stan_plan"
           }
         ]
       },
-      "matthias_plan": {
+      "stan_plan": {
         "npc_text": "This is enough for a warrant. Go to Sergeant Rodrick in the Tidehunter Quarter. He'll organize the raid.",
         "player_choices": [
           {
@@ -117,7 +195,7 @@
           }
         ]
       },
-      "matthias_raid_ready": {
+      "stan_raid_ready": {
         "npc_text": "Men are on standby. Go to the Salty Mug. The raid option will be waiting.",
         "player_choices": [
           {

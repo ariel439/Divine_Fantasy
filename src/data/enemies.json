@@ -14,7 +14,7 @@
   },
   "smuggler_dockhand": {
     "name": "Smuggler",
-    "image": "/assets/portraits/Smuggler.png",
+    "image": "/assets/portraits/smuggler.png",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
     "attack_type": "slash",
     "combat_tags": ["human", "armed"],
@@ -25,7 +25,7 @@
   },
   "elite_guard": {
     "name": "Elite Guard",
-    "image": "/assets/portraits/Guard_Generic.png",
+    "image": "/assets/portraits/stan.png",
     "attack_type": "slash",
     "combat_tags": ["human", "armed", "guard"],
     "stats": { "hp": 500, "attack": 50, "defence": 20, "dexterity": 15 },
@@ -33,7 +33,7 @@
   },
   "thug_generic": {
     "name": "Thug",
-    "image": "/assets/portraits/Thug.png",
+    "image": "/assets/portraits/thug.png",
     "attack_sound": "/assets/sfx/combat_punch.mp3",
     "attack_type": "blunt",
     "combat_tags": ["human", "thug"],
@@ -44,7 +44,7 @@
   },
   "drunk_tavern": {
     "name": "Drunk",
-    "image": "/assets/portraits/Ben.png",
+    "image": "/assets/portraits/ben.png",
     "attack_sound": "/assets/sfx/combat_punch.mp3",
     "attack_type": "blunt",
     "combat_tags": ["human", "drunk", "brawler"],
@@ -54,7 +54,7 @@
   },
   "finn_boss": {
     "name": "Finn",
-    "image": "/assets/portraits/OldManFinn.png",
+    "image": "/assets/portraits/oldmanfinn.png",
     "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
     "attack_type": "slash",
     "combat_tags": ["human", "armed", "boss"],

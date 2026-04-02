@@ -137,6 +137,22 @@ function buildRetainers() {
   ];
 }
 
+function buildRonald() {
+  return {
+    id: 'ronald_companion',
+    name: 'Ronald',
+    side: 'party',
+    isPlayer: false,
+    isCompanion: true,
+    hp: 135,
+    maxHp: 135,
+    attack: 12,
+    defence: 8,
+    dexterity: 10,
+    baseHitChance: COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION,
+  };
+}
+
 function buildRenZhen() {
   return {
     id: 'ren_zhen_shadow',
@@ -448,6 +464,115 @@ function summarizeWolves(loadout, wolfCount) {
   };
 }
 
+function simulateRonaldWolfFight(loadout) {
+  const player = buildPlayer(loadout);
+  const ronald = buildRonald();
+  const wolves = Array.from({ length: 4 }, (_, index) => buildWolf(index));
+  const units = [...assignFormation([player, ronald]), ...assignFormation(wolves)].sort((a, b) => {
+    if (b.dexterity !== a.dexterity) return b.dexterity - a.dexterity;
+    if (a.side === 'party' && b.side === 'enemy') return -1;
+    if (a.side === 'enemy' && b.side === 'party') return 1;
+    return 0;
+  });
+
+  let rounds = 0;
+  let currentIndex = 0;
+
+  while (getAliveParty(units).length > 0 && getAliveEnemies(units).length > 0 && rounds < 500) {
+    rounds += 1;
+    for (
+      let steps = 0;
+      steps < units.length && getAliveParty(units).length > 0 && getAliveEnemies(units).length > 0;
+      steps += 1
+    ) {
+      const actor = units[currentIndex];
+      currentIndex = (currentIndex + 1) % units.length;
+      if (actor.hp <= 0) continue;
+
+      if (actor.side === 'party') {
+        const targets = getTargetableEnemies(units);
+        if (targets.length === 0) break;
+        if (Math.random() <= actor.baseHitChance) {
+          const target = targets[Math.floor(Math.random() * targets.length)];
+          const damage = actor.isPlayer ? calcPlayerDamage(actor, target) : calcCompanionDamage(actor, target);
+          target.hp -= damage;
+        }
+        continue;
+      }
+
+      const targets = getTargetableParty(units);
+      if (targets.length === 0) break;
+
+      if (Math.random() <= actor.baseHitChance) {
+        const target = targets[Math.floor(Math.random() * targets.length)];
+        target.hp -= calcEnemyDamage(actor, target);
+      }
+    }
+  }
+
+  const luke = units.find((u) => u.id === 'player');
+  const ronaldUnit = units.find((u) => u.id === 'ronald_companion');
+  const livingWolves = getAliveEnemies(units);
+
+  return {
+    win: getAliveParty(units).length > 0 && livingWolves.length === 0,
+    lukeAlive: (luke?.hp || 0) > 0,
+    ronaldAlive: (ronaldUnit?.hp || 0) > 0,
+    playerHpLeft: Math.max(0, luke?.hp || 0),
+    ronaldHpLeft: Math.max(0, ronaldUnit?.hp || 0),
+    wolvesLeft: livingWolves.length,
+    rounds,
+  };
+}
+
+function summarizeRonaldWolves(loadout) {
+  const results = Array.from({ length: TRIALS }, () => simulateRonaldWolfFight(loadout));
+  const wins = results.filter((r) => r.win).length;
+  const losses = TRIALS - wins;
+  const lukeSurvival = results.filter((r) => r.lukeAlive).length;
+  const ronaldSurvival = results.filter((r) => r.ronaldAlive).length;
+  const avgRounds = results.reduce((sum, r) => sum + r.rounds, 0) / TRIALS;
+  const avgPlayerHpLeftOnWins =
+    wins > 0 ? results.filter((r) => r.win).reduce((sum, r) => sum + r.playerHpLeft, 0) / wins : 0;
+  const avgRonaldHpLeftOnWins =
+    wins > 0 ? results.filter((r) => r.win).reduce((sum, r) => sum + r.ronaldHpLeft, 0) / wins : 0;
+  const avgWolvesLeftOnLosses =
+    losses > 0 ? results.filter((r) => !r.win).reduce((sum, r) => sum + r.wolvesLeft, 0) / losses : 0;
+
+  const preview = buildPlayer(loadout);
+
+  return {
+    loadout: loadout.label,
+    scenario: 'Luke + Ronald vs 4 Forest Wolves',
+    trials: TRIALS,
+    playerStats: {
+      hp: preview.maxHp,
+      attack: preview.attack,
+      defence: preview.defence,
+      dexterity: preview.dexterity,
+    },
+    ronaldStats: {
+      hp: 135,
+      attack: 12,
+      defence: 8,
+      dexterity: 10,
+    },
+    wolfStats: {
+      hp: forestWolf.stats.hp,
+      attack: forestWolf.stats.attack,
+      defence: forestWolf.stats.defence,
+      dexterity: forestWolf.stats.dexterity,
+    },
+    winRate: `${((wins / TRIALS) * 100).toFixed(1)}%`,
+    lukeSurvivalRate: `${((lukeSurvival / TRIALS) * 100).toFixed(1)}%`,
+    ronaldSurvivalRate: `${((ronaldSurvival / TRIALS) * 100).toFixed(1)}%`,
+    averageRounds: Number(avgRounds.toFixed(2)),
+    averagePlayerHpLeftOnWins: Number(avgPlayerHpLeftOnWins.toFixed(2)),
+    averageRonaldHpLeftOnWins: Number(avgRonaldHpLeftOnWins.toFixed(2)),
+    averageWolvesLeftOnLosses: Number(avgWolvesLeftOnLosses.toFixed(2)),
+  };
+}
+
 console.log(`Ren Zhen simulator - ${TRIALS} trials per setup\n`);
 for (const loadout of loadouts) {
   const summary = summarize(loadout);
@@ -462,4 +587,11 @@ for (const loadout of loadouts) {
     console.log(JSON.stringify(summary, null, 2));
     console.log('');
   }
+}
+
+console.log(`Ronald wolf-pack simulator - ${TRIALS} trials per setup\n`);
+for (const loadout of loadouts) {
+  const summary = summarizeRonaldWolves(loadout);
+  console.log(JSON.stringify(summary, null, 2));
+  console.log('');
 }

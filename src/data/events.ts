@@ -40,6 +40,8 @@ export const whitefangMountainVisionSlides: Slide[] = events.whitefangMountainVi
 export const whitefangCaveBlockedSlides: Slide[] = events.whitefangCaveBlockedSlides;
 export const whitefangExpeditionBreachSlides: Slide[] = events.whitefangExpeditionBreachSlides;
 export const whitefangBindingSlides: Slide[] = events.whitefangBindingSlides;
+export const whitefangShenhaiEndingSlides: Slide[] = events.whitefangShenhaiEndingSlides;
+export const whitefangShenhaiWeekPassageSlides: Slide[] = events.whitefangShenhaiWeekPassageSlides;
 export const robertaWallRepairSlides: Slide[] = events.robertaWallRepairSlides;
 export const robertaKissSlides: Slide[] = events.robertaKissSlides;
 

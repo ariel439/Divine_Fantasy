@@ -393,7 +393,6 @@
     "actions": [
       { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_mountain_sign", "condition": "world_flags.whitefang_book_read==true && world_flags.whitefang_mountain_vision_seen==false && world_flags.whitefang_week_closed==false" },
       { "text": "Investigate the sealed cave", "type": "trigger_event", "eventId": "whitefang_sealed_cave", "condition": "world_flags.whitefang_cave_discovered==true && world_flags.whitefang_expedition_agreed==false && world_flags.whitefang_cave_breached==false && world_flags.whitefang_week_closed==false" },
-      { "text": "Return to the sealed cave with Shihan's retainers", "type": "trigger_event", "eventId": "whitefang_expedition_breach", "condition": "world_flags.whitefang_expedition_agreed==true && world_flags.whitefang_cave_breached==false && world_flags.whitefang_week_closed==false" },
       { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 }
     ]
   },

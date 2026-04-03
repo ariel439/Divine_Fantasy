@@ -15,7 +15,7 @@ import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
 import { useJobStore } from '../stores/useJobStore';
 import { useLocationStore } from '../stores/useLocationStore';
-import { benCheatEventSlides, rebelRaidIntroSlides, evilEndingSlides, hybridEndingSlides, whitefangFinnKillSlides, robertaKissSlides, ronaldWolfHuntSlides } from '../data/events';
+import { benCheatEventSlides, rebelRaidIntroSlides, evilEndingSlides, hybridEndingSlides, whitefangFinnKillSlides, whitefangShenhaiEndingSlides, whitefangExpeditionBreachSlides, robertaKissSlides, ronaldWolfHuntSlides } from '../data/events';
 import type { ConversationEntry } from '../types';
 import { GameManagerService } from './GameManagerService';
 import { ConditionEvaluator } from './ConditionEvaluator';
@@ -1147,6 +1147,18 @@ export class DialogueService {
           try { useJournalStore.getState().failQuest('finn_debt_collection'); } catch {}
           useUIStore.getState().setEventSlides(whitefangFinnKillSlides);
           useUIStore.getState().setCurrentEventId('whitefang_finn_end');
+          useUIStore.getState().setScreen('event');
+          this.endDialogue();
+        } else if (eventId === 'whitefang_shenhai_ending') {
+          useWorldStateStore.getState().setFlag('whitefang_shenhai_ending_started', true);
+          useUIStore.getState().setEventSlides(whitefangShenhaiEndingSlides);
+          useUIStore.getState().setCurrentEventId('whitefang_shenhai_ending');
+          useUIStore.getState().setScreen('event');
+          this.endDialogue();
+        } else if (eventId === 'whitefang_expedition_breach') {
+          useWorldStateStore.getState().setFlag('whitefang_cave_breached', true);
+          useUIStore.getState().setEventSlides(whitefangExpeditionBreachSlides);
+          useUIStore.getState().setCurrentEventId('whitefang_expedition_breach');
           useUIStore.getState().setScreen('event');
           this.endDialogue();
         } else {

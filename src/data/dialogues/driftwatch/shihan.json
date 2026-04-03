@@ -134,6 +134,11 @@
             "condition": "world_flags.whitefang_book_read==true && world_flags.whitefang_cave_discovered==true && world_flags.whitefang_expedition_agreed==false"
           },
           {
+            "text": "I'm ready. Let's go to the mountain now.",
+            "next_node": "sh_whitefang_expedition_ready",
+            "condition": "world_flags.whitefang_expedition_agreed==true && world_flags.whitefang_cave_breached==false && world_flags.whitefang_week_closed==false"
+          },
+          {
             "text": "I should leave you to your work.",
             "closes_dialogue": true
           }
@@ -327,20 +332,39 @@
         ]
       },
       "sh_whitefang_expedition_4": {
-        "npc_text": "I will come as far as the mountain with Captain Lin Shao, Wei Taren, and Qiao Ren. The passage will be blocked if the vision showed anything true. They carry charges for stone as well as flesh.",
+        "npc_text": "I will come as far as the mountain with Captain Lin Shao, Wei Taren, and Qiao Ren. The passage will be blocked if the vision showed anything true. They carry charges for stone as well as flesh. Are you ready to move now?",
         "player_choices": [
           {
-            "text": "Meet me there. I will be ready.",
+            "text": "Let's go now.",
+            "action": "set_flag:whitefang_expedition_agreed:true|trigger_event:whitefang_expedition_breach",
+            "closes_dialogue": true
+          },
+          {
+            "text": "Wait a bit. I need time.",
             "action": "set_flag:whitefang_expedition_agreed:true",
-            "next_node": "sh_whitefang_expedition_5"
+            "next_node": "sh_whitefang_expedition_wait"
           }
         ]
       },
-      "sh_whitefang_expedition_5": {
-        "npc_text": "Good. Do not mistake this for curiosity alone, Luke. If White Fang of Heaven still endures, it will not endure quietly.",
+      "sh_whitefang_expedition_wait": {
+        "npc_text": "Very well. Do not disappear on me. Come back when you are ready, and we move immediately.",
         "player_choices": [
           {
-            "text": "I understand.",
+            "text": "I will.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "sh_whitefang_expedition_ready": {
+        "npc_text": "Are you ready to go now?",
+        "player_choices": [
+          {
+            "text": "Let's go now.",
+            "action": "trigger_event:whitefang_expedition_breach",
+            "closes_dialogue": true
+          },
+          {
+            "text": "Not yet.",
             "closes_dialogue": true
           }
         ]
@@ -350,130 +374,56 @@
   "shihan_camp_default": {
     "first_meet_node": "sh_camp_first",
     "repeat_meet_node": "sh_camp_hub",
-    "interaction_roots": {
-      "ask": "sh_camp_ask_root",
-      "friendly": "sh_camp_friendly_root",
-      "flirt": "sh_camp_flirt_root",
-      "coerce": "sh_camp_coerce_root"
-    },
     "nodes": {
       "sh_camp_first": {
-        "npc_text": "The mountain is behind us, Luke, but not what it woke. Tell me what you felt.",
+        "npc_text": "Before we ever breached the mountain, I kept seeing the same dream: you with White Fang in your hands, standing where Ren Zhen should have stood. That is why I was there. If you took the blade, come to Shenhai with me. If you refused it, I leave for Nightfall next.",
         "player_choices": [
           {
-            "text": "I can still feel it in my hands. What exactly did White Fang do to me?",
-            "next_node": "sh_camp_bound_1",
+            "text": "I'll go to Shenhai with you.",
+            "action": "set_flag:shihan_camp_intro_seen:true|set_flag:shihan_camp_first_meet_done:true|trigger_event:whitefang_shenhai_ending",
+            "closes_dialogue": true,
             "condition": "world_flags.whitefang_bound==true"
           },
           {
-            "text": "It tried to drag me in. I felt it reaching for something ugly in me, and I pulled away.",
-            "next_node": "sh_camp_resist_1",
+            "text": "Understood. I'll remember you're heading to Nightfall.",
+            "action": "set_flag:shihan_camp_intro_seen:true|set_flag:shihan_camp_first_meet_done:true",
+            "closes_dialogue": true,
             "condition": "world_flags.whitefang_resisted==true"
           },
           {
             "text": "Understood.",
             "action": "set_flag:shihan_camp_intro_seen:true|set_flag:shihan_camp_first_meet_done:true",
+            "closes_dialogue": true,
+            "condition": "world_flags.whitefang_bound==false && world_flags.whitefang_resisted==false"
+          }
+        ]
+      },
+      "sh_camp_bound_intro": {
+        "npc_text": "I need you to hear this before anything else. Before we breached the mountain, I kept seeing the same dream: you, White Fang in your hands, standing where Ren Zhen should have stood. That is why I was there, and why I am certain now. Come to Shenhai with me.",
+        "player_choices": [
+          {
+            "text": "All right. I'll go with you.",
+            "action": "set_flag:shihan_camp_intro_seen:true|set_flag:shihan_camp_first_meet_done:true|trigger_event:whitefang_shenhai_ending",
             "closes_dialogue": true
           }
         ]
       },
-      "sh_camp_bound_1": {
-        "npc_text": "White Fang did not merely choose a hand to hold it. It chose a bearer. The old Shenhai records call that kind of bond a burdened succession. What Ren Zhen sealed into the glaive was not only strength, but the darkness he could no longer carry alone.",
-        "player_choices": [
-          {
-            "text": "So this is the curse you warned me about.",
-            "next_node": "sh_camp_bound_2"
-          },
-          {
-            "text": "You make it sound older than Ren Zhen himself.",
-            "next_node": "sh_camp_bound_2"
-          }
-        ]
-      },
-      "sh_camp_bound_2": {
-        "npc_text": "It is. The oldest Shenhai war-blades were not forged as simple steel. Mages and smiths made them together, binding intention, memory, and ruin into metal that could outlive the hands meant to guide it. White Fang of Heaven was one of those weapons. When such a weapon accepts a new bearer, it does not come empty.",
-        "player_choices": [
-          {
-            "text": "And Driftwatch is supposed to ignore that?",
-            "next_node": "sh_camp_bound_3"
-          },
-          {
-            "text": "Then Ren Zhen left me more than a weapon.",
-            "next_node": "sh_camp_bound_3"
-          }
-        ]
-      },
-      "sh_camp_bound_3": {
-        "npc_text": "Exactly. To people like me, the change in you is obvious already. To ordinary people, it will only feel like standing too near a storm they do not understand. That is enough to ruin trust, invite fear, and start rumors faster than either of us can choke them down. We will keep camp in these woods for now, then head toward Nightfall once I know White Fang has settled into you instead of fighting for more.",
-        "player_choices": [
-          {
-            "text": "Then I know where to find you until you move on.",
-            "next_node": "sh_camp_bound_4"
-          },
-          {
-            "text": "And if I want to travel with you?",
-            "next_node": "sh_camp_first_3"
-          }
-        ]
-      },
-      "sh_camp_bound_4": {
-        "npc_text": "Good. If White Fang grows louder, if your temper stops feeling entirely like your own, or if the glaive starts teaching you things you did not ask to learn, come to me before you test the city's patience. For now, this camp is where people like us can still think clearly.",
+      "sh_camp_resist_intro": {
+        "npc_text": "You refused it, and that was the right choice. I am heading to Nightfall next.",
         "player_choices": [
           {
             "text": "Understood.",
-            "action": "set_flag:shihan_camp_intro_seen:true|set_flag:shihan_camp_first_meet_done:true",
-            "closes_dialogue": true
-          }
-        ]
-      },
-      "sh_camp_resist_1": {
-        "npc_text": "That was a carrier bond trying to close. White Fang reached for whatever in you could answer the darkness Ren Zhen buried inside it. You resisted, which means the glaive remains unclaimed. Do not mistake that for safety.",
-        "player_choices": [
-          {
-            "text": "So it is still there. Waiting for the next hand.",
-            "next_node": "sh_camp_resist_2"
-          }
-        ]
-      },
-      "sh_camp_resist_2": {
-        "npc_text": "Yes. And now we know where it is buried. I will not carry that knowledge back into Driftwatch carelessly, and I will not leave it unwatched. We will keep camp in these woods for now, then move on toward Nightfall once I am satisfied the mountain is truly quiet.",
-        "player_choices": [
-          {
-            "text": "Then I know where to find you until you move on.",
-            "next_node": "sh_camp_resist_3"
-          },
-          {
-            "text": "And if I want to travel with you?",
-            "next_node": "sh_camp_first_3"
-          }
-        ]
-      },
-      "sh_camp_resist_3": {
-        "npc_text": "Good. If the pull returns, or if the mountain starts whispering to you again, come to me before you answer it. For now, this camp is the safest place for either of us to keep watch.",
-        "player_choices": [
-          {
-            "text": "Understood.",
-            "action": "set_flag:shihan_camp_intro_seen:true|set_flag:shihan_camp_first_meet_done:true",
-            "closes_dialogue": true
-          }
-        ]
-      },
-      "sh_camp_first_3": {
-        "npc_text": "Not in this version of your story. For now, all I can offer is a place to find us and people who understand what the mountain woke in you, or what it nearly did. That will have to be enough.",
-        "player_choices": [
-          {
-            "text": "Then I know where to look.",
             "action": "set_flag:shihan_camp_intro_seen:true|set_flag:shihan_camp_first_meet_done:true",
             "closes_dialogue": true
           }
         ]
       },
       "sh_camp_hub": {
-        "npc_text": "We have a little time before camp moves on. Ask what you want, or say your piece.",
+        "npc_text": "Camp is quiet for now. Ask what you came to ask.",
         "player_choices": [
           {
-            "text": "I'd like to talk.",
-            "next_node": "__social_root__"
+            "text": "I'd like to ask you something.",
+            "next_node": "sh_camp_ask_root"
           },
           {
             "text": "Leave.",
@@ -482,94 +432,64 @@
         ]
       },
       "sh_camp_ask_root": {
-        "npc_text": "Then ask properly.",
+        "npc_text": "Then ask.",
         "player_choices": [
           {
-            "text": "How did you end up all the way out here in Driftwatch?",
-            "next_node": "sh_camp_ask_route_1",
-            "condition": "world_flags.shihan_camp_asked_route==false"
+            "text": "How was White Fang forged in the first place?",
+            "next_node": "sh_camp_ask_forge_1",
+            "condition": "world_flags.shihan_camp_asked_forge==false"
           },
           {
-            "text": "What is next for you?",
-            "next_node": "sh_camp_ask_next_1",
-            "condition": "world_flags.shihan_camp_asked_next==false"
+            "text": "How is Shenhai?",
+            "next_node": "sh_camp_ask_shenhai_1",
+            "condition": "world_flags.whitefang_bound==true && world_flags.shihan_camp_asked_shenhai==false"
+          },
+          {
+            "text": "Why are you going to Nightfall?",
+            "next_node": "sh_camp_ask_nightfall_1",
+            "condition": "world_flags.whitefang_resisted==true && world_flags.shihan_camp_asked_nightfall==false"
           },
           {
             "text": "Back.",
-            "next_node": "__social_root__"
-          }
-        ]
-      },
-      "sh_camp_friendly_root": {
-        "npc_text": "If you have something warmer to say, say it plainly.",
-        "player_choices": [
-          {
-            "text": "Back.",
-            "next_node": "__social_root__"
-          }
-        ]
-      },
-      "sh_camp_flirt_root": {
-        "npc_text": "If you insist on testing your composure against mine, at least do it cleanly.",
-        "player_choices": [
-          {
-            "text": "Back.",
-            "next_node": "__social_root__"
-          }
-        ]
-      },
-      "sh_camp_coerce_root": {
-        "npc_text": "Choose your tone carefully, Luke. I am still willing to listen, but not indefinitely.",
-        "player_choices": [
-          {
-            "text": "Back.",
-            "next_node": "__social_root__"
-          }
-        ]
-      },
-      "sh_camp_ask_route_1": {
-        "npc_text": "By ship first. I left the eastern coast of Shenhai and made for Embris because it was the safest way to cross half the world without drawing my father's entire household after me.",
-        "player_choices": [
-          {
-            "text": "And after Embris?",
-            "next_node": "sh_camp_ask_route_2"
-          }
-        ]
-      },
-      "sh_camp_ask_route_2": {
-        "npc_text": "From Embris I went overland through Blackwood Forest and on to Velastra. There are alchemists there with longer memories than most courts. I stayed with their guild for a time, asked what they knew of old Shenhai records, and learned which western names still carried echoes of Ren Zhen's road.",
-        "player_choices": [
-          {
-            "text": "And that led you here.",
-            "next_node": "sh_camp_ask_route_3"
-          }
-        ]
-      },
-      "sh_camp_ask_route_3": {
-        "npc_text": "Yes. Driftwatch was the final name that would not stop resurfacing. So I came by sea again, landed here, and found more truth in this miserable coast than most scholars ever do in marble libraries.",
-        "player_choices": [
-          {
-            "text": "That is quite a road for one question.",
-            "action": "set_flag:shihan_camp_asked_route:true",
             "next_node": "sh_camp_hub"
           }
         ]
       },
-      "sh_camp_ask_next_1": {
-        "npc_text": "Nightfall. That was always my next real destination once Driftwatch gave up what it was hiding. There are records there, and people who still know how to read them without flattening everything into legend.",
+      "sh_camp_ask_forge_1": {
+        "npc_text": "White Fang was forged in old Shenhai as a war-blade, not as ordinary steel. Smiths and mages bound memory, intent, and ruin into it so it could outlive the bearer.",
         "player_choices": [
           {
-            "text": "So you are leaving soon?",
-            "next_node": "sh_camp_ask_next_2"
+            "text": "So it was always more than a weapon.",
+            "next_node": "sh_camp_ask_forge_2"
           }
         ]
       },
-      "sh_camp_ask_next_2": {
-        "npc_text": "Soon enough. Not before I know whether White Fang has settled into you, or whether the mountain intends to call us back. Until then, we keep camp here. After that, I go east to Nightfall.",
+      "sh_camp_ask_forge_2": {
+        "npc_text": "Yes. It was always more than steel. Ren Zhen later sealed his own darkness into it when he could no longer carry it safely. That is why White Fang is feared as much as it is revered.",
         "player_choices": [
           {
-            "text": "Then I will remember that.",
-            "action": "set_flag:shihan_camp_asked_next:true",
+            "text": "I understand.",
+            "action": "set_flag:shihan_camp_asked_forge:true",
+            "next_node": "sh_camp_hub"
+          }
+        ]
+      },
+      "sh_camp_ask_shenhai_1": {
+        "npc_text": "Vast, proud, disciplined, and never as simple as western stories make it. Courts, harbors, old shrines, and enough factions to drown a careless foreigner in a week.",
+        "player_choices": [
+          {
+            "text": "Sounds like I will need to learn quickly.",
+            "action": "set_flag:shihan_camp_asked_shenhai:true",
+            "next_node": "sh_camp_hub"
+          }
+        ]
+      },
+      "sh_camp_ask_nightfall_1": {
+        "npc_text": "Because Nightfall has what I need: the great city library and records no one in Driftwatch can match. And near the town are the old amethyst mines, where certain Shenhai accounts say useful traces were once found.",
+        "player_choices": [
+          {
+            "text": "I'll remember that.",
+            "action": "set_flag:shihan_camp_asked_nightfall:true",
             "next_node": "sh_camp_hub"
           }
         ]

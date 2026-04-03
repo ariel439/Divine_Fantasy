@@ -44,14 +44,14 @@ import {
   benCheatEventSlides, 
   elaraDeliverySlides, 
   berylDeliverySlides, 
-  rebelVictorySlides,
+  raidVictorySlides,
   raidVictoryWeekPassageSlides,
   evilEndingWeekPassageSlides,
   introRobertTrainingSlides,
   introKidsHelpingSlides,
   introStudyShenhaicSlides,
-  whitefangBindingSlides
-  ,
+  whitefangBindingSlides,
+  whitefangShenhaiWeekPassageSlides,
   robertaKissSlides
 } from '../data/events';
 import { getIntimidationSummary } from '../utils/socialPresentation';
@@ -447,6 +447,15 @@ const ScreenManager: React.FC = () => {
             setScreen('inGame');
             return;
           }
+          if (id === 'whitefang_shenhai_ending') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            useWorldStateStore.getState().setFlag('whitefang_shenhai_ending_complete', true);
+            ui.setEventSlides(whitefangShenhaiWeekPassageSlides);
+            ui.setCurrentEventId('whitefang_shenhai_week_passage');
+            setScreen('event');
+            return;
+          }
           if (id === 'finn_personal_kill_end') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
@@ -461,23 +470,7 @@ const ScreenManager: React.FC = () => {
             setScreen('inGame');
             return;
           }
-          if (id === 'rebel_victory') {
-            ui.setEventSlides(null);
-            ui.setCurrentEventId(null);
-            useWorldStateStore.getState().setFlag('finn_rebel_branch_complete', true);
-            markNpcDeath('npc_finn');
-            useWorldStateStore.getState().setFlag('finn_resolved', true);
-            useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
-            useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
-            useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
-            try { useJournalStore.getState().failQuest('finn_debt_collection'); } catch {}
-            try { useJournalStore.getState().completeQuest('rebel_path'); } catch {}
-            ui.setEventSlides(raidVictoryWeekPassageSlides);
-            ui.setCurrentEventId('rebel_victory_week_passage');
-            setScreen('event');
-            return;
-          }
-          if (id === 'raid_victory_week_passage' || id === 'rebel_victory_week_passage') {
+          if (id === 'raid_victory_week_passage') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             finishWeekLockedWhiteFangEnding('driftwatch_slums');
@@ -487,6 +480,12 @@ const ScreenManager: React.FC = () => {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             finishWeekLockedWhiteFangEnding('salty_mug');
+            return;
+          }
+          if (id === 'whitefang_shenhai_week_passage') {
+            ui.setEventSlides(null);
+            ui.setCurrentEventId(null);
+            finishWeekLockedWhiteFangEnding('shihan_camp');
             return;
           }
           if (id === 'elara_delivery_event') {
@@ -558,6 +557,8 @@ const ScreenManager: React.FC = () => {
             GameManagerService.bindWhiteFangToLuke();
             useJournalStore.getState().completeQuest('white_fang_route');
             useLocationStore.getState().setLocation('shihan_camp');
+            useWorldStateStore.getState().setFlag('shihan_camp_intro_seen', false);
+            useWorldStateStore.getState().setFlag('shihan_camp_first_meet_done', false);
             ui.setDialogueNpcId('npc_shihan_camp');
             setScreen('dialogue');
             return;
@@ -1023,6 +1024,7 @@ const ScreenManager: React.FC = () => {
                     useLocationStore.getState().setLocation('shihan_camp');
                     useUIStore.getState().setDialogueNpcId('npc_shihan_camp');
                     useWorldStateStore.getState().setFlag('shihan_camp_intro_seen', false);
+                    useWorldStateStore.getState().setFlag('shihan_camp_first_meet_done', false);
                     setScreen('dialogue');
                   },
                 },
@@ -1675,8 +1677,8 @@ const ScreenManager: React.FC = () => {
             onClose={() => {
               combatStore.endCombat();
               if (finnDefeated) {
-                 useUIStore.getState().setEventSlides(rebelVictorySlides);
-                 useUIStore.getState().setCurrentEventId('rebel_victory');
+                 useUIStore.getState().setEventSlides(raidVictorySlides);
+                 useUIStore.getState().setCurrentEventId('raid_victory');
                  setScreen('event');
               } else {
                  setScreen('inGame');

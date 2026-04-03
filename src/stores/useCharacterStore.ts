@@ -249,6 +249,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   tickBleeding: (minutes) => {
     if (minutes <= 0) return;
     if (useWorldStateStore.getState().introMode) return;
+    if (useWorldStateStore.getState().getFlag('suppress_time_vitals')) return;
 
     set((state) => {
       if (state.effects.bleeding <= 0) {
@@ -409,6 +410,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   tickHunger: (minutes) => {
     // Prevent drain during intro mode
     if (useWorldStateStore.getState().introMode) return;
+    if (useWorldStateStore.getState().getFlag('suppress_time_vitals')) return;
 
     set((state) => {
       // Passive drain: -1 per hour

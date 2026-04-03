@@ -525,8 +525,14 @@ export class GameManagerService {
   }
 
   static applyPostEndingWeekRecovery(): void {
-    useWorldTimeStore.getState().passTime(7 * 24 * 60);
-    this.closeWhiteFangWeekWindow();
+    const world = useWorldStateStore.getState();
+    world.setFlag('suppress_time_vitals', true);
+    try {
+      useWorldTimeStore.getState().passTime(7 * 24 * 60);
+      this.closeWhiteFangWeekWindow();
+    } finally {
+      world.setFlag('suppress_time_vitals', false);
+    }
 
     useCharacterStore.setState((state) => ({
       ...state,
@@ -806,24 +812,8 @@ export class GameManagerService {
 
   static startRaidCombat(): void {
     const character = useCharacterStore.getState();
-    const inventory = useInventoryStore.getState();
 
-    // 1. Equip Iron Set
-    const itemsToEquip = ['iron_helmet', 'iron_chainmail', 'iron_leggings', 'iron_sword'];
-    
-    itemsToEquip.forEach(itemId => {
-      // Add to inventory first (simulating "given" items)
-      inventory.addItem(itemId, 1);
-      
-      // Get full item data
-      const itemData = itemsJson[itemId as keyof typeof itemsJson] as any;
-      if (itemData) {
-        // Cast to unknown first then to Item to satisfy TS
-        character.equipItem({ ...itemData, id: itemId } as unknown as Item);
-      }
-    });
-
-    // 2. Setup Enemies (Finn + 3 Thugs)
+    // 1. Setup Enemies (Finn + 3 Thugs)
     const finnTemplate = enemiesJson['finn_boss'];
     const thugTemplate = enemiesJson['thug_generic'];
 
@@ -867,7 +857,7 @@ export class GameManagerService {
       });
     }
 
-    // 3. Setup Player
+    // 2. Setup Player
     const playerStats = GameManagerService.calculatePlayerStats(character);
     const player: CombatParticipant = {
       id: 'player',
@@ -882,7 +872,7 @@ export class GameManagerService {
       isCompanion: false,
     };
 
-    // 4. Setup Companions (Rodrick, Matthias, Stan)
+    // 3. Setup Companions (Rodrick, Matthias, Stan)
     const companions: CombatParticipant[] = [
       {
         id: 'rodrick_companion',

@@ -486,7 +486,7 @@ const JournalScreen: FC = () => {
                                             <div className="flex-grow overflow-y-auto custom-scrollbar pr-2 space-y-6">
                                                 <div className="flex items-center gap-4 p-4 bg-black/40 rounded-xl border border-zinc-800/50">
                                                     <div className="relative shrink-0">
-                                                        <img src={supervisor?.portrait || '/assets/portraits/boric.png'} alt={supervisor?.name || 'Supervisor'} className="w-16 h-16 rounded-2xl object-cover border-2 border-zinc-700 shadow-xl"/>
+                                                        <img src={supervisor?.portrait || '/assets/portraits/Boric.png'} alt={supervisor?.name || 'Supervisor'} className="w-16 h-16 rounded-2xl object-cover border-2 border-zinc-700 shadow-xl"/>
                                                     </div>
                                                     <div>
                                                         <p className="font-black text-white uppercase tracking-wider text-sm">{supervisor?.name || 'Supervisor'}</p>

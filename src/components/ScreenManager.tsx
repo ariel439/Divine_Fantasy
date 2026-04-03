@@ -1528,7 +1528,7 @@ const ScreenManager: React.FC = () => {
                       id: 'wolf_puppy',
                       name: 'Wolf Puppy',
                       type: 'wolf',
-                      portraitUrl: '/assets/portraits/wolfpuppy.png',
+                      portraitUrl: '/assets/portraits/WolfPuppy.png',
                       status: 'party',
                       locationId: null,
                       stats: {

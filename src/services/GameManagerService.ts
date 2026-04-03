@@ -108,11 +108,11 @@ export class GameManagerService {
   
   private static getEnemyPortrait(templateId: string, template: any): string {
     if (template?.image) return template.image;
-    if (templateId.includes('wolf')) return '/assets/portraits/wolf.png';
-    if (templateId.includes('smuggler')) return '/assets/portraits/smuggler.png';
-    if (templateId.includes('finn')) return '/assets/portraits/oldmanfinn.png';
+    if (templateId.includes('wolf')) return '/assets/portraits/Wolf.png';
+    if (templateId.includes('smuggler')) return '/assets/portraits/Smuggler.png';
+    if (templateId.includes('finn')) return '/assets/portraits/OldManFinn.png';
     if (templateId.includes('guard')) return '/assets/portraits/stan.png';
-    return '/assets/portraits/thug.png';
+    return '/assets/portraits/Thug.png';
   }
 
   private static buildEnemyCombatant(templateId: string, index: number): CombatParticipant | null {
@@ -147,7 +147,7 @@ export class GameManagerService {
         attack: 5,
         defence: 2,
         dexterity: 12,
-        portraitUrl: '/assets/portraits/wolfpuppy.png',
+        portraitUrl: '/assets/portraits/WolfPuppy.png',
         isPlayer: false,
         isCompanion: true,
       },
@@ -159,7 +159,7 @@ export class GameManagerService {
         attack: 7,
         defence: 6,
         dexterity: 7,
-        portraitUrl: '/assets/portraits/robert.png',
+        portraitUrl: '/assets/portraits/Robert.png',
         isPlayer: false,
         isCompanion: true,
       },
@@ -171,7 +171,7 @@ export class GameManagerService {
         attack: 15,
         defence: 10,
         dexterity: 9,
-        portraitUrl: '/assets/portraits/linshao.png',
+        portraitUrl: '/assets/portraits/LinShao.png',
         isPlayer: false,
         isCompanion: true,
         attack_sound: '/assets/sfx/combat_sword_swing.mp3',
@@ -184,7 +184,7 @@ export class GameManagerService {
         attack: 14,
         defence: 9,
         dexterity: 8,
-        portraitUrl: '/assets/portraits/weitaren.png',
+        portraitUrl: '/assets/portraits/WeiTaren.png',
         isPlayer: false,
         isCompanion: true,
         attack_sound: '/assets/sfx/combat_sword_swing.mp3',
@@ -197,7 +197,7 @@ export class GameManagerService {
         attack: 13,
         defence: 8,
         dexterity: 10,
-        portraitUrl: '/assets/portraits/qiaoren.png',
+        portraitUrl: '/assets/portraits/QiaoRen.png',
         isPlayer: false,
         isCompanion: true,
         attack_sound: '/assets/sfx/combat_sword_swing.mp3',
@@ -210,7 +210,7 @@ export class GameManagerService {
         attack: 10,
         defence: 7,
         dexterity: 10,
-        portraitUrl: '/assets/portraits/ronald.png',
+        portraitUrl: '/assets/portraits/Ronald.png',
         isPlayer: false,
         isCompanion: true,
         attack_sound: '/assets/sfx/combat_axe_swing.mp3',
@@ -223,8 +223,8 @@ export class GameManagerService {
 
   private static getCompanionPortrait(companion: Companion): string {
     if (companion.portraitUrl) return companion.portraitUrl;
-    if (companion.type === 'wolf') return '/assets/portraits/wolfpuppy.png';
-    if (companion.id.includes('robert') || companion.type === 'human') return '/assets/portraits/robert.png';
+    if (companion.type === 'wolf') return '/assets/portraits/WolfPuppy.png';
+    if (companion.id.includes('robert') || companion.type === 'human') return '/assets/portraits/Robert.png';
     return '/assets/portraits/CompanionPlaceholder.png';
   }
 
@@ -674,7 +674,7 @@ export class GameManagerService {
         attack: enemyTemplate?.stats.attack || 7,
         defence: enemyTemplate?.stats.defence || 5,
         dexterity: enemyTemplate?.stats.dexterity || 6,
-          portraitUrl: '/assets/portraits/smuggler.png',
+          portraitUrl: '/assets/portraits/Smuggler.png',
           isPlayer: false,
           isCompanion: false,
           attack_sound: enemyTemplate?.attack_sound,
@@ -709,7 +709,7 @@ export class GameManagerService {
         attack: companion.stats?.attack || 7,
         defence: companion.stats?.defence || 6,
         dexterity: companion.stats?.dexterity || 7,
-        portraitUrl: '/assets/portraits/robert.png',
+        portraitUrl: '/assets/portraits/Robert.png',
         isPlayer: false,
         isCompanion: true,
       };
@@ -735,7 +735,7 @@ export class GameManagerService {
       attack: template?.stats.attack || 7,
       defence: template?.stats.defence || 1,
       dexterity: template?.stats.dexterity || 3,
-        portraitUrl: '/assets/portraits/ben.png',
+        portraitUrl: '/assets/portraits/Ben.png',
         isPlayer: false,
         isCompanion: false,
         attack_sound: template?.attack_sound || '/assets/sfx/combat_punch.mp3',
@@ -828,7 +828,7 @@ export class GameManagerService {
       attack: finnTemplate?.stats.attack || 25,
       defence: finnTemplate?.stats.defence || 10,
       dexterity: finnTemplate?.stats.dexterity || 8,
-      portraitUrl: finnTemplate?.image || '/assets/portraits/oldmanfinn.png',
+      portraitUrl: finnTemplate?.image || '/assets/portraits/OldManFinn.png',
       isPlayer: false,
       isCompanion: false,
       attack_sound: finnTemplate?.attack_sound,
@@ -847,7 +847,7 @@ export class GameManagerService {
         attack: (thugTemplate?.stats.attack || 12) * 0.8,
         defence: (thugTemplate?.stats.defence || 4) * 0.8,
         dexterity: thugTemplate?.stats.dexterity || 5,
-        portraitUrl: thugTemplate?.image || '/assets/portraits/thug.png',
+        portraitUrl: thugTemplate?.image || '/assets/portraits/Thug.png',
         isPlayer: false,
         isCompanion: false,
         attack_sound: thugTemplate?.attack_sound,
@@ -882,7 +882,7 @@ export class GameManagerService {
         attack: 30,
         defence: 15,
         dexterity: 10,
-        portraitUrl: '/assets/portraits/rodrick.png',
+        portraitUrl: '/assets/portraits/Rodrick.png',
         isPlayer: false,
         isCompanion: true,
         attack_sound: '/assets/sfx/combat_sword_swing.mp3',
@@ -895,7 +895,7 @@ export class GameManagerService {
         attack: 25,
         defence: 12,
         dexterity: 12,
-        portraitUrl: '/assets/portraits/matthias.png', // Placeholder
+        portraitUrl: '/assets/portraits/Matthias.png', // Placeholder
         isPlayer: false,
         isCompanion: true,
         attack_sound: '/assets/sfx/combat_sword_swing.mp3',
@@ -938,7 +938,7 @@ export class GameManagerService {
       attack: finnTemplate?.stats.attack || 15,
       defence: finnTemplate?.stats.defence || 8,
       dexterity: finnTemplate?.stats.dexterity || 10,
-      portraitUrl: finnTemplate?.image || '/assets/portraits/oldmanfinn.png',
+      portraitUrl: finnTemplate?.image || '/assets/portraits/OldManFinn.png',
       isPlayer: false,
       isCompanion: false,
       attack_sound: finnTemplate?.attack_sound,
@@ -958,7 +958,7 @@ export class GameManagerService {
         attack: thugTemplate?.stats.attack || 12,
         defence: thugTemplate?.stats.defence || 4,
         dexterity: thugTemplate?.stats.dexterity || 5,
-        portraitUrl: thugTemplate?.image || '/assets/portraits/thug.png',
+        portraitUrl: thugTemplate?.image || '/assets/portraits/Thug.png',
         isPlayer: false,
         isCompanion: false,
         attack_sound: thugTemplate?.attack_sound,
@@ -1007,7 +1007,7 @@ export class GameManagerService {
       attack: finnTemplate?.stats.attack || 25,
       defence: finnTemplate?.stats.defence || 10,
       dexterity: finnTemplate?.stats.dexterity || 8,
-      portraitUrl: finnTemplate?.image || '/assets/portraits/oldmanfinn.png',
+      portraitUrl: finnTemplate?.image || '/assets/portraits/OldManFinn.png',
       isPlayer: false,
       isCompanion: false,
       attack_sound: finnTemplate?.attack_sound,
@@ -1025,7 +1025,7 @@ export class GameManagerService {
         attack: (thugTemplate?.stats.attack || 12) * 0.8,
         defence: (thugTemplate?.stats.defence || 4) * 0.8,
         dexterity: thugTemplate?.stats.dexterity || 5,
-        portraitUrl: thugTemplate?.image || '/assets/portraits/thug.png',
+        portraitUrl: thugTemplate?.image || '/assets/portraits/Thug.png',
         isPlayer: false,
         isCompanion: false,
         attack_sound: thugTemplate?.attack_sound,
@@ -1084,7 +1084,7 @@ export class GameManagerService {
           attack: 12,
           defence: 7,
           dexterity: 9,
-          portraitUrl: '/assets/portraits/linshao.png',
+          portraitUrl: '/assets/portraits/LinShao.png',
           isPlayer: false,
           isCompanion: true,
           attack_sound: '/assets/sfx/combat_sword_swing.mp3',
@@ -1097,7 +1097,7 @@ export class GameManagerService {
           attack: 10,
           defence: 6,
           dexterity: 8,
-          portraitUrl: '/assets/portraits/weitaren.png',
+          portraitUrl: '/assets/portraits/WeiTaren.png',
           isPlayer: false,
           isCompanion: true,
           attack_sound: '/assets/sfx/combat_sword_swing.mp3',
@@ -1110,7 +1110,7 @@ export class GameManagerService {
           attack: 10,
           defence: 6,
           dexterity: 10,
-          portraitUrl: '/assets/portraits/qiaoren.png',
+          portraitUrl: '/assets/portraits/QiaoRen.png',
           isPlayer: false,
           isCompanion: true,
         attack_sound: '/assets/sfx/combat_sword_swing.mp3',
@@ -1159,7 +1159,7 @@ export class GameManagerService {
         bio: state.bio
           ? {
               ...state.bio,
-              image: '/assets/portraits/lukewhitefang.png',
+              image: '/assets/portraits/LukeWhiteFang.png',
             }
           : state.bio,
       }));

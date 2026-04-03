@@ -44,7 +44,7 @@ const getCompanionRestLocation = (companionId: string): string | null => {
 
 const normalizeCompanion = (companion: Companion): Companion => ({
   ...companion,
-  portraitUrl: companion.portraitUrl || (companion.type === 'wolf' ? '/assets/portraits/wolfpuppy.png' : '/assets/portraits/robert.png'),
+  portraitUrl: companion.portraitUrl || (companion.type === 'wolf' ? '/assets/portraits/WolfPuppy.png' : '/assets/portraits/Robert.png'),
   status: companion.status || 'party',
   locationId: companion.locationId ?? null,
   equippedItems: companion.equippedItems || [],

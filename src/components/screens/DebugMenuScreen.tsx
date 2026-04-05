@@ -12,6 +12,7 @@ import { useJournalStore } from '../../stores/useJournalStore';
 import { useSkillStore } from '../../stores/useSkillStore';
 import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
 import { DialogueService } from '../../services/DialogueService';
+import itemsData from '../../data/items.json';
 
 const DebugMenuScreen: FC = () => {
   const { setScreen } = useUIStore();
@@ -275,9 +276,9 @@ const DebugMenuScreen: FC = () => {
     }
 
     ironLoadout.forEach((itemId) => {
-      const item = useInventoryStore.getState().items.find((entry) => entry.id === itemId);
-      if (item) {
-        characterStore.equipItem(item);
+      const itemData = itemsData[itemId as keyof typeof itemsData] as any;
+      if (itemData) {
+        characterStore.equipItem({ ...itemData, id: itemId });
       }
     });
 

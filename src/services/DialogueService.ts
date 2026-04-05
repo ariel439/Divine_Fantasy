@@ -13,14 +13,13 @@ import { useUIStore } from '../stores/useUIStore';
 import { useShopStore } from '../stores/useShopStore';
 import { useSkillStore } from '../stores/useSkillStore';
 import { useWorldTimeStore } from '../stores/useWorldTimeStore';
-import { useJobStore } from '../stores/useJobStore';
 import { useLocationStore } from '../stores/useLocationStore';
-import { benCheatEventSlides, rebelRaidIntroSlides, evilEndingSlides, hybridEndingSlides, whitefangFinnKillSlides, whitefangShenhaiEndingSlides, whitefangExpeditionBreachSlides, robertaKissSlides, ronaldWolfHuntSlides } from '../data/events';
 import type { ConversationEntry } from '../types';
-import { GameManagerService } from './GameManagerService';
 import { ConditionEvaluator } from './ConditionEvaluator';
 import { resolveSocialAction, type SocialActionType, type SocialStyle } from '../utils/socialResolver';
 import { getSocialNpcConfig } from '../utils/socialNpcConfig';
+import { executeRegisteredAction } from './dialogueActions/registry';
+import { handleTriggerEventAction } from './dialogueActions/triggerEvent';
 import {
   socialInteractionTemplates,
   socialNpcInteractionConfigs,
@@ -53,7 +52,7 @@ interface DialogueNode {
 interface DialogueEntry {
   first_meet_node?: string;
   repeat_meet_node?: string;
-  interaction_roots?: Partial<Record<'ask' | 'friendly' | 'flirt' | 'coerce' | 'quest', string>>;
+  interaction_roots?: Partial<Record<'ask' | 'friendly' | 'flirt' | 'coerce' | 'quest' | 'trade', string>>;
   trade_shop_id?: string;
   nodes: Record<string, DialogueNode>;
 }
@@ -66,8 +65,8 @@ const typedDialogueData: DialogueFile = dialogueData;
 
 interface Npc {
   name: string;
-  home_location: string;
-  default_dialogue_id: string;
+  home_location?: string;
+  default_dialogue_id?: string;
   portrait: string;
 }
 
@@ -212,7 +211,7 @@ export class DialogueService {
     }
 
     const baseNode = dialogueEntry.nodes[nodeId];
-    const player_choices = interactionKeys
+    const player_choices: NonNullable<DialogueNode['player_choices']> = interactionKeys
       .map((interactionKey) => this.getMergedInteractionTemplate(npcId, interactionKey))
       .filter((template): template is SocialInteractionTemplate => Boolean(template))
       .map((template) => ({
@@ -388,7 +387,7 @@ export class DialogueService {
       'flirt',
     ];
 
-    const player_choices = orderedCategories
+    const player_choices: NonNullable<DialogueNode['player_choices']> = orderedCategories
       .filter((category) => {
         if (category === 'flirt' && !this.canAccessFlirtCategory()) {
           return false;
@@ -1087,608 +1086,32 @@ export class DialogueService {
 
     const [actionType, ...params] = action.split(':');
 
-    switch (actionType) {
-      case 'trigger_confirmation': {
-        const type = params[0];
-        useUIStore.getState().setConfirmationType(type);
-        useUIStore.getState().openModal('confirmation');
-        break;
-      }
-      case 'trigger_event': {
-        const eventId = params[0];
-        useUIStore.getState().setCurrentEventId(eventId);
-
-        if (eventId === 'raid_salty_mug_intro') {
-          useUIStore.getState().setEventSlides(rebelRaidIntroSlides);
-          useUIStore.getState().setScreen('event');
-          this.endDialogue();
-          useUIStore.getState().setDialogueNpcId(null);
-        } else if (eventId === 'ronald_wolf_hunt_intro') {
-          useUIStore.getState().setEventSlides(ronaldWolfHuntSlides);
-          useUIStore.getState().setScreen('event');
-          this.endDialogue();
-          useUIStore.getState().setDialogueNpcId(null);
-        } else if (eventId === 'roberta_kiss_event') {
-          useUIStore.getState().setEventSlides(robertaKissSlides);
-          useUIStore.getState().setScreen('event');
-          this.endDialogue();
-          useUIStore.getState().setDialogueNpcId(null);
-        } else if (eventId === 'ben_cheat_event') {
-          useUIStore.getState().setEventSlides(benCheatEventSlides);
-          useUIStore.getState().setScreen('event');
-          this.endDialogue();
-        } else if (eventId === 'evil_path_end') {
-          useWorldStateStore.getState().setFlag('finn_loyalist_branch_complete', true);
-          useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
-          useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
-          useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
-          useUIStore.getState().setEventSlides(evilEndingSlides);
-          useUIStore.getState().setScreen('event');
-          this.endDialogue();
-        } else if (eventId === 'finn_hybrid_end') {
-          useWorldStateStore.getState().setFlag('finn_hybrid_branch_complete', true);
-          useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
-          useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
-          useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
-          useUIStore.getState().setEventSlides(hybridEndingSlides);
-          useUIStore.getState().setScreen('event');
-          this.endDialogue();
-        } else if (eventId === 'whitefang_finn_end') {
-          useWorldStateStore.getState().setFlag('finn_whitefang_branch_complete', true);
-          useWorldStateStore.getState().setFlag('finn_dead', true);
-          if (!useWorldStateStore.getState().getData('npc_finn_death_date')) {
-            useWorldStateStore.getState().setData('npc_finn_death_date', useWorldTimeStore.getState().getFormattedDate());
-          }
-          useWorldStateStore.getState().setFlag('finn_resolved', true);
-          useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
-          useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
-          useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
-          useWorldStateStore.getState().setFlag('raid_ready', false);
-          try { useJournalStore.getState().failQuest('finn_debt_collection'); } catch {}
-          useUIStore.getState().setEventSlides(whitefangFinnKillSlides);
-          useUIStore.getState().setCurrentEventId('whitefang_finn_end');
-          useUIStore.getState().setScreen('event');
-          this.endDialogue();
-        } else if (eventId === 'whitefang_shenhai_ending') {
-          useWorldStateStore.getState().setFlag('whitefang_shenhai_ending_started', true);
-          useUIStore.getState().setEventSlides(whitefangShenhaiEndingSlides);
-          useUIStore.getState().setCurrentEventId('whitefang_shenhai_ending');
-          useUIStore.getState().setScreen('event');
-          this.endDialogue();
-        } else if (eventId === 'whitefang_expedition_breach') {
-          useWorldStateStore.getState().setFlag('whitefang_cave_breached', true);
-          useUIStore.getState().setEventSlides(whitefangExpeditionBreachSlides);
-          useUIStore.getState().setCurrentEventId('whitefang_expedition_breach');
-          useUIStore.getState().setScreen('event');
-          this.endDialogue();
-        } else {
-          useUIStore.getState().setScreen('choiceEvent');
-          this.endDialogue();
-        }
-        break;
-      }
-      case 'set_flag':
-        {
-          const flag = params[0];
-          const valRaw = params[1];
-          const val = valRaw === 'true' ? true : valRaw === 'false' ? false : Boolean(valRaw);
-          useWorldStateStore.getState().setFlag(flag, val);
-        }
-        break;
-      case 'add_money':
-        {
-          const amount = Number(params[0] || '0');
-          const type = (params[1] || 'silver') as 'copper' | 'silver' | 'gold';
-          useCharacterStore.getState().addCurrency(type, amount);
-          diaryStore.addInteraction(`Received ${amount} ${type}.`);
-        }
-        break;
-
-      case 'remove_money':
-        {
-          const amount = Number(params[0] || '0');
-          const type = params[1] || 'silver';
-          let paid = false;
-          if (type === 'copper') paid = useCharacterStore.getState().removeCurrency(amount, 0, 0);
-          else if (type === 'gold') paid = useCharacterStore.getState().removeCurrency(0, 0, amount);
-          else paid = useCharacterStore.getState().removeCurrency(0, amount, 0); // Default silver
-          
-          if (paid) {
-            diaryStore.addInteraction(`Paid ${amount} ${type}.`);
-          } else {
-            diaryStore.addInteraction(`Not enough money (${amount} ${type} required).`);
-          }
-        }
-        break;
-
-      case 'start_quest':
-        {
-          const questId = params[0];
-          const q = typedQuestsData[questId];
-          if (!q) {
-            console.warn('Quest not found:', questId);
-            break;
-          }
-
-          // Prevent duplicate acceptance
-          const existing = useJournalStore.getState().quests[questId];
-          if (existing && (existing.active || existing.completed)) {
-            console.log('Quest already accepted or completed:', questId);
-            break;
-          }
-
-          // Canonical quest (store record)
-          const canonicalQuest = {
-            id: questId,
-            title: q.title,
-            description: q.description,
-            stages: q.stages || [],
-            rewards: q.rewards || {},
-            completed: false,
-            active: true,
-            currentStage: 0,
-          };
-          journalStore.addQuest(canonicalQuest);
-
-          // UI quest (journal list)
-          useJournalStore.getState().addQuest({
-            id: questId,
-            title: q.title,
-            description: q.description,
-            stages: q.stages,
-            currentStage: 0,
-            completed: false,
-            active: true,
-            rewards: q.rewards
-          });
-
-          // For intro quest, keep all objectives visible without auto-completing the first stage
-          if (questId !== 'luke_tutorial' && questId !== 'rebel_path') {
-            // Move to stage 1 after acceptance (talk stage completed)
-            useJournalStore.getState().setQuestStage(questId, 1);
-          }
-          console.log('Quest started via dialogue:', questId);
-        }
-        break;
-
-      case 'hire_job':
-        {
-          const jobId = params[0];
-          useJobStore.getState().loadJobs();
-          const can = useJobStore.getState().canHire(jobId);
-          if (!can.ok) {
-            useDiaryStore.getState().addInteraction(`Supervisor: We can't rehire you yet. Come back after ${can.rehiredFrom}.`);
-            break;
-          }
-          useJobStore.getState().takeJob(jobId);
-          useDiaryStore.getState().addInteraction(`Hired for job: ${jobId}`);
-          useDiaryStore.getState().addInteraction(`Supervisor: You start tomorrow at ${String(useJobStore.getState().jobs[jobId]?.schedule.startHour ?? 8).padStart(2, '0')}:00.`);
-        }
-        break;
-
-      case 'try_hire_or_deny':
-        {
-          const jobId = params[0];
-          const denyNodeId = params[1];
-          useJobStore.getState().loadJobs();
-          const can = useJobStore.getState().canHire(jobId);
-          if (!can.ok) {
-            const currentDialogue = this.state.dialogueId ? typedDialogueData[this.state.dialogueId as keyof typeof typedDialogueData] : null;
-            if (currentDialogue && denyNodeId && currentDialogue.nodes[denyNodeId]) {
-              const denyNode = currentDialogue.nodes[denyNodeId];
-              this.setCurrentNode(denyNodeId, currentDialogue);
-              this.state.dialogueHistory.push({ speaker: 'npc', text: denyNode.npc_text });
-            }
-            break;
-          }
-          useJobStore.getState().takeJob(jobId);
-          useDiaryStore.getState().addInteraction(`Hired for job: ${jobId}`);
-          useDiaryStore.getState().addInteraction(`Supervisor: You start tomorrow at ${String(useJobStore.getState().jobs[jobId]?.schedule.startHour ?? 8).padStart(2, '0')}:00.`);
-          this.endDialogue();
-        }
-        break;
-
-      case 'recruit_companion':
-        // TODO: Implement companion recruitment
-        console.log('Recruiting companion:', params[0]);
-        break;
-
-      case 'advance_quest_stage':
-        {
-          const questId = params[0];
-          useJournalStore.getState().advanceQuestStage(questId);
-          console.log('Advanced quest stage:', questId);
-        }
-        break;
-
-      case 'set_quest_stage':
-        {
-          const questId = params[0];
-          const stage = Number(params[1] || '0');
-          useJournalStore.getState().setQuestStage(questId, stage);
-          console.log('Set quest stage:', questId, stage);
-        }
-        break;
-
-      case 'complete_quest':
-        {
-          const questId = params[0];
-          journalStore.completeQuest(questId);
-          console.log('Quest completed via dialogue:', questId);
-        }
-        break;
-
-      case 'pass_time':
-        {
-          const minutes = Number(params[0] || '0');
-          useWorldTimeStore.getState().passTime(minutes);
-        }
-        break;
-
-      case 'trigger_game_over':
-        {
-            // Simple reload for now as a "Hard Reset"
-            window.location.reload();
-        }
-        break;
-
-      case 'start_finn_betrayal_combat':
-        {
-          GameManagerService.startFinnBetrayalCombat();
-        }
-        break;
-
-      case 'grant_item':
-      case 'add_item':
-        {
-          const itemId = params[0];
-          const qty = params[1] ? Number(params[1]) : 1;
-          useInventoryStore.getState().addItem(itemId, qty);
-          diaryStore.addInteraction('Received item: ' + itemId);
-        }
-        break;
-
-      case 'remove_item':
-        {
-          const itemId = params[0];
-          const qty = params[1] ? Number(params[1]) : 1;
-          useInventoryStore.getState().removeItem(itemId, qty);
-          diaryStore.addInteraction('Removed item: ' + itemId);
-        }
-        break;
-
-      case 'open_shop':
-        {
-          const shopId = params[0];
-          useUIStore.getState().setShopId(shopId);
-          useUIStore.getState().setScreen('trade');
-        }
-        break;
-
-      case 'open_roberta_upgrades':
-        {
-          const ui = useUIStore.getState();
-          ui.setCraftingMode('robertaUpgrades');
-          ui.setCraftingSkill('Carpentry');
-          ui.setScreen('crafting');
-        }
-        break;
-
-      case 'convert_logs_to_planks':
-        {
-          const qtyRaw = params[0] || '0';
-          const inv = useInventoryStore.getState();
-          const char = useCharacterStore.getState();
-          const logsAvailable = inv.getItemQuantity('log');
-          const requested = qtyRaw === 'all' ? logsAvailable : Math.max(0, Number(qtyRaw));
-          const maxByCopper = Math.floor(char.currency.copper / 2);
-          const produce = Math.min(requested, logsAvailable, maxByCopper);
-          if (produce <= 0) {
-            diaryStore.addInteraction('Sawmill: Not enough logs or copper.');
-            break;
-          }
-          const removed = inv.removeItem('log', produce);
-          if (!removed) {
-            diaryStore.addInteraction('Sawmill: Failed to remove logs.');
-            break;
-          }
-          const cost = produce * 2;
-          const paid = useCharacterStore.getState().removeCurrency(cost);
-          if (!paid) {
-            // Rollback log removal if payment fails
-            inv.addItem('log', produce);
-            diaryStore.addInteraction('Sawmill: Payment failed.');
-            break;
-          }
-          inv.addItem('wooden_plank', produce);
-          useSkillStore.getState().addXp('carpentry', produce * 10);
-          diaryStore.addInteraction(`Converted ${produce} logs to planks at the sawmill.`);
-        }
-        break;
-
-      case 'offer_debt_payment':
-        {
-          // No-op placeholder: UI could present choices in dialogue JSON
-          diaryStore.addInteraction('npc_finn: Finn laid out the debt collection job.');
-        }
-        break;
-
-      case 'start_debt_collection':
-        {
-          useWorldStateStore.getState().setFlag('finn_debt_collection_active', true);
-          useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
-          useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
-          useWorldStateStore.getState().setFlag('debt_paid_by_ben', false);
-          useWorldStateStore.getState().setFlag('debt_paid_by_beryl', false);
-          useWorldStateStore.getState().setFlag('debt_paid_by_elara', false);
-          try { useJournalStore.getState().setQuestStage('finn_debt_collection', 1); } catch {}
-          const day = useWorldTimeStore.getState().day;
-          try {
-            // Set deadline to 7 days from now
-            useWorldStateStore.getState().setData('finn_debt_deadline_day', String(day + 7));
-          } catch {}
-        }
-        break;
-
-      case 'collect_debt_from':
-        {
-          const targetNpcId = params[0];
-          const amount = Number(params[1] || '10');
-          const flagMap: Record<string, string> = {
-            'npc_ben': 'debt_paid_by_ben',
-            'npc_beryl': 'debt_paid_by_beryl',
-            'npc_elara': 'debt_paid_by_elara',
-          };
-          const flag = flagMap[targetNpcId];
-          if (!flag) break;
-          const world = useWorldStateStore.getState();
-          if (world.getFlag(flag)) {
-            diaryStore.addInteraction('Already collected from ' + (typedNpcsData[targetNpcId]?.name || targetNpcId) + '.');
-            break;
-          }
-          if (!world.getFlag('finn_debt_collection_active')) {
-            diaryStore.addInteraction('Debt collection is not active.');
-            break;
-          }
-          useCharacterStore.getState().addCurrency('silver', amount);
-          world.setFlag(flag, true);
-          diaryStore.addInteraction(targetNpcId + ': Collected ' + amount + ' silvers.');
-
-          try {
-            const journal = useJournalStore.getState();
-            const debtQuest = journal.quests['finn_debt_collection'];
-            if (debtQuest?.active) {
-              const allCollected =
-                world.getFlag('debt_paid_by_ben') &&
-                (world.getFlag('debt_paid_by_beryl') || world.getFlag('beryl_debt_forgiven')) &&
-                world.getFlag('debt_paid_by_elara');
-
-              journal.setQuestStage('finn_debt_collection', allCollected ? 4 : (debtQuest.currentStage || 1));
-            }
-          } catch {}
-        }
-        break;
-
-      case 'turn_in_debt':
-        {
-          const requiredSilvers = Number(params[0] || '30');
-          const world = useWorldStateStore.getState();
-          const allCollected = world.getFlag('debt_paid_by_ben') && (world.getFlag('debt_paid_by_beryl') || world.getFlag('beryl_debt_forgiven')) && world.getFlag('debt_paid_by_elara');
-          if (!allCollected) {
-            diaryStore.addInteraction('npc_finn: You have not collected from all three yet.');
-            break;
-          }
-          const totalCopperNeeded = requiredSilvers * 100;
-          const paid = useCharacterStore.getState().removeCurrency(totalCopperNeeded);
-          if (!paid) {
-            diaryStore.addInteraction('npc_finn: Come back when you actually did the job.');
-            break;
-          }
-          world.setFlag('finn_debt_collection_active', false);
-          world.setFlag('finn_timeout_ready', false);
-          world.setFlag('finn_timeout_triggered', false);
-          diaryStore.addInteraction('npc_finn: Debt job complete.');
-          try {
-            useJournalStore.getState().completeQuest('finn_debt_collection');
-          } catch {}
-        }
-        break;
-
-      case 'turn_in_debt_or_rebuke':
-        {
-          const requiredSilvers = Number(params[0] || '30');
-          const rebukeNodeId = params[1];
-          const world = useWorldStateStore.getState();
-          const allCollected = world.getFlag('debt_paid_by_ben') && (world.getFlag('debt_paid_by_beryl') || world.getFlag('beryl_debt_forgiven')) && world.getFlag('debt_paid_by_elara');
-          const currentDialogue = this.state.dialogueId ? typedDialogueData[this.state.dialogueId as keyof typeof typedDialogueData] : null;
-          const showRebuke = () => {
-            if (currentDialogue && rebukeNodeId && currentDialogue.nodes[rebukeNodeId]) {
-              const node = currentDialogue.nodes[rebukeNodeId];
-              this.setCurrentNode(rebukeNodeId, currentDialogue);
-              this.state.dialogueHistory.push({ speaker: 'npc', text: node.npc_text });
-            } else {
-              diaryStore.addInteraction('npc_finn: Come back when you actually did the job.');
-            }
-          };
-          if (!allCollected) {
-            showRebuke();
-            break;
-          }
-          const totalCopperNeeded = requiredSilvers * 100;
-          const paid = useCharacterStore.getState().removeCurrency(totalCopperNeeded);
-          if (!paid) {
-            showRebuke();
-            break;
-          }
-          world.setFlag('finn_debt_collection_active', false);
-          world.setFlag('finn_timeout_ready', false);
-          world.setFlag('finn_timeout_triggered', false);
-          diaryStore.addInteraction('npc_finn: Debt job complete.');
-          try {
-            useJournalStore.getState().completeQuest('finn_debt_collection');
-          } catch {}
-          this.endDialogue();
-        }
-        break;
-
-      case 'start_brawl':
-        {
-          const target = params[0];
-          if (target === 'ben') {
-            GameManagerService.startBenBrawl();
-          }
-        }
-        break;
-
-      case 'enter_temporal_instance':
-        {
-          const locationId = params[0];
-          const year = Number(params[1] || '780');
-          const month = Number(params[2] || '1');
-          const dayOfMonth = Number(params[3] || '1');
-          const hour = Number(params[4] || '8');
-          const minute = Number(params[5] || '0');
-          const locStore = useLocationStore.getState();
-          const currentLoc = locStore.currentLocationId;
-          useWorldStateStore.getState().setData('temporal_return_location', currentLoc || 'driftwatch');
-          useWorldTimeStore.getState().enterTemporalInstance({ year, month, dayOfMonth, hour, minute });
-          if (locationId) locStore.setLocation(locationId);
-          useUIStore.getState().setScreen('inGame');
-          diaryStore.addInteraction(`Entered temporal instance at ${locationId || currentLoc}: ${dayOfMonth}/${month}/${year} ${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`);
-        }
-        break;
-
-      case 'exit_temporal_instance':
-        {
-          useWorldTimeStore.getState().exitTemporalInstance();
-          const ret = useWorldStateStore.getState().getData('temporal_return_location');
-          if (ret) {
-            useLocationStore.getState().setLocation(ret);
-          }
-          diaryStore.addInteraction('Exited temporal instance.');
-          useUIStore.getState().setScreen('inGame');
-        }
-        break;
-
-      case 'pay_debt':
-        {
-          const amount = Number(params[0] || '0');
-          if (amount <= 0) break;
-          const paid = useCharacterStore.getState().removeCurrency(amount);
-          if (paid) {
-            useWorldStateStore.getState().setFlag('finn_debt_paid', true);
-            diaryStore.addInteraction(`Paid ${amount}c to Finn. Debt cleared.`);
-          } else {
-            diaryStore.addInteraction('Payment failed: not enough copper.');
-          }
-        }
-        break;
-
-      case 'rent_room':
-        {
-          const debtPaid = useWorldStateStore.getState().getFlag('finn_debt_paid');
-          if (!debtPaid) {
-            diaryStore.addInteraction('Cannot rent: debt not cleared.');
-            break;
-          }
-          useUIStore.getState().setSleepWaitMode('sleep');
-          useUIStore.getState().openModal('sleepWait');
-          diaryStore.addInteraction('Rented a room at the Salty Mug.');
-        }
-        break;
-
-      case 'set_attribute':
-        {
-          const attr = params[0];
-          const val = Number(params[1] || '1');
-          const char = useCharacterStore.getState();
-          // Type-safe update if possible, or cast
-          const attributes = { ...char.attributes, [attr]: val };
-          useCharacterStore.setState({ attributes });
-          // Recalculate derived stats
-          useCharacterStore.getState().recalculateStats();
-          useCharacterStore.getState().refreshSocialEnergyCap();
-          
-          diaryStore.addInteraction(`Set attribute ${attr} to ${val}`);
-          console.log(`[DialogueService] Set attribute ${attr} to ${val}. New attributes:`, attributes);
-        }
-        break;
-
-      case 'grant_skill_level':
-        {
-          const skillId = params[0];
-          const level = Number(params[1] || '1');
-          console.log(`[DialogueService] Granting skill level: ${skillId} -> ${level}`);
-          useSkillStore.getState().setSkillLevel(skillId, level);
-          diaryStore.addInteraction('Gained skill level in ' + skillId);
-        }
-        break;
-
-      case 'add_xp':
-        {
-          const skillId = params[0];
-          const amount = Number(params[1] || '10');
-          useSkillStore.getState().addXp(skillId, amount);
-          diaryStore.addInteraction(`Gained ${amount} XP in ${skillId}`);
-        }
-        break;
-
-      case 'social_action':
-        {
-          const npcId = params[0];
-          const socialType = (params[1] || 'friendly') as SocialActionType;
-          const socialStyle = (params[2] || 'honest') as SocialStyle;
-          if (this.hasNpcReachedDailySocialLimit(npcId)) {
-            this.state.lastSocialOutcome = 'fail';
-            diaryStore.addInteraction(`${npcId}: They have had enough of you for today.`);
-            break;
-          }
-
-          const result = resolveSocialAction({
-            npcId,
-            type: socialType,
-            style: socialStyle,
-            persuasionLevel: useSkillStore.getState().getSkillLevel('persuasion'),
-            coercionLevel: useSkillStore.getState().getSkillLevel('coercion'),
-          });
-
-          this.incrementNpcDailySocialUses(npcId);
-          this.state.lastSocialOutcome = result.outcome;
-          useDiaryStore.getState().updateRelationship(npcId, result.relationshipChanges);
-          useSkillStore.getState().addXp(result.xpSkill, result.xpAmount);
-          diaryStore.addInteraction(`${npcId}: ${result.diaryText}`);
-        }
-        break;
-
-      case 'update_relationship':
-        {
-          const npcId = params[0];
-          const delta = Number(params[1] || '0');
-          const stat = (params[2] || 'friendship') as 'friendship' | 'love' | 'fear' | 'obedience';
-          useDiaryStore.getState().updateRelationship(npcId, { [stat]: delta });
-          diaryStore.addInteraction('Relationship changed with ' + (typedNpcsData[npcId]?.name || npcId));
-        }
-        break;
-      case 'set_relationship':
-        {
-          const npcId = params[0];
-          const target = Number(params[1] || '0');
-          const current = useDiaryStore.getState().relationships[npcId]?.friendship?.value || 0;
-          const delta = target - current;
-          useDiaryStore.getState().updateRelationship(npcId, { friendship: delta });
-          diaryStore.addInteraction('Relationship set for ' + (typedNpcsData[npcId]?.name || npcId));
-        }
-        break;
-      case 'add_known_npc':
-        {
-          const id = params[0];
-          useWorldStateStore.getState().addKnownNpc(id);
-          diaryStore.addInteraction('Now know NPC: ' + (typedNpcsData[id]?.name || id));
-        }
-        break;
-
-      default:
-        console.warn('Unknown action type:', actionType);
+    if (executeRegisteredAction(actionType, params, {
+      diaryStore,
+      worldState,
+      journalStore,
+      showDialogueNode: (nodeId: string) => {
+        const currentDialogue = this.state.dialogueId ? typedDialogueData[this.state.dialogueId as keyof typeof typedDialogueData] : null;
+        if (!currentDialogue || !nodeId || !currentDialogue.nodes[nodeId]) return false;
+        const node = currentDialogue.nodes[nodeId];
+        this.setCurrentNode(nodeId, currentDialogue);
+        this.state.dialogueHistory.push({ speaker: 'npc', text: node.npc_text });
+        return true;
+      },
+      endDialogue: () => this.endDialogue(),
+      hasNpcReachedDailySocialLimit: (npcId: string) => this.hasNpcReachedDailySocialLimit(npcId),
+      incrementNpcDailySocialUses: (npcId: string) => this.incrementNpcDailySocialUses(npcId),
+      setLastSocialOutcome: (outcome) => { this.state.lastSocialOutcome = outcome; },
+    })) {
+      return;
     }
+
+    if (actionType === 'trigger_event') {
+      const eventId = params[0];
+      handleTriggerEventAction(eventId, () => this.endDialogue());
+      return;
+    }
+
+    console.warn('Unknown action type:', actionType);
   }
 }

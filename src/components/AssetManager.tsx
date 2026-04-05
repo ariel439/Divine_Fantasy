@@ -80,7 +80,7 @@ function preloadLocationAssets(loc: any) {
  */
 function preloadUrl(url: string) {
   // Skip if already preloaded or if it's a placeholder path
-  if (!url || preloadedUrls.has(url) || url.startsWith('GDD/')) return;
+  if (!url || preloadedUrls.has(url) || url.startsWith('docs/gdd/')) return;
   
   // Use a case-insensitive check for extensions
   const lowerUrl = url.toLowerCase();

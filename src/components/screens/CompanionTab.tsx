@@ -11,6 +11,20 @@ const COMBAT_LAYOUT_ORDER = [2, 0, 3, 1];
 
 const locationNameMap = locationsData as Record<string, { name?: string }>;
 
+interface RosterEntry {
+  id: string;
+  name: string;
+  portraitUrl: string;
+  statusText: string;
+  inParty: boolean;
+  locationText: string;
+  isPlayer: boolean;
+  canRejoinHere: boolean;
+  isDowned: boolean;
+  hp: number;
+  maxHp: number;
+}
+
 const getPlayerCombatStats = (character: ReturnType<typeof useCharacterStore.getState>) => {
   let attack = character.attributes.strength || 0;
   let defence = Math.floor(((character.attributes.strength || 0) + (character.attributes.dexterity || 0)) / 2);
@@ -80,7 +94,7 @@ const CompanionTab: React.FC = () => {
     return {
       id: companion.id,
       name: companion.name,
-      portraitUrl: companion.portraitUrl || '/assets/portraits/CompanionPlaceholder.png',
+      portraitUrl: companion.portraitUrl || '/assets/portraits/companionplaceholder.png',
       subtitle: companion.type === 'wolf' ? 'Companion Beast' : 'Companion',
       hp: companion.stats.hp,
       maxHp: companion.stats.maxHp,
@@ -157,8 +171,8 @@ const CompanionTab: React.FC = () => {
     commitFormation(nextFormation);
   };
 
-  const rosterEntries = useMemo(() => {
-    const playerEntry = {
+  const rosterEntries = useMemo<RosterEntry[]>(() => {
+    const playerEntry: RosterEntry = {
       id: 'player',
       name: character.bio?.name || 'Luke',
       portraitUrl: character.bio?.image || '/assets/portraits/luke.jpg',
@@ -166,13 +180,17 @@ const CompanionTab: React.FC = () => {
       inParty: true,
       locationText: 'Current formation',
       isPlayer: true,
+      canRejoinHere: true,
+      isDowned: false,
+      hp: character.hp,
+      maxHp: character.maxHp || 100,
     };
 
-    const companionEntries = companions
+    const companionEntries: RosterEntry[] = companions
       .map((companion) => ({
         id: companion.id,
         name: companion.name,
-        portraitUrl: companion.portraitUrl || '/assets/portraits/CompanionPlaceholder.png',
+        portraitUrl: companion.portraitUrl || '/assets/portraits/companionplaceholder.png',
         statusText: formation.includes(companion.id)
           ? 'In your party'
           : companion.stats.hp <= 0

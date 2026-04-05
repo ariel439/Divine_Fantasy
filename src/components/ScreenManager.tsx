@@ -637,6 +637,9 @@ const ScreenManager: React.FC = () => {
             playerOffer={[]}
             merchantOffer={[]}
             balance={0}
+            canAfford={true}
+            playerValueMultiplier={1}
+            merchantValueMultiplier={1}
           />
         );
       case 'crafting': {
@@ -1528,7 +1531,7 @@ const ScreenManager: React.FC = () => {
                       id: 'wolf_puppy',
                       name: 'Wolf Puppy',
                       type: 'wolf',
-                      portraitUrl: '/assets/portraits/WolfPuppy.png',
+                      portraitUrl: '/assets/portraits/wolfpuppy.png',
                       status: 'party',
                       locationId: null,
                       stats: {
@@ -1634,7 +1637,7 @@ const ScreenManager: React.FC = () => {
           );
         }
 
-        if (eventId === 'slum_quiet_run' || eventId === 'slum_scrounged_copper' || eventId === 'slum_found_food') {
+        if (['slum_quiet_run', 'slum_scrounged_copper', 'slum_found_food'].includes(eventId as string)) {
           const world = useWorldStateStore.getState();
           return (
             <ChoiceEventScreen

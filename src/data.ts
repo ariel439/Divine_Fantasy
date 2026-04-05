@@ -105,6 +105,7 @@ export const mockNpcs: Npc[] = [
       friendship: { value: 75, max: 100 },
       love: { value: 10, max: 100 },
       fear: { value: 60, max: 100 },
+      obedience: { value: 0, max: 100 },
     },
     history: [
       'You shared your meal with her.',
@@ -121,6 +122,7 @@ export const mockNpcs: Npc[] = [
       friendship: { value: 55, max: 100 },
       love: { value: 0, max: 100 },
       fear: { value: 45, max: 100 },
+      obedience: { value: 0, max: 100 },
     },
     history: [
         'He taught you how to tie a proper knot.',
@@ -137,6 +139,7 @@ export const mockNpcs: Npc[] = [
       friendship: { value: 85, max: 100 },
       love: { value: 0, max: 100 },
       fear: { value: 20, max: 100 },
+      obedience: { value: 0, max: 100 },
     },
     history: [
         'You covered for him when he broke a window.',
@@ -153,6 +156,7 @@ export const mockNpcs: Npc[] = [
       friendship: { value: 20, max: 100 },
       love: { value: 0, max: 100 },
       fear: { value: 70, max: 100 },
+      obedience: { value: 0, max: 100 },
     },
     history: [
         'He gave you your first job at the docks.',
@@ -169,6 +173,7 @@ export const mockNpcs: Npc[] = [
       friendship: { value: 15, max: 100 },
       love: { value: 0, max: 100 },
       fear: { value: 10, max: 100 },
+      obedience: { value: 0, max: 100 },
     },
     history: [
         'You met her near the city square.',

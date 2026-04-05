@@ -104,7 +104,7 @@
       "type": "combat",
       "title": "Wild Wolves",
       "description": "You encountered a pack of wolves!",
-      "image": "/assets/portraits/Wolf.png",
+      "image": "/assets/portraits/wolf.png",
       "data": {
         "wolfCount": 1,
         "enemies": ["Forest Wolf"]

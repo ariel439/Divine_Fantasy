@@ -7,6 +7,7 @@ import { useSkillStore } from './useSkillStore';
 import questsData from '../data/quests.json';
 import dialogueData from '../data/dialogues/index';
 import type { Quest as UiQuest } from '../types';
+import type { QuestStatus } from '../types';
 import npcsData from '../data/npcs.json';
 
 interface QuestStage {
@@ -281,7 +282,7 @@ export const useJournalStore = create<JournalState>((set, get) => ({
         const currentStage = quest.currentStage || 0;
         const objectives = buildQuestObjectives(questDef, currentStage);
         const rewards = quest.completed ? buildGenericRewards(quest.rewards) : [];
-        const status = quest.completed ? 'completed' : quest.active ? 'active' : 'failed';
+        const status: QuestStatus = quest.completed ? 'completed' : quest.active ? 'active' : 'failed';
 
         return {
           ...uiQuest,

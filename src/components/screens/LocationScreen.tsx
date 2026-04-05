@@ -483,7 +483,7 @@ const LocationScreen: React.FC = () => {
         useUIStore.getState().setEventSlides(null);
         useUIStore.getState().setCurrentEventId(null);
         try { useJournalStore.getState().completeQuest('luke_tutorial'); } catch {}
-        setScreen('location');
+        setScreen('inGame');
         break;
       }
       case 'use': {

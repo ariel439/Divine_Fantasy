@@ -92,7 +92,7 @@ const isSocialEquipment = (item: Item): boolean => {
   if (!item.equipmentSlot) return false;
   if (item.equipmentSlot === 'weapon' || item.equipmentSlot === 'shield') return false;
   if ((item.threatTier ?? 0) > 0) return false;
-  return SOCIAL_FORWARD_SLOTS.includes(item.equipmentSlot) && (item.presentationTier ?? 0) > 0;
+  return SOCIAL_FORWARD_SLOTS.includes(item.equipmentSlot as SocialEquipmentSlot) && (item.presentationTier ?? 0) > 0;
 };
 
 const snapshotCombatEquipment = (equippedItems: Partial<Record<CombatEquipmentSlot, Item>>) =>

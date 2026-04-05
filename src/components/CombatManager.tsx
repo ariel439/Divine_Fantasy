@@ -13,6 +13,15 @@ import { COMBAT_CONFIG } from '../config/combat';
 import CombatScreen from './screens/CombatScreen';
 import { robertCaughtSlides, gameOverSlides, raidVictorySlides, finnPersonalKillSlides } from '../data/events';
 import { DialogueService } from '../services/DialogueService';
+import {
+  applyOutgoingDamageModifiers,
+  calculateDamage,
+  calculateFleeChance,
+  getBaseHitChance,
+  getWolfBleedChance,
+  getWolfBleedStack,
+} from '../services/combat/CombatEngine';
+import { publishDomainEvent } from '../services/events/DomainEventBus';
 
 const CombatManager: React.FC = () => {
   const {
@@ -168,32 +177,7 @@ const CombatManager: React.FC = () => {
     if (companionResults.length === 0) return;
     useCompanionStore.getState().syncCombatResults(companionResults);
   }, [participants]);
-  const getBaseHitChance = React.useCallback((attacker: CombatParticipant) => {
-      let chance = attacker.isPlayer
-        ? COMBAT_CONFIG.BASE_HIT_CHANCE.PLAYER
-        : attacker.isCompanion
-          ? COMBAT_CONFIG.BASE_HIT_CHANCE.COMPANION
-          : COMBAT_CONFIG.BASE_HIT_CHANCE.ENEMY;
-
-      chance += attacker.accuracyModifier ?? 0;
-  
-      return Math.max(0.1, Math.min(0.95, chance));
-    }, []);
-  const getBrawlProfile = React.useCallback((target: CombatParticipant) => {
-    if (target.defence >= 10) return { multiplier: 0.95, defenceFactor: 1.1, minDamage: 1 };
-    if (target.defence >= 5) return { multiplier: 1.15, defenceFactor: 0.85, minDamage: 3 };
-    return { multiplier: 1.55, defenceFactor: 0.25, minDamage: 8 };
-  }, []);
-  const getMeleeMilestoneMultiplier = React.useCallback((attacker: CombatParticipant) => {
-    if (!attacker.isPlayer) return 1;
-    const meleeLevel = getSkillLevel('melee');
-    return 1 + Math.floor(meleeLevel / 10) * 0.1;
-  }, [getSkillLevel]);
-  const applyOutgoingDamageModifiers = React.useCallback((attacker: CombatParticipant, damage: number, minDamage: number) => {
-    const participantMultiplier = attacker.damageMultiplier ?? 1;
-    const meleeMultiplier = getMeleeMilestoneMultiplier(attacker);
-    return Math.max(minDamage, Math.floor(damage * participantMultiplier * meleeMultiplier));
-  }, [getMeleeMilestoneMultiplier]);
+  const getMeleeLevel = React.useCallback(() => getSkillLevel('melee'), [getSkillLevel]);
   const rollCombatLoot = React.useCallback(() => {
     const lootMap = new Map<string, number>();
 
@@ -209,16 +193,6 @@ const CombatManager: React.FC = () => {
 
     return Array.from(lootMap.entries()).map(([itemId, quantity]) => ({ itemId, quantity }));
   }, [participants]);
-  const getWolfBleedChance = React.useCallback((defence: number) => {
-    if (defence >= 19) return 0;
-    if (defence >= 12) return 0.4;
-    return 1;
-  }, []);
-  const getWolfBleedStack = React.useCallback((defence: number) => {
-    if (defence >= 19) return 0;
-    if (defence >= 12) return 1;
-    return 2;
-  }, []);
 
   // Keep target selection sane as enemy counts change
   useEffect(() => {
@@ -256,7 +230,7 @@ const CombatManager: React.FC = () => {
       return;
     }
 
-    if ((current.side === 'party' && aliveEnemies.length === 0) || (current.side === 'enemy' && aliveParty.length === 0)) {
+    if (((current.isPlayer || current.isCompanion) && aliveEnemies.length === 0) || ((!current.isPlayer && !current.isCompanion) && aliveParty.length === 0)) {
       setTurnStartEffectPending(false);
       return;
     }
@@ -309,6 +283,7 @@ const CombatManager: React.FC = () => {
     if (aliveEnemies.length === 0 && phase !== 'victory' && phase !== 'defeat' && phase !== 'fled') {
       resolutionHandledRef.current = true;
       setPhase('victory');
+      publishDomainEvent('COMBAT_RESOLVED', { outcome: 'victory', encounterType, eventId: victoryEventId });
       addLogEntry('Victory!');
 
       if (encounterType === 'brawl') {
@@ -393,6 +368,7 @@ const CombatManager: React.FC = () => {
     } else if (aliveParty.length === 0) {
       resolutionHandledRef.current = true;
       setPhase('defeat');
+      publishDomainEvent('COMBAT_RESOLVED', { outcome: 'defeat', encounterType, defeatMode });
       setTimeout(() => {
         if (defeatMode === 'knockout') {
           syncPlayerVitalsFromCombat(12);
@@ -440,8 +416,6 @@ const CombatManager: React.FC = () => {
     if (!attacker || !target || target.hp <= 0) return;
     if (!targetableEnemies.some((enemy) => enemy.id === target.id)) return;
 
-    const isBrawl = encounterType === 'brawl';
-
     const baseHitChance = getBaseHitChance(attacker);
 
     if (Math.random() > baseHitChance) {
@@ -459,58 +433,22 @@ const CombatManager: React.FC = () => {
     setActionLocked(true);
 
     const attackPower = attacker.attack;
-    const defencePower = Math.max(0, target.defence);
-    const typeMultiplier = 1;
-    
-    let damage = 0;
-    if (attacker.isPlayer) {
-        const brawlProfile = isBrawl ? getBrawlProfile(target) : null;
-        const multiplier = isBrawl ? brawlProfile!.multiplier : COMBAT_CONFIG.DAMAGE_FORMULA.PLAYER_MULTIPLIER;
-        const defenceFactor = isBrawl ? brawlProfile!.defenceFactor : COMBAT_CONFIG.DAMAGE_FORMULA.PLAYER_DEFENCE_FACTOR;
-        const minDamage = isBrawl ? brawlProfile!.minDamage : COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.PLAYER;
-         damage = Math.floor((attackPower * multiplier - defencePower * defenceFactor) * typeMultiplier);
-         damage = Math.max(minDamage, damage);
-         damage = applyOutgoingDamageModifiers(attacker, damage, minDamage);
-      } else if (attacker.isCompanion) {
-        const brawlProfile = isBrawl ? getBrawlProfile(target) : null;
-        const multiplier = isBrawl ? Math.max(0.9, brawlProfile!.multiplier - 0.2) : COMBAT_CONFIG.DAMAGE_FORMULA.COMPANION_MULTIPLIER;
-        const defenceFactor = isBrawl ? brawlProfile!.defenceFactor : COMBAT_CONFIG.DAMAGE_FORMULA.COMPANION_DEFENCE_FACTOR;
-        const minDamage = isBrawl ? Math.max(1, brawlProfile!.minDamage - 2) : COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.COMPANION;
-         damage = Math.floor((attackPower * multiplier - defencePower * defenceFactor) * typeMultiplier);
-         damage = Math.max(minDamage, damage);
-         damage = applyOutgoingDamageModifiers(attacker, damage, minDamage);
-      } else {
-        const brawlProfile = isBrawl ? getBrawlProfile(target) : null;
-        const multiplier = isBrawl ? Math.max(0.9, brawlProfile!.multiplier - 0.1) : COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_MULTIPLIER;
-        const defenceFactor = isBrawl ? brawlProfile!.defenceFactor : COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_DEFENCE_FACTOR;
-        const minDamage = isBrawl ? brawlProfile!.minDamage : COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY;
-         damage = Math.floor((attackPower * multiplier - defencePower * defenceFactor) * typeMultiplier);
-         damage = Math.max(minDamage, damage);
-         damage = applyOutgoingDamageModifiers(attacker, damage, minDamage);
-      }
+    const damage = calculateDamage(attacker, target, encounterType, getMeleeLevel(), { attackPower });
 
     const rowTargets = hasRowCleaveWeapon(attacker)
       ? targetableEnemies.filter((enemy) => enemy.combatRow === target.combatRow)
       : [target];
 
-    playSfx(isBrawl ? COMBAT_CONFIG.DEFAULT_SFX.ATTACK : getAttackSound(attacker));
+    playSfx(encounterType === 'brawl' ? COMBAT_CONFIG.DEFAULT_SFX.ATTACK : getAttackSound(attacker));
     const hasStormFollowup = hasStormBoardWeapon(attacker);
 
     const applyRowDamage = () => {
       rowTargets.forEach((rowTarget) => {
-        const rowTargetDefence = Math.max(0, rowTarget.defence);
-        const rowTypeMultiplier = 1;
         let rowDamage = damage;
 
         if (rowTarget.id !== target.id) {
           if (attacker.isPlayer) {
-            const brawlProfile = isBrawl ? getBrawlProfile(rowTarget) : null;
-            const multiplier = isBrawl ? brawlProfile!.multiplier : COMBAT_CONFIG.DAMAGE_FORMULA.PLAYER_MULTIPLIER;
-            const defenceFactor = isBrawl ? brawlProfile!.defenceFactor : COMBAT_CONFIG.DAMAGE_FORMULA.PLAYER_DEFENCE_FACTOR;
-            const minDamage = isBrawl ? brawlProfile!.minDamage : COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.PLAYER;
-             rowDamage = Math.floor((attackPower * multiplier - rowTargetDefence * defenceFactor) * rowTypeMultiplier);
-             rowDamage = Math.max(minDamage, rowDamage);
-             rowDamage = applyOutgoingDamageModifiers(attacker, rowDamage, minDamage);
+            rowDamage = calculateDamage(attacker, rowTarget, encounterType, getMeleeLevel(), { attackPower });
            }
          }
 
@@ -592,13 +530,7 @@ const CombatManager: React.FC = () => {
     const partyDexterity = getAliveParty().reduce((sum, p) => sum + p.dexterity, 0) / getAliveParty().length;
     const enemyDexterity = getAliveEnemies().reduce((sum, e) => sum + e.dexterity, 0) / getAliveEnemies().length;
     
-    const fleeChance = Math.min(
-      COMBAT_CONFIG.FLEE.MAX_CHANCE, 
-      Math.max(
-        COMBAT_CONFIG.FLEE.MIN_CHANCE, 
-        COMBAT_CONFIG.FLEE.BASE_CHANCE + (partyDexterity - enemyDexterity) * COMBAT_CONFIG.FLEE.DEX_FACTOR
-      )
-    );
+    const fleeChance = calculateFleeChance(partyDexterity, enemyDexterity);
     
     if (Math.random() < fleeChance) {
       addLogEntry('Party successfully fled from combat!');
@@ -609,6 +541,7 @@ const CombatManager: React.FC = () => {
         }
       });
       setPhase('fled');
+      publishDomainEvent('COMBAT_RESOLVED', { outcome: 'fled', encounterType });
       setTimeout(() => {
         syncCompanionVitalsFromCombat();
         syncPlayerVitalsFromCombat();
@@ -667,25 +600,7 @@ const CombatManager: React.FC = () => {
           }
 
           const attackPower = currentEnemy.attack;
-          const defencePower = Math.max(0, target.defence);
-          const typeMultiplier = 1;
-          // Enemies deal slightly less multiplier damage, armor is more effective
-          if (encounterType === 'brawl') {
-            const brawlProfile = getBrawlProfile(target);
-             damage = Math.floor((attackPower * Math.max(0.9, brawlProfile.multiplier - 0.1) - defencePower * brawlProfile.defenceFactor) * typeMultiplier);
-             damage = Math.max(brawlProfile.minDamage, damage);
-             damage = applyOutgoingDamageModifiers(currentEnemy, damage, brawlProfile.minDamage);
-           } else {
-             const isWolf = currentEnemy.combatTags?.includes('wolf');
-             const rawDamage = Math.floor((attackPower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_DEFENCE_FACTOR) * typeMultiplier);
-             if (isWolf) {
-               damage = Math.max(3, Math.floor(rawDamage * 0.88));
-               damage = applyOutgoingDamageModifiers(currentEnemy, damage, 3);
-             } else {
-               damage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY, rawDamage);
-               damage = applyOutgoingDamageModifiers(currentEnemy, damage, COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY);
-             }
-           }
+          damage = calculateDamage(currentEnemy, target, encounterType, getMeleeLevel(), { attackPower });
           
           playSfx(encounterType === 'brawl' ? COMBAT_CONFIG.DEFAULT_SFX.ATTACK : getAttackSound(currentEnemy));
         }
@@ -698,11 +613,11 @@ const CombatManager: React.FC = () => {
             const rowTargets = preferredRowTargets.length > 0 ? preferredRowTargets : targetableParty;
 
             rowTargets.forEach((rowTarget) => {
-              const defencePower = Math.max(0, rowTarget.defence);
-              const typeMultiplier = 1;
-               let rowDamage = Math.floor((currentEnemy.attack * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.ENEMY_DEFENCE_FACTOR) * typeMultiplier);
-               rowDamage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY + 4, rowDamage);
-               rowDamage = applyOutgoingDamageModifiers(currentEnemy, rowDamage, COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY + 4);
+              let rowDamage = calculateDamage(currentEnemy, rowTarget, encounterType, getMeleeLevel(), {
+                attackPower: currentEnemy.attack,
+              });
+              rowDamage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY + 4, rowDamage);
+              rowDamage = applyOutgoingDamageModifiers(currentEnemy, rowDamage, COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.ENEMY + 4, getMeleeLevel());
 
               const newHp = Math.max(0, rowTarget.hp - rowDamage);
               updateParticipant(rowTarget.id, { hp: newHp });
@@ -722,10 +637,9 @@ const CombatManager: React.FC = () => {
               const thunderDamage = 20;
               const struckIds: string[] = [];
               const characterState = useCharacterStore.getState();
-              const equippedAmulet = characterState.equippedItems.amulet;
               const socialAmuletId = characterState.equipmentLoadouts[2]?.amulet;
               const playerProtectedFromThunder =
-                equippedAmulet?.id === 'stormward_necklace' || socialAmuletId === 'stormward_necklace';
+                socialAmuletId === 'stormward_necklace';
 
               playSfx('/assets/sfx/combat_thunder_strike.mp3');
 
@@ -819,20 +733,7 @@ const CombatManager: React.FC = () => {
             }
 
             const attackPower = current.attack;
-            const defencePower = Math.max(0, target.defence);
-            const typeMultiplier = 1;
-            // Balanced companion damage
-            let damage = 0;
-            if (encounterType === 'brawl') {
-              const brawlProfile = getBrawlProfile(target);
-               damage = Math.floor((attackPower * Math.max(0.9, brawlProfile.multiplier - 0.2) - defencePower * brawlProfile.defenceFactor) * typeMultiplier);
-               damage = Math.max(Math.max(1, brawlProfile.minDamage - 2), damage);
-               damage = applyOutgoingDamageModifiers(current, damage, Math.max(1, brawlProfile.minDamage - 2));
-             } else {
-               damage = Math.floor((attackPower * COMBAT_CONFIG.DAMAGE_FORMULA.COMPANION_MULTIPLIER - defencePower * COMBAT_CONFIG.DAMAGE_FORMULA.COMPANION_DEFENCE_FACTOR) * typeMultiplier);
-               damage = Math.max(COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.COMPANION, damage);
-               damage = applyOutgoingDamageModifiers(current, damage, COMBAT_CONFIG.DAMAGE_FORMULA.MIN_DAMAGE.COMPANION);
-             }
+            const damage = calculateDamage(current, target, encounterType, getMeleeLevel(), { attackPower });
             
             playSfx(encounterType === 'brawl' ? COMBAT_CONFIG.DEFAULT_SFX.ATTACK : getAttackSound(current));
             
@@ -848,7 +749,7 @@ const CombatManager: React.FC = () => {
          }, 650);
          return () => clearTimeout(timer);
     }
-  }, [phase, currentTurnIndex, participants, isPlayerTurn, getCurrentParticipant, nextTurn, addLogEntry, getAliveEnemies, getAliveParty, targetableEnemies, targetableParty, addSkillXp, getSkillLevel, updateParticipant, encounterType, getBrawlProfile, getBaseHitChance]);
+  }, [phase, currentTurnIndex, participants, isPlayerTurn, getCurrentParticipant, nextTurn, addLogEntry, getAliveEnemies, getAliveParty, targetableEnemies, targetableParty, addSkillXp, updateParticipant, encounterType, getMeleeLevel]);
 
     return (
       <CombatScreen

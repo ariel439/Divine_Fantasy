@@ -44,7 +44,7 @@ const getCompanionRestLocation = (companionId: string): string | null => {
 
 const normalizeCompanion = (companion: Companion): Companion => ({
   ...companion,
-  portraitUrl: companion.portraitUrl || (companion.type === 'wolf' ? '/assets/portraits/WolfPuppy.png' : '/assets/portraits/Robert.png'),
+  portraitUrl: companion.portraitUrl || (companion.type === 'wolf' ? '/assets/portraits/wolfpuppy.png' : '/assets/portraits/robert.png'),
   status: companion.status || 'party',
   locationId: companion.locationId ?? null,
   equippedItems: companion.equippedItems || [],
@@ -163,7 +163,7 @@ export const useCompanionStore = create<CompanionState>((set, get) => ({
 
     set((state) => {
       const partyIds = new Set(normalizedFormation.filter((entry): entry is string => Boolean(entry) && entry !== 'player'));
-      const companions = state.companions.map((entry) => ({
+      const companions: Companion[] = state.companions.map((entry) => ({
         ...entry,
         status: partyIds.has(entry.id) ? 'party' : 'world',
       }));

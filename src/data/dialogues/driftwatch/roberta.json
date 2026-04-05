@@ -4,7 +4,6 @@
     "repeat_meet_node": "rb_repeat_meet",
     "trade_shop_id": "tide_and_trade",
     "interaction_roots": {
-      "trade": "rb_trade_root",
       "ask": "rb_ask_root",
       "friendly": "rb_friendly_root",
       "flirt": "rb_flirt_root",
@@ -87,19 +86,6 @@
           {
             "text": "Just passing through.",
             "closes_dialogue": true
-          }
-        ]
-      },
-      "rb_trade_root": {
-        "npc_text": "Business first, then stories. What are you after?",
-        "player_choices": [
-          {
-            "text": "Show me your stock.",
-            "action": "open_shop:tide_and_trade"
-          },
-          {
-            "text": "Back.",
-            "next_node": "__social_root__"
           }
         ]
       },

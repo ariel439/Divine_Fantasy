@@ -4,8 +4,8 @@ A web-based RPG that blends social simulation, skilling, and strategic conquest 
 
 ## Project Structure
 
-- `GDD/` - Game Design Documents and planning
-- `divine_fantasy/` - The React game application
+- `docs/` - Technical docs, ADRs, and game design docs (`docs/gdd/`)
+- `src/` - The React game application source
 
 ## Getting Started
 

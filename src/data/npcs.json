@@ -3,7 +3,7 @@
     "name": "Beryl",
     "home_location": "beryls_general_goods",
     "default_dialogue_id": "beryl_default",
-    "portrait": "/assets/portraits/Beryl.png",
+    "portrait": "/assets/portraits/beryl.png",
     "schedules": [
       { "location_id": "beryls_general_goods", "start_hour": 8, "end_hour": 18 },
       { "location_id": "salty_mug", "start_hour": 19, "end_hour": 23 }
@@ -13,7 +13,7 @@
     "name": "Kaelen",
     "home_location": "kaelens_forge",
     "default_dialogue_id": "kaelen_default",
-    "portrait": "/assets/portraits/Kaelen.png",
+    "portrait": "/assets/portraits/kaelen.png",
     "schedules": [
       { "location_id": "kaelens_forge", "start_hour": 7, "end_hour": 19 },
       { "location_id": "salty_mug", "start_hour": 20, "end_hour": 22 }
@@ -23,7 +23,7 @@
     "name": "Cyrus",
     "home_location": "kaelens_forge",
     "default_dialogue_id": "cyrus_default",
-    "portrait": "/assets/portraits/Cyrus.png",
+    "portrait": "/assets/portraits/cyrus.png",
     "schedules": [
       { "location_id": "kaelens_forge", "start_hour": 7, "end_hour": 19 }
     ]
@@ -32,7 +32,7 @@
     "name": "Adalia",
     "home_location": "grand_library",
     "default_dialogue_id": "adalia_default",
-    "portrait": "/assets/portraits/Adalia.png",
+    "portrait": "/assets/portraits/adalia.png",
     "schedules": [
       { "location_id": "grand_library", "start_hour": 9, "end_hour": 17 },
       { "location_id": "driftwatch_main_street", "start_hour": 18, "end_hour": 20 }
@@ -42,7 +42,7 @@
     "name": "Shihan Yue",
     "home_location": "grand_library",
     "default_dialogue_id": "shihan_default",
-    "portrait": "/assets/portraits/ShihanYue.png",
+    "portrait": "/assets/portraits/shihanyue.png",
     "hidden_if_flag": "whitefang_camp_unlocked",
     "available_from": { "month": 5, "dayOfMonth": 3 },
     "available_until": { "month": 5, "dayOfMonth": 10 },
@@ -54,7 +54,7 @@
     "name": "Shihan Yue",
     "home_location": "shihan_camp",
     "default_dialogue_id": "shihan_camp_default",
-    "portrait": "/assets/portraits/ShihanYue.png",
+    "portrait": "/assets/portraits/shihanyue.png",
     "required_flag": "whitefang_camp_unlocked",
     "schedules": [
       { "location_id": "shihan_camp", "start_hour": 0, "end_hour": 24 }
@@ -64,7 +64,7 @@
     "name": "Captain Lin Shao",
     "home_location": "shihan_camp",
     "default_dialogue_id": "lin_shao_camp_default",
-    "portrait": "/assets/portraits/LinShao.png",
+    "portrait": "/assets/portraits/linshao.png",
     "required_flag": "whitefang_camp_unlocked",
     "schedules": [
       { "location_id": "shihan_camp", "start_hour": 0, "end_hour": 24 }
@@ -74,7 +74,7 @@
     "name": "Wei Taren",
     "home_location": "shihan_camp",
     "default_dialogue_id": "wei_taren_camp_default",
-    "portrait": "/assets/portraits/WeiTaren.png",
+    "portrait": "/assets/portraits/weitaren.png",
     "required_flag": "whitefang_camp_unlocked",
     "schedules": [
       { "location_id": "shihan_camp", "start_hour": 0, "end_hour": 24 }
@@ -84,7 +84,7 @@
     "name": "Qiao Ren",
     "home_location": "shihan_camp",
     "default_dialogue_id": "qiao_ren_camp_default",
-    "portrait": "/assets/portraits/QiaoRen.png",
+    "portrait": "/assets/portraits/qiaoren.png",
     "required_flag": "whitefang_camp_unlocked",
     "schedules": [
       { "location_id": "shihan_camp", "start_hour": 0, "end_hour": 24 }
@@ -94,7 +94,7 @@
     "name": "Corporal Matthias",
     "home_location": "mosswatch_keep",
     "default_dialogue_id": "matthias_default",
-    "portrait": "/assets/portraits/Matthias.png",
+    "portrait": "/assets/portraits/matthias.png",
     "schedules": [
       { "location_id": "mosswatch_keep", "start_hour": 8, "end_hour": 16 },
       { "location_id": "tidehunter_quarter", "start_hour": 17, "end_hour": 1 }
@@ -104,7 +104,7 @@
     "name": "Sergeant Rodrick",
     "home_location": "tidehunter_quarter",
     "default_dialogue_id": "rodrick_default",
-    "portrait": "/assets/portraits/Rodrick.png",
+    "portrait": "/assets/portraits/rodrick.png",
     "schedules": [
       { "location_id": "tidehunter_quarter", "start_hour": 8, "end_hour": 23 }
     ]
@@ -113,7 +113,7 @@
     "name": "Boric",
     "home_location": "driftwatch_docks",
     "default_dialogue_id": "boric_default",
-    "portrait": "/assets/portraits/Boric.png",
+    "portrait": "/assets/portraits/boric.png",
     "schedules": [
       { "location_id": "driftwatch_docks", "start_hour": 8, "end_hour": 18 }
     ]
@@ -122,7 +122,7 @@
     "name": "Captain Elias",
     "home_location": "driftwatch_docks",
     "default_dialogue_id": "elias_default",
-    "portrait": "/assets/portraits/Elias.png",
+    "portrait": "/assets/portraits/elias.png",
     "schedules": [
       { "location_id": "driftwatch_docks", "start_hour": 18, "end_hour": 23 }
     ]
@@ -131,7 +131,7 @@
     "name": "Roberta",
     "home_location": "tide_trade",
     "default_dialogue_id": "roberta_default",
-    "portrait": "/assets/portraits/Roberta.png",
+    "portrait": "/assets/portraits/roberta.png",
     "schedules": [
       { "location_id": "tide_trade", "start_hour": 9, "end_hour": 19 }
     ]
@@ -140,7 +140,7 @@
     "name": "Maren",
     "home_location": "harbor_clothier",
     "default_dialogue_id": "maren_clothier_default",
-    "portrait": "/assets/portraits/Maren.png",
+    "portrait": "/assets/portraits/maren.png",
     "schedules": [
       { "location_id": "harbor_clothier", "start_hour": 8, "end_hour": 18 }
     ]
@@ -149,7 +149,7 @@
     "name": "Cassian",
     "home_location": "silvershore_jeweler",
     "default_dialogue_id": "cassian_jeweler_default",
-    "portrait": "/assets/portraits/Cassian.png",
+    "portrait": "/assets/portraits/cassian.png",
     "schedules": [
       { "location_id": "silvershore_jeweler", "start_hour": 9, "end_hour": 18 }
     ]
@@ -158,7 +158,7 @@
     "name": "Finn",
     "home_location": "salty_mug",
     "default_dialogue_id": "finn_default",
-    "portrait": "/assets/portraits/OldManFinn.png",
+    "portrait": "/assets/portraits/oldmanfinn.png",
     "death_flag": "finn_dead",
     "hidden_if_flag": "finn_dead",
     "schedules": [
@@ -169,7 +169,7 @@
     "name": "Old Crank",
     "home_location": "salty_mug",
     "default_dialogue_id": "old_crank_default",
-    "portrait": "/assets/portraits/OldCrank.png",
+    "portrait": "/assets/portraits/oldcrank.png",
     "schedules": [
       { "location_id": "salty_mug", "start_hour": 14, "end_hour": 0 }
     ]
@@ -178,7 +178,7 @@
       "name": "Elara",
       "home_location": "herbalists_hovel",
       "default_dialogue_id": "elara_default",
-      "portrait": "/assets/portraits/Elara.png",
+      "portrait": "/assets/portraits/elara.png",
       "schedules": [
         { "location_id": "herbalists_hovel", "start_hour": 8, "end_hour": 18 }
       ]
@@ -187,7 +187,7 @@
     "name": "Crawler",
     "home_location": "sawmill",
     "default_dialogue_id": "crawler_default",
-    "portrait": "/assets/portraits/Crawler.png",
+    "portrait": "/assets/portraits/crawler.png",
     "schedules": [
       { "location_id": "sawmill", "start_hour": 7, "end_hour": 19 }
     ]
@@ -196,7 +196,7 @@
     "name": "Ben",
     "home_location": "homestead_farm",
     "default_dialogue_id": "ben_default",
-    "portrait": "/assets/portraits/Ben.png",
+    "portrait": "/assets/portraits/ben.png",
     "schedules": [
       { "location_id": "homestead_farm", "start_hour": 6, "end_hour": 18 },
       { "location_id": "salty_mug", "start_hour": 19, "end_hour": 23 }
@@ -206,7 +206,7 @@
     "name": "Elisa",
     "home_location": "homestead_farm",
     "default_dialogue_id": "elisa_default",
-    "portrait": "/assets/portraits/Elisa.png",
+    "portrait": "/assets/portraits/elisa.png",
     "schedules": [
       { "location_id": "homestead_farm", "start_hour": 6, "end_hour": 23 }
     ]
@@ -215,7 +215,7 @@
     "name": "Rowan",
     "home_location": "homestead_farm",
     "default_dialogue_id": "rowan_default",
-    "portrait": "/assets/portraits/Rowan.png",
+    "portrait": "/assets/portraits/rowan.png",
     "schedules": [
       { "location_id": "homestead_farm", "start_hour": 8, "end_hour": 20 }
     ]
@@ -233,7 +233,7 @@
     "name": "Old Leo",
     "home_location": "leo_lighthouse",
     "default_dialogue_id": "old_leo_default",
-    "portrait": "/assets/portraits/Leo.png",
+    "portrait": "/assets/portraits/leo.png",
     "schedules": [
       { "location_id": "leo_lighthouse", "start_hour": 7, "end_hour": 22 }
     ]
@@ -242,7 +242,7 @@
     "name": "Sarah",
     "home_location": "leo_lighthouse",
     "default_dialogue_id": "sarah_default",
-    "portrait": "/assets/portraits/Sarah.png",
+    "portrait": "/assets/portraits/sarah.png",
     "schedules": [
       { "location_id": "leo_lighthouse", "start_hour": 7, "end_hour": 22 }
     ]
@@ -251,7 +251,7 @@
     "name": "Kyle",
     "home_location": "leo_lighthouse",
     "default_dialogue_id": "kyle_default",
-    "portrait": "/assets/portraits/Kyle.png",
+    "portrait": "/assets/portraits/kyle.png",
     "schedules": [
       { "location_id": "leo_lighthouse", "start_hour": 7, "end_hour": 22 }
     ]
@@ -260,7 +260,7 @@
     "name": "Barkip",
     "home_location": "salty_mug",
     "default_dialogue_id": "barkip_default",
-    "portrait": "/assets/portraits/Barkip.png",
+    "portrait": "/assets/portraits/barkip.png",
     "schedules": [
       { "location_id": "salty_mug", "start_hour": 17, "end_hour": 7 }
     ]
@@ -269,7 +269,7 @@
     "name": "Shaky Jace",
     "home_location": "driftwatch_slums",
     "default_dialogue_id": "shaky_jace_default",
-    "portrait": "/assets/portraits/ShakyJace.png",
+    "portrait": "/assets/portraits/shakyjace.png",
     "schedules": [
       { "location_id": "driftwatch_slums", "start_hour": 18, "end_hour": 4 }
     ]
@@ -278,7 +278,7 @@
     "name": "Ronald",
     "home_location": "hunters_cabin",
     "default_dialogue_id": "ronald_default",
-    "portrait": "/assets/portraits/Ronald.png",
+    "portrait": "/assets/portraits/ronald.png",
     "schedules": [
       { "location_id": "hunters_cabin", "start_hour": 6, "end_hour": 20 }
     ]
@@ -286,7 +286,7 @@
   "npc_robert": {
     "name": "Robert",
     "title": "Whereabouts Unknown",
-    "portrait": "/assets/portraits/Robert.png",
+    "portrait": "/assets/portraits/robert.png",
     "diary_unknown": true
   }
 }

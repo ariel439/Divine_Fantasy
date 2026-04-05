@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import type { CraftingSkill, GameState } from '../types';
+import { GameFlowService } from '../services/flow/GameFlowService';
+import { publishDomainEvent } from '../services/events/DomainEventBus';
 
 type Modal = 'confirmation' | 'options' | 'saveLoad' | 'sleepWait' | 'timedAction' | 'actionSummary' | 'quantity' | 'tutorial' | 'systemMenu' | 'inventory' | 'character' | 'journal' | 'passTime' | 'system' | null;
 
@@ -55,7 +57,21 @@ export const useUIStore = create<UIState>((set, get) => ({
   confirmationType: null,
   diaryTab: 'diary',
   setScreen: (screen) => {
-    set({ currentScreen: screen });
+    const previousScreen = get().currentScreen;
+    const decision = GameFlowService.canTransition(previousScreen, screen);
+    if (decision.reason) {
+      console.warn(`[GameFlow] ${decision.reason}`);
+    }
+    if (decision.allowed) {
+      set({ currentScreen: screen });
+    }
+    publishDomainEvent('GAME_FLOW_TRANSITION', {
+      from: previousScreen,
+      to: screen,
+      allowed: decision.allowed,
+      source: 'ui_store',
+      reason: decision.reason ? `${decision.enforcement}: ${decision.reason}` : undefined,
+    });
   },
   openModal: (modal) => {
     set({ activeModal: modal });

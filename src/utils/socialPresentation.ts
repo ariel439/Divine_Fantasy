@@ -163,7 +163,7 @@ function getThreatLabel(tier: SocialTier): SocialPresenceSummary['threatLabel'] 
   }
 }
 
-function getClothingFlags(equippedItems: ReturnType<typeof useCharacterStore.getState>['equippedItems']) {
+function getClothingFlags(equippedItems: Partial<Record<SocialEquipmentSlot, Item>>) {
   const chestId = equippedItems.chest?.id;
   const legsId = equippedItems.legs?.id;
   const bootsId = equippedItems.boots?.id;
@@ -209,7 +209,7 @@ function getClothingFlags(equippedItems: ReturnType<typeof useCharacterStore.get
 }
 
 function getPresentationTier(
-  equippedItems: ReturnType<typeof useCharacterStore.getState>['equippedItems']
+  equippedItems: Partial<Record<SocialEquipmentSlot, Item>>
 ): SocialTier {
   let weightedScore = 0;
   let totalWeight = 0;

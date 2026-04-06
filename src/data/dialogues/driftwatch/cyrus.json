@@ -48,7 +48,7 @@
           {
             "text": "Old Crank says you know about Finn's crates.",
             "next_node": "cyrus_scared",
-            "condition": "quest.rebel_path.stage==1 && world_flags.whitefang_bound==false"
+            "condition": "quest.tidehunter_path.stage==1 && world_flags.whitefang_bound==false"
           },
           {
             "text": "Back.",
@@ -71,7 +71,7 @@
           {
             "text": "Give it to me. I'll take it to the guards.",
             "next_node": "cyrus_give",
-            "action": "add_item:prototype_blade:1|set_flag:cyrus_weapons_lead_confirmed:true|advance_quest_stage:rebel_path",
+            "action": "add_item:prototype_blade:1|set_flag:cyrus_weapons_lead_confirmed:true|advance_quest_stage:tidehunter_path",
             "condition": "world_flags.whitefang_bound==false"
           }
         ]

@@ -58,7 +58,7 @@
         ]
       },
       "rb_first_meet": {
-        "npc_text": "Tide & Trade, finest goods in Port Kael. First time in my shop?",
+        "npc_text": "Tide & Trade, finest goods in Driftwatch. First time in my shop?",
         "player_choices": [
           {
             "text": "Looks like you've got your hands full.",
@@ -464,16 +464,16 @@
         ]
       },
       "rb_lore_tide_trade1": {
-        "npc_text": "Tide & Trade is one of Driftwatch's oldest shops. It has stood through lean years and storms.",
+        "npc_text": "It has been here longer than most of the people on this street. My father kept it. Before him, his father. It has outlasted a handful of owners who thought they could run something like this without actually working it.",
         "player_choices": [
           {
-            "text": "And your family?",
+            "text": "And you?",
             "next_node": "rb_lore_tide_trade2"
           }
         ]
       },
       "rb_lore_tide_trade2": {
-        "npc_text": "My father ran it for decades. He passed recently. I am still learning to handle everything.",
+        "npc_text": "He died eight months ago. Left me the ledgers, the debts, and a shop that had not been properly maintained in two years. I am still finding things he let slip. Most days I am catching up to problems he already knew about and decided to leave for later.",
         "player_choices": [
           {
             "text": "That is a lot to carry alone.",
@@ -885,135 +885,6 @@
           {
             "text": "Back.",
             "next_node": "rb_coerce_root"
-          }
-        ]
-      }
-    }
-  },
-  "roberta_planks_active": {
-    "nodes": {
-      "0": {
-        "npc_text": "Any progress on the planks?",
-        "player_choices": [
-          {
-            "text": "How do I get planks again?",
-            "next_node": "1"
-          },
-          {
-            "text": "I brought the planks.",
-            "next_node": "rb_give_materials",
-            "condition": "inventory.wooden_plank >= 10 && quest.roberta_planks_for_the_past.stage <= 2"
-          },
-          {
-            "text": "I have the materials.",
-            "next_node": "rb_materials_check",
-            "condition": "quest.roberta_planks_for_the_past.stage == 3"
-          },
-          {
-            "text": "I repaired the wall.",
-            "action": "complete_quest:roberta_planks_for_the_past",
-            "next_node": "rb_quest_complete",
-            "condition": "quest.roberta_planks_for_the_past.stage == 4"
-          },
-          {
-            "text": "What's for sale?",
-            "action": "open_shop:tide_and_trade"
-          },
-          {
-            "text": "Tell me about Tide & Trade.",
-            "next_node": "rb_lore_tide_trade1",
-            "condition": "world_flags.roberta_lore_seen==false"
-          },
-          {
-            "text": "I'll come back later.",
-            "closes_dialogue": true
-          }
-        ]
-      },
-      "1": {
-        "npc_text": "Cut logs in the woods, then use the sawmill to make planks. I'll brace the wall once you have them.",
-        "player_choices": [
-          {
-            "text": "Back to counter",
-            "next_node": "0"
-          }
-        ]
-      },
-      "rb_give_materials": {
-        "npc_text": "Good work getting these planks. Here, take these nails and a hammer I have lying around. Now go fix it.",
-        "player_choices": [
-          {
-            "text": "I'll get to work.",
-            "action": "add_item:iron_nail:20 | add_item:hammer:1 | set_quest_stage:roberta_planks_for_the_past:3",
-            "closes_dialogue": true
-          }
-        ]
-      },
-      "rb_materials_check": {
-        "npc_text": "The hole is on the east side. Use the hammer and nails I gave you to patch it up.",
-        "player_choices": [
-          {
-            "text": "Right, I'm on it. (Back)",
-            "next_node": "0"
-          }
-        ]
-      },
-      "rb_quest_complete": {
-        "npc_text": "You did a fine job! The draft is gone. Here's your payment, as promised.",
-        "player_choices": [
-          {
-            "text": "Glad I could help.",
-            "next_node": "0"
-          }
-        ]
-      },
-      "rb_lore_tide_trade1": {
-        "npc_text": "Tide & Trade is one of Driftwatch's oldest shops. It's stood through lean years and storms.",
-        "player_choices": [
-          {
-            "text": "And your family?",
-            "next_node": "rb_lore_tide_trade2"
-          }
-        ]
-      },
-      "rb_lore_tide_trade2": {
-        "npc_text": "My father ran it for decades. He passed recently. I'm still learning to handle everything.",
-        "player_choices": [
-          {
-            "text": "Back to counter",
-            "next_node": "0",
-            "action": "set_flag:roberta_lore_seen:true"
-          }
-        ]
-      }
-    }
-  },
-  "roberta_planks_completed": {
-    "nodes": {
-      "0": {
-        "npc_text": "The patch held through the last squall. I could not have done it without you.",
-        "player_choices": [
-          {
-            "text": "What's for sale?",
-            "action": "open_shop:tide_and_trade"
-          },
-          {
-            "text": "Tell me about Tide & Trade.",
-            "next_node": "tide_trade_lore",
-            "condition": "world_flags.roberta_lore_seen==false"
-          },
-          {
-            "text": "I'll come back later.",
-            "closes_dialogue": true
-          }
-        ]
-      },
-      "tide_trade_lore": {
-        "npc_text": "This shop has been in my family for generations. We have weathered worse storms than this.",
-        "player_choices": [
-          {
-            "text": "Good to hear. (Back)",
-            "next_node": "0"
           }
         ]
       }

@@ -153,7 +153,7 @@
         ]
       },
       "ben_intimidate": {
-        "npc_text": "Ben glances at your gear, then at the room around you, and the drink seems to leave him all at once. \"Fine. Fine, damn you. Take it and get out before Finn decides I need a second lesson.\"",
+        "npc_text": "Fine. Fine, damn you. Take it and get out before Finn decides I need a second lesson.",
         "player_choices": [
           {
             "text": "Smart choice.",

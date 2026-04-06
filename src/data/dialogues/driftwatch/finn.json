@@ -129,17 +129,17 @@
         "npc_text": "Oh, you helped Ben cheat cards and skim silver inside my own establishment. Under my roof. You think I don't hear about that?",
         "player_choices": [
           {
-            "text": "...",
+            "text": "You run a gambling den. Don't lecture me on honesty.",
             "next_node": "finn_mockery_elara",
             "condition": "world_flags.elara_helped_drug==true"
           },
           {
-            "text": "...",
+            "text": "You run a gambling den. Don't lecture me on honesty.",
             "next_node": "finn_mockery_beryl",
             "condition": "world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==true"
           },
           {
-            "text": "...",
+            "text": "You already have your silver.",
             "next_node": "finn_dismissed",
             "condition": "world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==false"
           }
@@ -149,12 +149,12 @@
         "npc_text": "You ran poison for her. Quiet, dirty work. The kind cowards dress up as mercy.",
         "player_choices": [
           {
-            "text": "...",
+            "text": "I did what needed doing.",
             "next_node": "finn_mockery_beryl",
             "condition": "world_flags.beryl_helped_pimp==true"
           },
           {
-            "text": "...",
+            "text": "I did what needed doing.",
             "next_node": "finn_dismissed",
             "condition": "world_flags.beryl_helped_pimp==false"
           }
@@ -164,12 +164,12 @@
         "npc_text": "Beryl needed a procurer and you stepped into the part easy enough. That tells me plenty.",
         "player_choices": [
           {
-            "text": "...",
+            "text": "The silver is there. That is what matters.",
             "next_node": "finn_attack",
             "condition": "world_flags.ben_cheat_done==true && world_flags.elara_helped_drug==true && world_flags.beryl_helped_pimp==true"
           },
           {
-            "text": "...",
+            "text": "The silver is there. That is what matters.",
             "next_node": "finn_dismissed"
           }
         ]
@@ -184,32 +184,32 @@
             "condition": "world_flags.ben_cheat_done==true && world_flags.elara_helped_drug==true && world_flags.beryl_helped_pimp==true"
           },
           {
-            "text": "...",
+            "text": "I heard you.",
             "closes_dialogue": true,
             "condition": "world_flags.ben_cheat_done==true && world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==false"
           },
           {
-            "text": "...",
+            "text": "I heard you.",
             "closes_dialogue": true,
             "condition": "world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==true && world_flags.beryl_helped_pimp==false"
           },
           {
-            "text": "...",
+            "text": "I heard you.",
             "closes_dialogue": true,
             "condition": "world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==true"
           },
           {
-            "text": "...",
+            "text": "I heard you.",
             "closes_dialogue": true,
             "condition": "world_flags.ben_cheat_done==true && world_flags.elara_helped_drug==true && world_flags.beryl_helped_pimp==false"
           },
           {
-            "text": "...",
+            "text": "I heard you.",
             "closes_dialogue": true,
             "condition": "world_flags.ben_cheat_done==true && world_flags.elara_helped_drug==false && world_flags.beryl_helped_pimp==true"
           },
           {
-            "text": "...",
+            "text": "I heard you.",
             "closes_dialogue": true,
             "condition": "world_flags.ben_cheat_done==false && world_flags.elara_helped_drug==true && world_flags.beryl_helped_pimp==true"
           }
@@ -219,7 +219,7 @@
         "npc_text": "Maybe there's a little steel in you after all. You got me my silver. But I hear how you got it, and I don't need that kind of weakness lingering under my roof. Take your lesson and get out of my sight.",
         "player_choices": [
           {
-            "text": "...",
+            "text": "Understood.",
             "closes_dialogue": true
           }
         ]
@@ -230,7 +230,7 @@
           {
             "text": "What is this?",
             "closes_dialogue": true,
-            "action": "add_item:vanessas_charm:1|trigger_event:evil_path_end"
+            "action": "add_item:vanessas_charm:1|trigger_event:thieves_guild_end"
           }
         ]
       },
@@ -343,7 +343,7 @@
         ]
       },
       "game_over": {
-        "npc_text": "[GAME OVER] The beating is severe. You fade into darkness... (Refresh to restart)",
+        "npc_text": "Drag him out.",
         "player_choices": [
           {
             "text": "...",

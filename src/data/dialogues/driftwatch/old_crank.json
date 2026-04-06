@@ -25,7 +25,7 @@
             "text": "Slide him a beer.",
             "player_text": "One more, old man.",
             "next_node": "crank_gossip_3",
-            "action": "remove_item:beer:1|set_flag:crank_beer_3:true|start_quest:rebel_path|advance_quest_stage:rebel_path",
+            "action": "remove_item:beer:1|set_flag:crank_beer_3:true|start_quest:tidehunter_path|advance_quest_stage:tidehunter_path",
             "condition": "inventory.beer>=1 && world_flags.crank_beer_2==true && world_flags.crank_beer_3==false && world_flags.whitefang_bound==false"
           },
           {

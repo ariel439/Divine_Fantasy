@@ -629,7 +629,7 @@ const LocationScreen: React.FC = () => {
       condition.includes('beryl_noble_parcel') ||
       condition.includes('elara_medicine_parcel') ||
       condition.includes('smuggler_help_available') ||
-      condition.includes('raid_ready')
+      condition.includes('finn_tidehunter_branch_complete')
     );
   };
 

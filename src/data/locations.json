@@ -169,7 +169,6 @@
       { "text": "Travel to Silvershore Jeweler", "type": "navigate", "target": "silvershore_jeweler" },
       { "text": "Sell Antique Locket", "type": "trigger_event", "eventId": "sell_locket_event", "condition": "has_item:antique_locket && time.is_day==true" },
       { "text": "Travel to The Grand Library", "type": "navigate", "target": "grand_library" },
-      { "text": "Deliver Parcel", "type": "trigger_event", "eventId": "beryl_delivery_event", "condition": "inventory.beryl_noble_parcel>0" },
       { "text": "Travel to Driftwatch Hub", "type": "navigate", "target": "driftwatch" }
     ]
   },
@@ -183,7 +182,7 @@
     "is_indoor": true,
     "exit_location": "driftwatch_noble_quarter",
     "actions": [
-      { "text": "Travel to Tidehunter Quarter", "type": "navigate", "target": "tidehunter_quarter", "condition": "quest.rebel_path.stage>=4" },
+      { "text": "Travel to Tidehunter Quarter", "type": "navigate", "target": "tidehunter_quarter", "condition": "quest.tidehunter_path.stage>=4" },
       { "text": "Travel to Noble Quarter", "type": "navigate", "target": "driftwatch_noble_quarter" }
     ]
   },
@@ -434,7 +433,8 @@
     "is_indoor": false,
     "exit_location": "the_crossroads",
     "actions": [
-      { "text": "Travel to The Crossroads", "type": "navigate", "target": "the_crossroads" }
+      { "text": "Travel to The Crossroads", "type": "navigate", "target": "the_crossroads" },
+      { "text": "Deliver package", "type": "trigger_event", "eventId": "beryl_delivery_event", "condition": "inventory.beryl_noble_parcel>0 && time.is_night==true" }
     ]
   }
 }

@@ -46,6 +46,11 @@
         "npc_text": "What is it?",
         "player_choices": [
           {
+            "text": "Beryl sends his regards.",
+            "next_node": "elisa_beryl_delivery_reaction",
+            "condition": "world_flags.beryl_delivery_done==true"
+          },
+          {
             "text": "I need to talk to you.",
             "next_node": "elisa_night_raid",
             "condition": "time.is_night==true && world_flags.finn_debt_collection_active==true && world_flags.debt_paid_by_ben==false && world_flags.ben_cheat_agreed==false && world_flags.ben_cheat_done==false && world_flags.ben_household_extorted==false"
@@ -53,6 +58,19 @@
           {
             "text": "Back.",
             "next_node": "__social_root__"
+          }
+        ]
+      },
+      "elisa_beryl_delivery_reaction": {
+        "npc_text": "Does he. He can send all the packages he likes. Tell him his son asked after him again last night.",
+        "player_choices": [
+          {
+            "text": "I'll pass it on.",
+            "next_node": "elisa_quest_root"
+          },
+          {
+            "text": "Back.",
+            "next_node": "elisa_quest_root"
           }
         ]
       },

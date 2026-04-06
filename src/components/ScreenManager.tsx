@@ -34,6 +34,7 @@ import { LootScreen } from './screens/LootScreen';
 
 const DebugMenuScreen = React.lazy(() => import('./screens/DebugMenuScreen'));
 const CombatDebugScreen = React.lazy(() => import('./screens/CombatDebugScreen'));
+const QuestDebugScreen = React.lazy(() => import('./screens/QuestDebugScreen'));
 
 import npcsData from '../data/npcs.json';
 import { 
@@ -392,14 +393,14 @@ const ScreenManager: React.FC = () => {
           if (id === 'raid_victory') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
-            useWorldStateStore.getState().setFlag('finn_rebel_branch_complete', true);
+            useWorldStateStore.getState().setFlag('finn_tidehunter_branch_complete', true);
             markNpcDeath('npc_finn');
             useWorldStateStore.getState().setFlag('finn_resolved', true);
             useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
             useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
             useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
             try { useJournalStore.getState().failQuest('finn_debt_collection'); } catch {}
-            try { useJournalStore.getState().completeQuest('rebel_path'); } catch {}
+            try { useJournalStore.getState().completeQuest('tidehunter_path'); } catch {}
             ui.setEventSlides(raidVictoryWeekPassageSlides);
             ui.setCurrentEventId('raid_victory_week_passage');
             setScreen('event');
@@ -417,11 +418,11 @@ const ScreenManager: React.FC = () => {
             setScreen('mainMenu');
             return;
           }
-          if (id === 'evil_path_end') {
+          if (id === 'thieves_guild_end') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             ui.setEventSlides(evilEndingWeekPassageSlides);
-            ui.setCurrentEventId('evil_path_end_week_passage');
+            ui.setCurrentEventId('thieves_guild_end_week_passage');
             setScreen('event');
             return;
           }
@@ -441,7 +442,7 @@ const ScreenManager: React.FC = () => {
             useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
             useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
             useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
-            useWorldStateStore.getState().setFlag('raid_ready', false);
+
             try { useJournalStore.getState().failQuest('finn_debt_collection'); } catch {}
             useLocationStore.getState().setLocation('shihan_camp');
             setScreen('inGame');
@@ -465,7 +466,7 @@ const ScreenManager: React.FC = () => {
             useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
             useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
             useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
-            useWorldStateStore.getState().setFlag('raid_ready', false);
+
             try { useJournalStore.getState().failQuest('finn_debt_collection'); } catch {}
             setScreen('inGame');
             return;
@@ -476,7 +477,7 @@ const ScreenManager: React.FC = () => {
             finishWeekLockedWhiteFangEnding('driftwatch_slums');
             return;
           }
-          if (id === 'evil_path_end_week_passage') {
+          if (id === 'thieves_guild_end_week_passage') {
             ui.setEventSlides(null);
             ui.setCurrentEventId(null);
             finishWeekLockedWhiteFangEnding('salty_mug');
@@ -520,7 +521,7 @@ const ScreenManager: React.FC = () => {
             useInventoryStore.getState().removeItem('beryl_noble_parcel', 1);
             useWorldTimeStore.getState().passTime(120);
             useCharacterStore.getState().updateStats({ energy: -10 });
-            useDiaryStore.getState().addInteraction('Delivered the discreet package to the Noble Quarter.');
+            useDiaryStore.getState().addInteraction('Delivered the package to the Homestead Farm.');
             setScreen('inGame');
             return;
           }
@@ -936,7 +937,7 @@ const ScreenManager: React.FC = () => {
                   onSelect: () => {
                     useInventoryStore.getState().addItem('marked_crate_note', 1);
                     useWorldStateStore.getState().setFlag('forge_crate_note_found', true);
-                    try { useJournalStore.getState().setQuestStage('rebel_path', 3); } catch {}
+                    try { useJournalStore.getState().setQuestStage('tidehunter_path', 3); } catch {}
                     useDiaryStore.getState().addInteraction('Picked up Marked Crate Note.');
                     setEventResult({
                       text: "The tally note lists marked crates moving from the forge to the Salty Mug cellar after dusk. Between this and Cyrus's prototype, Finn's route finally has a shape.",
@@ -1701,6 +1702,12 @@ const ScreenManager: React.FC = () => {
         return (
           <React.Suspense fallback={<div className="text-white">Loading Combat Debug...</div>}>
             <CombatDebugScreen />
+          </React.Suspense>
+        );
+      case 'questDebug':
+        return (
+          <React.Suspense fallback={<div className="text-white">Loading Quest Debug...</div>}>
+            <QuestDebugScreen />
           </React.Suspense>
         );
       default:

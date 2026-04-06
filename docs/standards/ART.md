@@ -121,7 +121,7 @@ Use the Location Baseline Prompt with city-specific details.
 
 ### 5.1. Driftwatch Hub
 
-> [Location Baseline Prompt] + "Driftwatch’s central hub square, a worn coastal city center with rough timber storefronts and basic stone foundations. Weathered wooden stalls, patched signage, and salt-stained planks. Overcast, cool light; damp cobbles with puddles reflecting lanterns. Sparse townsfolk silhouettes, muted colors, gritty textures. Aspect ratio 3:2."
+> [Location Baseline Prompt] + "Driftwatch's central hub square, a worn coastal city center with rough timber storefronts and basic stone foundations. Weathered wooden stalls, patched signage, and salt-stained planks. Overcast, cool light; damp cobbles with puddles reflecting lanterns. Sparse townsfolk silhouettes, muted colors, gritty textures. Aspect ratio 3:2."
 
 ### 5.2. Driftwatch Docks
 

@@ -37,8 +37,8 @@ export function handleTriggerEventAction(eventId: string, endDialogue: () => voi
     ui.setEventSlides(benCheatEventSlides);
     ui.setScreen('event');
     endDialogue();
-  } else if (eventId === 'evil_path_end') {
-    useWorldStateStore.getState().setFlag('finn_loyalist_branch_complete', true);
+  } else if (eventId === 'thieves_guild_end') {
+    useWorldStateStore.getState().setFlag('finn_thieves_guild_complete', true);
     useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
     useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
     useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
@@ -63,7 +63,7 @@ export function handleTriggerEventAction(eventId: string, endDialogue: () => voi
     useWorldStateStore.getState().setFlag('finn_debt_collection_active', false);
     useWorldStateStore.getState().setFlag('finn_timeout_ready', false);
     useWorldStateStore.getState().setFlag('finn_timeout_triggered', false);
-    useWorldStateStore.getState().setFlag('raid_ready', false);
+
     try { useJournalStore.getState().failQuest('finn_debt_collection'); } catch {}
     ui.setEventSlides(whitefangFinnKillSlides);
     ui.setCurrentEventId('whitefang_finn_end');

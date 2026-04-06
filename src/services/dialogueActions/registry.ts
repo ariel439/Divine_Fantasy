@@ -186,7 +186,7 @@ const startQuestHandler: DialogueActionHandler = (params) => {
     rewards: q.rewards,
   } as any);
 
-  if (questId !== 'luke_tutorial' && questId !== 'rebel_path') {
+  if (questId !== 'luke_tutorial' && questId !== 'tidehunter_path') {
     useJournalStore.getState().setQuestStage(questId, 1);
   }
   console.log('Quest started via dialogue:', questId);
@@ -302,7 +302,7 @@ const collectDebtFromHandler: DialogueActionHandler = (params, { diaryStore }) =
     if (debtQuest?.active) {
       const allCollected =
         world.getFlag('debt_paid_by_ben') &&
-        (world.getFlag('debt_paid_by_beryl') || world.getFlag('beryl_debt_forgiven')) &&
+        world.getFlag('debt_paid_by_beryl') &&
         world.getFlag('debt_paid_by_elara');
       journal.setQuestStage('finn_debt_collection', allCollected ? 4 : (debtQuest.currentStage || 1));
     }
@@ -312,7 +312,7 @@ const collectDebtFromHandler: DialogueActionHandler = (params, { diaryStore }) =
 const turnInDebtHandler: DialogueActionHandler = (params, { diaryStore }) => {
   const requiredSilvers = Number(params[0] || '30');
   const world = useWorldStateStore.getState();
-  const allCollected = world.getFlag('debt_paid_by_ben') && (world.getFlag('debt_paid_by_beryl') || world.getFlag('beryl_debt_forgiven')) && world.getFlag('debt_paid_by_elara');
+  const allCollected = world.getFlag('debt_paid_by_ben') && world.getFlag('debt_paid_by_beryl') && world.getFlag('debt_paid_by_elara');
   if (!allCollected) {
     diaryStore.addInteraction('npc_finn: You have not collected from all three yet.');
     return;
@@ -391,7 +391,7 @@ const turnInDebtOrRebukeHandler: DialogueActionHandler = (params, { diaryStore, 
   const requiredSilvers = Number(params[0] || '30');
   const rebukeNodeId = params[1];
   const world = useWorldStateStore.getState();
-  const allCollected = world.getFlag('debt_paid_by_ben') && (world.getFlag('debt_paid_by_beryl') || world.getFlag('beryl_debt_forgiven')) && world.getFlag('debt_paid_by_elara');
+  const allCollected = world.getFlag('debt_paid_by_ben') && world.getFlag('debt_paid_by_beryl') && world.getFlag('debt_paid_by_elara');
   const showRebuke = () => {
     if (rebukeNodeId) {
       const shown = showDialogueNode?.(rebukeNodeId);

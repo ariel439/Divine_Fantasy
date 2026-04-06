@@ -21,7 +21,7 @@
   },
   "book_white_tiger_sea": {
     "name": "When the White Tiger Crossed the Sea",
-    "description": "A Shenhai chronicle translated and annotated by Shihan Yue. The margins are filled with her private notes.",
+    "description": "A Shenhai chronicle written in old Shenhaic. Shihan Yue's annotations fill the margins.",
     "type": "key_item",
     "stackable": false,
     "weight": 0.6,
@@ -39,8 +39,8 @@
     "image": "/assets/events/elara_delivery.png"
   },
   "beryl_noble_parcel": {
-    "name": "Noble's Parcel",
-    "description": "A finely wrapped package addressed to a noble in the upper quarter.",
+    "name": "Beryl's Package",
+    "description": "A plain package wrapped in waxed cloth. No address. Meant to be handed to someone directly.",
     "type": "key_item",
     "stackable": false,
     "weight": 1.0,

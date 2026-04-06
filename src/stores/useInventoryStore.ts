@@ -178,6 +178,20 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       const book = booksData[bookId as keyof typeof booksData];
       if (!book) return false;
 
+      if (bookId === 'book_white_tiger_sea') {
+        const world = useWorldStateStore.getState();
+        const character = useCharacterStore.getState();
+        const lacksShenhaic =
+          !world.getFlag('knows_shenhaic_basic') &&
+          character.languages?.shenhaic !== 'Basic' &&
+          character.languages?.shenhaic !== 'Fluent' &&
+          character.languages?.shenhaic !== 'Native';
+        if (lacksShenhaic) {
+          useToastStore.getState().addToast('You cannot read Shenhaic.', 'warning');
+          return false;
+        }
+      }
+
       const ui = useUIStore.getState();
       ui.setLibraryBooks([book as any]);
       ui.setSelectedLibraryBookId(bookId);

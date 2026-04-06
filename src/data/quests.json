@@ -76,7 +76,7 @@
       "relationship": [{ "npc_id": "npc_finn", "change": 25 }]
     }
   },
-  "rebel_path": {
+  "tidehunter_path": {
     "title": "The Rot in the Mug",
     "giver_id": "npc_old_crank",
     "description": "Old Crank at the Salty Mug hints that Finn is involved in something darker than just racketeering. He claims to have seen weapons being moved at night.",
@@ -117,7 +117,7 @@
     "title": "White Fang's Echo",
     "giver_id": "npc_shihan",
     "hideFutureObjectives": true,
-    "description": "Strange Shenhai signs keep appearing to Luke around Driftwatch. After reading Shihan Yue's translated chronicle, the signs become visions leading him along Ren Zhen's final trail.",
+    "description": "Strange Shenhai signs keep appearing to Luke around Driftwatch. After reading Shihan Yue's chronicle, the signs become visions leading him along Ren Zhen's final trail.",
     "stages": [
       { "id": 0, "text": "Something in Driftwatch's outskirts is calling to me. I should inspect the strange signs I keep seeing.", "type": "flag", "target": "whitefang_signs_noticed" },
       { "id": 1, "text": "Shihan's book may explain what these signs mean. I should read it carefully.", "type": "flag", "target": "whitefang_book_read" },

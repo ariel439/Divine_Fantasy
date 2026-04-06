@@ -31,8 +31,9 @@ const TRANSITIONS: TransitionMap = {
   combat: ['combatVictory', 'event', 'inGame', 'mainMenu'],
   combatVictory: ['inGame', 'event', 'mainMenu'],
   companion: ['inGame', 'diary', 'mainMenu'],
-  debugMenu: ['mainMenu', 'inGame', 'combatDebug'],
+  debugMenu: ['mainMenu', 'inGame', 'combatDebug', 'questDebug'],
   combatDebug: ['debugMenu', 'combat'],
+  questDebug: ['debugMenu', 'inGame'],
 };
 
 const STRICT_CLUSTERS = new Set<GameState>([
@@ -58,6 +59,7 @@ const STRICT_CLUSTERS = new Set<GameState>([
   'companion',
   'debugMenu',
   'combatDebug',
+  'questDebug',
 ]);
 
 export class GameFlowService {

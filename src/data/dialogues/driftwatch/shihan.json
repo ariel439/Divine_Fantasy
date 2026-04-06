@@ -4,27 +4,27 @@
     "repeat_meet_node": "sh_repeat_meet",
     "nodes": {
       "sh_first_meet": {
-        "npc_text": "So you do speak first. That is rare. Most people in Driftwatch decide what I am before they decide whether to approach me at all.",
+        "npc_text": "You speak Shenhaic. You are the only person in this city who has approached me in my own tongue. That already tells me something worth knowing.",
         "player_choices": [
           {
-            "text": "You looked like someone worth talking to.",
+            "text": "I picked up enough to get by.",
             "action": "set_flag:shihan_first_meet_done:true|update_relationship:npc_shihan:2:friendship|add_xp:persuasion:5",
             "next_node": "sh_first_meet_reply"
           },
           {
-            "text": "The guards make people nervous.",
+            "text": "Your guards are not exactly welcoming.",
             "action": "set_flag:shihan_first_meet_done:true",
             "next_node": "sh_first_guards"
           },
           {
-            "text": "You do not make it easy to approach.",
-            "action": "set_flag:shihan_first_meet_done:true|update_relationship:npc_shihan:-1:friendship|add_xp:coercion:4",
+            "text": "I was curious about you.",
+            "action": "set_flag:shihan_first_meet_done:true|update_relationship:npc_shihan:1:friendship|add_xp:persuasion:3",
             "next_node": "sh_first_meet_cold"
           }
         ]
       },
       "sh_first_meet_reply": {
-        "npc_text": "That already sets you apart. Most men here either avoid me or arrive carrying some performance they think will impress me.",
+        "npc_text": "Getting by is more than most manage. Most men here either avoid me or arrive carrying some performance they think will impress me. You used the language instead.",
         "player_choices": [
           {
             "text": "What do you mean by that?",
@@ -389,12 +389,6 @@
             "action": "set_flag:shihan_camp_intro_seen:true|set_flag:shihan_camp_first_meet_done:true",
             "closes_dialogue": true,
             "condition": "world_flags.whitefang_resisted==true"
-          },
-          {
-            "text": "Understood.",
-            "action": "set_flag:shihan_camp_intro_seen:true|set_flag:shihan_camp_first_meet_done:true",
-            "closes_dialogue": true,
-            "condition": "world_flags.whitefang_bound==false && world_flags.whitefang_resisted==false"
           }
         ]
       },
@@ -456,16 +450,25 @@
         ]
       },
       "sh_camp_ask_forge_1": {
-        "npc_text": "White Fang was forged in old Shenhai as a war-blade, not as ordinary steel. Smiths and mages bound memory, intent, and ruin into it so it could outlive the bearer.",
+        "npc_text": "No one truly knows. Some old accounts say the gods themselves forged them. Others say the greatest smiths and mages of the age worked together over years, binding soul into steel to create weapons that could not be passed on like ordinary blades. What is agreed is that there are five of them, they were declared forbidden after their first age of use, and they were locked away. The Blackbloom changed that. When the ritual mages unleashed what they unleashed, the weapons were brought back.",
         "player_choices": [
           {
-            "text": "So it was always more than a weapon.",
+            "text": "What do you mean, bound soul into steel?",
             "next_node": "sh_camp_ask_forge_2"
           }
         ]
       },
       "sh_camp_ask_forge_2": {
-        "npc_text": "Yes. It was always more than steel. Ren Zhen later sealed his own darkness into it when he could no longer carry it safely. That is why White Fang is feared as much as it is revered.",
+        "npc_text": "The weapon chooses its carrier. When it does, the soul splits. The white part, the good that remains in a person, stays in the heart. The dark part goes into the blade. That is why they were called grey warriors. Not because they were neutral, but because they had to hold both. If the good in the heart grows too strong, the carrier becomes harmless and the weapon consumes him. If the dark in the blade grows too strong, the weapon consumes him anyway. Balance was everything. And on death, the dark spirit in the blade takes physical form, like the Blackbloom ritual did, but without the good of the heart feeding it. Less powerful. But still real.",
+        "player_choices": [
+          {
+            "text": "Ren Zhen knew all of this.",
+            "next_node": "sh_camp_ask_forge_3"
+          }
+        ]
+      },
+      "sh_camp_ask_forge_3": {
+        "npc_text": "He knew it better than anyone. That is why he sealed himself inside that mountain. He could not carry the blade anymore without the balance breaking. He chose to lock the darkness away rather than let it loose on the world.",
         "player_choices": [
           {
             "text": "I understand.",
@@ -499,10 +502,23 @@
   "shenhaic_barrier": {
     "nodes": {
       "0": {
-        "npc_text": "The retainer answers in clipped Shenhaic. \"Bu yao wen. Li kai.\" Whatever judgment sits in his voice is lost behind words you were never taught to follow.",
+        "npc_text": "\"Bu yao wen. Li kai.\"",
         "player_choices": [
           {
             "text": "Back away.",
+            "closes_dialogue": true
+          }
+        ]
+      }
+    }
+  },
+  "shihan_barrier": {
+    "nodes": {
+      "0": {
+        "npc_text": "\"Xhal'ri ven thuum. Karesh nai zhur. Thal ehn.\"",
+        "player_choices": [
+          {
+            "text": "Leave.",
             "closes_dialogue": true
           }
         ]

@@ -73,7 +73,7 @@ export class GameManagerService {
       !world.getFlag('finn_debt_collection_active') ||
       world.getFlag('finn_timeout_triggered') ||
       world.getFlag('finn_dead') ||
-      world.getFlag('finn_rebel_branch_complete') ||
+      world.getFlag('finn_tidehunter_branch_complete') ||
       world.getFlag('finn_whitefang_branch_complete') ||
       ui.currentScreen === 'combat' ||
       ui.currentEventId === 'timeout_game_over' ||
@@ -1138,16 +1138,16 @@ export class GameManagerService {
     const world = useWorldStateStore.getState();
     if (world.getFlag('whitefang_bound')) return;
 
-    const rebelQuest = useJournalStore.getState().quests['rebel_path'];
-    if (rebelQuest?.active && !rebelQuest.completed) {
-      try { useJournalStore.getState().updateQuest('rebel_path', { currentStage: 0 }); } catch {}
-      try { useJournalStore.getState().failQuest('rebel_path'); } catch {}
+    const tidehunterQuest = useJournalStore.getState().quests['tidehunter_path'];
+    if (tidehunterQuest?.active && !tidehunterQuest.completed) {
+      try { useJournalStore.getState().updateQuest('tidehunter_path', { currentStage: 0 }); } catch {}
+      try { useJournalStore.getState().failQuest('tidehunter_path'); } catch {}
     }
 
     world.setFlag('whitefang_bound', true);
     world.setFlag('whitefang_resisted', false);
     world.setFlag('whitefang_camp_unlocked', true);
-    world.setFlag('raid_ready', false);
+
 
     const inventory = useInventoryStore.getState();
     const character = useCharacterStore.getState();
@@ -1194,15 +1194,15 @@ export class GameManagerService {
     const world = useWorldStateStore.getState();
     if (world.getFlag('whitefang_bound') || world.getFlag('whitefang_resisted')) return;
 
-    const rebelQuest = useJournalStore.getState().quests['rebel_path'];
-    if (rebelQuest?.active && !rebelQuest.completed) {
-      try { useJournalStore.getState().updateQuest('rebel_path', { currentStage: 0 }); } catch {}
-      try { useJournalStore.getState().failQuest('rebel_path'); } catch {}
+    const tidehunterQuest = useJournalStore.getState().quests['tidehunter_path'];
+    if (tidehunterQuest?.active && !tidehunterQuest.completed) {
+      try { useJournalStore.getState().updateQuest('tidehunter_path', { currentStage: 0 }); } catch {}
+      try { useJournalStore.getState().failQuest('tidehunter_path'); } catch {}
     }
 
     world.setFlag('whitefang_resisted', true);
     world.setFlag('whitefang_camp_unlocked', true);
-    world.setFlag('raid_ready', false);
+
 
     useDiaryStore.getState().addInteraction('Luke resisted White Fang of Heaven and left it sealed beneath the mountain.');
   }

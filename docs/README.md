@@ -4,8 +4,8 @@ This folder is the single source of truth for technical documentation outside da
 
 ## Structure
 - `guidelines/`: Rules and standards for architecture, coding, data, and AI authoring.
-- `adr/`: Architecture Decision Records (ADRs) for major technical decisions.
-- `gdd/`: Game design docs and content-authoring guidelines.
+- `standards/`: Game design and content-authoring standards (art, dialogue).
+- `design/`: System design docs — how specific game mechanics and paths are intended to work.
 - `CHANGELOG.md`: Documentation update log tied to code/content changes.
 
 ## Documentation Rules

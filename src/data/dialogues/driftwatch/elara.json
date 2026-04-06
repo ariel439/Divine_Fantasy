@@ -89,7 +89,7 @@
         ]
       },
       "elara_help_offer": {
-        "npc_text": "Well... I have a package that needs to go to the sewers. It's just... medicine. For the poor. But the guards are strict. Deliver it, and I'll pay you.",
+        "npc_text": "There is a parcel that needs to reach a contact in the lower sewers. I do not move it myself. You bring it, no questions asked, and I clear the ten silvers.",
         "player_choices": [
           {
             "text": "I'll do it.",
@@ -104,7 +104,7 @@
         ]
       },
       "elara_angry_refusal": {
-        "npc_text": "Get out of my hovel you piece of garbage!",
+        "npc_text": "Then there is nothing more to discuss. Take your debt and your manners and get out of my shop.",
         "player_choices": [
           {
             "text": "Leave.",

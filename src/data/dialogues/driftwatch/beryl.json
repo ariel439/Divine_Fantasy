@@ -90,7 +90,7 @@
         ]
       },
       "beryl_help_offer": {
-        "npc_text": "Well... there is one thing. I have a discreet package that needs to go to a client in the Noble Quarter. Deliver it, and I'll consider the debt paid.",
+        "npc_text": "There is one thing. A package needs to reach the Homestead Farm. After dark. The woman there knows what it is. I cannot go myself. Deliver it, and I will consider the debt paid.",
         "player_choices": [
           {
             "text": "I'll do it.",
@@ -341,7 +341,7 @@
         ]
       },
       "soft_approach": {
-        "npc_text": "Chores? No... but I do have a delicate matter. I need a package delivered to a customer in the Noble Quarter. A... discreet package.",
+        "npc_text": "No chores. But there is a package that needs to reach the Homestead Farm after dark. Someone there is expecting it. I cannot be the one to bring it. You do this, I pay Finn's share.",
         "player_choices": [
           {
             "text": "I'll deliver it.",

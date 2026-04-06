@@ -747,15 +747,19 @@ export class DialogueService {
     }
 
     if (!overrideDialogueId) {
-      const shenhaicLockedRetainers = new Set(['npc_lin_shao', 'npc_wei_taren', 'npc_qiao_ren']);
-      if (
-        shenhaicLockedRetainers.has(npcId) &&
+      const lacksShenhaic =
         !useWorldStateStore.getState().getFlag('knows_shenhaic_basic') &&
         useCharacterStore.getState().languages?.shenhaic !== 'Basic' &&
         useCharacterStore.getState().languages?.shenhaic !== 'Fluent' &&
-        useCharacterStore.getState().languages?.shenhaic !== 'Native'
-      ) {
+        useCharacterStore.getState().languages?.shenhaic !== 'Native';
+
+      const shenhaicLockedRetainers = new Set(['npc_lin_shao', 'npc_wei_taren', 'npc_qiao_ren']);
+      if (shenhaicLockedRetainers.has(npcId) && lacksShenhaic) {
         dialogueId = 'shenhaic_barrier';
+      }
+
+      if (npcId === 'npc_shihan' && lacksShenhaic) {
+        dialogueId = 'shihan_barrier';
       }
 
       const currentEventId = useUIStore.getState().currentEventId;

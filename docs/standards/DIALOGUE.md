@@ -8,6 +8,22 @@ The goal is consistency:
 - social NPCs should follow the same shape unless there is a deliberate reason not to
 - authored greetings should feel like real dialogue, not hidden UI
 
+## Dialogue Bubble Rule
+
+**`npc_text` must contain only spoken words. No narrative prose, descriptive action text, or internal thoughts.**
+
+Wrong:
+> "The retainer answers in clipped Shenhaic. 'Bu yao wen. Li kai.' Whatever judgment sits in his voice is lost behind words you were never taught to follow."
+
+Right:
+> "\"Bu yao wen. Li kai.\""
+
+Narration, stage directions, and atmospheric description belong outside dialogue bubbles — not inside `npc_text`. If the player needs context they cannot get from the spoken line alone, that context should come from event prose, location flavor text, or UI elsewhere.
+
+This rule applies to every dialogue node without exception.
+
+---
+
 ## Core Structure
 
 There are three layers of dialogue:

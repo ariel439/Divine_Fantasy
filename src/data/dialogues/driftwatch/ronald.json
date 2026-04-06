@@ -338,21 +338,11 @@
         ]
       },
       "ronald_quest_after_fight_puppy": {
-        "npc_text": "Good. I could feel the woods settling before I saw you come back. We cleared them out before they could start ranging any closer to the road. If that wolf needs somewhere to stay, send him here. Cabin's far enough from town and I know how to keep an animal fed without spoiling it. Go collect your pay from the guard who sent you.",
+        "npc_text": "If that wolf needs somewhere to stay, send him here. Cabin's far enough from town and I know how to keep an animal fed without spoiling it. Go collect your pay from the guard who sent you.",
         "player_choices": [
           {
             "text": "I'll collect the pay.",
             "action": "set_quest_stage:ronald_wolf_pack:4|add_xp:persuasion:12",
-            "closes_dialogue": true
-          }
-        ]
-      },
-      "ronald_quest_after_fight_no_puppy": {
-        "npc_text": "Good. I could feel the woods settling before I saw you come back. We cleared them out before they could start ranging any closer to the road. Go collect your pay from the guard who sent you. If you keep coming out this way, you know where my door is.",
-        "player_choices": [
-          {
-            "text": "I'll collect the pay.",
-            "action": "set_quest_stage:ronald_wolf_pack:4|add_xp:persuasion:8",
             "closes_dialogue": true
           }
         ]

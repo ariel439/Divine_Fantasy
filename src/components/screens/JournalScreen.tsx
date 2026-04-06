@@ -357,9 +357,7 @@ const JournalScreen: FC = () => {
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-6">
                                                 {selectedQuest.objectives.filter((obj: any) => !obj.hidden).map((obj, index) => {
-                                                    const isBeryl = selectedQuest.id === 'finn_debt_collection' && index === 2; // Beryl is stage 2
-                                                    const world = useWorldStateStore.getState();
-                                                    const failed = isBeryl && world.getFlag('beryl_debt_forgiven');
+                                                    const failed = false;
                                                     
                                                     return (
                                                         <div key={index} className={`flex items-center gap-3 p-3 rounded-xl bg-black/40 border transition-all ${

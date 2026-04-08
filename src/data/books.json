@@ -117,5 +117,14 @@
       { "type": "p", "content": "Thus the oldest caution remains: should White Fang of Heaven be found again, it must not be judged as treasure. A weapon that has carried one will for too long begins to seek another capable of enduring it. Such a bearer will not be chosen for purity, but for capacity." },
       { "type": "note", "content": "Translator's note: Common people in Driftwatch still whisper that Ren Zhen's spirit and White Fang of Heaven remain sealed somewhere in this region. I record this only as local rumor, not settled history. Still, western rumor has preserved stranger truths before. Shihan Yue" }
     ]
+  },
+  "crank_treasure_map": {
+    "id": "crank_treasure_map",
+    "title": "Old Crank's Map",
+    "author": "Unknown",
+    "shelf": "Maps",
+    "content": [
+      { "type": "img", "content": "/assets/books/crank_treasure_map.png", "caption": "A hand-drawn map on aged parchment. The path is marked in faded ink. Follow it carefully." }
+    ]
   }
 }

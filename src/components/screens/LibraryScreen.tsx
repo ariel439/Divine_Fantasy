@@ -73,7 +73,11 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
 
             if (shortcutKey === 'escape') {
                 if (fullscreenImage) {
-                    setFullscreenImage(null);
+                    if (shouldCloseDirectlyFromSelectedBook) {
+                        handleClose();
+                    } else {
+                        setFullscreenImage(null);
+                    }
                 } else if (selectedBook) {
                     if (shouldCloseDirectlyFromSelectedBook) {
                         handleClose();
@@ -88,12 +92,16 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [selectedBook, fullscreenImage, shouldCloseDirectlyFromSelectedBook]);
+    }, [selectedBook, fullscreenImage, shouldCloseDirectlyFromSelectedBook, handleClose]);
 
     useEffect(() => {
         if (!selectedLibraryBookId) return;
         const book = books.find(entry => entry.id === selectedLibraryBookId) || null;
         setSelectedBook(book);
+        if (book?.shelf === 'Maps') {
+            const firstImg = book.content.find(c => c.type === 'img');
+            if (firstImg) setFullscreenImage(firstImg.content);
+        }
     }, [selectedLibraryBookId, books]);
 
     useEffect(() => {
@@ -358,8 +366,8 @@ const LibraryScreen: FC<LibraryScreenProps> = ({ onClose }) => {
             {/* Fullscreen Map Viewer */}
             {fullscreenImage && (
                 <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-4 lg:p-12 animate-fade-in">
-                    <button 
-                        onClick={() => setFullscreenImage(null)}
+                    <button
+                        onClick={() => shouldCloseDirectlyFromSelectedBook ? handleClose() : setFullscreenImage(null)}
                         className="absolute top-8 right-8 p-3 bg-zinc-900/80 border border-zinc-800 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all shadow-2xl z-[110]"
                     >
                         <X size={32} />

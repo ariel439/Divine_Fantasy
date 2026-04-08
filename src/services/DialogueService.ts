@@ -52,7 +52,7 @@ interface DialogueNode {
 interface DialogueEntry {
   first_meet_node?: string;
   repeat_meet_node?: string;
-  interaction_roots?: Partial<Record<'ask' | 'friendly' | 'flirt' | 'coerce' | 'quest' | 'trade', string>>;
+  interaction_roots?: Partial<Record<'ask' | 'friendly' | 'flirt' | 'coerce' | 'quest' | 'trade' | 'gift', string>>;
   trade_shop_id?: string;
   nodes: Record<string, DialogueNode>;
 }
@@ -374,6 +374,7 @@ export class DialogueService {
       case 'flirt': return 'Romance';
       case 'coerce': return 'Coerce';
       case 'quest': return 'Quest';
+      case 'gift': return 'Gift';
       default: return category;
     }
   }
@@ -383,6 +384,7 @@ export class DialogueService {
     const orderedCategories: (keyof NonNullable<DialogueEntry['interaction_roots']>)[] = [
       'quest',
       'ask',
+      'gift',
       'friendly',
       'flirt',
     ];

@@ -1,40 +1,16 @@
 {
   "old_crank_default": {
+    "first_meet_node": "crank_first_meet",
+    "repeat_meet_node": "crank_repeat_meet",
     "interaction_roots": {
-      "ask": "crank_ask_root"
+      "gift": "crank_gift_root",
+      "ask": "crank_ask_root",
+      "friendly": "crank_friendly_root"
     },
     "nodes": {
-      "0": {
-        "npc_text": "Bah! Another whelp in the tavern. (He eyes your drink).",
+      "crank_first_meet": {
+        "npc_text": "You lost? Sit down or move on.",
         "player_choices": [
-          {
-            "text": "Slide him a beer.",
-            "player_text": "Here. Have a drink.",
-            "next_node": "crank_gossip_1",
-            "action": "remove_item:beer:1|set_flag:crank_beer_1:true",
-            "condition": "inventory.beer>=1 && world_flags.crank_beer_1==false"
-          },
-          {
-            "text": "Slide him a beer.",
-            "player_text": "Another one for you.",
-            "next_node": "crank_gossip_2",
-            "action": "remove_item:beer:1|set_flag:crank_beer_2:true",
-            "condition": "inventory.beer>=1 && world_flags.crank_beer_1==true && world_flags.crank_beer_2==false"
-          },
-          {
-            "text": "Slide him a beer.",
-            "player_text": "One more, old man.",
-            "next_node": "crank_gossip_3",
-            "action": "remove_item:beer:1|set_flag:crank_beer_3:true|start_quest:tidehunter_path|advance_quest_stage:tidehunter_path",
-            "condition": "inventory.beer>=1 && world_flags.crank_beer_2==true && world_flags.crank_beer_3==false && world_flags.whitefang_bound==false"
-          },
-          {
-            "text": "Slide him a beer.",
-            "player_text": "One more, old man.",
-            "next_node": "crank_gossip_3_whitefang",
-            "action": "remove_item:beer:1|set_flag:crank_beer_3:true",
-            "condition": "inventory.beer>=1 && world_flags.crank_beer_2==true && world_flags.crank_beer_3==false && world_flags.whitefang_bound==true"
-          },
           {
             "text": "I'd like to talk.",
             "next_node": "__social_root__"
@@ -45,18 +21,170 @@
           }
         ]
       },
-      "crank_ask_root": {
-        "npc_text": "Ask, if you must. I've heard worse ways to waste time.",
+      "crank_repeat_meet": {
+        "npc_text": "Back again.",
         "player_choices": [
           {
-            "text": "You've seen this tavern a long time, haven't you?",
-            "next_node": "crank_ask_mug",
-            "condition": "world_flags.crank_lore_mug_seen==false"
+            "text": "I'd like to talk.",
+            "next_node": "__social_root__"
+          },
+          {
+            "text": "Leave.",
+            "closes_dialogue": true
+          }
+        ]
+      },
+      "crank_gift_root": {
+        "npc_text": "What do you want?",
+        "player_choices": [
+          {
+            "text": "Buy him a drink.",
+            "player_text": "Here. Have a drink.",
+            "next_node": "crank_gift_accepted",
+            "action": "social_action:npc_old_crank:gift:beer:1",
+            "condition": "inventory.beer>=1"
           },
           {
             "text": "Back.",
             "next_node": "__social_root__"
           }
+        ]
+      },
+      "crank_gift_accepted": {
+        "npc_text": "Ha. Maybe you're not all bad.",
+        "player_choices": [
+          {
+            "text": "Back.",
+            "next_node": "crank_gift_root"
+          }
+        ]
+      },
+      "crank_ask_root": {
+        "npc_text": "Ask, if you must.",
+        "player_choices": [
+          {
+            "text": "You've been here a long time.",
+            "next_node": "crank_ask_mug",
+            "condition": "world_flags.crank_lore_mug_seen==false"
+          },
+          {
+            "text": "Anything worth knowing around here?",
+            "next_node": "crank_gossip_1",
+            "condition": "world_flags.crank_gossip_1_seen==false && relationship.npc_old_crank.friendship>=2"
+          },
+          {
+            "text": "Heard anything else?",
+            "next_node": "crank_gossip_2",
+            "condition": "world_flags.crank_gossip_1_seen==true && world_flags.crank_gossip_2_seen==false && relationship.npc_old_crank.friendship>=4"
+          },
+          {
+            "text": "What else do you know?",
+            "next_node": "crank_gossip_3",
+            "condition": "world_flags.crank_gossip_2_seen==true && world_flags.crank_gossip_3_seen==false && relationship.npc_old_crank.friendship>=6 && world_flags.whitefang_bound==false"
+          },
+          {
+            "text": "What else do you know?",
+            "next_node": "crank_gossip_3_whitefang",
+            "condition": "world_flags.crank_gossip_2_seen==true && world_flags.crank_gossip_3_seen==false && world_flags.whitefang_bound==true",
+            "action": "set_flag:crank_gossip_3_seen:true"
+          },
+          {
+            "text": "That rat yours?",
+            "next_node": "crank_ask_rat",
+            "condition": "world_flags.crank_rat_seen==false && relationship.npc_old_crank.friendship>=10"
+          },
+          {
+            "text": "What did you do before the tavern?",
+            "next_node": "crank_ask_past_1",
+            "condition": "world_flags.crank_past_seen==false && relationship.npc_old_crank.friendship>=20"
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "crank_friendly_root": {
+        "npc_text": "Talk then.",
+        "player_choices": [
+          {
+            "text": "Make small talk.",
+            "next_node": "crank_friendly_smalltalk",
+            "social_cost": 1
+          },
+          {
+            "text": "Be straight with him.",
+            "next_node": "crank_friendly_honest",
+            "social_cost": 1
+          },
+          {
+            "text": "Back.",
+            "next_node": "__social_root__"
+          }
+        ]
+      },
+      "crank_friendly_smalltalk": {
+        "npc_text": "I've heard worse openings. What is it?",
+        "player_choices": [
+          {
+            "text": "How are you holding up out here?",
+            "action": "social_action:npc_old_crank:friendly:smalltalk",
+            "social_result_nodes": {
+              "strong": "crank_friendly_smalltalk_strong",
+              "weak": "crank_friendly_smalltalk_weak",
+              "fail": "crank_friendly_smalltalk_fail"
+            }
+          }
+        ]
+      },
+      "crank_friendly_smalltalk_strong": {
+        "npc_text": "Still breathing. Still drinking. For an old wreck that's practically flourishing.",
+        "player_choices": [
+          { "text": "Back.", "next_node": "crank_friendly_root" }
+        ]
+      },
+      "crank_friendly_smalltalk_weak": {
+        "npc_text": "Could be worse. Could be better.",
+        "player_choices": [
+          { "text": "Back.", "next_node": "crank_friendly_root" }
+        ]
+      },
+      "crank_friendly_smalltalk_fail": {
+        "npc_text": "What kind of question is that? Bother someone else.",
+        "player_choices": [
+          { "text": "Back.", "next_node": "crank_friendly_root" }
+        ]
+      },
+      "crank_friendly_honest": {
+        "npc_text": "An honest one. Go on then.",
+        "player_choices": [
+          {
+            "text": "You've been coming here a long time. This place must mean something.",
+            "action": "social_action:npc_old_crank:friendly:honest",
+            "social_result_nodes": {
+              "strong": "crank_friendly_honest_strong",
+              "weak": "crank_friendly_honest_weak",
+              "fail": "crank_friendly_honest_fail"
+            }
+          }
+        ]
+      },
+      "crank_friendly_honest_strong": {
+        "npc_text": "Meaning is a strong word. Familiar is close enough when you're old.",
+        "player_choices": [
+          { "text": "Back.", "next_node": "crank_friendly_root" }
+        ]
+      },
+      "crank_friendly_honest_weak": {
+        "npc_text": "Maybe it does. Don't make something of it.",
+        "player_choices": [
+          { "text": "Back.", "next_node": "crank_friendly_root" }
+        ]
+      },
+      "crank_friendly_honest_fail": {
+        "npc_text": "You don't know what you're talking about. Buy a drink and sit quiet.",
+        "player_choices": [
+          { "text": "Back.", "next_node": "crank_friendly_root" }
         ]
       },
       "crank_ask_mug": {
@@ -70,39 +198,127 @@
         ]
       },
       "crank_gossip_1": {
-        "npc_text": "Ah... that hits the spot. Did you know Roberta at Tide & Trade has been skimming off the top? Her 'fresh' fish ain't always fresh.",
+        "npc_text": "Harbor master Greaves keeps two sets of books. The public one for the guards, and the real one. Half the docking fees never reach the city coffers. Been going on for years.",
         "player_choices": [
           {
-            "text": "Interesting.",
-            "next_node": "0"
+            "text": "Corrupt as the rest of them.",
+            "next_node": "crank_ask_root",
+            "action": "set_flag:crank_gossip_1_seen:true"
           }
         ]
       },
       "crank_gossip_2": {
-        "npc_text": "More? You're alright, kid. Captain Elias... he keeps a bottle of rum in his desk. Drinks on the job, he does.",
+        "npc_text": "Captain Elias keeps a bottle of rum in his desk. Drinks on duty, every night. Man's held that post twelve years on reputation alone. The reputation ran out, the rum didn't.",
         "player_choices": [
           {
-            "text": "Is that so?",
-            "next_node": "0"
+            "text": "Good to know.",
+            "next_node": "crank_ask_root",
+            "action": "set_flag:crank_gossip_2_seen:true"
           }
         ]
       },
       "crank_gossip_3": {
-        "npc_text": "Listen close. Finn... he's dealing in illegal weapons. I saw his boys moving crates to the Forge. Talk to Cyrus, the apprentice. He knows.",
+        "npc_text": "Finn at the Mug — he's not just running a tavern. His boys have been moving crates to the Forge after dark. Weapons, I'd bet. Talk to Cyrus, the apprentice. He knows what's inside them.",
         "player_choices": [
           {
-            "text": "I'll investigate.",
-            "next_node": "0"
+            "text": "I'll look into it.",
+            "next_node": "crank_ask_root",
+            "action": "set_flag:crank_gossip_3_seen:true|start_quest:tidehunter_path|advance_quest_stage:tidehunter_path"
           }
         ]
       },
       "crank_gossip_3_whitefang": {
-        "npc_text": "You? Chasing tavern rumors still? Hah. Forget Cyrus. Driftwatch's small rot won't matter much to a man carrying mountain weather in his bones. Buy me another beer tomorrow and I'll tell you which fools in this city have already started noticing.",
+        "npc_text": "You, chasing tavern rumors? Forget Cyrus. Driftwatch's small rot won't matter much to a man carrying mountain weather in his bones.",
         "player_choices": [
           {
             "text": "Maybe another time.",
-            "next_node": "0"
+            "next_node": "crank_ask_root"
           }
+        ]
+      },
+      "crank_ask_rat": {
+        "npc_text": "That's Nip. Found her in a grain sack three winters back. Bit me twice before she'd eat from my hand. I liked that about her.",
+        "player_choices": [
+          {
+            "text": "She seems fond of you.",
+            "next_node": "crank_ask_rat_fond",
+            "action": "set_flag:crank_rat_seen:true"
+          },
+          {
+            "text": "Why keep a rat?",
+            "next_node": "crank_ask_rat_why",
+            "action": "set_flag:crank_rat_seen:true"
+          }
+        ]
+      },
+      "crank_ask_rat_fond": {
+        "npc_text": "Animals don't pretend. She wants food or warmth, she says so. That's more honesty than most people manage in a year.",
+        "player_choices": [
+          { "text": "Back.", "next_node": "crank_ask_root" }
+        ]
+      },
+      "crank_ask_rat_why": {
+        "npc_text": "Better company than most. Quieter too. She doesn't ask me things I don't want to answer.",
+        "player_choices": [
+          { "text": "Back.", "next_node": "crank_ask_root" }
+        ]
+      },
+      "crank_ask_past_1": {
+        "npc_text": "Dock work. Some traveling. Nothing worth telling.",
+        "player_choices": [
+          {
+            "text": "Come on. You've been here longer than anyone.",
+            "next_node": "crank_ask_past_2"
+          },
+          {
+            "text": "Sorry. Forget I asked.",
+            "next_node": "crank_ask_root"
+          }
+        ]
+      },
+      "crank_ask_past_2": {
+        "npc_text": "There was a thing once. Years back, before my knees gave out. I was poking around the cliffs near the old beach — the one past the harbor, nobody goes there. Found a rusted tin box at the base of the rocks. Inside was a parchment. Old. Someone had drawn a map on it.",
+        "player_choices": [
+          {
+            "text": "A map to what?",
+            "next_node": "crank_ask_past_3"
+          }
+        ]
+      },
+      "crank_ask_past_3": {
+        "npc_text": "No idea. All lines and marks, foreign writing I didn't know. Looked like directions into a cave. I followed it partway, found the entrance. Then my torch blew out and I decided my life was worth more than whatever was inside.",
+        "player_choices": [
+          {
+            "text": "Did you keep the map?",
+            "next_node": "crank_ask_past_4"
+          }
+        ]
+      },
+      "crank_ask_past_4": {
+        "npc_text": "Still got it. I kept thinking I'd go back. Never did. Maybe you've got younger knees than me.",
+        "player_choices": [
+          {
+            "text": "I'll take a look.",
+            "next_node": "crank_ask_past_done",
+            "action": "set_flag:crank_past_seen:true|grant_item:crank_treasure_map:1|start_quest:crank_treasure_hunt"
+          },
+          {
+            "text": "Keep it. I'm not interested.",
+            "next_node": "crank_ask_past_decline",
+            "action": "set_flag:crank_past_seen:true"
+          }
+        ]
+      },
+      "crank_ask_past_done": {
+        "npc_text": "Don't come back empty-handed.",
+        "player_choices": [
+          { "text": "Back.", "next_node": "crank_ask_root" }
+        ]
+      },
+      "crank_ask_past_decline": {
+        "npc_text": "Smart, maybe. Or just soft. Hard to tell with young people.",
+        "player_choices": [
+          { "text": "Back.", "next_node": "crank_ask_root" }
         ]
       }
     }

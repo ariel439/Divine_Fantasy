@@ -2,7 +2,7 @@ import { getSocialPresenceSummary } from './socialPresentation';
 import { getSocialNpcConfig, type PersonalityTrait, type SocialClass } from './socialNpcConfig';
 import { tierFromLevel } from './socialTiers';
 
-export type SocialActionType = 'friendly' | 'flirt' | 'coerce';
+export type SocialActionType = 'friendly' | 'flirt' | 'coerce' | 'gift';
 export type SocialStyle =
   | 'smalltalk'
   | 'honest'
@@ -24,7 +24,7 @@ interface SocialResolution {
 }
 
 function isWhiteFangSocialSuppressed(npcId: string, type: SocialActionType): boolean {
-  if (type === 'coerce') return false;
+  if (type === 'coerce' || type === 'gift') return false;
   const profile = getSocialNpcConfig(npcId);
   const presence = getSocialPresenceSummary();
   return presence.isCursedPresence && !profile.whiteFangSocialExempt;
@@ -166,6 +166,18 @@ export function resolveSocialAction(params: {
       xpSkill: 'persuasion',
       xpAmount: 5,
       diaryText: `${profileName} did not draw any closer.`,
+    };
+  }
+
+  if (type === 'gift') {
+    const config = getSocialNpcConfig(npcId);
+    const gain = config.giftFriendshipGain ?? 1;
+    return {
+      outcome: 'strong',
+      relationshipChanges: { friendship: gain },
+      xpSkill: 'persuasion',
+      xpAmount: 5,
+      diaryText: `${profileName} accepted the gift.`,
     };
   }
 

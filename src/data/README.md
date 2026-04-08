@@ -14,3 +14,5 @@ This folder contains gameplay content and static datasets.
 ## Authoring Standards
 - Narrative/dialogue style: `docs/gdd/Guidelines/DIALOGUE.MD`
 - Art/image generation style: `docs/gdd/Guidelines/ART.MD`
+- Choice-event copy and IDs are authored in `src/data/events.ts` (`choiceEvents`).
+- Location action lists should avoid redundant navigation choices when a single clear exit path already exists.

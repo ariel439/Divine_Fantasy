@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, ReactNode } from 'react';
 import type { FC } from 'react';
-import { CheckSquare, Square, Search, XCircle, ArrowLeft, BookOpen, ScrollText, User, Target, Briefcase, Coins, Clock, Zap, ChevronLeft, ChevronRight, UserX, ClipboardList, CalendarDays, UserRound, Check, X } from 'lucide-react';
+import { CheckSquare, Square, Search, XCircle, ArrowLeft, BookOpen, ScrollText, Target, Briefcase, Coins, Clock, Zap, ChevronLeft, ChevronRight, UserX, ClipboardList, CalendarDays, UserRound, Check, X } from 'lucide-react';
 import type { Quest } from '../../types';
 import { useJournalStore } from '../../stores/useJournalStore';
 import { useWorldStateStore } from '../../stores/useWorldStateStore';
@@ -268,9 +268,6 @@ const JournalScreen: FC = () => {
                                                 </span>
                                                 {selectedQuestId === quest.id && <BookOpen size={12} />}
                                             </div>
-                                            <p className={`text-[9px] uppercase font-black tracking-tighter mt-1 opacity-50 ${selectedQuestId === quest.id ? 'text-zinc-900' : 'text-zinc-500'}`}>
-                                                From: {quest.giver}
-                                            </p>
                                         </button>
                                     ))}
                                 </div>
@@ -310,13 +307,6 @@ const JournalScreen: FC = () => {
                                                     }`}>
                                                         {selectedQuest.status}
                                                     </p>
-                                                </div>
-                                                <div className="flex items-center gap-3 bg-black/40 px-3 py-1.5 rounded-xl border border-zinc-800/50">
-                                                    <User size={14} className="text-zinc-500" />
-                                                    <div className="text-right">
-                                                        <p className="text-[7px] font-black uppercase tracking-tighter text-zinc-600">Contract Giver</p>
-                                                        <p className="text-[10px] font-bold text-zinc-300">{selectedQuest.giver}</p>
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

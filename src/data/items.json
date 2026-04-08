@@ -897,7 +897,8 @@
     "stackable": false,
     "weight": 2.5,
     "base_value": 12,
-    "image": "/assets/items/spade.png"
+    "image": "/assets/items/spade.png",
+    "actions": ["Use"]
   },
   "bread": {
     "name": "Bread",
@@ -952,5 +953,32 @@
       "hunger": 2
     },
     "image": "/assets/items/burned_meat.png"
+  },
+  "pirate_scimitar": {
+    "name": "Pirate's Scimitar",
+    "description": "A curved blade with a worn grip and a nick near the crossguard that someone tried to file smooth. Salt-corroded but the edge holds. It was someone's before it was buried.",
+    "type": "weapon",
+    "stackable": false,
+    "weight": 2.3,
+    "base_value": 480,
+    "image": "/assets/items/pirate_scimitar.png",
+    "equipmentSlot": "weapon",
+    "threatTier": 4,
+    "threatRole": "major",
+    "attack_sound": "/assets/sfx/combat_sword_swing.mp3",
+    "stats": {
+      "attack": 16
+    }
+  },
+  "crank_treasure_map": {
+    "name": "Old Crank's Map",
+    "description": "A worn piece of parchment with a crude hand-drawn map. Lines and arrows mark a path through what looks like a cave, with an X near the end. The writing in the margins is Shenhai.",
+    "type": "key_item",
+    "stackable": false,
+    "weight": 0.0,
+    "base_value": 0,
+    "image": "/assets/items/crank_treasure_map.png",
+    "bookId": "crank_treasure_map",
+    "actions": ["Use"]
   }
 }

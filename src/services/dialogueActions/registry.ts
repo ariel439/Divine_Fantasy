@@ -427,12 +427,33 @@ const startBrawlHandler: DialogueActionHandler = (params) => {
 const socialActionHandler: DialogueActionHandler = (params, context) => {
   const npcId = params[0];
   const socialType = (params[1] || 'friendly') as SocialActionType;
-  const socialStyle = (params[2] || 'honest') as SocialStyle;
+
   if (context.hasNpcReachedDailySocialLimit?.(npcId)) {
     context.setLastSocialOutcome?.('fail');
     context.diaryStore.addInteraction(`${npcId}: They have had enough of you for today.`);
     return;
   }
+
+  // For gift actions: params[2] = 'currency' | itemId, params[3] = currency type | qty.
+  // currency format: social_action:npcId:gift:currency:copper:1
+  // item format:     social_action:npcId:gift:beer:1
+  if (socialType === 'gift') {
+    if (params[2] === 'currency') {
+      const currencyType = (params[3] || 'copper') as 'copper' | 'silver' | 'gold';
+      const amount = Number(params[4] ?? 1);
+      useCharacterStore.getState().removeCurrency(
+        currencyType === 'copper' ? amount : 0,
+        currencyType === 'silver' ? amount : 0,
+        currencyType === 'gold' ? amount : 0,
+      );
+    } else {
+      const itemId = params[2];
+      const qty = Number(params[3] ?? 1);
+      if (itemId) useInventoryStore.getState().removeItem(itemId, qty);
+    }
+  }
+
+  const socialStyle = (socialType !== 'gift' ? (params[2] || 'honest') : 'honest') as SocialStyle;
 
   const result = resolveSocialAction({
     npcId,

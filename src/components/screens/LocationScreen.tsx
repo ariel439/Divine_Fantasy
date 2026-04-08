@@ -25,7 +25,7 @@ import { ExplorationService } from '../../services/ExplorationService';
 import { mockBooks } from '../../data';
 import locationsData from '../../data/locations.json';
 import itemsJson from '../../data/items.json';
-import { breakfastEventSlides, rebelRaidIntroSlides, sellLocketSlides, elaraDeliverySlides, berylDeliverySlides, benCheatEventSlides, robertaWallRepairSlides, whitefangUnreadableWoodsSlides, whitefangUnreadableBeachSlides, whitefangUnreadableMountainSlides, whitefangWoodsVisionSlides, whitefangBeachVisionSlides, whitefangMountainVisionSlides, whitefangCaveBlockedSlides, whitefangExpeditionBreachSlides } from '../../data/events';
+import { breakfastEventSlides, rebelRaidIntroSlides, sellLocketSlides, elaraDeliverySlides, berylDeliverySlides, benCheatEventSlides, robertaWallRepairSlides, whitefangUnreadableWoodsSlides, whitefangUnreadableBeachSlides, whitefangUnreadableMountainSlides, whitefangWoodsVisionSlides, whitefangBeachVisionSlides, whitefangMountainVisionSlides, whitefangCaveBlockedSlides, whitefangExpeditionBreachSlides, crankCaveSearch1Slides, crankCaveSearch2Slides, crankCaveSearch3Slides } from '../../data/events';
 import { useToastStore } from '../../stores/useToastStore';
 
 const LocationScreen: React.FC = () => {
@@ -243,6 +243,46 @@ const LocationScreen: React.FC = () => {
           useWorldStateStore.getState().setFlag('whitefang_cave_breached', true);
           useUIStore.getState().setEventSlides(whitefangExpeditionBreachSlides);
           useUIStore.getState().setCurrentEventId('whitefang_expedition_breach');
+          setScreen('event');
+        } else if (eventId === 'crank_cave_dir_forward' || eventId === 'crank_cave_dir_left' || eventId === 'crank_cave_dir_right') {
+          const world = useWorldStateStore.getState();
+          const SEQUENCE = ['forward', 'forward', 'left', 'right', 'forward'];
+          const STEP_FLAGS = ['crank_seq_s1', 'crank_seq_s2', 'crank_seq_s3', 'crank_seq_s4', 'crank_seq_s5'];
+          const dir = eventId.replace('crank_cave_dir_', '');
+          const currentStep = STEP_FLAGS.findIndex(f => !world.getFlag(f));
+          if (currentStep === -1) return; // already done
+          if (dir === SEQUENCE[currentStep]) {
+            world.setFlag(STEP_FLAGS[currentStep], true);
+            if (currentStep === SEQUENCE.length - 1) {
+              world.setFlag('crank_seq_done', true);
+              world.setFlag('crank_cave_chamber_reached', true);
+              useJournalStore.getState().advanceQuestStage('crank_treasure_hunt');
+              useLocationStore.getState().setLocation('crank_cave_chamber');
+            } else {
+              useToastStore.getState().addToast('You press on...', 'info');
+            }
+          } else {
+            STEP_FLAGS.forEach(f => world.setFlag(f, false));
+            useToastStore.getState().addToast('Wrong way. The path resets.', 'warning');
+          }
+        } else if (eventId === 'crank_cave_search_1') {
+          useCharacterStore.getState().updateStats({ energy: -20 });
+          useWorldStateStore.getState().setFlag('crank_search_1_done', true);
+          useUIStore.getState().setEventSlides(crankCaveSearch1Slides);
+          useUIStore.getState().setCurrentEventId('crank_cave_search_1');
+          setScreen('event');
+        } else if (eventId === 'crank_cave_search_2') {
+          useCharacterStore.getState().updateStats({ energy: -20 });
+          useWorldStateStore.getState().setFlag('crank_search_2_done', true);
+          useUIStore.getState().setEventSlides(crankCaveSearch2Slides);
+          useUIStore.getState().setCurrentEventId('crank_cave_search_2');
+          setScreen('event');
+        } else if (eventId === 'crank_cave_search_3') {
+          useCharacterStore.getState().updateStats({ energy: -20 });
+          useWorldStateStore.getState().setFlag('crank_cave_found', true);
+          useJournalStore.getState().advanceQuestStage('crank_treasure_hunt');
+          useUIStore.getState().setEventSlides(crankCaveSearch3Slides);
+          useUIStore.getState().setCurrentEventId('crank_cave_search_3');
           setScreen('event');
         } else {
           useUIStore.getState().setCurrentEventId(eventId);

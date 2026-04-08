@@ -12,7 +12,7 @@ import { useSkillStore } from '../../stores/useSkillStore';
 import { useWorldTimeStore } from '../../stores/useWorldTimeStore';
 import { GameManagerService } from '../../services/GameManagerService';
 
-type QuestId = 'roberta' | 'ronald' | 'finn' | 'whitefang';
+type QuestId = 'roberta' | 'ronald' | 'finn' | 'whitefang' | 'crank';
 
 interface Scenario {
   label: string;
@@ -34,7 +34,7 @@ const setGold = (gold: number) =>
 
 const setRel = (npcId: string, friendship: number, love = 0) => {
   const diary = useDiaryStore.getState();
-  const rel = diary.relationships[npcId] || {};
+  const rel = (diary.relationships[npcId] || {}) as { friendship?: { value: number }; love?: { value: number } };
   const df = friendship - (rel.friendship?.value || 0);
   const dl = love - (rel.love?.value || 0);
   if (df !== 0) diary.updateRelationship(npcId, { friendship: df });
@@ -159,6 +159,44 @@ const SCENARIOS: Record<QuestId, Scenario> = {
     },
   },
 
+  crank: {
+    label: 'Old Crank — Treasure Hunt',
+    description: [
+      'Relationship 20 with Old Crank (past ask gate met)',
+      'spade in inventory (map earned by talking to Old Crank)',
+      '99 gold — quest not started',
+      'Location: Salty Mug, 9pm',
+    ],
+    launch: () => {
+      GameManagerService.startNewGame('luke_orphan');
+      GameManagerService.skipStoryIntroToFinnWeek();
+
+      const j = useJournalStore.getState();
+      j.updateQuest('finn_debt_collection', { active: false, completed: false, currentStage: 0 });
+      useJournalStore.setState(s => ({ questsList: s.questsList.filter(q => q.id !== 'finn_debt_collection') }));
+
+      const ws = useWorldStateStore.getState();
+      ws.setFlag('finn_debt_collection_active', false);
+      ws.addKnownNpc('npc_old_crank');
+      ws.setFlag('crank_lore_mug_seen', true);
+      ws.setFlag('crank_gossip_1_seen', true);
+      ws.setFlag('crank_gossip_2_seen', true);
+      ws.setFlag('crank_gossip_3_seen', true);
+      [
+        'crank_rat_seen',
+        'crank_past_seen',
+        'crank_cave_found', 'crank_search_1_done', 'crank_search_2_done',
+        'crank_seq_s1', 'crank_seq_s2', 'crank_seq_s3', 'crank_seq_s4', 'crank_seq_s5',
+        'crank_seq_done', 'crank_cave_chamber_reached', 'crank_treasure_dug',
+      ].forEach(f => ws.setFlag(f, false));
+
+      setRel('npc_old_crank', 20);
+      setGold(99);
+      grant('spade', 1);
+      go('salty_mug', 21);
+    },
+  },
+
   whitefang: {
     label: 'White Fang — End to End',
     description: [
@@ -213,6 +251,7 @@ const QUESTS: Array<{ id: QuestId; label: string; sub: string }> = [
   { id: 'ronald', label: 'Ronald', sub: "Teeth in the Trees" },
   { id: 'finn', label: 'Finn Week 1', sub: "Finn's Debt Collection" },
   { id: 'whitefang', label: 'White Fang', sub: "White Fang's Echo" },
+  { id: 'crank', label: 'Old Crank', sub: "Old Crank's Map" },
 ];
 
 // ─── Main Component ────────────────────────────────────────────────────────────

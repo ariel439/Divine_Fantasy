@@ -924,6 +924,42 @@ const ScreenManager: React.FC = () => {
           );
         }
 
+        if (eventId === 'crank_dig_treasure_pickup') {
+          return (
+            <ChoiceEventScreen
+              title={cfg.title}
+              imageUrl={cfg.imageUrl}
+              eventText={cfg.text}
+              choices={[
+                {
+                  text: 'Take the scimitar and coins',
+                  variant: 'quest',
+                  onSelect: () => {
+                    const inventory = useInventoryStore.getState();
+                    const character = useCharacterStore.getState();
+                    const world = useWorldStateStore.getState();
+                    inventory.addItem('pirate_scimitar', 1);
+                    character.addCurrency('copper', 120);
+                    world.setFlag('crank_treasure_dug', true);
+                    useJournalStore.getState().completeQuest('crank_treasure_hunt');
+                    useDiaryStore.getState().addInteraction('Dug up a buried scimitar and 120 copper coins in the cave chamber.');
+                    setEventResult({
+                      text: 'You take the scimitar and pocket the copper. Whatever was hidden here is yours now.',
+                      choices: [{
+                        text: 'Continue',
+                        onSelect: () => {
+                          useUIStore.getState().setCurrentEventId(null);
+                          setScreen('inGame');
+                        }
+                      }]
+                    });
+                  },
+                },
+              ]}
+            />
+          );
+        }
+
         if (eventId === 'forge_crate_note_pickup') {
           return (
             <ChoiceEventScreen

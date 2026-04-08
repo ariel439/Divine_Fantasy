@@ -3,6 +3,7 @@ import React, { ReactElement, useMemo, useState } from 'react';
 import type { FC } from 'react';
 import { User, ChevronLeft, X } from 'lucide-react';
 import type { Item } from '../../types';
+import booksData from '../../data/books.json';
 
 interface ItemDetailsPanelProps {
     selectedItem: Item | null;
@@ -54,8 +55,8 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
         );
     }
     
-    const isComparing = selectedItem.equipmentSlot && equippedItem && !isEquipped;
     const isBook = Boolean(selectedItem.bookId);
+    const isMap = isBook && (booksData as any)[selectedItem.bookId!]?.shelf === 'Maps';
     const iconEl = selectedItem.icon as ReactElement<any> | undefined;
     const itemImageSrc = iconEl && typeof iconEl.type === 'string' && iconEl.type === 'img'
         ? ((iconEl.props && (iconEl.props as any).src) || '')
@@ -79,6 +80,7 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
         const getActionLabel = (action: string) => {
             if (action === 'Use') {
                 if (selectedItem.bookId) return 'Read';
+                if (selectedItem.id === 'spade') return 'Dig';
                 if (selectedItem.type === 'consumable') return 'Eat';
             }
             if (action === 'Equip') {
@@ -140,7 +142,7 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
                         <button
                             type="button"
                             onClick={() => itemImageSrc && setFullscreenImage(itemImageSrc)}
-                            className={`${isBook ? 'w-36 h-52 p-3' : 'w-32 h-32 p-6'} bg-black/60 rounded-2xl flex items-center justify-center border border-zinc-800/50 shadow-inner group-hover:border-zinc-600 transition-colors ${itemImageSrc ? 'cursor-zoom-in' : 'cursor-default'}`}
+                            className={`${isMap ? 'w-52 h-36 p-3' : isBook ? 'w-36 h-52 p-3' : 'w-32 h-32 p-6'} bg-black/60 rounded-2xl flex items-center justify-center border border-zinc-800/50 shadow-inner group-hover:border-zinc-600 transition-colors ${itemImageSrc ? 'cursor-zoom-in' : 'cursor-default'}`}
                         >
                             {(() => {
                                 if (iconEl && typeof iconEl.type === 'string' && iconEl.type === 'img') {
@@ -150,7 +152,7 @@ const ItemDetailsPanel: FC<ItemDetailsPanelProps> = ({ selectedItem, equippedIte
                                         <img
                                             src={src}
                                             alt={alt}
-                                            className={`${isBook ? 'w-full h-full object-cover rounded-lg' : 'w-24 h-24 object-contain rounded'} transition-transform group-hover:scale-110`}
+                                            className={`${isMap ? 'w-full h-full object-contain rounded-lg' : isBook ? 'w-full h-full object-cover rounded-lg' : 'w-24 h-24 object-contain rounded'} transition-transform group-hover:scale-110`}
                                         />
                                     );
                                 }

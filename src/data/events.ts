@@ -58,10 +58,48 @@ export const ronaldWolfHuntSlides: Slide[] = [
   },
 ];
 
+export const crankCaveSearch1Slides: Slide[] = [
+  {
+    image: '/assets/locations/isolated_beach.png',
+    text:
+      "You work your way along the base of the cliffs, checking every recess and shadow for a cave mouth. The rock face is rough and uneven, salt-stained halfway up. After an hour you find nothing obvious — but the cliffs stretch further than they look.",
+  },
+];
+
+export const crankCaveSearch2Slides: Slide[] = [
+  {
+    image: '/assets/locations/isolated_beach.png',
+    text:
+      "You push further along the cliff base, closer to where the rock juts out over the beach. There are scratch marks low on the stone — old ones, worn down by water but shaped like something deliberate. Someone was here before you.",
+  },
+];
+
+export const crankCaveSearch3Slides: Slide[] = [
+  {
+    image: '/assets/locations/isolated_beach.png',
+    text:
+      "Past a shelf of stone half-buried in sand, you find it. A narrow gap in the cliff face, low enough to miss if you weren't looking. The air coming out is cold and carries the smell of deep rock. This is it.",
+  },
+];
+
+export const crankDigTreasureSlides: Slide[] = [
+  {
+    image: '/assets/locations/isolated_beach.png',
+    text:
+      "The stone floor is softer than it looks — loose packed earth underneath. Your spade bites down easily. Three feet in, something scrapes against the blade. A long bundle wrapped in oilcloth and bound with rotted cord. Old, but sealed tight.",
+  },
+  {
+    image: '/assets/locations/isolated_beach.png',
+    text:
+      "Inside: a curved blade, Shenhai script etched along the fuller, worn but the edge still true. And beneath it, a leather pouch of copper coins packed tight enough that whoever left this did not plan on leaving it long.",
+  },
+];
+
 type ChoiceEventId =
   | 'intro_pastime_choice'
   | 'whitefang_binding_choice'
   | 'whitefang_beach_necklace_pickup'
+  | 'crank_dig_treasure_pickup'
   | 'beryl_letter_pickup'
   | 'forge_crate_note_pickup'
   | 'apple_tree_event'
@@ -104,6 +142,13 @@ export const choiceEvents: Record<ChoiceEventId, ChoiceEventConfig> = {
     imageUrl: '/assets/items/engraved_silver_amulet.png',
     text:
       'Your spade turns up something cold beneath the wet sand: a dark silver necklace worked in a style Driftwatch smiths would never make. The metal hums faintly in your hand, as if a storm were trapped inside it and waiting.',
+  },
+  crank_dig_treasure_pickup: {
+    id: 'crank_dig_treasure_pickup',
+    title: 'Buried Find',
+    imageUrl: '/assets/items/pirate_scimitar.png',
+    text:
+      'Your spade hits something wrapped in old cloth. Inside, you find a scimitar and a pouch packed with copper coins.',
   },
   beryl_letter_pickup: {
     id: 'beryl_letter_pickup',

@@ -21,6 +21,7 @@ export interface SocialNpcConfig {
   flirtable?: boolean;
   flirtFriendshipRequired?: number;
   dailyMeaningfulActions?: number;
+  giftFriendshipGain?: number;
 }
 
 const DEFAULT_SOCIAL_NPC_CONFIG: SocialNpcConfig = {
@@ -86,6 +87,22 @@ const SOCIAL_NPC_CONFIGS: Record<string, SocialNpcConfig> = {
     threatTolerance: 5,
     whiteFangSocialExempt: true,
     dailyMeaningfulActions: 2,
+  },
+  npc_old_crank: {
+    socialClass: 'poor',
+    personality: ['lonely', 'greedy'],
+    presentationStandard: 0,
+    threatTolerance: 1,
+    dailyMeaningfulActions: 2,
+    giftFriendshipGain: 2,
+  },
+  npc_shaky_jace: {
+    socialClass: 'poor',
+    personality: ['fearful', 'lonely'],
+    presentationStandard: 0,
+    threatTolerance: 2,
+    dailyMeaningfulActions: 2,
+    giftFriendshipGain: 1,
   },
 };
 

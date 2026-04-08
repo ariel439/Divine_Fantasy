@@ -250,7 +250,36 @@
     "music_track": "/assets/musics/driftwatch_region.mp3",
     "actions": [
       { "text": "Inspect the storm letters", "type": "trigger_event", "eventId": "whitefang_beach_sign", "condition": "world_flags.whitefang_book_read==true && world_flags.whitefang_beach_vision_seen==false && world_flags.whitefang_week_closed==false" },
+      { "text": "Search the cliffs for a cave", "type": "trigger_event", "eventId": "crank_cave_search_1", "condition": "quest.crank_treasure_hunt.active==true && world_flags.crank_cave_found==false && world_flags.crank_search_1_done==false" },
+      { "text": "Search the cliffs again", "type": "trigger_event", "eventId": "crank_cave_search_2", "condition": "world_flags.crank_search_1_done==true && world_flags.crank_cave_found==false && world_flags.crank_search_2_done==false" },
+      { "text": "Keep searching the cliffs", "type": "trigger_event", "eventId": "crank_cave_search_3", "condition": "world_flags.crank_search_2_done==true && world_flags.crank_cave_found==false" },
+      { "text": "Enter the cave", "type": "navigate", "target": "crank_cave_entrance", "condition": "world_flags.crank_cave_found==true" },
       { "text": "Travel to Crossroads", "type": "navigate", "target": "the_crossroads", "time_cost": 60 }
+    ]
+  },
+  "crank_cave_entrance": {
+    "name": "Inside the Cave",
+    "day_description": "A narrow cave mouth carved into the cliff. Inside, the air is cold and tastes of salt. The map shows a path through the dark.",
+    "night_description": "The cave is black past the entrance. The map shows a path, if you trust it.",
+    "day_background": "/assets/locations/crank_cave_entrance.png",
+    "night_background": "/assets/locations/crank_cave_entrance.png",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
+    "actions": [
+      { "text": "Go forward", "type": "trigger_event", "eventId": "crank_cave_dir_forward", "condition": "world_flags.crank_treasure_dug==false && world_flags.crank_seq_done==false" },
+      { "text": "Go left", "type": "trigger_event", "eventId": "crank_cave_dir_left", "condition": "world_flags.crank_treasure_dug==false && world_flags.crank_seq_done==false" },
+      { "text": "Go right", "type": "trigger_event", "eventId": "crank_cave_dir_right", "condition": "world_flags.crank_treasure_dug==false && world_flags.crank_seq_done==false" },
+      { "text": "Leave the cave", "type": "navigate", "target": "isolated_beach" }
+    ]
+  },
+  "crank_cave_chamber": {
+    "name": "The X",
+    "day_description": "The passage opens into a low chamber. Near the far wall, an X is scratched deep into the stone floor — worn but unmistakable. This is what the map pointed to.",
+    "night_description": "Your torch catches the scratched X on the floor near the far wall. This is what the map pointed to.",
+    "day_background": "/assets/locations/crank_cave_chamber.png",
+    "night_background": "/assets/locations/crank_cave_chamber.png",
+    "music_track": "/assets/musics/driftwatch_region.mp3",
+    "actions": [
+      { "text": "Leave the cave", "type": "navigate", "target": "isolated_beach" }
     ]
   },
   "tide_trade": {

@@ -113,6 +113,23 @@
       "relationship": [{ "npc_id": "npc_ronald", "change": 10 }]
     }
   },
+  "crank_treasure_hunt": {
+    "title": "Old Crank's Map",
+    "giver_id": "npc_old_crank",
+    "hideFutureObjectives": true,
+    "description": "Old Crank gave you a worn map he found years ago near the isolated beach. The lines on it point toward a cave in the cliffs. Whatever is at the X will need a spade to reach.",
+    "stages": [
+      { "id": 0, "text": "Find the cave entrance near the isolated beach cliffs.", "type": "flag", "target": "crank_cave_found" },
+      { "id": 1, "text": "Follow the map through the cave.", "type": "flag", "target": "crank_cave_chamber_reached" },
+      { "id": 2, "text": "Dig at the X marked on the map.", "type": "flag", "target": "crank_treasure_dug" }
+    ],
+    "rewards": {
+      "xp": [],
+      "items": ["pirate_scimitar"],
+      "currency": 120,
+      "relationship": []
+    }
+  },
   "white_fang_route": {
     "title": "White Fang's Echo",
     "giver_id": "npc_shihan",

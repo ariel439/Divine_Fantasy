@@ -344,4 +344,9 @@ export const socialNpcInteractionConfigs: Record<string, SocialNpcInteractionCon
       coerce: ['threaten'],
     },
   },
+  npc_old_crank: {
+    availableInteractions: {
+      friendly: ['smalltalk', 'honest'],
+    },
+  },
 };

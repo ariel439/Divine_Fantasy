@@ -204,14 +204,24 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
       const currentLocation = useLocationStore.getState().currentLocationId;
       const world = useWorldStateStore.getState();
       const addToast = useToastStore.getState().addToast;
+      const ui = useUIStore.getState();
 
       if (
         currentLocation === 'isolated_beach' &&
         world.getFlag('whitefang_beach_necklace_buried') &&
         !world.getFlag('whitefang_beach_necklace_recovered')
       ) {
-        const ui = useUIStore.getState();
         ui.setCurrentEventId('whitefang_beach_necklace_pickup');
+        ui.setScreen('choiceEvent');
+        return true;
+      }
+
+      if (currentLocation === 'crank_cave_chamber') {
+        if (world.getFlag('crank_treasure_dug')) {
+          addToast('You already dug here.', 'info', 2000);
+          return false;
+        }
+        ui.setCurrentEventId('crank_dig_treasure_pickup');
         ui.setScreen('choiceEvent');
         return true;
       }

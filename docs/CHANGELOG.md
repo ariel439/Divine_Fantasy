@@ -714,3 +714,66 @@ Format:
 - [ ] Updated docs/guidelines if standards changed
 - [ ] Added/updated ADR if architecture changed
 
+
+## 2026-04-08
+
+### Changed Files
+- src: 2 file(s)
+  - src/components/README.md
+  - src/components/screens/QuestDebugScreen.tsx
+- docs: 1 file(s)
+  - docs/CHANGELOG.md
+
+### Documentation Updates
+- [x] Updated nearest folder README.md
+- [ ] Updated docs/guidelines if standards changed
+- [ ] Added/updated ADR if architecture changed
+
+## 2026-04-08
+
+### Changed Files
+- src: 7 file(s)
+  - src/components/README.md
+  - src/components/ScreenManager.tsx
+  - src/components/screens/QuestDebugScreen.tsx
+  - src/data/README.md
+  - src/data/events.ts
+  - src/stores/README.md
+  - src/stores/useInventoryStore.ts
+- docs: 1 file(s)
+  - docs/CHANGELOG.md
+
+### Documentation Updates
+- [x] Updated nearest folder README.md
+- [ ] Updated docs/guidelines if standards changed
+- [ ] Added/updated ADR if architecture changed
+
+## 2026-04-08
+
+### Changed Files
+- src: 2 file(s)
+  - src/components/README.md
+  - src/components/ScreenManager.tsx
+- docs: 1 file(s)
+  - docs/CHANGELOG.md
+
+### Documentation Updates
+- [x] Updated nearest folder README.md
+- [ ] Updated docs/guidelines if standards changed
+- [ ] Added/updated ADR if architecture changed
+
+## 2026-04-08
+
+### Changed Files
+- src: 4 file(s)
+  - src/components/README.md
+  - src/components/screens/JournalScreen.tsx
+  - src/data/README.md
+  - src/data/locations.json
+- docs: 1 file(s)
+  - docs/CHANGELOG.md
+
+### Documentation Updates
+- [x] Updated nearest folder README.md
+- [ ] Updated docs/guidelines if standards changed
+- [ ] Added/updated ADR if architecture changed
